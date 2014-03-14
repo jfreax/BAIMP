@@ -1,11 +1,12 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using bachelorarbeit_implementierung.Properties;
 
 namespace bachelorarbeit_implementierung
 {
-	public class MainWindow : Form
-	{
+    public class MainWindow : Form
+    {
         // Container
         SplitContainer splitFiletreePreview;
         SplitContainer splitPreviewMetadata;
@@ -16,8 +17,11 @@ namespace bachelorarbeit_implementierung
         TreeView filetree;
 
 
-		public MainWindow (Bitmap bmp)
-		{
+        public MainWindow(Bitmap bmp)
+        {
+            this.Load += OnLoad;
+            this.FormClosing += OnClosing;
+
             // Split container
             splitFiletreePreview = new SplitContainer();
             splitFiletreePreview.Orientation = Orientation.Vertical;
@@ -58,10 +62,10 @@ namespace bachelorarbeit_implementierung
 
 
             // Scanauswahl
-			filetree = new TreeView ();
-			filetree.Dock = DockStyle.Left;
-			filetree.BorderStyle = BorderStyle.Fixed3D;
-			filetree.Nodes.Add ("TreeView Node");
+            filetree = new TreeView();
+            filetree.Dock = DockStyle.Left;
+            filetree.BorderStyle = BorderStyle.Fixed3D;
+            filetree.Nodes.Add("TreeView Node");
             filetree.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
 
 
@@ -69,8 +73,42 @@ namespace bachelorarbeit_implementierung
             splitFiletreePreview.Panel2.Controls.Add(splitPreviewMetadata);
             Controls.Add(splitFiletreePreview);
 
-			//Controls.AddRange (new Control [] { box, splitter, treeView1});
-		}
-	}
+            //Controls.AddRange (new Control [] { box, splitter, treeView1});
+        }
+
+        private void OnLoad(object sender, EventArgs e)
+        {
+            // Set window location
+            if (Settings.Default.WindowLocation != null)
+            {
+                this.Location = Settings.Default.WindowLocation;
+            }
+
+            // Set window size
+            if (Settings.Default.WindowSize != null)
+            {
+                this.Size = Settings.Default.WindowSize;
+            }
+        }
+
+        private void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            // Copy window location to app settings
+            Settings.Default.WindowLocation = this.Location;
+
+            // Copy window size to app settings
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Settings.Default.WindowSize = this.Size;
+            }
+            else
+            {
+                Settings.Default.WindowSize = this.RestoreBounds.Size;
+            }
+
+            // Save settings
+            Settings.Default.Save();
+        }
+    }
 }
 
