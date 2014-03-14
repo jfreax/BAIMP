@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace bachelorarbeit_implementierung
 {
@@ -49,12 +50,16 @@ namespace bachelorarbeit_implementierung
 				return;
 			}
 
+
 			if (!string.IsNullOrEmpty(filename)) {
 
 				Scan scan = new Scan (filename);
 
 				Bitmap bitmap = scan.GetAsBitmap (ScanType.Intensity);
 				bitmap.Save ("intensity.png");
+
+				Application.Run (new MainWindow (bitmap));
+
 
 				scan.GetAsBitmap (ScanType.Topography).Save("topography.png");
 				scan.GetAsBitmap (ScanType.Color).Save("color.png");
