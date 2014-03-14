@@ -16,7 +16,13 @@ namespace bachelorarbeit_implementierung
         TreeView filetree;
 
 
-		public MainWindow (Bitmap bmp)
+		public MainWindow ()
+		{
+			ProgressBar progressBar = new ProgressBar ();
+			this.Controls.Add(progressBar);
+		}
+
+		public void Initialize (Bitmap bmp)
 		{
             // Split container
             splitFiletreePreview = new SplitContainer();

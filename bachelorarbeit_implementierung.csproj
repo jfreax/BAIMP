@@ -47,10 +47,12 @@
     <Compile Include="helper\Options.cs" />
     <Compile Include="helper\IniFile.cs" />
     <Compile Include="Scan.cs" />
-    <Compile Include="MainWindow.cs" />
+    <Compile Include="ui\MainWindow.cs" />
+    <Compile Include="ScanCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="helper\" />
+    <Folder Include="ui\" />
   </ItemGroup>
 </Project>

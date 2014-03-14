@@ -20,6 +20,7 @@ namespace bachelorarbeit_implementierung
 		int width;
 		int height;
 		float zLengthPerDigitF;
+		string fiberType;
 
 		string[] filenames;
 
@@ -36,6 +37,7 @@ namespace bachelorarbeit_implementierung
 			height = ini.ReadInteger("general", "Height", 0);
 			width = ini.ReadInteger("general", "Width", 0);
 			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
+			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
 
 			// set file pathes
 			string path = Path.GetDirectoryName (filename);
@@ -115,6 +117,14 @@ namespace bachelorarbeit_implementierung
 			}
 
 			return bitmap;
+		}
+
+		/////////////////////
+		// Getter & Setter //
+		/////////////////////
+
+		public string FiberType {
+			get { return fiberType; }
 		}
 	}
 }
