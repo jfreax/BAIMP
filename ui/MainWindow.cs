@@ -7,24 +7,56 @@ namespace bachelorarbeit_implementierung
 {
     public class MainWindow : Form
     {
+		//
+		string path;
+
         // Container
         SplitContainer splitFiletreePreview;
         SplitContainer splitPreviewMetadata;
         TabControl previewTabControl;
 
         // Widgets
+		public ProgressBar progressBar;
         PictureBox box;
         TreeView filetree;
 
 
-		public MainWindow ()
+		public MainWindow (string path)
 		{
+			this.path = path;
+
 			this.Load += OnLoad;
 			this.FormClosing += OnClosing;
 
-			ProgressBar progressBar = new ProgressBar ();
-			this.Controls.Add(progressBar);
+			this.Dock = DockStyle.Fill;
+
+
+			//this.AutoSizeMode = AutoSizeMode.GrowOnly;
+			//this.AutoSize = true;
+			//this.Padding = new Padding(0, 0, 20, 20);
+			//this.StartPosition = FormStartPosition.CenterScreen;
+
+			//progressBar = new ProgressBar ();
+			//progressBar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+			//progressBar.Style = ProgressBarStyle.Continuous;
+			//progressBar.Height = 32;
+			//progressBar.Dock = DockStyle.None;
+			//progressBar.Margin = new Padding (12, 12, 12, 12);
+			//this.Controls.Add(progressBar);
+
+			Label label = new Label ();
+			label.Text = "bla";
+			label.BackColor = Color.Blue;
+			label.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+			//label.Dock = DockStyle.Fill;
+
+			this.SuspendLayout();
+			this.Controls.Add (label);
+			this.ResumeLayout(false);
+
+			//Initialize (null);
 		}
+
 
 		public void Initialize (Bitmap bmp)
 		{
@@ -85,16 +117,12 @@ namespace bachelorarbeit_implementierung
         private void OnLoad(object sender, EventArgs e)
         {
             // Set window location
-            if (Settings.Default.WindowLocation != null)
-            {
-                this.Location = Settings.Default.WindowLocation;
-            }
+			//this.Location = Settings.Default.WindowLocation;
+			//this.Size = Settings.Default.WindowSize;
 
-            // Set window size
-            if (Settings.Default.WindowSize != null)
-            {
-                this.Size = Settings.Default.WindowSize;
-            }
+			// load metadata
+			//ScanCollection scans = new ScanCollection (path, this);
+
         }
 
         private void OnClosing(object sender, FormClosingEventArgs e)

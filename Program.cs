@@ -54,13 +54,15 @@ namespace bachelorarbeit_implementierung
 				return;
 			}
 
-			// start application
-			MainWindow main = new MainWindow ();
-			Application.Run (main);
 
 
 			if (!string.IsNullOrEmpty(path)) {
-				ScanCollection scans = new ScanCollection (path);
+				Console.Out.WriteLine ("Path: " + path);
+
+				// start application
+				//Application.EnableVisualStyles();
+				Application.Run (new MainWindow (path));
+
 				//Scan scan = new Scan (filename);
 
 				//Bitmap bitmap = scan.GetAsBitmap (ScanType.Intensity);
