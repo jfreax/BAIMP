@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using Gtk;
 
 namespace bachelorarbeit_implementierung
 {
@@ -49,6 +50,11 @@ namespace bachelorarbeit_implementierung
 				return;
 			}
 
+			Application.Init();
+			Window win = new Window ();
+			Application.Run();
+
+			// TODO test only
 			if (!string.IsNullOrEmpty(filename)) {
 
 				Scan scan = new Scan (filename);
