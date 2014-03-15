@@ -56,6 +56,7 @@
     <Compile Include="Scan.cs" />
     <Compile Include="ScanCollection.cs" />
     <Compile Include="ui\MainWindow.cs" />
+    <Compile Include="ui\widget\ScanView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -66,5 +67,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Folder Include="ui\widget\" />
   </ItemGroup>
 </Project>

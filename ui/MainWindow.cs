@@ -3,6 +3,8 @@ using Xwt;
 using bachelorarbeit_implementierung.Properties;
 using Xwt.Drawing;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace bachelorarbeit_implementierung
 {
@@ -60,13 +62,12 @@ namespace bachelorarbeit_implementierung
 			Label title1 = new Label ("Title");
 			splitFiletreePreview.Panel1.Content = title1;
 
-			ImageView img = new ImageView ();
+			ScanView img = new ScanView ();
 
 			// test load image
 			MemoryStream memoryStream = new MemoryStream();
 			(scanCollection.scans ["Unbekannt"] [0]).GetAsBitmap(ScanType.Intensity)
 				.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-
 			memoryStream.Position = 0;
 
 			img.Image = Image.FromStream (memoryStream);
@@ -82,9 +83,24 @@ namespace bachelorarbeit_implementierung
 			};
 
 			img.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
-				Console.WriteLine(e.Position);
-				Console.WriteLine(e.X + "x" + e.Y);
+				if( e.Button == PointerButton.Middle ) {
+					img.Data["pressed"] = e.Position;
+					Console.WriteLine(e.X * 10);
+				}
 			};
+
+			sc.MouseMoved += MouseMoved;
+
+			//mg.MouseMoved += async delegate(object sender, MouseMovedEventArgs e) {
+
+			//};
+
+			img.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
+				if( e.Button == PointerButton.Middle ) {
+					img.Data["pressed"] = null;
+				}
+			};
+
 			sc.MouseScrolled += OnPreviewScroll;
 
 			this.BoundsChanged += delegate(object sender, EventArgs e) {
@@ -141,7 +157,7 @@ namespace bachelorarbeit_implementierung
 		/// Resize preview image on scrolling
 		/// </summary>
 		/// <param name="sender">Sender.</param>
-		/// <param name="e">E.</param>
+		/// <param name="e">Event args</param>
 		private void OnPreviewScroll(object sender, MouseScrolledEventArgs e) 
 		{
 			ScrollView sv = (ScrollView) sender;
@@ -154,6 +170,32 @@ namespace bachelorarbeit_implementierung
 			}
 
 			e.Handled = true;
+		}
+
+		void MouseMoved (object sender, MouseMovedEventArgs e) {
+			e.Handled = true;
+
+			ScrollView sc = (ScrollView)sender;
+			ScanView img = (ScanView)sc.Content;
+
+			if (img.Data.ContainsKey ("pressed") && img.Data ["pressed"] != null) {
+				Point oldPosition = (Point)img.Data ["pressed"];
+
+				double diffX = oldPosition.X - e.Position.X;
+				double diffY = oldPosition.Y - e.Position.Y;
+				Console.WriteLine (diffX + "x" + diffY);
+				if (Math.Abs(diffX) < 2.0 || Math.Abs(diffY) < 2.0) {
+					return;
+				}
+
+				double newScrollX = sc.HorizontalScrollControl.Value + diffX;
+				double newScrollY = sc.VerticalScrollControl.Value + diffY;
+
+				sc.HorizontalScrollControl.Value =
+					Math.Min (sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
+				sc.VerticalScrollControl.Value =
+					Math.Min (sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
+			}
 		}
 	}
 }
