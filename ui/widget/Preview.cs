@@ -11,6 +11,8 @@ namespace bachelorarbeit_implementierung
 		ScrollView[] tabs;
 
 		double imageScale = 1.0;
+		double vScroll = 0.0;
+		double hScroll = 0.0;
 
 		Scan currentScan;
 
@@ -58,32 +60,30 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="type">Type.</param>
 		private void LoadPreview(ScanType type) {
-			if (tabs [(int)type].Content != null) {
-				Image image = ((ScanView)tabs [(int)type].Content).Image;
 
-				if (image == null && currentScan != null) {
+			if (currentScan != null) {
+				MemoryStream memoryStream = new MemoryStream ();
+				currentScan.GetAsBitmap (type)
+				.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+				memoryStream.Position = 0;
 
-					MemoryStream memoryStream = new MemoryStream ();
-					currentScan.GetAsBitmap (type)
-					.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-					memoryStream.Position = 0;
+				ScrollView tab = tabs [(int)type];
+				ScanView scanView = (ScanView)tab.Content;
 
-					ScrollView tab = tabs [(int)type];
-					ScanView scanView = (ScanView)tab.Content;
+				scanView.Image = Image.FromStream (memoryStream);
+				scanView.Image = scanView.Image.Scale (imageScale);
 
-					scanView.Image = Image.FromStream (memoryStream);
-					scanView.Image = scanView.Image.Scale (imageScale);
-					image = scanView.Image;
-
-					// resize image to fit window, only on standard zoom!
-					if (imageScale == 1.0) {
-						ResizeImageToFit (tab);
-					}
-
-					scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-						OnPreviewScroll (e);
-					};
+				// resize image to fit window, only on standard zoom!
+				if (imageScale == 1.0) {
+					ResizeImageToFit (tab);
 				}
+
+				scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
+					OnPreviewZoom (e);
+				};
+
+				tab.HorizontalScrollControl.Value = hScroll;
+				tab.VerticalScrollControl.Value = vScroll;
 			}
 		}
 
@@ -143,10 +143,27 @@ namespace bachelorarbeit_implementierung
 				view.MouseMoved += MouseMovedNotGtk;
 			}
 
+			view.HorizontalScrollControl.ValueChanged += delegate(object sender, EventArgs e) {
+				ScrollControl sc = (ScrollControl) sender;
+
+				hScroll = sc.Value;
+				foreach (ScrollView s in tabs) {
+					s.HorizontalScrollControl.Value = sc.Value;
+				}
+			};
+
+			view.VerticalScrollControl.ValueChanged += delegate(object sender, EventArgs e) {
+				ScrollControl sc = (ScrollControl) sender;
+
+				vScroll = sc.Value;
+				foreach (ScrollView s in tabs) {
+					s.VerticalScrollControl.Value = sc.Value;
+				}
+			};
 
 			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
 			{
-				OnPreviewScroll(e);
+				OnPreviewZoom(e);
 			};
 		}
 
@@ -156,7 +173,7 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event args</param>
-		private void OnPreviewScroll(MouseScrolledEventArgs e) 
+		private void OnPreviewZoom(MouseScrolledEventArgs e) 
 		{
 			if (e.Direction == ScrollDirection.Down) {
 				imageScale *= 0.9;
@@ -218,10 +235,12 @@ namespace bachelorarbeit_implementierung
 					double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
 					double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
-					sc.HorizontalScrollControl.Value =
-					Math.Min (sc.HorizontalScrollControl.UpperValue, newScrollX);
-					sc.VerticalScrollControl.Value =
-					Math.Min (sc.VerticalScrollControl.UpperValue, newScrollY);
+					foreach(ScrollView s in tabs) {
+						s.HorizontalScrollControl.Value =
+							Math.Min (sc.HorizontalScrollControl.UpperValue, newScrollX);
+						s.VerticalScrollControl.Value =
+							Math.Min (sc.VerticalScrollControl.UpperValue, newScrollY);
+					}
 				}
 			}
 
@@ -255,9 +274,9 @@ namespace bachelorarbeit_implementierung
 					double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
 					sc.HorizontalScrollControl.Value =
-					Math.Min (sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
+						Math.Min (sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
 					sc.VerticalScrollControl.Value =
-					Math.Min (sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
+						Math.Min (sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
 				}
 			}
 

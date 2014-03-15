@@ -49,6 +49,7 @@
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Commandlineparameters> -p /mnt/data/Acryl/</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
