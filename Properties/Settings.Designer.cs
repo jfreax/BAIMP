@@ -25,7 +25,7 @@ namespace bachelorarbeit_implementierung.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        [global::System.Configuration.DefaultSettingValueAttribute("120.0")]
         public double WindowLocationX {
             get {
                 return ((double)(this["WindowLocationX"]));
@@ -37,7 +37,7 @@ namespace bachelorarbeit_implementierung.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        [global::System.Configuration.DefaultSettingValueAttribute("120.0")]
         public double WindowLocationY
         {
             get

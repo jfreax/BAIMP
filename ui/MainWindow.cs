@@ -86,10 +86,11 @@ namespace bachelorarbeit_implementierung
 					((ImageView)sc.Content).Image.Scale( Math.Min(width, height) );
 			};
 
-			img.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+            sc.ButtonPressed += delegate(object sender, ButtonEventArgs e)
+            {
 				if( e.Button == PointerButton.Middle ) {
-					img.Data["pressed"] = e.Position;
-					Console.WriteLine(e.X);
+                    img.Data["pressed"] = true;
+                    img.Data["pressedPosition"] = e.Position;
 				}
 			};
 
@@ -99,11 +100,18 @@ namespace bachelorarbeit_implementierung
 
 			//};
 
-			img.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
-				if( e.Button == PointerButton.Middle ) {
-					img.Data["pressed"] = null;
-				}
-			};
+            sc.ButtonReleased += delegate(object sender, ButtonEventArgs e)
+            {
+                if (e.Button == PointerButton.Middle)
+                {
+                    img.Data.Remove("pressed");
+                }
+            };
+
+            sc.MouseExited += delegate(object sender, EventArgs e)
+            {
+                img.Data.Remove("pressed");
+            };
 
 			img.MouseScrolled += OnPreviewScroll;
 
@@ -160,7 +168,6 @@ namespace bachelorarbeit_implementierung
 		/// <param name="e">Event args</param>
 		private void OnPreviewScroll(object sender, MouseScrolledEventArgs e) 
 		{
-            Console.WriteLine("blaaa");
             ImageView iv = (ImageView)sender;
 			ScrollView sv = (ScrollView) iv.Parent;
 
@@ -179,20 +186,26 @@ namespace bachelorarbeit_implementierung
 			ScrollView sc = (ScrollView)sender;
 			sc.MouseMoved -= MouseMoved;
 
-			ScanView img = (ScanView)sc.Content;
-			if (img.Data.ContainsKey ("pressed") && img.Data ["pressed"] != null) {
-				Point oldPosition = (Point)img.Data ["pressed"];
+            ScanView img = (ScanView)sc.Content;
+
+
+            if (img.Data.ContainsKey("pressed") &&
+                img.Data.ContainsKey("pressedPosition") &&
+                img.Data["pressedPosition"] != null)
+            {
+                Point oldPosition = (Point)img.Data["pressedPosition"];
 
 				double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
 				double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
 				sc.HorizontalScrollControl.Value =
-					Math.Min (sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
+                    Math.Min(sc.HorizontalScrollControl.UpperValue, newScrollX); //  - sc.VisibleRect.Width
 				sc.VerticalScrollControl.Value =
-					Math.Min (sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
+                    Math.Min(sc.VerticalScrollControl.UpperValue, newScrollY); //  - sc.VisibleRect.Height
 
 			}
 
+            img.Data["pressedPosition"] = e.Position;
 			sc.MouseMoved += MouseMoved;
 		}
 	}
