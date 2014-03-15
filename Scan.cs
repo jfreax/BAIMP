@@ -12,7 +12,7 @@ namespace bachelorarbeit_implementierung
 		Intensity = 0,
 		Topography = 1,
 		Color = 2,
-		None = 3
+		Metadata = 3
 	};
 
 	public class Scan
@@ -26,13 +26,18 @@ namespace bachelorarbeit_implementierung
 
 		float[][] data;
 
-		public Scan (string filename)
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
+		/// </summary>
+		/// <param name="filePath">Path to dd+ file.</param>
+		public Scan (string filePath)
 		{
-			filenames = new string[(int)ScanType.None+1];
-			filenames [(int)ScanType.None] = filename;
+			filenames = new string[(int)ScanType.Metadata+1];
+			filenames [(int)ScanType.Metadata] = filePath;
 
 			// parse dd+ file informations
-			var ini = new IniFile(filename);
+			var ini = new IniFile(filePath);
 
 			height = ini.ReadInteger("general", "Height", 0);
 			width = ini.ReadInteger("general", "Width", 0);
@@ -40,15 +45,21 @@ namespace bachelorarbeit_implementierung
 			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
 
 			// set file pathes
-			string path = Path.GetDirectoryName (filename);
+			string path = Path.GetDirectoryName (filePath);
 			filenames [(int)ScanType.Intensity] = String.Format ("{0}/{1}", path, ini.ReadString ("buffers", "intensity"));
 			filenames [(int)ScanType.Topography] = String.Format ("{0}/{1}", path, ini.ReadString ("buffers", "topography"));
 			filenames [(int)ScanType.Color] = String.Format ("{0}/{1}", path, ini.ReadString ("buffers", "color"));
 
 			// initialize empty data containers
-			data = new float[(int)ScanType.None+1][];
+			data = new float[(int)ScanType.Metadata+1][];
 		}
 
+
+		/// <summary>
+		/// Get specified scan as byte buffer.
+		/// </summary>
+		/// <returns>The byte buffer.</returns>
+		/// <param name="type">Type.</param>
 		public byte[] GetByteBuffer(ScanType type) {
 			Stream s = File.OpenRead (filenames [(int)type]);
 			BinaryReader input = new BinaryReader (s);
@@ -57,6 +68,12 @@ namespace bachelorarbeit_implementierung
 			return input.ReadBytes(length * 4);
 		}
 
+
+		/// <summary>
+		/// Gets scan as array.
+		/// </summary>
+		/// <returns>The specified scan as a plan float array.</returns>
+		/// <param name="type">Type.</param>
 		public float[] GetAsArray(ScanType type) {
 			if (data [(int)type] != null) {
 				return data[(int)type];
@@ -85,6 +102,12 @@ namespace bachelorarbeit_implementierung
 			return data[(int)type];
 		}
 
+
+		/// <summary>
+		/// Get scan as bitmap.
+		/// </summary>
+		/// <returns>The specified scan as a bitmap.</returns>
+		/// <param name="type">Scantile</param>
 		public Bitmap GetAsBitmap(ScanType type) {
 			Bitmap bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
 			float[] array = GetAsArray (type);

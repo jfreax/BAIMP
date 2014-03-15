@@ -69,6 +69,10 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+		/// <summary>
+		/// Prints the help.
+		/// </summary>
+		/// <param name="p">Commandline options</param>
 		static void printHelp(OptionSet p)
 		{
 			Console.Out.WriteLine ("Usage: ");

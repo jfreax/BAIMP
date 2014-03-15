@@ -9,6 +9,10 @@ namespace bachelorarbeit_implementierung
 		public Dictionary<string, List<Scan> > scans;
 
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanCollection"/> class.
+		/// </summary>
+		/// <param name="path">Path.</param>
 		public ScanCollection (string path)
 		{
 			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
