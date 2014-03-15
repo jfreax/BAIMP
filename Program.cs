@@ -74,7 +74,7 @@ namespace bachelorarbeit_implementierung
 
 				Application.Initialize (toolkitType);
 
-				MainWindow w = new MainWindow (toolkitType, path);
+				MainWindow w = new MainWindow (path);
 				w.Show ();
 				Application.Run ();
 

@@ -247,7 +247,7 @@ namespace bachelorarbeit_implementierung
 		/// <summary>
 		/// Raises the current tab changed event.
 		/// </summary>
-		/// <param name="e">E.</param>
+		/// <param name="e">Event args</param>
 		protected override void OnCurrentTabChanged (EventArgs e) {
 			base.OnCurrentTabChanged (e);
 

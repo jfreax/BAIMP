@@ -11,7 +11,6 @@ namespace bachelorarbeit_implementierung
 	public class MainWindow : Window
 	{
 		ScanCollection scanCollection;
-		ToolkitType toolkitType;
 
 		// widgets
 		HPaned splitFiletreePreview;
@@ -22,10 +21,8 @@ namespace bachelorarbeit_implementierung
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
 		/// </summary>
 		/// <param name="path">Path.</param>
-		public MainWindow (ToolkitType toolkitType, string path)
+		public MainWindow (string path)
 		{
-			this.toolkitType = toolkitType;
-
 			// restore last window size and location
             this.Location = new Point(
                 Settings.Default.WindowLocationX, 
