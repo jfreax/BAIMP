@@ -114,7 +114,6 @@ namespace bachelorarbeit_implementierung
 			Bitmap bitmap = null;
 			lock (this.lock_i) {
 				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
-				float[] array = GetAsArray (type);
 
 				if (type == ScanType.Color) {
 					//Create a BitmapData and Lock all pixels to be written 
@@ -130,14 +129,12 @@ namespace bachelorarbeit_implementierung
 					bitmap.UnlockBits (bmpData);
 
 				} else {
+					float[] array = GetAsArray (type);
 					float max = array.Max ();
-					for (int i = 0; i < width * height; i++) {
-						array [i] = (array [i] * 255) / max;
-					}
 
 					for (int x = 0; x < width; x++) {
 						for (int y = 0; y < height; y++) {
-							int color = (int)array [y * width + x];
+							int color = (int)((array [y * width + x] * 255) / max);
 							bitmap.SetPixel (x, y, Color.FromArgb (255, color, color, color));
 						}
 					}
@@ -145,6 +142,22 @@ namespace bachelorarbeit_implementierung
 
 			}
 			return bitmap;
+		}
+
+		public Xwt.Drawing.Image GetAsImage(ScanType type) {
+			float[] array = GetAsArray (type);
+			Xwt.Drawing.ImageBuilder imageBuilder = new Xwt.Drawing.ImageBuilder (width, height);
+
+			float max = array.Max ();
+
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					byte color = (byte)(((int)array [y * width + x] * 255) / max);
+					imageBuilder.ToBitmap ().SetPixel (x, y, Xwt.Drawing.Color.FromBytes (color, color, color));
+				}
+			}
+
+			return imageBuilder.ToBitmap();
 		}
 
 		public override string ToString() {
