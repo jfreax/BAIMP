@@ -9,7 +9,7 @@ namespace bachelorarbeit_implementierung
 		public Dictionary<string, List<Scan> > scans;
 
 
-		public ScanCollection (string path, MainWindow mainRef)
+		public ScanCollection (string path)
 		{
 			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
 
@@ -28,11 +28,11 @@ namespace bachelorarbeit_implementierung
 				scans [scan.FiberType].Add (scan);
 
 				// increase progressbar
-				mainRef.progressBar.Value = (i * 100) / n;
+				//mainRef.progressBar.Value = (i * 100) / n;
 				i++;
 			}
 
-			mainRef.progressBar.Value = 100;
+			//mainRef.progressBar.Value = 100;
 		}
 	}
 }

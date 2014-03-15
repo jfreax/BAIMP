@@ -4,15 +4,14 @@ using System.IO;
 using Mono.Options;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using Xwt;
 
 namespace bachelorarbeit_implementierung
 {
 	class MainClass
 	{
+		[STAThread]
 		public static void Main (string[] args) {
 
 			bool show_help = false;
@@ -54,25 +53,19 @@ namespace bachelorarbeit_implementierung
 				return;
 			}
 
-
-
 			if (!string.IsNullOrEmpty(path)) {
 				Console.Out.WriteLine ("Path: " + path);
 
 				// start application
-				//Application.EnableVisualStyles();
-				Application.Run (new MainWindow (path));
+				Application.Initialize (ToolkitType.Gtk);
 
-				//Scan scan = new Scan (filename);
+				MainWindow w = new MainWindow (path);
+				w.Show ();
+				Application.Run ();
 
-				//Bitmap bitmap = scan.GetAsBitmap (ScanType.Intensity);
-				//bitmap.Save ("intensity.png");
+				w.Dispose ();
+				Application.Dispose ();
 
-				//Application.Run (new MainWindow (bitmap));
-
-
-				//scan.GetAsBitmap (ScanType.Topography).Save("topography.png");
-				//scan.GetAsBitmap (ScanType.Color).Save("color.png");
 			}
 		}
 

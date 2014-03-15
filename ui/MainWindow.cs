@@ -1,148 +1,93 @@
 using System;
-using System.Windows.Forms;
-using System.Drawing;
+using Xwt;
 using bachelorarbeit_implementierung.Properties;
+using Xwt.Drawing;
+using System.IO;
 
 namespace bachelorarbeit_implementierung
 {
-    public class MainWindow : Form
-    {
-		//
-		string path;
+	public class MainWindow : Window
+	{
 
-        // Container
-        SplitContainer splitFiletreePreview;
-        SplitContainer splitPreviewMetadata;
-        TabControl previewTabControl;
-
-        // Widgets
-		public ProgressBar progressBar;
-        PictureBox box;
-        TreeView filetree;
-
+		HPaned splitFiletreePreview;
+		HPaned splitPreviewMetadata;
 
 		public MainWindow (string path)
 		{
-			this.path = path;
+			// restore last window size and location
+			this.Location = Settings.Default.WindowLocation;
+			this.Size = new Size (
+				Settings.Default.WindowSizeWidth,
+				Settings.Default.WindowSizeHeight
+			);
 
-			this.Load += OnLoad;
-			this.FormClosing += OnClosing;
+			Title = "Bachelorarbeit - Jens Dieskau";
 
-			this.Dock = DockStyle.Fill;
+			ScanCollection scanCollection = new ScanCollection (path);
+			//var keys = scans.scans.Keys;
+			//foreach (string key in keys)
+			//{
+			//	Console.WriteLine("Key: {0}", key);
+			//}
 
 
-			//this.AutoSizeMode = AutoSizeMode.GrowOnly;
-			//this.AutoSize = true;
-			//this.Padding = new Padding(0, 0, 20, 20);
-			//this.StartPosition = FormStartPosition.CenterScreen;
+			splitFiletreePreview = new HPaned ();
+			splitPreviewMetadata = new HPaned ();
 
-			//progressBar = new ProgressBar ();
-			//progressBar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-			//progressBar.Style = ProgressBarStyle.Continuous;
-			//progressBar.Height = 32;
-			//progressBar.Dock = DockStyle.None;
-			//progressBar.Margin = new Padding (12, 12, 12, 12);
-			//this.Controls.Add(progressBar);
+			Label title1 = new Label ("Title");
+			splitFiletreePreview.Panel1.Content = title1;
 
-			Label label = new Label ();
-			label.Text = "bla";
-			label.BackColor = Color.Blue;
-			label.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-			//label.Dock = DockStyle.Fill;
+			Label title2 = new Label ("Title2");
+			ImageView img = new ImageView ();
 
-			this.SuspendLayout();
-			this.Controls.Add (label);
-			this.ResumeLayout(false);
 
-			//Initialize (null);
+			MemoryStream memoryStream = new MemoryStream();
+			(scanCollection.scans ["Unbekannt"] [0]).GetAsBitmap(ScanType.Intensity)
+				.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+
+			memoryStream.Position = 0;
+			img.Image = Image.FromStream(memoryStream);
+
+			splitPreviewMetadata.Panel1.Resize = true;
+			splitPreviewMetadata.Panel1.Shrink = true;
+			//HBox box = new HBox ();
+			//box.PackStart (img);
+			//splitPreviewMetadata.Panel1.Content = box;
+
+			ScrollView sc = new ScrollView();
+
+			sc.Content = img;
+			splitPreviewMetadata.Panel1.Content = sc;
+
+			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
+
+
+			Content = splitFiletreePreview;
+
+			//CloseRequested += HandleCloseRequested;
+			Closed += OnClosing;
 		}
 
 
-		public void Initialize (Bitmap bmp)
+		void HandleCloseRequested (object sender, CloseRequestedEventArgs args)
 		{
-            // Split container
-            splitFiletreePreview = new SplitContainer();
-            splitFiletreePreview.Orientation = Orientation.Vertical;
-            splitFiletreePreview.BorderStyle = BorderStyle.FixedSingle;
-            splitFiletreePreview.Dock = DockStyle.Fill;
-
-            splitPreviewMetadata = new SplitContainer();
-            splitPreviewMetadata.Orientation = Orientation.Vertical;
-            splitPreviewMetadata.BorderStyle = BorderStyle.FixedSingle;
-            splitPreviewMetadata.Dock = DockStyle.Fill;
-
-            // Vorschaufenster
-            previewTabControl = new TabControl();
-            previewTabControl.Dock = DockStyle.Fill;
-            //previewTabControl.Appearance = TabAppearance.FlatButtons;
-
-            box = new PictureBox();
-            box.SizeMode = PictureBoxSizeMode.Zoom;
-            box.Image = bmp;
-            box.Dock = DockStyle.Fill;
-
-            TabPage tabIntensity = new TabPage();
-            tabIntensity.Text = "Intensity";
-            tabIntensity.Controls.Add(box);
-
-            TabPage tabTopography = new TabPage();
-            tabTopography.Text = "Topography";
-            //tabTopography.Controls.Add(box);
-
-            TabPage tabColor = new TabPage();
-            tabColor.Text = "Color";
-            //tabColor.Controls.Add(box);
-
-            previewTabControl.TabPages.Add(tabIntensity);
-            previewTabControl.TabPages.Add(tabTopography);
-            previewTabControl.TabPages.Add(tabColor);
-            splitFiletreePreview.Panel2.Controls.Add(previewTabControl);
+			args.AllowClose = MessageDialog.Confirm ("Close?", Command.Ok);
+		}
 
 
-            // Scanauswahl
-            filetree = new TreeView();
-            filetree.Dock = DockStyle.Left;
-            filetree.BorderStyle = BorderStyle.Fixed3D;
-            filetree.Nodes.Add("TreeView Node");
-            filetree.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+		private void OnClosing(object sender, EventArgs e)
+		{
+			// Copy window location to app settings
+			Settings.Default.WindowLocation = this.Location;
 
+			// Copy window size to app settings
+			Settings.Default.WindowSizeWidth = this.Size.Width;
+			Settings.Default.WindowSizeHeight = this.Size.Height;
 
-            splitFiletreePreview.Panel1.Controls.Add(filetree);
-            splitFiletreePreview.Panel2.Controls.Add(splitPreviewMetadata);
-            Controls.Add(splitFiletreePreview);
+			// Save settings
+			Settings.Default.Save();
 
-            //Controls.AddRange (new Control [] { box, splitter, treeView1});
-        }
-
-        private void OnLoad(object sender, EventArgs e)
-        {
-            // Set window location
-			//this.Location = Settings.Default.WindowLocation;
-			//this.Size = Settings.Default.WindowSize;
-
-			// load metadata
-			//ScanCollection scans = new ScanCollection (path, this);
-
-        }
-
-        private void OnClosing(object sender, FormClosingEventArgs e)
-        {
-            // Copy window location to app settings
-            Settings.Default.WindowLocation = this.Location;
-
-            // Copy window size to app settings
-            if (this.WindowState == FormWindowState.Normal)
-            {
-                Settings.Default.WindowSize = this.Size;
-            }
-            else
-            {
-                Settings.Default.WindowSize = this.RestoreBounds.Size;
-            }
-
-            // Save settings
-            Settings.Default.Save();
-        }
-    }
+		}
+	}
 }
 
