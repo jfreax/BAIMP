@@ -142,12 +142,22 @@ namespace bachelorarbeit_implementierung
 			return bitmap;
 		}
 
+		public override string ToString() {
+			return Name;
+		}
+
 		/////////////////////
 		// Getter & Setter //
 		/////////////////////
 
 		public string FiberType {
 			get { return fiberType; }
+		}
+
+		public string Name {
+			get {
+				return Path.GetFileNameWithoutExtension (filenames [(int)ScanType.Metadata]);
+			}
 		}
 	}
 }

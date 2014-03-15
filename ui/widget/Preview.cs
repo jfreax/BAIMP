@@ -9,6 +9,7 @@ namespace bachelorarbeit_implementierung
 	public class Preview : Notebook
 	{
 		ScrollView[] tabs;
+		Thread[] imageLoaderThread;
 
 		double imageScale = 1.0;
 		double vScroll = 0.0;
@@ -22,6 +23,7 @@ namespace bachelorarbeit_implementierung
 		public Preview ()
 		{
 			tabs = new ScrollView[(int)ScanType.Metadata];
+			imageLoaderThread = new Thread[(int)ScanType.Metadata];
 
 			for (int i = 0; i < (int)ScanType.Metadata; i++) {
 				ScanView img = new ScanView ();
@@ -40,7 +42,7 @@ namespace bachelorarbeit_implementierung
 		public void ShowPreviewOf(Scan scan) {
 			this.currentScan = scan;
 
-			for(int i = 0; i < tabs.Length; i++) {
+			for (int i = 0; i < tabs.Length; i++) {
 				if (tabs [i].Content != null) {
 					Image image = ((ScanView)tabs [i].Content).Image;
 					if (image != null) {
@@ -48,10 +50,13 @@ namespace bachelorarbeit_implementierung
 						image = null;
 					}
 				}
+				if (imageLoaderThread [i] != null) {
+					imageLoaderThread [i].Abort ();
+				}
 			}
 
-			Thread thread = new Thread( new ThreadStart(() => LoadPreview((ScanType)this.CurrentTabIndex)));
-			thread.Start ();
+			imageLoaderThread[this.CurrentTabIndex] = new Thread (() => LoadPreview ((ScanType)this.CurrentTabIndex));
+			imageLoaderThread[this.CurrentTabIndex].Start ();
 		}
 
 
@@ -291,8 +296,8 @@ namespace bachelorarbeit_implementierung
 		protected override void OnCurrentTabChanged (EventArgs e) {
 			base.OnCurrentTabChanged (e);
 
-			Thread thread = new Thread( new ThreadStart(() => LoadPreview((ScanType)this.CurrentTabIndex)));
-			thread.Start ();
+			imageLoaderThread[this.CurrentTabIndex] = new Thread (() => LoadPreview ((ScanType)this.CurrentTabIndex));
+			imageLoaderThread[this.CurrentTabIndex].Start ();
 		}
 	}
 }

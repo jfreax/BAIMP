@@ -53,27 +53,49 @@ namespace bachelorarbeit_implementierung
 		/// Initializes the user inferface
 		/// </summary>
 		private void InitializeUI() {
-			//var keys = scans.scans.Keys;
-			//foreach (string key in keys)
-			//{
-			//	Console.WriteLine("Key: {0}", key);
-			//}
-
 
 			splitFiletreePreview = new HPaned ();
 			splitPreviewMetadata = new HPaned ();
 
-			Label title1 = new Label ("Title");
-			splitFiletreePreview.Panel1.Content = title1;
-
+			// initialize preview widget
 			Preview preview = new Preview ();
 			preview.ShowPreviewOf (scanCollection.scans ["Unbekannt"] [0]);
-
-
 			splitPreviewMetadata.Panel1.Content = preview;
-
-
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
+
+			// load tree view with all available files
+			DataField<object> nameCol = new DataField<object> ();
+
+			TreeView fileTreeView = new TreeView ();
+			TreeStore fileTreeStore = new TreeStore (nameCol);
+			fileTreeView.Columns.Add ("Name", nameCol);
+
+			var keys = scanCollection.scans.Keys;
+			foreach (string key in keys)
+			{
+				var w = fileTreeStore.AddNode (null).SetValue (nameCol, key).CurrentPosition;
+
+				foreach (Scan scan in scanCollection.scans[key]) {
+					fileTreeStore.AddNode (w).SetValue (nameCol, scan);
+				}
+			}
+
+			fileTreeView.SelectionChanged += delegate(object sender, EventArgs e) {
+				if(fileTreeView.SelectedRow != null) {
+					object value = fileTreeStore.GetNavigatorAt (fileTreeView.SelectedRow).GetValue (nameCol);
+					if( value is Scan ) {
+						Scan s = (Scan)value;
+
+						preview.ShowPreviewOf(s);
+					}
+
+				}
+			};
+
+
+			fileTreeView.DataSource = fileTreeStore;
+			splitFiletreePreview.Panel1.Content = fileTreeView;
+
 
 			Content = splitFiletreePreview;
 		}
