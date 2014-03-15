@@ -94,7 +94,7 @@ namespace bachelorarbeit_implementierung
 				}
 			};
 
-			sc.MouseMoved += MouseMoved;
+			sc.MouseMoved += MouseMovedGtk;
 
 			//mg.MouseMoved += async delegate(object sender, MouseMovedEventArgs e) {
 
@@ -114,6 +114,10 @@ namespace bachelorarbeit_implementierung
             };
 
 			img.MouseScrolled += OnPreviewScroll;
+            sc.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
+            {
+                OnPreviewScroll((object) img, e);
+            };
 
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 
@@ -188,7 +192,6 @@ namespace bachelorarbeit_implementierung
 
             ScanView img = (ScanView)sc.Content;
 
-
             if (img.Data.ContainsKey("pressed") &&
                 img.Data.ContainsKey("pressedPosition") &&
                 img.Data["pressedPosition"] != null)
@@ -208,6 +211,35 @@ namespace bachelorarbeit_implementierung
             img.Data["pressedPosition"] = e.Position;
 			sc.MouseMoved += MouseMoved;
 		}
+
+
+        void MouseMovedGtk(object sender, MouseMovedEventArgs e)
+        {
+            e.Handled = false;
+
+            ScrollView sc = (ScrollView)sender;
+            sc.MouseMoved -= MouseMoved;
+
+            ScanView img = (ScanView)sc.Content;
+
+            if (img.Data.ContainsKey("pressed") &&
+                img.Data.ContainsKey("pressedPosition") &&
+                img.Data["pressedPosition"] != null)
+            {
+                Point oldPosition = (Point)img.Data["pressedPosition"];
+
+                double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
+                double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
+
+                sc.HorizontalScrollControl.Value =
+                    Math.Min(sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
+                sc.VerticalScrollControl.Value =
+                    Math.Min(sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
+            }
+
+            //img.Data["pressedPosition"] = e.Position;
+            sc.MouseMoved += MouseMoved;
+        }
 	}
 }
 

@@ -57,7 +57,7 @@ namespace bachelorarbeit_implementierung
 				Console.Out.WriteLine ("Path: " + path);
 
 				// start application
-				Application.Initialize (ToolkitType.Wpf);
+				Application.Initialize (ToolkitType.Gtk);
 
 				MainWindow w = new MainWindow (path);
 				w.Show ();
