@@ -9,7 +9,8 @@ namespace bachelorarbeit_implementierung
 	public class Preview : Notebook
 	{
 		ScrollView[] tabs;
-		Thread[] imageLoaderThread;
+		Thread imageLoaderThread;
+		private object lock_i = new object ();
 
 		double imageScale = 1.0;
 		double vScroll = 0.0;
@@ -23,7 +24,7 @@ namespace bachelorarbeit_implementierung
 		public Preview ()
 		{
 			tabs = new ScrollView[(int)ScanType.Metadata];
-			imageLoaderThread = new Thread[(int)ScanType.Metadata];
+			//imageLoaderThread = new Thread[(int)ScanType.Metadata];
 
 			for (int i = 0; i < (int)ScanType.Metadata; i++) {
 				ScanView img = new ScanView ();
@@ -44,19 +45,20 @@ namespace bachelorarbeit_implementierung
 
 			for (int i = 0; i < tabs.Length; i++) {
 				if (tabs [i].Content != null) {
+					if (imageLoaderThread != null) {
+						imageLoaderThread.Abort ();
+					}
+
 					Image image = ((ScanView)tabs [i].Content).Image;
 					if (image != null) {
 						image.Dispose ();
-						image = null;
+						((ScanView)tabs [i].Content).Image = null;
 					}
-				}
-				if (imageLoaderThread [i] != null) {
-					imageLoaderThread [i].Abort ();
 				}
 			}
 
-			imageLoaderThread[this.CurrentTabIndex] = new Thread (() => LoadPreview ((ScanType)this.CurrentTabIndex));
-			imageLoaderThread[this.CurrentTabIndex].Start ();
+			imageLoaderThread = new Thread (() => LoadPreview (scan, (ScanType)this.CurrentTabIndex));
+			imageLoaderThread.Start ();
 		}
 
 
@@ -64,34 +66,43 @@ namespace bachelorarbeit_implementierung
 		/// Loads an specific preview into appropriate tab.
 		/// </summary>
 		/// <param name="type">Type.</param>
-		private void LoadPreview(ScanType type) {
-
-			if (currentScan != null) {
-				MemoryStream memoryStream = new MemoryStream ();
-				currentScan.GetAsBitmap (type)
-				.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-				memoryStream.Position = 0;
-
-				ScrollView tab = tabs [(int)type];
-				ScanView scanView = (ScanView)tab.Content;
-
-				scanView.Image = Image.FromStream (memoryStream);
-				scanView.Image = scanView.Image.Scale (imageScale);
-
-				// resize image to fit window, only on standard zoom!
-				if (imageScale == 1.0) {
-					ResizeImageToFit (tab);
-				}
-
-				scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-					OnPreviewZoom (e);
-				};
-
-				tab.HorizontalScrollControl.Value = hScroll;
-				tab.VerticalScrollControl.Value = vScroll;
+		private void LoadPreview(Scan scan, ScanType type) {
+			if (scan == null) {
+				return;
 			}
-		}
 
+			ScrollView tab = tabs [(int)type];
+			ScanView scanView = (ScanView)tab.Content;
+
+			if (scanView.Image != null) {
+				return;
+			}
+
+			MemoryStream memoryStream = new MemoryStream ();
+			System.Drawing.Bitmap bmp = scan.GetAsBitmap (type);
+			if (bmp == null) {
+				Console.WriteLine ("bmp == null " + (int)type);
+				// TODO raise error
+				return;
+			}
+			bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+
+			memoryStream.Position = 0;
+			scanView.Image = Image.FromStream (memoryStream);
+			scanView.Image = scanView.Image.Scale (imageScale);
+
+			// resize image to fit window, only on standard zoom!
+			if (imageScale == 1.0) {
+				ResizeImageToFit (tab);
+			}
+
+			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
+				OnPreviewZoom (e);
+			};
+
+			tab.HorizontalScrollControl.Value = hScroll;
+			tab.VerticalScrollControl.Value = vScroll;
+		}
 
 		/// <summary>
 		/// Initializes all events.
@@ -296,8 +307,12 @@ namespace bachelorarbeit_implementierung
 		protected override void OnCurrentTabChanged (EventArgs e) {
 			base.OnCurrentTabChanged (e);
 
-			imageLoaderThread[this.CurrentTabIndex] = new Thread (() => LoadPreview ((ScanType)this.CurrentTabIndex));
-			imageLoaderThread[this.CurrentTabIndex].Start ();
+			if (imageLoaderThread != null) {
+				imageLoaderThread.Abort();
+			}
+
+			imageLoaderThread = new Thread (() => LoadPreview (currentScan, (ScanType)this.CurrentTabIndex));
+			imageLoaderThread.Start ();
 		}
 	}
 }

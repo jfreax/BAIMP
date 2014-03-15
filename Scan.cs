@@ -26,6 +26,8 @@ namespace bachelorarbeit_implementierung
 
 		float[][] data;
 
+		private object lock_i = new object ();
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -109,36 +111,39 @@ namespace bachelorarbeit_implementierung
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="type">Scantile</param>
 		public Bitmap GetAsBitmap(ScanType type) {
-			Bitmap bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
-			float[] array = GetAsArray (type);
+			Bitmap bitmap = null;
+			lock (this.lock_i) {
+				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
+				float[] array = GetAsArray (type);
 
-			if (type == ScanType.Color) {
-				//Create a BitmapData and Lock all pixels to be written 
-				BitmapData bmpData = bitmap.LockBits (
-					                     new Rectangle (0, 0, width, height),   
-					                     ImageLockMode.WriteOnly, bitmap.PixelFormat);
+				if (type == ScanType.Color) {
+					//Create a BitmapData and Lock all pixels to be written 
+					BitmapData bmpData = bitmap.LockBits (
+						                    new Rectangle (0, 0, width, height),   
+						                    ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
-				//Copy the data from the byte array into BitmapData.Scan0
-				byte[] buffer = GetByteBuffer (type);
-				Marshal.Copy (buffer, 0, bmpData.Scan0, buffer.Length);
+					//Copy the data from the byte array into BitmapData.Scan0
+					byte[] buffer = GetByteBuffer (type);
+					Marshal.Copy (buffer, 0, bmpData.Scan0, buffer.Length);
 
-				//Unlock the pixels
-				bitmap.UnlockBits (bmpData);
+					//Unlock the pixels
+					bitmap.UnlockBits (bmpData);
 
-			} else {
-				float max = array.Max ();
-				for (int i = 0; i < width * height; i++) {
-					array [i] = (array [i] * 255) / max;
-				}
+				} else {
+					float max = array.Max ();
+					for (int i = 0; i < width * height; i++) {
+						array [i] = (array [i] * 255) / max;
+					}
 
-				for (int x = 0; x < width; x++) {
-					for (int y = 0; y < height; y++) {
-						int color = (int)array [y * width + x];
-						bitmap.SetPixel (x, y, Color.FromArgb (255, color, color, color));
+					for (int x = 0; x < width; x++) {
+						for (int y = 0; y < height; y++) {
+							int color = (int)array [y * width + x];
+							bitmap.SetPixel (x, y, Color.FromArgb (255, color, color, color));
+						}
 					}
 				}
-			}
 
+			}
 			return bitmap;
 		}
 
