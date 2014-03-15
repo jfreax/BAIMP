@@ -2,6 +2,7 @@ using System;
 using Xwt;
 using System.IO;
 using Xwt.Drawing;
+using System.Threading;
 
 namespace bachelorarbeit_implementierung
 {
@@ -44,7 +45,8 @@ namespace bachelorarbeit_implementierung
 				}
 			}
 
-			this.LoadPreview ((ScanType) this.CurrentTabIndex);
+			Thread thread = new Thread( new ThreadStart(() => LoadPreview((ScanType)this.CurrentTabIndex)));
+			thread.Start ();
 		}
 
 
@@ -128,7 +130,6 @@ namespace bachelorarbeit_implementierung
 			}
 
 
-			//img.MouseScrolled += OnPreviewScroll;
 			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
 			{
 				ScrollView sv = (ScrollView) sender;
@@ -151,17 +152,19 @@ namespace bachelorarbeit_implementierung
 			ImageView iv = (ImageView)sender;
 			ScrollView sv = (ScrollView) iv.Parent;
 
-			if (e.Direction == ScrollDirection.Down) {
-				iv.Image = iv.Image.Scale (0.90);
-			} else {
-				iv.Image = iv.Image.Scale (1.10);
+			if (iv.Image != null) {
+				if (e.Direction == ScrollDirection.Down) {
+					iv.Image = iv.Image.Scale (0.90);
+				} else {
+					iv.Image = iv.Image.Scale (1.10);
+				}
 			}
 
 			e.Handled = true;
 		}
 
 
-		void ResizeImageToFit(ScrollView sv) {
+		private void ResizeImageToFit(ScrollView sv) {
 			ImageView iv = (ImageView) sv.Content;
 
 			if(iv != null && iv.Image != null) {
@@ -179,7 +182,7 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="sender">ScrollView.</param>
 		/// <param name="e">Mouse event args.</param>
-		void MouseMovedNotGtk (object sender, MouseMovedEventArgs e) {
+		private void MouseMovedNotGtk (object sender, MouseMovedEventArgs e) {
 			e.Handled = false;
 
 			ScrollView sc = (ScrollView)sender;
@@ -214,7 +217,7 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="sender">ScrollView</param>
 		/// <param name="e">Mouse event args.</param>
-		void MouseMovedGtk(object sender, MouseMovedEventArgs e)
+		private void MouseMovedGtk(object sender, MouseMovedEventArgs e)
 		{
 			e.Handled = false;
 
@@ -251,7 +254,8 @@ namespace bachelorarbeit_implementierung
 		protected override void OnCurrentTabChanged (EventArgs e) {
 			base.OnCurrentTabChanged (e);
 
-			LoadPreview((ScanType)this.CurrentTabIndex);
+			Thread thread = new Thread( new ThreadStart(() => LoadPreview((ScanType)this.CurrentTabIndex)));
+			thread.Start ();
 		}
 	}
 }
