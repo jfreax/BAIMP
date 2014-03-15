@@ -173,29 +173,26 @@ namespace bachelorarbeit_implementierung
 		}
 
 		void MouseMoved (object sender, MouseMovedEventArgs e) {
-			e.Handled = true;
+			e.Handled = false;
 
 			ScrollView sc = (ScrollView)sender;
-			ScanView img = (ScanView)sc.Content;
+			sc.MouseMoved -= MouseMoved;
 
+			ScanView img = (ScanView)sc.Content;
 			if (img.Data.ContainsKey ("pressed") && img.Data ["pressed"] != null) {
 				Point oldPosition = (Point)img.Data ["pressed"];
 
-				double diffX = oldPosition.X - e.Position.X;
-				double diffY = oldPosition.Y - e.Position.Y;
-				Console.WriteLine (diffX + "x" + diffY);
-				if (Math.Abs(diffX) < 2.0 || Math.Abs(diffY) < 2.0) {
-					return;
-				}
-
-				double newScrollX = sc.HorizontalScrollControl.Value + diffX;
-				double newScrollY = sc.VerticalScrollControl.Value + diffY;
+				double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
+				double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
 				sc.HorizontalScrollControl.Value =
 					Math.Min (sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
 				sc.VerticalScrollControl.Value =
 					Math.Min (sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
+
 			}
+
+			sc.MouseMoved += MouseMoved;
 		}
 	}
 }
