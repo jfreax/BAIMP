@@ -24,7 +24,7 @@ namespace bachelorarbeit_implementierung
 		public MainWindow (string path)
 		{
 			// restore last window size and location
-			this.Location = Settings.Default.WindowLocation;
+            this.Location = new Point(Settings.Default.WindowLocationX, Settings.Default.WindowLocationY);
 			this.Size = new Size (
 				Settings.Default.WindowSizeWidth,
 				Settings.Default.WindowSizeHeight
@@ -142,7 +142,8 @@ namespace bachelorarbeit_implementierung
 		private void OnClosing(object sender, EventArgs e)
 		{
 			// Copy window location to app settings
-			Settings.Default.WindowLocation = this.Location;
+			Settings.Default.WindowLocationX = this.Location.X;
+            Settings.Default.WindowLocationY = this.Location.Y;
 
 			// Copy window size to app settings
 			Settings.Default.WindowSizeWidth = this.Size.Width;

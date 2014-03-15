@@ -25,38 +25,54 @@ namespace bachelorarbeit_implementierung.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
-        public global::Xwt.Point WindowLocation {
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double WindowLocationX {
             get {
-                return ((global::Xwt.Point)(this["WindowLocation"]));
+                return ((double)(this["WindowLocationX"]));
             }
             set {
-                this["WindowLocation"] = value;
+                this["WindowLocationX"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double WindowLocationY
+        {
+            get
+            {
+                return ((double)(this["WindowLocationY"]));
+            }
+            set
+            {
+                this["WindowLocationY"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-		[global::System.Configuration.DefaultSettingValueAttribute("800.0")]
-		public double WindowSizeWidth {
+        [global::System.Configuration.DefaultSettingValueAttribute("800.0")]
+        public double WindowSizeWidth {
             get {
-				return ((double)(this["WindowSizeWidth"]));
+                return ((double)(this["WindowSizeWidth"]));
             }
             set {
-				this["WindowSizeWidth"] = value;
+                this["WindowSizeWidth"] = value;
             }
         }
-
-		[global::System.Configuration.UserScopedSettingAttribute()]
-		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-		[global::System.Configuration.DefaultSettingValueAttribute("600.0")]
-		public double WindowSizeHeight {
-			get {
-				return ((double)(this["WindowSizeHeight"]));
-			}
-			set {
-				this["WindowSizeHeight"] = value;
-			}
-		}
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("600.0")]
+        public double WindowSizeHeight {
+            get {
+                return ((double)(this["WindowSizeHeight"]));
+            }
+            set {
+                this["WindowSizeHeight"] = value;
+            }
+        }
+        
     }
 }
