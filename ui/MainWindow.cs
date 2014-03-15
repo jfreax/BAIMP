@@ -11,6 +11,7 @@ namespace bachelorarbeit_implementierung
 	public class MainWindow : Window
 	{
 		ScanCollection scanCollection;
+		ToolkitType toolkitType;
 
 		// widgets
 		HPaned splitFiletreePreview;
@@ -21,8 +22,10 @@ namespace bachelorarbeit_implementierung
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
 		/// </summary>
 		/// <param name="path">Path.</param>
-		public MainWindow (string path)
+		public MainWindow (ToolkitType toolkitType, string path)
 		{
+			this.toolkitType = toolkitType;
+
 			// restore last window size and location
             this.Location = new Point(
                 Settings.Default.WindowLocationX, 
@@ -91,8 +94,6 @@ namespace bachelorarbeit_implementierung
 				if( e.Button == PointerButton.Middle ) {
                     img.Data["pressed"] = true;
                     img.Data["pressedPosition"] = e.Position;
-
-					Console.WriteLine( "Start position: " + e.Position);
 				}
 			};
 
@@ -109,7 +110,11 @@ namespace bachelorarbeit_implementierung
                 img.Data.Remove("pressed");
             };
 
-			sc.MouseMoved += MouseMovedGtk;
+			if (toolkitType == ToolkitType.Gtk) {
+				sc.MouseMoved += MouseMovedGtk;
+			} else {
+				sc.MouseMoved += MouseMoved;
+			}
 
 
 			img.MouseScrolled += OnPreviewScroll;

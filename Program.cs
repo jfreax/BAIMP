@@ -62,15 +62,16 @@ namespace bachelorarbeit_implementierung
 			if (!string.IsNullOrEmpty(path)) {
 
 				// start application
+				ToolkitType toolkitType = ToolkitType.Wpf;
 				if (GetOS () == OSType.Unix) {
-					Application.Initialize (ToolkitType.Gtk);
+					toolkitType = ToolkitType.Gtk;
 				} else if (GetOS () == OSType.MaxOSX) {
-					Application.Initialize (ToolkitType.Cocoa);
-				} else {
-					Application.Initialize (ToolkitType.Wpf);
+					toolkitType = ToolkitType.Cocoa;
 				}
 
-				MainWindow w = new MainWindow (path);
+				Application.Initialize (toolkitType);
+
+				MainWindow w = new MainWindow (toolkitType, path);
 				w.Show ();
 				Application.Run ();
 
