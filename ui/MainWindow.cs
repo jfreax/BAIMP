@@ -24,7 +24,11 @@ namespace bachelorarbeit_implementierung
 		public MainWindow (string path)
 		{
 			// restore last window size and location
-            this.Location = new Point(Settings.Default.WindowLocationX, Settings.Default.WindowLocationY);
+            this.Location = new Point(
+                Settings.Default.WindowLocationX, 
+                Settings.Default.WindowLocationY
+            );
+
 			this.Size = new Size (
 				Settings.Default.WindowSizeWidth,
 				Settings.Default.WindowSizeHeight
@@ -85,7 +89,7 @@ namespace bachelorarbeit_implementierung
 			img.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
 				if( e.Button == PointerButton.Middle ) {
 					img.Data["pressed"] = e.Position;
-					Console.WriteLine(e.X * 10);
+					Console.WriteLine(e.X);
 				}
 			};
 
@@ -101,12 +105,7 @@ namespace bachelorarbeit_implementierung
 				}
 			};
 
-			sc.MouseScrolled += OnPreviewScroll;
-
-			this.BoundsChanged += delegate(object sender, EventArgs e) {
-				Console.WriteLine("OK");
-			};
-
+			img.MouseScrolled += OnPreviewScroll;
 
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 
@@ -161,8 +160,9 @@ namespace bachelorarbeit_implementierung
 		/// <param name="e">Event args</param>
 		private void OnPreviewScroll(object sender, MouseScrolledEventArgs e) 
 		{
-			ScrollView sv = (ScrollView) sender;
-			ImageView iv = (ImageView) sv.Content;
+            Console.WriteLine("blaaa");
+            ImageView iv = (ImageView)sender;
+			ScrollView sv = (ScrollView) iv.Parent;
 
 			if (e.Direction == ScrollDirection.Down) {
 				iv.Image = iv.Image.Scale (0.90);
