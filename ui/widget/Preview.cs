@@ -9,7 +9,8 @@ namespace bachelorarbeit_implementierung
 	public class Preview : Notebook
 	{
 		ScrollView[] tabs;
-		Image[] images;
+
+		double imageScale = 1.0;
 
 		Scan currentScan;
 
@@ -19,7 +20,6 @@ namespace bachelorarbeit_implementierung
 		public Preview ()
 		{
 			tabs = new ScrollView[(int)ScanType.Metadata];
-			images = new Image[(int)ScanType.Metadata];
 
 			for (int i = 0; i < (int)ScanType.Metadata; i++) {
 				ScanView img = new ScanView ();
@@ -38,10 +38,13 @@ namespace bachelorarbeit_implementierung
 		public void ShowPreviewOf(Scan scan) {
 			this.currentScan = scan;
 
-			for(int i = 0; i < images.Length; i++) {
-				if (images[i] != null) {
-					images[i].Dispose ();
-					images[i] = null;
+			for(int i = 0; i < tabs.Length; i++) {
+				if (tabs [i].Content != null) {
+					Image image = ((ScanView)tabs [i].Content).Image;
+					if (image != null) {
+						image.Dispose ();
+						image = null;
+					}
 				}
 			}
 
@@ -55,21 +58,32 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="type">Type.</param>
 		private void LoadPreview(ScanType type) {
-			if (images [(int)type] == null && currentScan != null) {
+			if (tabs [(int)type].Content != null) {
+				Image image = ((ScanView)tabs [(int)type].Content).Image;
 
-				MemoryStream memoryStream = new MemoryStream ();
-				currentScan.GetAsBitmap (type)
+				if (image == null && currentScan != null) {
+
+					MemoryStream memoryStream = new MemoryStream ();
+					currentScan.GetAsBitmap (type)
 					.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-				memoryStream.Position = 0;
+					memoryStream.Position = 0;
 
-				ScrollView tab = tabs [(int)type];
-				ScanView scanView = (ScanView)tab.Content;
+					ScrollView tab = tabs [(int)type];
+					ScanView scanView = (ScanView)tab.Content;
 
-				scanView.Image = Image.FromStream (memoryStream);
-				images [(int)type] = scanView.Image;
+					scanView.Image = Image.FromStream (memoryStream);
+					scanView.Image = scanView.Image.Scale (imageScale);
+					image = scanView.Image;
 
-				ResizeImageToFit (tab);
-				scanView.MouseScrolled += OnPreviewScroll;
+					// resize image to fit window, only on standard zoom!
+					if (imageScale == 1.0) {
+						ResizeImageToFit (tab);
+					}
+
+					scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
+						OnPreviewScroll (e);
+					};
+				}
 			}
 		}
 
@@ -132,12 +146,7 @@ namespace bachelorarbeit_implementierung
 
 			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
 			{
-				ScrollView sv = (ScrollView) sender;
-				ScanView scanView = (ScanView) sv.Content;
-
-				if(scanView != null) {
-					OnPreviewScroll((object) scanView, e);
-				}
+				OnPreviewScroll(e);
 			};
 		}
 
@@ -147,16 +156,24 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event args</param>
-		private void OnPreviewScroll(object sender, MouseScrolledEventArgs e) 
+		private void OnPreviewScroll(MouseScrolledEventArgs e) 
 		{
-			ImageView iv = (ImageView)sender;
-			ScrollView sv = (ScrollView) iv.Parent;
+			if (e.Direction == ScrollDirection.Down) {
+				imageScale *= 0.9;
+			} else {
+				imageScale *= 1.1;
+			}
 
-			if (iv.Image != null) {
-				if (e.Direction == ScrollDirection.Down) {
-					iv.Image = iv.Image.Scale (0.90);
-				} else {
-					iv.Image = iv.Image.Scale (1.10);
+			for( int i = 0; i < tabs.Length; i++) {
+				if (tabs [i].Content != null) {
+					Image image = ((ImageView)tabs [i].Content).Image;
+					if (image != null) {
+						if (e.Direction == ScrollDirection.Down) {
+							((ImageView)tabs [i].Content).Image = image.Scale (0.90);
+						} else {
+							((ImageView)tabs [i].Content).Image = image.Scale (1.10);
+						}
+					}
 				}
 			}
 
@@ -172,6 +189,7 @@ namespace bachelorarbeit_implementierung
 				double width = sv.VisibleRect.Width / iv.Image.Size.Width;
 				double height = sv.VisibleRect.Height / iv.Image.Size.Height;
 
+				imageScale *= Math.Min (width, height);
 				iv.Image = iv.Image.Scale( Math.Min(width, height) );
 			}
 		}
