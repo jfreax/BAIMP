@@ -69,72 +69,16 @@ namespace bachelorarbeit_implementierung
 			Label title1 = new Label ("Title");
 			splitFiletreePreview.Panel1.Content = title1;
 
-			ScanView img = new ScanView ();
-
-			// test load image
-			MemoryStream memoryStream = new MemoryStream();
-			(scanCollection.scans ["Unbekannt"] [0]).GetAsBitmap(ScanType.Intensity)
-				.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-			memoryStream.Position = 0;
-
-			img.Image = Image.FromStream (memoryStream);
-			ScrollView sc = new ScrollView(img);
-			splitPreviewMetadata.Panel1.Content = sc;
-
-			sc.BoundsChanged += delegate(object sender, EventArgs e) {
-				double width = sc.VisibleRect.Width / ((ImageView)sc.Content).Image.Size.Width;
-				double height = sc.VisibleRect.Height / ((ImageView)sc.Content).Image.Size.Height;
-
-				((ImageView)sc.Content).Image = 
-					((ImageView)sc.Content).Image.Scale( Math.Min(width, height) );
-			};
-
-            sc.ButtonPressed += delegate(object sender, ButtonEventArgs e)
-            {
-				if( e.Button == PointerButton.Middle ) {
-                    img.Data["pressed"] = true;
-                    img.Data["pressedPosition"] = e.Position;
-				}
-			};
-
-            sc.ButtonReleased += delegate(object sender, ButtonEventArgs e)
-            {
-                if (e.Button == PointerButton.Middle)
-                {
-                    img.Data.Remove("pressed");
-                }
-            };
-
-            sc.MouseExited += delegate(object sender, EventArgs e)
-            {
-                img.Data.Remove("pressed");
-            };
-
-			if (toolkitType == ToolkitType.Gtk) {
-				sc.MouseMoved += MouseMovedGtk;
-			} else {
-				sc.MouseMoved += MouseMoved;
-			}
+			Preview preview = new Preview ();
+			preview.ShowPreviewOf (scanCollection.scans ["Unbekannt"] [0]);
 
 
-			img.MouseScrolled += OnPreviewScroll;
-            sc.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
-            {
-                OnPreviewScroll((object) img, e);
-            };
+			splitPreviewMetadata.Panel1.Content = preview;
+
 
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 
 			Content = splitFiletreePreview;
-		}
-
-
-		/// <summary>
-		/// Shows the preview of specified scan data
-		/// </summary>
-		/// <param name="scan">Scan.</param>
-		private void ShowPreviewOf(Scan scan) {
-
 		}
 
 
@@ -167,81 +111,6 @@ namespace bachelorarbeit_implementierung
 			// Save settings
 			Settings.Default.Save();
 		}
-
-
-		/// <summary>
-		/// Resize preview image on scrolling
-		/// </summary>
-		/// <param name="sender">Sender.</param>
-		/// <param name="e">Event args</param>
-		private void OnPreviewScroll(object sender, MouseScrolledEventArgs e) 
-		{
-            ImageView iv = (ImageView)sender;
-			ScrollView sv = (ScrollView) iv.Parent;
-
-			if (e.Direction == ScrollDirection.Down) {
-				iv.Image = iv.Image.Scale (0.90);
-			} else {
-				iv.Image = iv.Image.Scale (1.10);
-			}
-
-			e.Handled = true;
-		}
-
-		void MouseMoved (object sender, MouseMovedEventArgs e) {
-			e.Handled = false;
-
-			ScrollView sc = (ScrollView)sender;
-			sc.MouseMoved -= MouseMoved;
-
-            ScanView img = (ScanView)sc.Content;
-
-            if (img.Data.ContainsKey("pressed") &&
-                img.Data.ContainsKey("pressedPosition") &&
-                img.Data["pressedPosition"] != null)
-            {
-                Point oldPosition = (Point)img.Data["pressedPosition"];
-
-				double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
-				double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
-
-				sc.HorizontalScrollControl.Value =
-                    Math.Min(sc.HorizontalScrollControl.UpperValue, newScrollX);
-				sc.VerticalScrollControl.Value =
-                    Math.Min(sc.VerticalScrollControl.UpperValue, newScrollY);
-			}
-
-            img.Data["pressedPosition"] = e.Position;
-			sc.MouseMoved += MouseMoved;
-		}
-
-
-        void MouseMovedGtk(object sender, MouseMovedEventArgs e)
-        {
-            e.Handled = false;
-
-            ScrollView sc = (ScrollView)sender;
-			sc.MouseMoved -= MouseMovedGtk;
-
-            ScanView img = (ScanView)sc.Content;
-
-            if (img.Data.ContainsKey("pressed") &&
-                img.Data.ContainsKey("pressedPosition") &&
-                img.Data["pressedPosition"] != null)
-            {
-                Point oldPosition = (Point)img.Data["pressedPosition"];
-
-                double newScrollX = sc.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
-                double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
-
-                sc.HorizontalScrollControl.Value =
-                    Math.Min(sc.HorizontalScrollControl.UpperValue - sc.VisibleRect.Width, newScrollX);
-                sc.VerticalScrollControl.Value =
-                    Math.Min(sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
-            }
-
-			sc.MouseMoved += MouseMovedGtk;
-        }
 	}
 }
 

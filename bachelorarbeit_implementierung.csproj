@@ -72,6 +72,7 @@
     <Compile Include="ScanCollection.cs" />
     <Compile Include="ui\MainWindow.cs" />
     <Compile Include="ui\widget\ScanView.cs" />
+    <Compile Include="ui\widget\Preview.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

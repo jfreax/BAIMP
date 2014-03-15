@@ -12,7 +12,7 @@ namespace bachelorarbeit_implementierung
 		Intensity = 0,
 		Topography = 1,
 		Color = 2,
-		Metadata = 3
+		Metadata = 3 // must be the last one!
 	};
 
 	public class Scan

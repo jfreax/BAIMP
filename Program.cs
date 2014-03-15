@@ -17,6 +17,8 @@ namespace bachelorarbeit_implementierung
 
 	class MainClass
 	{
+		public static ToolkitType toolkitType = ToolkitType.Gtk;
+
 		[STAThread]
 		public static void Main (string[] args) {
 
@@ -62,11 +64,12 @@ namespace bachelorarbeit_implementierung
 			if (!string.IsNullOrEmpty(path)) {
 
 				// start application
-				ToolkitType toolkitType = ToolkitType.Wpf;
 				if (GetOS () == OSType.Unix) {
 					toolkitType = ToolkitType.Gtk;
 				} else if (GetOS () == OSType.MaxOSX) {
 					toolkitType = ToolkitType.Cocoa;
+				} else {
+					toolkitType = ToolkitType.Wpf;
 				}
 
 				Application.Initialize (toolkitType);
