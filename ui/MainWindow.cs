@@ -91,14 +91,10 @@ namespace bachelorarbeit_implementierung
 				if( e.Button == PointerButton.Middle ) {
                     img.Data["pressed"] = true;
                     img.Data["pressedPosition"] = e.Position;
+
+					Console.WriteLine( "Start position: " + e.Position);
 				}
 			};
-
-			sc.MouseMoved += MouseMovedGtk;
-
-			//mg.MouseMoved += async delegate(object sender, MouseMovedEventArgs e) {
-
-			//};
 
             sc.ButtonReleased += delegate(object sender, ButtonEventArgs e)
             {
@@ -112,6 +108,9 @@ namespace bachelorarbeit_implementierung
             {
                 img.Data.Remove("pressed");
             };
+
+			sc.MouseMoved += MouseMovedGtk;
+
 
 			img.MouseScrolled += OnPreviewScroll;
             sc.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
@@ -202,10 +201,9 @@ namespace bachelorarbeit_implementierung
 				double newScrollY = sc.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
 				sc.HorizontalScrollControl.Value =
-                    Math.Min(sc.HorizontalScrollControl.UpperValue, newScrollX); //  - sc.VisibleRect.Width
+                    Math.Min(sc.HorizontalScrollControl.UpperValue, newScrollX);
 				sc.VerticalScrollControl.Value =
-                    Math.Min(sc.VerticalScrollControl.UpperValue, newScrollY); //  - sc.VisibleRect.Height
-
+                    Math.Min(sc.VerticalScrollControl.UpperValue, newScrollY);
 			}
 
             img.Data["pressedPosition"] = e.Position;
@@ -218,7 +216,7 @@ namespace bachelorarbeit_implementierung
             e.Handled = false;
 
             ScrollView sc = (ScrollView)sender;
-            sc.MouseMoved -= MouseMoved;
+			sc.MouseMoved -= MouseMovedGtk;
 
             ScanView img = (ScanView)sc.Content;
 
@@ -237,8 +235,7 @@ namespace bachelorarbeit_implementierung
                     Math.Min(sc.VerticalScrollControl.UpperValue - sc.VisibleRect.Height, newScrollY);
             }
 
-            //img.Data["pressedPosition"] = e.Position;
-            sc.MouseMoved += MouseMoved;
+			sc.MouseMoved += MouseMovedGtk;
         }
 	}
 }

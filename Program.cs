@@ -9,6 +9,12 @@ using Xwt;
 
 namespace bachelorarbeit_implementierung
 {
+	public enum OSType {
+		Unix,
+		Windows,
+		MaxOSX
+	};
+
 	class MainClass
 	{
 		[STAThread]
@@ -54,10 +60,15 @@ namespace bachelorarbeit_implementierung
 			}
 
 			if (!string.IsNullOrEmpty(path)) {
-				Console.Out.WriteLine ("Path: " + path);
 
 				// start application
-				Application.Initialize (ToolkitType.Gtk);
+				if (GetOS () == OSType.Unix) {
+					Application.Initialize (ToolkitType.Gtk);
+				} else if (GetOS () == OSType.MaxOSX) {
+					Application.Initialize (ToolkitType.Cocoa);
+				} else {
+					Application.Initialize (ToolkitType.Wpf);
+				}
 
 				MainWindow w = new MainWindow (path);
 				w.Show ();
@@ -79,7 +90,16 @@ namespace bachelorarbeit_implementierung
 			p.WriteOptionDescriptions(Console.Out);
 		}
 
-
-
+		static OSType GetOS() {
+			int p = (int) Environment.OSVersion.Platform;
+			if (p == 4 || p == 128) {
+				return OSType.Unix;
+			} else if (p == 6) {
+				return OSType.MaxOSX;
+			} else {
+				return OSType.Windows;
+			}
+		}
 	}
+
 }
