@@ -5,11 +5,10 @@ namespace bachelorarbeit_implementierung
 {
 	public class FileTreeView : TreeView
 	{
-		private DataField<object> nameCol;
-		private TreeStore store;
-		//private ScanCollection scans;
+		public DataField<object> nameCol;
+		public TreeStore store;
 
-		private Preview preview;
+		private ScanCollection scans;
 
 
 		/// <summary>
@@ -17,14 +16,16 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="scans">Collection of all open scans</param>
 		/// <param name="preview">Reference to preview widget</param>
-		public FileTreeView (ScanCollection scans, Preview preview)
+		public FileTreeView (ScanCollection scans)
 		{
-			//this.scans = scans;
-			this.preview = preview;
+			this.scans = scans;
 
 			nameCol = new DataField<object> ();
 			store = new TreeStore (nameCol);
+		}
 
+		public void Initialize()
+		{
 			this.Columns.Add ("Name", nameCol);
 
 			TreePosition pos = null;
@@ -43,30 +44,9 @@ namespace bachelorarbeit_implementierung
 				}
 			}
 
-			InitializeEvents ();
-
 			this.DataSource = store;
 			this.ExpandAll ();
 			this.SelectRow (pos);
-		}
-
-
-		/// <summary>
-		/// Initializes all event handlers.
-		/// </summary>
-		private void InitializeEvents()
-		{
-			this.SelectionChanged += delegate(object sender, EventArgs e) {
-				if(this.SelectedRow != null) {
-					object value = store.GetNavigatorAt (this.SelectedRow).GetValue (nameCol);
-					if( value is ScanWrapper ) {
-						Scan s = (ScanWrapper)value;
-
-						preview.ShowPreviewOf(s);
-					}
-
-				}
-			};
 		}
 	}
 }

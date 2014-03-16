@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace bachelorarbeit_implementierung
 {
@@ -28,6 +29,8 @@ namespace bachelorarbeit_implementierung
 		float[][] data;
 		float[] max;
 
+		public List<Tuple<string, string>> generalMetadata;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -45,6 +48,8 @@ namespace bachelorarbeit_implementierung
 			width = ini.ReadInteger("general", "Width", 0);
 			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
 			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
+
+			generalMetadata = ini.ReadAllStrings ("general");
 
 			// set file pathes
 			string path = Path.GetDirectoryName (filePath);

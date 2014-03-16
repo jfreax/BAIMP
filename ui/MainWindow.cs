@@ -14,7 +14,11 @@ namespace bachelorarbeit_implementierung
 
 		// widgets
 		HPaned splitFiletreePreview;
-		HPaned splitPreviewMetadata;
+		HBox splitPreviewMetadata;
+
+		Preview preview;
+		FileTreeView fileTreeView;
+		MetadataView metadata;
 
 
 		/// <summary>
@@ -55,19 +59,52 @@ namespace bachelorarbeit_implementierung
 		private void InitializeUI() {
 
 			splitFiletreePreview = new HPaned ();
-			splitPreviewMetadata = new HPaned ();
+			splitPreviewMetadata = new HBox ();
 
 			// initialize preview widget
-			Preview preview = new Preview ();
-			splitPreviewMetadata.Panel1.Content = preview;
-			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
+			preview = new Preview ();
+			//splitPreviewMetadata.Panel1.Content = preview;
+			splitPreviewMetadata.PackStart (preview, true, true);
 
 			// load tree view with all available files
-			FileTreeView fileTreeView = new FileTreeView (scanCollection, preview);
+			fileTreeView = new FileTreeView (scanCollection);
 			splitFiletreePreview.Panel1.Content = fileTreeView;
 
+			// load metadata viewer
+			metadata = new MetadataView ();
+			splitPreviewMetadata.PackEnd (metadata, false, false);
 
+
+			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 			Content = splitFiletreePreview;
+
+
+			InitializeEvents ();
+			fileTreeView.Initialize (); // call after initialize events!
+		}
+
+
+		/// <summary>
+		/// Initializes all event handlers.
+		/// </summary>
+		private void InitializeEvents()
+		{
+			fileTreeView.SelectionChanged += delegate(object sender, EventArgs e) {
+				if(fileTreeView.SelectedRow != null) {
+					object value = 
+						fileTreeView.store
+							.GetNavigatorAt (fileTreeView.SelectedRow)
+							.GetValue (fileTreeView.nameCol);
+
+					if( value is ScanWrapper ) {
+						Scan s = (ScanWrapper)value;
+
+						preview.ShowPreviewOf(s);
+						metadata.Load(s);
+					}
+
+				}
+			};
 		}
 
 

@@ -76,6 +76,7 @@
     <Compile Include="data\ScanCollection.cs" />
     <Compile Include="data\ScanWrapper.cs" />
     <Compile Include="ui\widget\FileTreeView.cs" />
+    <Compile Include="ui\widget\MetadataView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -76,7 +76,7 @@ namespace bachelorarbeit_implementierung
 		}
 
 		/// <summary>
-		/// Removes te line at the specified index.
+		/// Removes a line at the specified index.
 		/// </summary>
 		protected void RemoveLine(int index) {
 			lines_.RemoveAt(index);
@@ -206,6 +206,41 @@ namespace bachelorarbeit_implementierung
 				}
 			}
 			return -1;
+		}
+
+
+		/// <summary>
+		/// Reads all keys of one section.
+		/// </summary>
+		/// <returns>List of keys.</returns>
+		/// <param name="section">Section.</param>
+		public virtual List<Tuple<string, string>> ReadAllStrings(string section) {
+			int i = SkipToSection(section);
+			if (i != -1) {
+				i++;
+
+				List<Tuple<string, string>> ret = new List<Tuple<string, string>> ();
+
+				for (; i < Count; i++) {
+					string line = StripComments(this[i]);
+					if (line.Length != 0 && line [0] != '['
+					    && line [line.Length - 1] != ']') {
+
+						string[] split = line.Split ('=');
+						if (split.Length >= 2) {
+							ret.Add ( new Tuple<string, string>(split[0], split[1]));
+						}
+					}
+
+					if (line.Length != 0 && line[0] == '['
+						&& line[line.Length - 1] == ']')
+						return ret;
+				}
+
+				return ret;
+			}
+
+			return null;
 		}
 
 		/// <summary>
