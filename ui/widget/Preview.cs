@@ -9,6 +9,7 @@ namespace bachelorarbeit_implementierung
 	public class Preview : Notebook
 	{
 		ScrollView[] tabs;
+
 		Thread imageLoaderThread;
 
 		double imageScale = 1.0;
@@ -29,6 +30,7 @@ namespace bachelorarbeit_implementierung
 			for (int i = 0; i < (int)ScanType.Metadata; i++) {
 				ScanView img = new ScanView ();
 				tabs[i] = new ScrollView(img);
+				tabs [i].BorderVisible = false;
 				InitializeEvents (tabs [i]);
 
 				Add (tabs [i], Enum.GetName(typeof(ScanType), i));
@@ -93,7 +95,7 @@ namespace bachelorarbeit_implementierung
                 Application.Invoke(delegate()
                 {
                     scanView.Image = Image.FromStream(memoryStream);
-                    scanView.Image = scanView.Image.Scale(imageScale);
+                    scanView.Scale(imageScale);
 
 
                     // resize image to fit window, only on standard zoom!
@@ -129,6 +131,9 @@ namespace bachelorarbeit_implementierung
 				ScanView scanView = (ScanView) sv.Content;
 
 				switch(e.Button) {
+				case PointerButton.Left:
+
+					break;
 				case PointerButton.Middle:
 					if(scanView != null) {
 						scanView.Data["pressed"] = true;
@@ -208,12 +213,12 @@ namespace bachelorarbeit_implementierung
 
 			for( int i = 0; i < tabs.Length; i++) {
 				if (tabs [i].Content != null) {
-					Image image = ((ImageView)tabs [i].Content).Image;
-					if (image != null) {
+					ScanView scanview = (ScanView)tabs [i].Content;
+					if (scanview != null) {
 						if (e.Direction == ScrollDirection.Down) {
-							((ImageView)tabs [i].Content).Image = image.Scale (0.90);
+							scanview.Scale (0.9);
 						} else {
-							((ImageView)tabs [i].Content).Image = image.Scale (1.10);
+							scanview.Scale (1.1);
 						}
 					}
 				}
@@ -224,7 +229,7 @@ namespace bachelorarbeit_implementierung
 
 
 		private void ResizeImageToFit(ScrollView sv) {
-			ImageView iv = (ImageView) sv.Content;
+			ScanView iv = (ScanView) sv.Content;
 
 			if(iv != null && iv.Image != null) {
 
@@ -232,7 +237,7 @@ namespace bachelorarbeit_implementierung
 				double height = sv.VisibleRect.Height / iv.Image.Size.Height;
 
 				imageScale *= Math.Min (width, height);
-				iv.Image = iv.Image.Scale( Math.Min(width, height) );
+				iv.Scale (Math.Min (width, height));
 			}
 		}
 

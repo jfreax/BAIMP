@@ -42,11 +42,10 @@ namespace bachelorarbeit_implementierung
 			foreach (Tuple<string, string> d in scan.generalMetadata) {
 				Replace (new Label (d.Item1), 0, i);
 
-
-
 				TextEntry entry = new TextEntry ();
 				entry.Text = d.Item2;
 				entry.ReadOnly = true;
+				entry.ShowFrame = false;
 				Replace (entry, 1, i);
 
 				i++;
