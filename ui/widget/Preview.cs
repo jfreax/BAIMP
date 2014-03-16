@@ -15,6 +15,8 @@ namespace bachelorarbeit_implementierung
 		double vScroll = 0.0;
 		double hScroll = 0.0;
 
+        private object lock_image_loading = new object();
+
 		Scan currentScan;
 
 		/// <summary>
@@ -43,10 +45,6 @@ namespace bachelorarbeit_implementierung
 
 			for (int i = 0; i < tabs.Length; i++) {
 				if (tabs [i].Content != null) {
-					if (imageLoaderThread != null) {
-						imageLoaderThread.Abort ();
-					}
-
 					Image image = ((ScanView)tabs [i].Content).Image;
 					if (image != null) {
 						image.Dispose ();
@@ -54,8 +52,8 @@ namespace bachelorarbeit_implementierung
 					}
 				}
 			}
-
-			imageLoaderThread = new Thread (() => LoadPreview (scan, (ScanType)this.CurrentTabIndex));
+            ScanType type = (ScanType)this.CurrentTabIndex;
+            Thread imageLoaderThread = new Thread(() => LoadPreview(scan, type));
 			imageLoaderThread.Start ();
 		}
 
@@ -65,41 +63,54 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="type">Type.</param>
 		private void LoadPreview(Scan scan, ScanType type) {
-			if (scan == null) {
-				return;
-			}
+            lock (this.lock_image_loading)
+            {
+                if (scan == null)
+                {
+                    return;
+                }
 
-			ScrollView tab = tabs [(int)type];
-			ScanView scanView = (ScanView)tab.Content;
+                ScrollView tab = tabs[(int)type];
+                ScanView scanView = (ScanView)tab.Content;
 
-			if (scanView.Image != null) {
-				return;
-			}
+                if (scanView.Image != null)
+                {
+                    return;
+                }
 
-			MemoryStream memoryStream = new MemoryStream ();
-			System.Drawing.Bitmap bmp = scan.GetAsBitmap (type);
-			if (bmp == null) {
-				Console.WriteLine ("bmp == null " + (int)type);
-				// TODO raise error
-				return;
-			}
-			bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+                MemoryStream memoryStream = new MemoryStream();
+                System.Drawing.Bitmap bmp = scan.GetAsBitmap(type);
+                if (bmp == null)
+                {
+                    Console.WriteLine("bmp == null " + (int)type);
+                    // TODO raise error
+                    return;
+                }
+                bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
 
-			memoryStream.Position = 0;
-			scanView.Image = Image.FromStream (memoryStream);
-			scanView.Image = scanView.Image.Scale (imageScale);
+                memoryStream.Position = 0;
 
-			// resize image to fit window, only on standard zoom!
-			if (imageScale == 1.0) {
-				ResizeImageToFit (tab);
-			}
+                Application.Invoke(delegate()
+                {
+                    scanView.Image = Image.FromStream(memoryStream);
+                    scanView.Image = scanView.Image.Scale(imageScale);
 
-			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-				OnPreviewZoom (e);
-			};
 
-			tab.HorizontalScrollControl.Value = hScroll;
-			tab.VerticalScrollControl.Value = vScroll;
+                    // resize image to fit window, only on standard zoom!
+                    if (imageScale == 1.0)
+                    {
+                        ResizeImageToFit(tab);
+                    }
+
+                    scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e)
+                    {
+                        OnPreviewZoom(e);
+                    };
+
+                    tab.HorizontalScrollControl.Value = hScroll;
+                    tab.VerticalScrollControl.Value = vScroll;
+                });
+            }
 		}
 
 		/// <summary>
@@ -305,11 +316,8 @@ namespace bachelorarbeit_implementierung
 		protected override void OnCurrentTabChanged (EventArgs e) {
 			base.OnCurrentTabChanged (e);
 
-			if (imageLoaderThread != null) {
-				imageLoaderThread.Abort();
-			}
-
-			imageLoaderThread = new Thread (() => LoadPreview (currentScan, (ScanType)this.CurrentTabIndex));
+            ScanType type = (ScanType)this.CurrentTabIndex;
+			imageLoaderThread = new Thread (() => LoadPreview (currentScan, type));
 			imageLoaderThread.Start ();
 		}
 	}

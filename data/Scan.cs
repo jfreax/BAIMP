@@ -130,7 +130,8 @@ namespace bachelorarbeit_implementierung
 			if (type == ScanType.Color) {
 				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
 			} else {
-				bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
+				//bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
+                bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
 			}
 
 			//Create a BitmapData and Lock all pixels to be written 
@@ -153,7 +154,7 @@ namespace bachelorarbeit_implementierung
 			} else {
 				float[] array = GetAsArray (type);
 				float max = this.max [(int)type];
-
+                
 				int* scan0 = (int*)bmpData.Scan0.ToPointer();
 				for (int i = 0; i < height * width; ++i) {
 					int color = (int)((array [i] * 255) / max);
@@ -161,7 +162,6 @@ namespace bachelorarbeit_implementierung
 					*scan0 = color;
 					scan0++;
 				}
-
 			}
 
 			//Unlock the pixels

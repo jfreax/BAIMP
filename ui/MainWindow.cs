@@ -98,7 +98,7 @@ namespace bachelorarbeit_implementierung
 
 					if( value is ScanWrapper ) {
 						Scan s = (ScanWrapper)value;
-
+                        Console.WriteLine("Selection Changed");
 						preview.ShowPreviewOf(s);
 						metadata.Load(s);
 					}
