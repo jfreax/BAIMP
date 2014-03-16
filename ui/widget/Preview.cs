@@ -36,8 +36,7 @@ namespace bachelorarbeit_implementierung
 
 			this.PackStart (notebook, false, false);
 
-			tab.BorderVisible = false;
-			this.Margin = 0;
+			this.Spacing = 0.0;
 			this.PackEnd (tab, true, true);
 		}
 
@@ -52,6 +51,7 @@ namespace bachelorarbeit_implementierung
 
 			scanView = new ScanView (scan, (ScanType)notebook.CurrentTabIndex);
 			tab.Content = scanView;
+
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
 				OnPreviewZoom (e);
