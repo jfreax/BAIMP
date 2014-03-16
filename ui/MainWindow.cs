@@ -59,7 +59,6 @@ namespace bachelorarbeit_implementierung
 
 			// initialize preview widget
 			Preview preview = new Preview ();
-			preview.ShowPreviewOf (scanCollection.scans ["Unbekannt"] [0]);
 			splitPreviewMetadata.Panel1.Content = preview;
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 
@@ -71,12 +70,17 @@ namespace bachelorarbeit_implementierung
 			fileTreeView.Columns.Add ("Name", nameCol);
 
 			var keys = scanCollection.scans.Keys;
+			TreePosition pos = null;
 			foreach (string key in keys)
 			{
 				var w = fileTreeStore.AddNode (null).SetValue (nameCol, key).CurrentPosition;
 
 				foreach (Scan scan in scanCollection.scans[key]) {
-					fileTreeStore.AddNode (w).SetValue (nameCol, scan);
+					var v = fileTreeStore.AddNode (w).SetValue (nameCol, scan).CurrentPosition;
+					if (pos == null) {
+						pos = v;
+
+					}
 				}
 			}
 
@@ -94,6 +98,8 @@ namespace bachelorarbeit_implementierung
 
 
 			fileTreeView.DataSource = fileTreeStore;
+			fileTreeView.ExpandAll ();
+			fileTreeView.SelectRow (pos);
 			splitFiletreePreview.Panel1.Content = fileTreeView;
 
 

@@ -10,7 +10,6 @@ namespace bachelorarbeit_implementierung
 	{
 		ScrollView[] tabs;
 		Thread imageLoaderThread;
-		private object lock_i = new object ();
 
 		double imageScale = 1.0;
 		double vScroll = 0.0;
@@ -24,7 +23,6 @@ namespace bachelorarbeit_implementierung
 		public Preview ()
 		{
 			tabs = new ScrollView[(int)ScanType.Metadata];
-			//imageLoaderThread = new Thread[(int)ScanType.Metadata];
 
 			for (int i = 0; i < (int)ScanType.Metadata; i++) {
 				ScanView img = new ScanView ();
