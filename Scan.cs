@@ -4,6 +4,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace bachelorarbeit_implementierung
 {
@@ -25,8 +26,7 @@ namespace bachelorarbeit_implementierung
 		string[] filenames;
 
 		float[][] data;
-
-		private object lock_i = new object ();
+		float[] max;
 
 
 		/// <summary>
@@ -53,7 +53,8 @@ namespace bachelorarbeit_implementierung
 			filenames [(int)ScanType.Color] = String.Format ("{0}/{1}", path, ini.ReadString ("buffers", "color"));
 
 			// initialize empty data containers
-			data = new float[(int)ScanType.Metadata+1][];
+			data = new float[(int)ScanType.Metadata][];
+			max = new float[(int)ScanType.Metadata];
 		}
 
 
@@ -99,7 +100,16 @@ namespace bachelorarbeit_implementierung
 				if (type == ScanType.Topography) {
 					data [(int)type] [i] *= zLengthPerDigitF / 10000000.0f;
 				}
+
+				if (data [(int)type] [i] > max [(int)type]) {
+					max [(int)type] = data [(int)type] [i];
+				}
 			}
+//			Parallel.For(0, length, new Action<int>(i =>
+//			{
+//				
+//
+//			}));
 
 			return data[(int)type];
 		}
@@ -136,7 +146,7 @@ namespace bachelorarbeit_implementierung
 				}
 			} else {
 				float[] array = GetAsArray (type);
-				float max = array.Max ();
+				float max = this.max [(int)type];
 
 				int* scan0 = (int*)bmpData.Scan0.ToPointer();
 				for (int i = 0; i < height * width; ++i) {
