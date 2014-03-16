@@ -110,37 +110,47 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="type">Scantile</param>
-		public Bitmap GetAsBitmap(ScanType type) {
+		public unsafe Bitmap GetAsBitmap(ScanType type) {
 			Bitmap bitmap = null;
-			lock (this.lock_i) {
+			if (type == ScanType.Color) {
 				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
+			} else {
+				bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
+			}
 
-				if (type == ScanType.Color) {
-					//Create a BitmapData and Lock all pixels to be written 
-					BitmapData bmpData = bitmap.LockBits (
-						                    new Rectangle (0, 0, width, height),   
-						                    ImageLockMode.WriteOnly, bitmap.PixelFormat);
+			//Create a BitmapData and Lock all pixels to be written 
+			BitmapData bmpData = bitmap.LockBits (
+				new Rectangle (0, 0, width, height),   
+				ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
-					//Copy the data from the byte array into BitmapData.Scan0
-					byte[] buffer = GetByteBuffer (type);
-					Marshal.Copy (buffer, 0, bmpData.Scan0, buffer.Length);
+			Stream s = File.OpenRead (filenames [(int)type]);
+			BinaryReader input = new BinaryReader (s);
+			input.ReadInt64 ();
 
-					//Unlock the pixels
-					bitmap.UnlockBits (bmpData);
+			if (type == ScanType.Color) {
+				byte* scan0 = (byte*)bmpData.Scan0.ToPointer();
 
-				} else {
-					float[] array = GetAsArray (type);
-					float max = array.Max ();
+				for (int i = 0; i < height * width * 4; ++i) {
+					*scan0 = input.ReadByte ();
+					scan0++;
+				}
+			} else {
+				float[] array = GetAsArray (type);
+				float max = array.Max ();
 
-					for (int x = 0; x < width; x++) {
-						for (int y = 0; y < height; y++) {
-							int color = (int)((array [y * width + x] * 255) / max);
-							bitmap.SetPixel (x, y, Color.FromArgb (255, color, color, color));
-						}
-					}
+				int* scan0 = (int*)bmpData.Scan0.ToPointer();
+				for (int i = 0; i < height * width; ++i) {
+					int color = (int)((array [i] * 255) / max);
+					color |= (color << 24) | (color << 16) | (color << 8);
+					*scan0 = color;
+					scan0++;
 				}
 
 			}
+
+			//Unlock the pixels
+			bitmap.UnlockBits (bmpData);
+
 			return bitmap;
 		}
 

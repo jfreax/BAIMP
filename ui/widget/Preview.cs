@@ -83,7 +83,7 @@ namespace bachelorarbeit_implementierung
 				// TODO raise error
 				return;
 			}
-			bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+			bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
 
 			memoryStream.Position = 0;
 			scanView.Image = Image.FromStream (memoryStream);
