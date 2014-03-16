@@ -140,8 +140,9 @@ namespace bachelorarbeit_implementierung
 			if (type == ScanType.Color) {
 				byte* scan0 = (byte*)bmpData.Scan0.ToPointer();
 
+				byte[] buffer = input.ReadBytes(height * width * 4);
 				for (int i = 0; i < height * width * 4; ++i) {
-					*scan0 = input.ReadByte ();
+					*scan0 = buffer[i];
 					scan0++;
 				}
 			} else {

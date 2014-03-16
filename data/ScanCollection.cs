@@ -4,11 +4,8 @@ using System.Collections.Generic;
 
 namespace bachelorarbeit_implementierung
 {
-	public class ScanCollection
+	public class ScanCollection : Dictionary<string, List<ScanWrapper> >
 	{
-		public Dictionary<string, List<Scan> > scans;
-
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanCollection"/> class.
 		/// </summary>
@@ -17,26 +14,18 @@ namespace bachelorarbeit_implementierung
 		{
 			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
 
-			scans = new Dictionary<string, List<Scan> > ();
-
 			int n = files.Length;
-			int i = 0;
 			foreach (String file in files) {
 				// parse scan metadata
-				Scan scan = new Scan (file);
+				ScanWrapper scan = new ScanWrapper (file);
 
-				if (!scans.ContainsKey (scan.FiberType)) {
-					scans [scan.FiberType] = new List<Scan> ();
+				if (!this.ContainsKey (scan.FiberType)) {
+					this [scan.FiberType] = new List<ScanWrapper> ();
 				}
 
-				scans [scan.FiberType].Add (scan);
-
-				// increase progressbar
-				//mainRef.progressBar.Value = (i * 100) / n;
-				i++;
+				this [scan.FiberType].Add (scan);
 			}
 
-			//mainRef.progressBar.Value = 100;
 		}
 	}
 }

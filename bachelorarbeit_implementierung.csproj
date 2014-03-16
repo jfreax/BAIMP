@@ -69,11 +69,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Scan.cs" />
-    <Compile Include="ScanCollection.cs" />
     <Compile Include="ui\MainWindow.cs" />
     <Compile Include="ui\widget\ScanView.cs" />
     <Compile Include="ui\widget\Preview.cs" />
+    <Compile Include="data\Scan.cs" />
+    <Compile Include="data\ScanCollection.cs" />
+    <Compile Include="data\ScanWrapper.cs" />
+    <Compile Include="ui\widget\FileTreeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -98,5 +100,8 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="data\" />
   </ItemGroup>
 </Project>

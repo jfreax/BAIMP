@@ -63,43 +63,7 @@ namespace bachelorarbeit_implementierung
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 
 			// load tree view with all available files
-			DataField<object> nameCol = new DataField<object> ();
-
-			TreeView fileTreeView = new TreeView ();
-			TreeStore fileTreeStore = new TreeStore (nameCol);
-			fileTreeView.Columns.Add ("Name", nameCol);
-
-			var keys = scanCollection.scans.Keys;
-			TreePosition pos = null;
-			foreach (string key in keys)
-			{
-				var w = fileTreeStore.AddNode (null).SetValue (nameCol, key).CurrentPosition;
-
-				foreach (Scan scan in scanCollection.scans[key]) {
-					var v = fileTreeStore.AddNode (w).SetValue (nameCol, scan).CurrentPosition;
-					if (pos == null) {
-						pos = v;
-
-					}
-				}
-			}
-
-			fileTreeView.SelectionChanged += delegate(object sender, EventArgs e) {
-				if(fileTreeView.SelectedRow != null) {
-					object value = fileTreeStore.GetNavigatorAt (fileTreeView.SelectedRow).GetValue (nameCol);
-					if( value is Scan ) {
-						Scan s = (Scan)value;
-
-						preview.ShowPreviewOf(s);
-					}
-
-				}
-			};
-
-
-			fileTreeView.DataSource = fileTreeStore;
-			fileTreeView.ExpandAll ();
-			fileTreeView.SelectRow (pos);
+			FileTreeView fileTreeView = new FileTreeView (scanCollection, preview);
 			splitFiletreePreview.Panel1.Content = fileTreeView;
 
 
