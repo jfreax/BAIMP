@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using XD = Xwt.Drawing;
+using System.Threading;
 
 namespace bachelorarbeit_implementierung
 {
@@ -20,6 +21,9 @@ namespace bachelorarbeit_implementierung
 
 	public class Scan
 	{
+        public delegate void ImageLoadedCallback(XD.Image image);
+        private object lock_image_loading = new object();
+
 		int width;
 		int height;
 		float zLengthPerDigitF;
@@ -179,6 +183,25 @@ namespace bachelorarbeit_implementierung
 			return bitmap;
 		}
 
+
+        public MemoryStream GetAsMemoryStream(ScanType type)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            System.Drawing.Bitmap bmp = GetAsBitmap(type);
+            if (bmp == null)
+            {
+                // TODO raise error
+                return null;
+            }
+
+
+            bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+            memoryStream.Position = 0;
+
+            return memoryStream;
+
+        }
+
 		/// <summary>
 		/// Get as image.
 		/// </summary>
@@ -196,11 +219,36 @@ namespace bachelorarbeit_implementierung
 				bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
 				memoryStream.Position = 0;
 
-				renderedImage [(int)type] = XD.Image.FromStream (memoryStream);
+				renderedImage [(int)type] = XD.Image.FromStream (memoryStream).WithSize (requestedBitmapSize);
 			}
-
+				
 			return renderedImage [(int)type].WithSize (requestedBitmapSize);
 		}
+
+        public void GetAsImageAsync(ScanType type, ImageLoadedCallback callback)
+        {
+            Thread imageLoaderThread = new Thread(delegate() {
+
+                MemoryStream i = null;
+                if (renderedImage[(int)type] == null)
+                {
+                    lock (lock_image_loading)
+                    {
+                        i = GetAsMemoryStream(type);
+                    }
+                }
+
+                Xwt.Application.Invoke(delegate()
+                {
+                    if (renderedImage[(int)type] == null)
+                    {
+                        renderedImage[(int)type] = XD.Image.FromStream(i).WithSize(requestedBitmapSize);
+                    }
+					callback(renderedImage[(int)type].WithSize(requestedBitmapSize));
+                });
+            });
+            imageLoaderThread.Start();
+        }
 
 
 		/// <summary>
