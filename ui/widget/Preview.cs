@@ -49,7 +49,7 @@ namespace bachelorarbeit_implementierung
 			this.currentScan = scan;
 			imageScale = 1.0;
 
-			scanView = new ScanView (scan, (ScanType)notebook.CurrentTabIndex);
+			scanView = new ScanView (scan);
 			tab.Content = scanView;
 
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));

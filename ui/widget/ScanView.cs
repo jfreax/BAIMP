@@ -23,7 +23,7 @@ namespace bachelorarbeit_implementierung
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
 		/// </summary>
-		public ScanView (Scan scan, ScanType scanType)
+		public ScanView (Scan scan)
 		{
 			this.scan = scan;
 
@@ -35,8 +35,6 @@ namespace bachelorarbeit_implementierung
 
 			this.Add (image, 0, 0);
 			this.Add (mask, 0, 0);
-
-			ScanType = scanType;
 		}
 
 		/// <summary>
