@@ -208,7 +208,7 @@ namespace bachelorarbeit_implementierung
 		/// <returns>The as image.</returns>
 		/// <param name="type">Type.</param>
 		public XD.Image GetAsImage(ScanType type) {
-			//if (renderedImage [(int)type] == null) {
+			if (renderedImage [(int)type] == null) {
 				MemoryStream memoryStream = new MemoryStream ();
 				System.Drawing.Bitmap bmp = GetAsBitmap (type);
 				if (bmp == null) {
@@ -219,12 +219,10 @@ namespace bachelorarbeit_implementierung
 				bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
 				memoryStream.Position = 0;
 
-
-            return  XD.Image.FromStream (memoryStream);
-			//	renderedImage [(int)type] = XD.Image.FromStream (memoryStream);
-			//}
-
-			//return renderedImage [(int)type].WithSize (requestedBitmapSize);
+				renderedImage [(int)type] = XD.Image.FromStream (memoryStream).WithSize (requestedBitmapSize);
+			}
+				
+			return renderedImage [(int)type].WithSize (requestedBitmapSize);
 		}
 
         public void GetAsImageAsync(ScanType type, ImageLoadedCallback callback)
@@ -246,9 +244,8 @@ namespace bachelorarbeit_implementierung
                     {
                         renderedImage[(int)type] = XD.Image.FromStream(i).WithSize(requestedBitmapSize);
                     }
-                    callback(renderedImage[(int)type]);
+					callback(renderedImage[(int)type].WithSize(requestedBitmapSize));
                 });
-                //callback(GetAsImage(type));
             });
             imageLoaderThread.Start();
         }
