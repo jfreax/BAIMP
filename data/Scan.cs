@@ -21,24 +21,23 @@ namespace bachelorarbeit_implementierung
 
 	public class Scan
 	{
-        public delegate void ImageLoadedCallback(XD.Image image);
-        private object lock_image_loading = new object();
+		public delegate void ImageLoadedCallback (XD.Image image);
+		private object lock_image_loading = new object ();
 
 		float zLengthPerDigitF;
 		string fiberType;
-
 		Xwt.Size size;
 		Xwt.Size requestedBitmapSize;
 
 		string[] filenames;
-
 		float[][] data;
 		float[] max;
-
 		public List<Tuple<string, string>> generalMetadata;
 
 		XD.Image[] renderedImage;
 		XD.ImageBuilder[] maskBuilder;
+
+		IniFile ini;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -46,15 +45,15 @@ namespace bachelorarbeit_implementierung
 		/// <param name="filePath">Path to dd+ file.</param>
 		public Scan (string filePath)
 		{
-			filenames = new string[(int)ScanType.Metadata+1];
+			filenames = new string[(int)ScanType.Metadata + 1];
 			filenames [(int)ScanType.Metadata] = filePath;
 
 			// parse dd+ file informations
-			var ini = new IniFile(filePath);
+			ini = new IniFile (filePath);
 
-			int height = ini.ReadInteger("general", "Height", 0);
-			int width = ini.ReadInteger("general", "Width", 0);
-			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
+			int height = ini.ReadInteger ("general", "Height", 0);
+			int width = ini.ReadInteger ("general", "Width", 0);
+			zLengthPerDigitF = (float)ini.ReadDoubleInvariant ("general", "ZLengthPerDigitF", 0.0);
 			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
 
 			size = new Xwt.Size (width, height);
@@ -75,44 +74,47 @@ namespace bachelorarbeit_implementierung
 			maskBuilder = new XD.ImageBuilder [(int)ScanType.Metadata];
 		}
 
+		#region loading
 
 		/// <summary>
 		/// Get specified scan as byte buffer.
 		/// </summary>
 		/// <returns>The byte buffer.</returns>
 		/// <param name="type">Type.</param>
-		public byte[] GetByteBuffer(ScanType type) {
+		public byte[] GetByteBuffer (ScanType type)
+		{
 			Stream s = File.OpenRead (filenames [(int)type]);
 			BinaryReader input = new BinaryReader (s);
 
-			int length = input.ReadInt32() * input.ReadInt32();
-			return input.ReadBytes(length * 4);
+			int length = input.ReadInt32 () * input.ReadInt32 ();
+			return input.ReadBytes (length * 4);
 		}
-
+			
 
 		/// <summary>
 		/// Gets scan as array.
 		/// </summary>
 		/// <returns>The specified scan as a plan float array.</returns>
 		/// <param name="type">Type.</param>
-		public float[] GetAsArray(ScanType type) {
+		public float[] GetAsArray (ScanType type)
+		{
 			if (data [(int)type] != null) {
-				return data[(int)type];
+				return data [(int)type];
 			}
 
 			Stream s = File.OpenRead (filenames [(int)type]);
 			BinaryReader input = new BinaryReader (s);
 
-			Int32 width = input.ReadInt32();
-			Int32 height = input.ReadInt32();
+			Int32 width = input.ReadInt32 ();
+			Int32 height = input.ReadInt32 ();
 
 			int length = width * height;
-			data[(int)type] = new float[length];
+			data [(int)type] = new float[length];
 
-			byte[] buffer = input.ReadBytes(length * 4);
+			byte[] buffer = input.ReadBytes (length * 4);
 			int offset = 0;
 			for (int i = 0; i < length; i++) {
-				data[(int)type][i] = BitConverter.ToSingle(buffer, offset);
+				data [(int)type] [i] = BitConverter.ToSingle (buffer, offset);
 				offset += 4;
 
 				if (type == ScanType.Topography) {
@@ -129,16 +131,16 @@ namespace bachelorarbeit_implementierung
 //
 //			}));
 
-			return data[(int)type];
+			return data [(int)type];
 		}
-
 
 		/// <summary>
 		/// Get scan as bitmap.
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="type">Scantile</param>
-		public unsafe Bitmap GetAsBitmap(ScanType type) {
+		public unsafe Bitmap GetAsBitmap (ScanType type)
+		{
 			int width = (int)Size.Width;
 			int height = (int)Size.Height;
 
@@ -152,20 +154,20 @@ namespace bachelorarbeit_implementierung
 
 			//Create a BitmapData and Lock all pixels to be written 
 			BitmapData bmpData = bitmap.LockBits (
-				new Rectangle (0, 0, width, height),   
-				ImageLockMode.WriteOnly, bitmap.PixelFormat);
+				                     new Rectangle (0, 0, width, height),   
+				                     ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
 			Stream s = File.OpenRead (filenames [(int)type]);
 			BinaryReader input = new BinaryReader (s);
 			input.ReadInt64 ();
 
 			if (type == ScanType.Color) {
-				byte* scan0 = (byte*)bmpData.Scan0.ToPointer();
+				byte* scan0 = (byte*)bmpData.Scan0.ToPointer ();
 
 				int len = width * height * 4;
-				byte[] buffer = input.ReadBytes(len);
+				byte[] buffer = input.ReadBytes (len);
 				for (int i = 0; i < len; ++i) {
-					*scan0 = buffer[i];
+					*scan0 = buffer [i];
 					scan0++;
 				}
 			} else {
@@ -173,7 +175,7 @@ namespace bachelorarbeit_implementierung
 				float max = this.max [(int)type];
                 
 				int len = width * height;
-				int* scan0 = (int*)bmpData.Scan0.ToPointer();
+				int* scan0 = (int*)bmpData.Scan0.ToPointer ();
 				for (int i = 0; i < len; ++i) {
 					int color = (int)((array [i] * 255) / max);
 					color |= (color << 24) | (color << 16) | (color << 8);
@@ -188,39 +190,37 @@ namespace bachelorarbeit_implementierung
 			return bitmap;
 		}
 
-
 		/// <summary>
 		/// Gets image as memory stream in tiff format
 		/// </summary>
 		/// <returns>The memory stream.</returns>
 		/// <param name="type">Scan type.</param>
-        public MemoryStream GetAsMemoryStream(ScanType type)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            System.Drawing.Bitmap bmp = GetAsBitmap(type);
-            if (bmp == null)
-            {
-                // TODO raise error
-                return null;
-            }
+		public MemoryStream GetAsMemoryStream (ScanType type)
+		{
+			MemoryStream memoryStream = new MemoryStream ();
+			System.Drawing.Bitmap bmp = GetAsBitmap (type);
+			if (bmp == null) {
+				// TODO raise error
+				return null;
+			}
 
-            bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
-            memoryStream.Position = 0;
+			bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+			memoryStream.Position = 0;
 
-            return memoryStream;
-        }
+			return memoryStream;
+		}
 
 		/// <summary>
 		/// Get as image.
 		/// </summary>
 		/// <returns>The as image.</returns>
 		/// <param name="type">Type.</param>
-		public XD.Image GetAsImage(ScanType type) {
+		public XD.Image GetAsImage (ScanType type)
+		{
 			if (renderedImage [(int)type] == null) {
 				MemoryStream memoryStream = new MemoryStream ();
 				System.Drawing.Bitmap bmp = GetAsBitmap (type);
 				if (bmp == null) {
-					Console.WriteLine ("bmp == null " + (int)type);
 					// TODO raise error
 					return null;
 				}
@@ -233,61 +233,138 @@ namespace bachelorarbeit_implementierung
 			return renderedImage [(int)type].WithSize (requestedBitmapSize);
 		}
 
-
 		/// <summary>
 		/// Gets as image (sync).
 		/// </summary>
 		/// <param name="type">Scan type.</param>
 		/// <param name="callback">Function to call on finish.</param>
-        public void GetAsImageAsync(ScanType type, ImageLoadedCallback callback)
-        {
-            Thread imageLoaderThread = new Thread(delegate() {
+		public void GetAsImageAsync (ScanType type, ImageLoadedCallback callback)
+		{
+			Thread imageLoaderThread = new Thread (delegate() {
 
-                MemoryStream i = null;
-                if (renderedImage[(int)type] == null)
-                {
-                    lock (lock_image_loading)
-                    {
-                        i = GetAsMemoryStream(type);
-                    }
-                }
+				MemoryStream i = null;
+				if (renderedImage [(int)type] == null) {
+					lock (lock_image_loading) {
+						i = GetAsMemoryStream (type);
+					}
+				}
 
-                Xwt.Application.Invoke(delegate()
-                {
-                    if (renderedImage[(int)type] == null)
-                    {
-                        renderedImage[(int)type] = XD.Image.FromStream(i).WithSize(requestedBitmapSize);
-                    }
-					callback(renderedImage[(int)type].WithSize(requestedBitmapSize));
-                });
-            });
-            imageLoaderThread.Start();
-        }
-
+				Xwt.Application.Invoke (delegate() {
+					if (renderedImage [(int)type] == null) {
+						renderedImage [(int)type] = XD.Image.FromStream (i).WithSize (requestedBitmapSize);
+					}
+					callback (renderedImage [(int)type].WithSize (requestedBitmapSize));
+				});
+			});
+			imageLoaderThread.Start ();
+		}
 
 		/// <summary>
 		/// Gets the mask builder to draw on it.
 		/// </summary>
 		/// <returns>The mask builder.</returns>
 		/// <param name="type">Type.</param>
-		public XD.ImageBuilder GetMaskBuilder(ScanType type) {
-			if(maskBuilder[(int)type] == null) {
-				//maskBuilder [(int)type] = new XD.ImageBuilder (requestedBitmapSize.Width, requestedBitmapSize.Height);
+		public XD.ImageBuilder GetMaskBuilder (ScanType type)
+		{
+			if (maskBuilder [(int)type] == null) {
 				maskBuilder [(int)type] = new XD.ImageBuilder (Size.Width, Size.Height);
+
+				XD.Image mask = LoadMask (type);
+				if (mask != null) {
+					maskBuilder [(int)type].Context.DrawImage (mask.WithSize (Size), Xwt.Point.Zero);
+				}
 			}
 			return maskBuilder [(int)type];
 		}
-
 
 		/// <summary>
 		/// Gets the mask as image.
 		/// </summary>
 		/// <returns>The mask as image.</returns>
 		/// <param name="type">Type.</param>
-		public XD.Image GetMaskAsImage(ScanType type) {
+		public XD.Image GetMaskAsImage (ScanType type)
+		{
 			return GetMaskBuilder (type).ToVectorImage ().WithSize (requestedBitmapSize);
 		}
 
+
+		/// <summary>
+		/// Loads mask data
+		/// </summary>
+		/// <returns>The mask as an image.</returns>
+		/// <param name="type">Type.</param>
+		public XD.Image LoadMask(ScanType type) {
+			string base64mask = null;
+
+			switch(type) {
+			case ScanType.Intensity:
+				base64mask = ini.ReadString ("masks", "intensity");
+				break;
+			case ScanType.Topography:
+				base64mask = ini.ReadString ("masks", "topography");
+				break;
+			case ScanType.Color:
+				base64mask = ini.ReadString ("masks", "color");
+				break;
+			}
+
+			if(String.IsNullOrEmpty(base64mask)) {
+				return null;
+			} else {
+				using (MemoryStream stream = new MemoryStream(
+					Convert.FromBase64String(base64mask))) 
+				{
+					return XD.Image.FromStream (stream);
+				}
+			}
+		}
+
+		#endregion
+
+		#region saving
+
+		/// <summary>
+		/// Saves the mask data to the dd+ file.
+		/// </summary>
+		/// <param name="type">Scan type.</param>
+		public void SaveMask(ScanType type)
+		{
+			XD.BitmapImage mask = GetMaskBuilder (type).ToBitmap ();
+
+			Parallel.For(0, (int)mask.Height, new Action<int>(y => {
+				//for (int y = 0; y < mask.Height; y++) {
+				for (int x = 0; x < mask.Width; x++) {
+					XD.Color color = mask.GetPixel (x, y);
+					if (color == ScanView.maskColor) {
+						//mask.SetPixel (x, y, XD.Colors.Black);
+					} else {
+						mask.SetPixel (x, y, XD.Colors.Transparent);
+					}
+				}
+			}));
+				//}
+
+			using (MemoryStream stream = new MemoryStream())
+			{
+				mask.Save(stream, XD.ImageFileType.Png);
+
+				string base64 = Convert.ToBase64String (stream.ToArray ());
+				switch(type) {
+				case ScanType.Intensity:
+					ini.WriteString ("masks", "intensity", base64);
+					break;
+				case ScanType.Topography:
+					ini.WriteString ("masks", "topography", base64);
+					break;
+				case ScanType.Color:
+					ini.WriteString ("masks", "color", base64);
+					break;
+				}
+				ini.UpdateFile ();
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Scales the render size of all images
@@ -296,21 +373,15 @@ namespace bachelorarbeit_implementierung
 		/// <remarks>
 		/// Call GetAsImage again, to get image with correct size
 		/// </remarks>
-		public void ScaleImage(double scaleFactor) {
+		public void ScaleImage (double scaleFactor)
+		{
 			requestedBitmapSize.Height *= scaleFactor;
 			requestedBitmapSize.Width *= scaleFactor;
 		}
 
 
-		public Xwt.Point GetScaleFactor() {
-			return new Xwt.Point( 
-				Size.Width / RequestedBitmapSize.Width,
-				Size.Height / RequestedBitmapSize.Height
-			);
-		}
-
-
-		public override string ToString() {
+		public override string ToString ()
+		{
 			return Name;
 		}
 
@@ -330,17 +401,29 @@ namespace bachelorarbeit_implementierung
 			get { return size; }
 		}
 
+		public Xwt.Point GetScaleFactor ()
+		{
+			return new Xwt.Point (
+				Size.Width / RequestedBitmapSize.Width,
+				Size.Height / RequestedBitmapSize.Height
+			);
+		}
+
 		#endregion
 
 		public Xwt.Size RequestedBitmapSize {
 			get { return requestedBitmapSize; }
-			set { requestedBitmapSize = value;}
+			set { requestedBitmapSize = value; }
 		}
 
-
-		public bool IsScaled() {
+		/// <summary>
+		/// Determines whether this scan is scaled.
+		/// </summary>
+		/// <returns><c>true</c> if this instance is scaled; otherwise, <c>false</c>.</returns>
+		public bool IsScaled ()
+		{
 			if (requestedBitmapSize.Height != size.Height ||
-				requestedBitmapSize.Width != size.Width) {
+			    requestedBitmapSize.Width != size.Width) {
 				return true;
 			} else {
 				return false;

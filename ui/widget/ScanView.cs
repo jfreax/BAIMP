@@ -20,25 +20,26 @@ namespace bachelorarbeit_implementierung
 
 	public class ScanView : Table
 	{
+		#region static member
+
+		public static Color maskColor = Colors.Coral;
+
+		#endregion
+
 		Preview.MyCallBack imageLoadedCallback = null;
-
 		public Dictionary<string, object> Data = new Dictionary<string, object> ();
-
 		private ImageView image;
 		private ImageView mask;
 		private Scan scan;
 		private ScanType currentShownType;
-
 		private Menu contextMenu;
 
 		// mouse actions
 		Pointer pointer;
-
 		int pointerSize = 16;
 
 		// state
 		bool isEditMode = false;
-
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
@@ -60,17 +61,17 @@ namespace bachelorarbeit_implementierung
 			InitializeContextMenu ();
 		}
 
-
 		/// <summary>
 		/// Initializes the context menu.
 		/// </summary>
-		private void InitializeContextMenu() {
+		private void InitializeContextMenu ()
+		{
 			contextMenu = new Menu ();
 
 			MenuItem contextEditMask = new MenuItem ("Edit mask");
 			contextEditMask.UseMnemonic = true;
 			contextEditMask.Clicked += delegate(object sender, EventArgs e) {
-				if(isEditMode) {
+				if (isEditMode) {
 					contextEditMask.Label = "Edit mask";
 				} else {
 					contextEditMask.Label = "End edit mask";
@@ -80,7 +81,11 @@ namespace bachelorarbeit_implementierung
 			};
 			contextMenu.Items.Add (contextEditMask);
 
-			contextMenu.Items.Add (new MenuItem ("Save changes"));
+			MenuItem contextSaveMask = new MenuItem ("Save changes");
+			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
+				scan.SaveMask (currentShownType);
+			};
+			contextMenu.Items.Add (contextSaveMask);
 		}
 
 		/// <summary>
@@ -94,7 +99,6 @@ namespace bachelorarbeit_implementierung
 			mask.Image = scan.GetMaskAsImage (currentShownType);
 		}
 
-
 		/// <summary>
 		/// Display image of selected scan type
 		/// </summary>
@@ -103,14 +107,13 @@ namespace bachelorarbeit_implementierung
 		{
 			currentShownType = type;
 
-            scan.GetAsImageAsync(type, new bachelorarbeit_implementierung.Scan.ImageLoadedCallback(delegate(Image loadedImage)
-            {
-                image.Image = loadedImage;
-                if (imageLoadedCallback != null)
-                {
-                    imageLoadedCallback(type);
-                }
-            }));
+			scan.GetAsImageAsync (type, new bachelorarbeit_implementierung.Scan.ImageLoadedCallback (delegate(Image loadedImage) {
+				image.Image = loadedImage;
+				mask.Image = scan.GetMaskAsImage (currentShownType);
+				if (imageLoadedCallback != null) {
+					imageLoadedCallback (type);
+				}
+			}));
 		}
 
 		#region callback
@@ -128,7 +131,8 @@ namespace bachelorarbeit_implementierung
 
 		#region events
 
-		protected override void OnButtonPressed(ButtonEventArgs e) {
+		protected override void OnButtonPressed (ButtonEventArgs e)
+		{
 			Point scaleFactor = scan.GetScaleFactor ();
 
 			switch (e.Button) {
@@ -151,8 +155,8 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
-
-		protected override void OnButtonReleased(ButtonEventArgs e) {
+		protected override void OnButtonReleased (ButtonEventArgs e)
+		{
 			switch (e.Button) {
 			case PointerButton.Left:
 				pointer ^= Pointer.Left;
@@ -163,8 +167,8 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
-
-		protected override void OnMouseMoved(MouseMovedEventArgs e) {
+		protected override void OnMouseMoved (MouseMovedEventArgs e)
+		{
 
 			if (isEditMode) {
 				Point scaleFactor = scan.GetScaleFactor ();
@@ -179,15 +183,15 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
-
-		protected override void OnMouseExited(EventArgs e) {
+		protected override void OnMouseExited (EventArgs e)
+		{
 			pointer = Pointer.None;
 		}
 
-
-		protected override void OnKeyPressed(KeyEventArgs e) {
+		protected override void OnKeyPressed (KeyEventArgs e)
+		{
 			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
-			   e.Modifiers.HasFlag (ModifierKeys.Control)) {
+			    e.Modifiers.HasFlag (ModifierKeys.Control)) {
 
 
 			}
@@ -200,7 +204,8 @@ namespace bachelorarbeit_implementierung
 		/// </summary>
 		/// <param name="position">Position.</param>
 		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
-		private void SetMask(Point position, bool unset = false) {
+		private void SetMask (Point position, bool unset = false)
+		{
 			if (unset) {
 				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
 
@@ -211,42 +216,47 @@ namespace bachelorarbeit_implementierung
 				double newX = Math.Min (Math.Max (position.X - pointerSize, 0), scan.Size.Width);
 				double newY = Math.Min (Math.Max (position.Y - pointerSize, 0), scan.Size.Height);
 
-				Image i = image.Image.WithSize(scan.Size).ToBitmap ().Crop (
-					new Rectangle (newX, newY, pointerSize * 2, pointerSize * 2)
-				);
+				Image i = image.Image.WithSize (scan.Size).ToBitmap ().Crop (
+					          new Rectangle (newX, newY, pointerSize * 2, pointerSize * 2)
+				          );
 
-				ib.Context.DrawImage (i, new Point(newX, newY));
+				ib.Context.DrawImage (i, new Point (newX, newY));
 				ib.Context.Fill ();
 				ib.Context.Restore ();
 
 			} else {
 				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
 				ib.Context.Arc (position.X, position.Y, pointerSize, 0, 360);
-				ib.Context.SetColor (Colors.Coral);
+				ib.Context.SetColor (maskColor);
 				ib.Context.Fill ();
 			}
 
 			mask.Image = scan.GetMaskAsImage (currentShownType);
 		}
 
-
 		/// <summary>
 		/// Change the shown image to a size that fits in the provided size limits
 		/// </summary>
 		/// <param name="size">Max width and height</param>
-		public void WithBoxSize(Size s) {
+		public void WithBoxSize (Size s)
+		{
 			if (image.Image != null) {
 				image.Image = image.Image.WithBoxSize (s);
 				scan.RequestedBitmapSize = image.Image.Size;
-			}
-		}
 
+				if (mask.Image != null) {
+					mask.Image = mask.Image.WithBoxSize (s);
+				}
+			}
+
+		}
 
 		/// <summary>
 		/// Determines whether the image of this scan is scaled.
 		/// </summary>
 		/// <returns><c>true</c> if this instance is scaled; otherwise, <c>false</c>.</returns>
-		public bool IsScaled() {
+		public bool IsScaled ()
+		{
 			return scan.IsScaled ();
 		}
 
@@ -262,7 +272,6 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
-
 		/// <summary>
 		/// Gets or sets the mask.
 		/// </summary>
@@ -276,7 +285,6 @@ namespace bachelorarbeit_implementierung
 				mask.Image = value;
 			}
 		}
-
 
 		/// <summary>
 		/// Gets or sets the type of the scan.
@@ -292,7 +300,7 @@ namespace bachelorarbeit_implementierung
 			set {
 				//Thread imageLoaderThread = new Thread (() => ShowType (value));
 				//imageLoaderThread.Start ();
-                ShowType(value);
+				ShowType (value);
 			}
 		}
 
