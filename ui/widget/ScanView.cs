@@ -9,7 +9,6 @@ namespace bachelorarbeit_implementierung
 {
 	public class ScanView : Table
 	{
-		private object lock_image_loading = new object ();
 		Preview.MyCallBack imageLoadedCallback = null;
 
 		public Dictionary<string, object> Data = new Dictionary<string, object> ();
@@ -65,22 +64,6 @@ namespace bachelorarbeit_implementierung
                     imageLoadedCallback(type);
                 }
             }));
-
-			//lock (this.lock_image_loading) {
-			//	if (scan == null) {
-			//		return;
-			//	}
-            //
-			//	Image rendered = scan.GetAsImage (type);
-            //
-			//	Application.Invoke (delegate() {
-			//		image.Image = rendered;
-//
-			//		if (imageLoadedCallback != null) {
-			//			imageLoadedCallback (type);
-			//		}
-			//	});
-			//}
 		}
 
 		/// <summary>

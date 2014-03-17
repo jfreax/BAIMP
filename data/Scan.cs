@@ -141,7 +141,7 @@ namespace bachelorarbeit_implementierung
 		public unsafe Bitmap GetAsBitmap(ScanType type) {
 			Bitmap bitmap = null;
 			if (type == ScanType.Color) {
-				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
+				bitmap = new Bitmap (width, height, PixelFormat.Format32bppArgb);
 			} else {
 				//bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
                 bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
@@ -184,6 +184,11 @@ namespace bachelorarbeit_implementierung
 		}
 
 
+		/// <summary>
+		/// Gets image as memory stream in tiff format
+		/// </summary>
+		/// <returns>The memory stream.</returns>
+		/// <param name="type">Scan type.</param>
         public MemoryStream GetAsMemoryStream(ScanType type)
         {
             MemoryStream memoryStream = new MemoryStream();
@@ -194,12 +199,10 @@ namespace bachelorarbeit_implementierung
                 return null;
             }
 
-
             bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
             memoryStream.Position = 0;
 
             return memoryStream;
-
         }
 
 		/// <summary>
@@ -225,6 +228,12 @@ namespace bachelorarbeit_implementierung
 			return renderedImage [(int)type].WithSize (requestedBitmapSize);
 		}
 
+
+		/// <summary>
+		/// Gets as image (sync).
+		/// </summary>
+		/// <param name="type">Scan type.</param>
+		/// <param name="callback">Function to call on finish.</param>
         public void GetAsImageAsync(ScanType type, ImageLoadedCallback callback)
         {
             Thread imageLoaderThread = new Thread(delegate() {
