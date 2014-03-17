@@ -22,7 +22,7 @@ namespace bachelorarbeit_implementierung
 	{
 		#region static member
 
-		public static Color maskColor = Colors.Coral;
+		public static Color maskColor = Colors.DarkBlue;
 
 		#endregion
 
@@ -140,6 +140,9 @@ namespace bachelorarbeit_implementierung
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
+					ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+					ib.Context.NewPath ();
+
 					SetMask (
 						new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y),
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
@@ -160,6 +163,11 @@ namespace bachelorarbeit_implementierung
 			switch (e.Button) {
 			case PointerButton.Left:
 				pointer ^= Pointer.Left;
+
+				if (isEditMode) {
+					ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+					ib.Context.ClosePath ();
+				}
 				break;
 			case PointerButton.Right:
 				pointer ^= Pointer.Right;
@@ -186,13 +194,17 @@ namespace bachelorarbeit_implementierung
 		protected override void OnMouseExited (EventArgs e)
 		{
 			pointer = Pointer.None;
+
+			if (isEditMode) {
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+				ib.Context.ClosePath ();
+			}
 		}
 
 		protected override void OnKeyPressed (KeyEventArgs e)
 		{
 			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
 			    e.Modifiers.HasFlag (ModifierKeys.Control)) {
-
 
 			}
 		}
@@ -226,9 +238,16 @@ namespace bachelorarbeit_implementierung
 
 			} else {
 				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
-				ib.Context.Arc (position.X, position.Y, pointerSize, 0, 360);
+				ib.Context.SetLineWidth (pointerSize*2);
+
 				ib.Context.SetColor (maskColor);
+				ib.Context.LineTo (position);
+				ib.Context.Stroke ();
+
+				ib.Context.Arc (position.X, position.Y, pointerSize, 0, 360);
 				ib.Context.Fill ();
+
+				ib.Context.MoveTo (position);
 			}
 
 			mask.Image = scan.GetMaskAsImage (currentShownType);

@@ -125,11 +125,6 @@ namespace bachelorarbeit_implementierung
 					max [(int)type] = data [(int)type] [i];
 				}
 			}
-//			Parallel.For(0, length, new Action<int>(i =>
-//			{
-//				
-//
-//			}));
 
 			return data [(int)type];
 		}
