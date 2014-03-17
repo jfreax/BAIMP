@@ -84,6 +84,7 @@ namespace bachelorarbeit_implementierung
 			MenuItem contextSaveMask = new MenuItem ("Save changes");
 			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
 				scan.SaveMask (currentShownType);
+				mask.Image = scan.GetMaskAsImage(currentShownType);
 
 				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (true);
 				scanDataChanged(scan, dataChangedEvent);

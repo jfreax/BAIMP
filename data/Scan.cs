@@ -266,7 +266,7 @@ namespace bachelorarbeit_implementierung
 
 				XD.Image mask = LoadMask (type);
 				if (mask != null) {
-					maskBuilder [(int)type].Context.DrawImage (mask.WithSize (Size), Xwt.Point.Zero);
+					maskBuilder [(int)type].Context.DrawImage (mask.WithSize (Size), Xwt.Point.Zero, 0.6);
 				}
 			}
 			return maskBuilder [(int)type];
@@ -325,19 +325,18 @@ namespace bachelorarbeit_implementierung
 		public void SaveMask(ScanType type)
 		{
 			XD.BitmapImage mask = GetMaskBuilder (type).ToBitmap ();
+			XD.Color maskColor = ScanView.maskColor.WithAlpha (1.0);
 
 			Parallel.For(0, (int)mask.Height, new Action<int>(y => {
-				//for (int y = 0; y < mask.Height; y++) {
 				for (int x = 0; x < mask.Width; x++) {
 					XD.Color color = mask.GetPixel (x, y);
-					if (color == ScanView.maskColor) {
-						//mask.SetPixel (x, y, XD.Colors.Black);
+					if (color.WithAlpha(1.0) == maskColor) {
+						mask.SetPixel (x, y, color.WithAlpha(0.6));
 					} else {
 						mask.SetPixel (x, y, XD.Colors.Transparent);
 					}
 				}
 			}));
-				//}
 
 			using (MemoryStream stream = new MemoryStream())
 			{
@@ -356,6 +355,9 @@ namespace bachelorarbeit_implementierung
 					break;
 				}
 				ini.UpdateFile ();
+
+				maskBuilder [(int)type].Dispose ();
+				maskBuilder [(int)type] = null;
 			}
 		}
 
