@@ -24,6 +24,8 @@ namespace bachelorarbeit_implementierung
 		float zLengthPerDigitF;
 		string fiberType;
 
+		Xwt.Size requestedBitmapSize;
+
 		string[] filenames;
 
 		float[][] data;
@@ -49,6 +51,8 @@ namespace bachelorarbeit_implementierung
 			width = ini.ReadInteger("general", "Width", 0);
 			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
 			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
+
+			requestedBitmapSize = new Xwt.Size (width, height);
 
 			generalMetadata = ini.ReadAllStrings ("general");
 
@@ -187,8 +191,22 @@ namespace bachelorarbeit_implementierung
 				renderedImage [(int)type] = Xwt.Drawing.Image.FromStream (memoryStream);
 			}
 
-			return renderedImage [(int)type].WithSize (width, height);
+			return renderedImage [(int)type].WithSize (requestedBitmapSize);
 		}
+
+
+		/// <summary>
+		/// Scales the render size of all images
+		/// </summary>
+		/// <param name="scaleFactor">Scale factor.</param>
+		/// <remarks>
+		/// Call GetAsImage again, to get image with correct size
+		/// </remarks>
+		public void ScaleImage(double scaleFactor) {
+			requestedBitmapSize.Height *= scaleFactor;
+			requestedBitmapSize.Width *= scaleFactor;
+		}
+
 
 		public override string ToString() {
 			return Name;
@@ -205,6 +223,20 @@ namespace bachelorarbeit_implementierung
 		public string Name {
 			get {
 				return Path.GetFileNameWithoutExtension (filenames [(int)ScanType.Metadata]);
+			}
+		}
+
+		public Xwt.Size RequestedBitmapSize {
+			get { return requestedBitmapSize; }
+			set { requestedBitmapSize = value;}
+		}
+
+		public bool IsScaled() {
+			if (requestedBitmapSize.Height != height ||
+			    requestedBitmapSize.Width != width) {
+				return true;
+			} else {
+				return false;
 			}
 		}
 	}

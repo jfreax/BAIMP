@@ -13,7 +13,7 @@ namespace bachelorarbeit_implementierung
 		ScrollView tab;
 		ScanView scanView;
 		Notebook notebook;
-		double imageScale = 1.0;
+
 		Scan currentScan;
 
 		/// <summary>
@@ -47,10 +47,10 @@ namespace bachelorarbeit_implementierung
 		public void ShowPreviewOf (Scan scan)
 		{
 			this.currentScan = scan;
-			imageScale = 1.0;
 
 			scanView = new ScanView (scan);
 			tab.Content = scanView;
+			tab.QueueForReallocate ();
 
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
@@ -63,8 +63,8 @@ namespace bachelorarbeit_implementierung
 
 		private void ImageLoadCallBack (ScanType type)
 		{
-			if (imageScale == 1.0) {
-				scanView.WithBoxSize (tab.VisibleRect.Size);
+			if (!scanView.IsScaled()) {
+				scanView.WithBoxSize (tab.Size);
 			}
 		}
 
@@ -140,12 +140,6 @@ namespace bachelorarbeit_implementierung
 		/// <param name="e">Event args</param>
 		private void OnPreviewZoom (MouseScrolledEventArgs e)
 		{
-			if (e.Direction == ScrollDirection.Down) {
-				imageScale *= 0.9;
-			} else {
-				imageScale *= 1.1;
-			}
-
 			if (scanView != null) {
 				if (e.Direction == ScrollDirection.Down) {
 					scanView.Scale (0.9);

@@ -14,7 +14,6 @@ namespace bachelorarbeit_implementierung
 
 		public Dictionary<string, object> Data = new Dictionary<string, object> ();
 
-		private double scale = 1.0f;
 		private ImageView image;
 		private ImageView mask;
 		private Scan scan;
@@ -43,20 +42,10 @@ namespace bachelorarbeit_implementierung
 		/// <param name="scale">Scale factor.</param>
 		public void Scale (double scale)
 		{
-			this.scale *= scale;
-
-			ScaleIntern (scale);
+			scan.ScaleImage (scale);
+			image.Image = scan.GetAsImage (currentShownType);
 		}
 
-		private void ScaleIntern (double scale)
-		{
-			if (image.Image != null) {
-				image.Image = image.Image.Scale (scale);
-			}
-			if (mask.Image != null) {
-				mask.Image = mask.Image.Scale (scale);
-			}
-		}
 
 
 		/// <summary>
@@ -73,11 +62,9 @@ namespace bachelorarbeit_implementierung
 				}
 
 				Image rendered = scan.GetAsImage (type);
-				Console.WriteLine (scale);
 
 				Application.Invoke (delegate() {
 					image.Image = rendered;
-					ScaleIntern (scale);
 
 					if (imageLoadedCallback != null) {
 						imageLoadedCallback (type);
@@ -112,8 +99,14 @@ namespace bachelorarbeit_implementierung
 		public void WithBoxSize(Size s) {
 			if (image.Image != null) {
 				image.Image = image.Image.WithBoxSize (s);
+				scan.RequestedBitmapSize = image.Image.Size;
 			}
 			// TODO mask
+		}
+
+
+		public bool IsScaled() {
+			return scan.IsScaled ();
 		}
 
 		/// <summary>
