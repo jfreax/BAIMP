@@ -60,6 +60,11 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+
+		/// <summary>
+		/// Display image of selected scan type
+		/// </summary>
+		/// <param name="type">Type.</param>
 		private void ShowType (ScanType type)
 		{
 			currentShownType = type;
@@ -69,24 +74,11 @@ namespace bachelorarbeit_implementierung
 					return;
 				}
 
-				//if (Image != null)
-				//{
-				//	return;
-				//}
-
-				MemoryStream memoryStream = new MemoryStream ();
-				System.Drawing.Bitmap bmp = scan.GetAsBitmap (type);
-				if (bmp == null) {
-					Console.WriteLine ("bmp == null " + (int)type);
-					// TODO raise error
-					return;
-				}
-				bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
-
-				memoryStream.Position = 0;
+				Image rendered = scan.GetAsImage (type);
+				Console.WriteLine (rendered.Height);
 
 				Application.Invoke (delegate() {
-					image.Image = Image.FromStream (memoryStream);
+					image.Image = rendered;
 					ScaleIntern (scale);
 
 					if (imageLoadedCallback != null) {
@@ -96,9 +88,29 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+		/// <summary>
+		/// Registers the image loaded callback.
+		/// </summary>
+		/// <param name="cb">Callback function.</param>
 		public void RegisterImageLoadedCallback (bachelorarbeit_implementierung.Preview.MyCallBack cb)
 		{
 			this.imageLoadedCallback = cb;
+		}
+
+
+		protected override void OnButtonPressed(ButtonEventArgs e) {
+			switch (e.Button) {
+			case PointerButton.Left:
+				Console.WriteLine ("bla");
+				break;
+			}
+		}
+
+		public void WithBoxSize(Size s) {
+			if (image.Image != null) {
+				image.Image = image.Image.WithBoxSize (s);
+			}
+			// TODO mask
 		}
 
 		/// <summary>

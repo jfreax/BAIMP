@@ -64,7 +64,7 @@ namespace bachelorarbeit_implementierung
 		private void ImageLoadCallBack (ScanType type)
 		{
 			if (imageScale == 1.0) {
-				ResizeImageToFit ();
+				scanView.WithBoxSize (tab.VisibleRect.Size);
 			}
 		}
 
@@ -88,13 +88,10 @@ namespace bachelorarbeit_implementierung
 		{
 
 			view.BoundsChanged += delegate(object sender, EventArgs e) {
-				ResizeImageToFit ();
+				scanView.WithBoxSize (tab.VisibleRect.Size);
 			};
 
 			view.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
-				//ScrollView sv = (ScrollView) sender;
-				//ScanView scanView = (ScanView) sv.Content;
-
 				switch (e.Button) {
 				case PointerButton.Left:
 
@@ -160,21 +157,6 @@ namespace bachelorarbeit_implementierung
 			e.Handled = true;
 		}
 
-		private void ResizeImageToFit ()
-		{
-			ScanView iv = (ScanView)tab.Content;
-
-			if (iv != null && iv.Image != null) {
-
-				double width = tab.VisibleRect.Width / iv.Image.Size.Width;
-				double height = tab.VisibleRect.Height / iv.Image.Size.Height;
-
-				imageScale *= Math.Min (width, height);
-				if (scanView != null) {
-					scanView.Scale (Math.Min (width, height));
-				}
-			}
-		}
 
 		/// <summary>
 		/// 

@@ -31,6 +31,7 @@ namespace bachelorarbeit_implementierung
 
 		public List<Tuple<string, string>> generalMetadata;
 
+		Xwt.Drawing.Image[] renderedImage;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -60,6 +61,7 @@ namespace bachelorarbeit_implementierung
 			// initialize empty data containers
 			data = new float[(int)ScanType.Metadata][];
 			max = new float[(int)ScanType.Metadata];
+			renderedImage = new Xwt.Drawing.Image[(int)ScanType.Metadata];
 		}
 
 
@@ -171,19 +173,24 @@ namespace bachelorarbeit_implementierung
 		}
 
 		public Xwt.Drawing.Image GetAsImage(ScanType type) {
-			float[] array = GetAsArray (type);
-			Xwt.Drawing.ImageBuilder imageBuilder = new Xwt.Drawing.ImageBuilder (width, height);
-
-			float max = array.Max ();
-
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					byte color = (byte)(((int)array [y * width + x] * 255) / max);
-					imageBuilder.ToBitmap ().SetPixel (x, y, Xwt.Drawing.Color.FromBytes (color, color, color));
+			if (renderedImage [(int)type] == null) {
+				MemoryStream memoryStream = new MemoryStream ();
+				System.Drawing.Bitmap bmp = GetAsBitmap (type);
+				if (bmp == null) {
+					Console.WriteLine ("bmp == null " + (int)type);
+					// TODO raise error
+					return null;
 				}
+				bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+				memoryStream.Position = 0;
+
+				renderedImage [(int)type] = Xwt.Drawing.Image.FromStream (memoryStream);
+			} else {
+				double w = renderedImage [(int)type].Width;
+				Console.WriteLine (w);
 			}
 
-			return imageBuilder.ToBitmap();
+			return renderedImage[(int)type];
 		}
 
 		public override string ToString() {
