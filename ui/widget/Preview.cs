@@ -52,6 +52,9 @@ namespace bachelorarbeit_implementierung
 
 			scanView.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				scanDataChanged(sender, e);
+
+				notebook.CurrentTab.Label =
+					Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + (e.Saved ? "" : "*");
 			};
 
 			tab.Content = scanView;
