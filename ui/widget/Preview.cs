@@ -14,7 +14,7 @@ namespace bachelorarbeit_implementierung
 		ScanView scanView;
 		Notebook notebook;
 
-		Scan currentScan;
+		ScanWrapper currentScan;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Preview"/> class.
@@ -44,13 +44,17 @@ namespace bachelorarbeit_implementierung
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		public void ShowPreviewOf (Scan scan)
+		public void ShowPreviewOf (ScanWrapper scan)
 		{
 			this.currentScan = scan;
 
 			scanView = new ScanView (scan);
+
+			scanView.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+				scanDataChanged(sender, e);
+			};
+
 			tab.Content = scanView;
-			tab.QueueForReallocate ();
 
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
@@ -212,6 +216,20 @@ namespace bachelorarbeit_implementierung
 				}
 
 				tab.MouseMoved += MouseMovedGtk;
+			}
+		}
+
+		EventHandler<ScanDataEventArgs> scanDataChanged;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
+			add {
+				scanDataChanged += value;
+			}
+			remove {
+				scanDataChanged -= value;
 			}
 		}
 	}

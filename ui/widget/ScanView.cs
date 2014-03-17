@@ -30,7 +30,7 @@ namespace bachelorarbeit_implementierung
 		public Dictionary<string, object> Data = new Dictionary<string, object> ();
 		private ImageView image;
 		private ImageView mask;
-		private Scan scan;
+		private ScanWrapper scan;
 		private ScanType currentShownType;
 		private Menu contextMenu;
 
@@ -44,7 +44,7 @@ namespace bachelorarbeit_implementierung
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
 		/// </summary>
-		public ScanView (Scan scan)
+		public ScanView (ScanWrapper scan)
 		{
 			this.scan = scan;
 
@@ -84,6 +84,9 @@ namespace bachelorarbeit_implementierung
 			MenuItem contextSaveMask = new MenuItem ("Save changes");
 			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
 				scan.SaveMask (currentShownType);
+
+				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (true);
+				scanDataChanged(scan, dataChangedEvent);
 			};
 			contextMenu.Items.Add (contextSaveMask);
 		}
@@ -148,6 +151,10 @@ namespace bachelorarbeit_implementierung
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Command)
 					);
+
+					// data was changed
+					ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs ();
+					scanDataChanged(scan, dataChangedEvent);
 				}
 				break;
 			case PointerButton.Right:
@@ -206,6 +213,24 @@ namespace bachelorarbeit_implementierung
 			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
 			    e.Modifiers.HasFlag (ModifierKeys.Control)) {
 
+			}
+		}
+
+		#endregion
+
+		#region custom events
+
+		EventHandler<ScanDataEventArgs> scanDataChanged;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
+			add {
+				scanDataChanged += value;
+			}
+			remove {
+				scanDataChanged -= value;
 			}
 		}
 

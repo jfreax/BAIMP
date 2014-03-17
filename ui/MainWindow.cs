@@ -78,7 +78,6 @@ namespace bachelorarbeit_implementierung
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
 			Content = splitFiletreePreview;
 
-
 			InitializeEvents ();
 			fileTreeView.Initialize (); // call after initialize events!
 		}
@@ -97,11 +96,20 @@ namespace bachelorarbeit_implementierung
 							.GetValue (fileTreeView.nameCol);
 
 					if( value is ScanWrapper ) {
-						Scan s = (ScanWrapper)value;
+						ScanWrapper s = (ScanWrapper)value;
 						preview.ShowPreviewOf(s);
 						metadata.Load(s);
 					}
 				}
+			};
+
+			preview.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+				ScanWrapper scan = (ScanWrapper) sender;
+
+				fileTreeView
+					.store
+					.GetNavigatorAt (scan.position)
+					.SetValue(fileTreeView.saveStateCol, e.Saved ? "" : "*");
 			};
 		}
 

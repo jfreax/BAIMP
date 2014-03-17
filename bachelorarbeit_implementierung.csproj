@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BD05E3C4-A23D-492D-9CB8-653D8F293D08}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -77,6 +77,7 @@
     <Compile Include="data\ScanWrapper.cs" />
     <Compile Include="ui\widget\FileTreeView.cs" />
     <Compile Include="ui\widget\MetadataView.cs" />
+    <Compile Include="ScanDataEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

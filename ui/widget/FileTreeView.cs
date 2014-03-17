@@ -6,6 +6,7 @@ namespace bachelorarbeit_implementierung
 	public class FileTreeView : TreeView
 	{
 		public DataField<object> nameCol;
+		public DataField<object> saveStateCol;
 		public TreeStore store;
 
 		private ScanCollection scans;
@@ -21,12 +22,14 @@ namespace bachelorarbeit_implementierung
 			this.scans = scans;
 
 			nameCol = new DataField<object> ();
-			store = new TreeStore (nameCol);
+			saveStateCol = new DataField<object> ();
+			store = new TreeStore (nameCol, saveStateCol);
 		}
 
 		public void Initialize()
 		{
-			this.Columns.Add ("Name", nameCol);
+			this.Columns.Add ("Name", nameCol).CanResize = true;
+			this.Columns.Add ("*", saveStateCol).CanResize = true;
 
 			TreePosition pos = null;
 			foreach (string key in scans.Keys)
