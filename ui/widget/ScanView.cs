@@ -32,6 +32,9 @@ namespace bachelorarbeit_implementierung
 		// mouse actions
 		Pointer pointer;
 
+		int pointerSize = 16;
+
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
 		/// </summary>
@@ -79,6 +82,7 @@ namespace bachelorarbeit_implementierung
             }));
 		}
 
+		#region callback
 
 		/// <summary>
 		/// Registers the image loaded callback.
@@ -89,13 +93,20 @@ namespace bachelorarbeit_implementierung
 			this.imageLoadedCallback = cb;
 		}
 
+		#endregion
+
+		#region events
 
 		protected override void OnButtonPressed(ButtonEventArgs e) {
+			Point scaleFactor = scan.GetScaleFactor ();
+
 			switch (e.Button) {
 			case PointerButton.Left:
+				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y));
 				pointer |= Pointer.Left;
 				break;
 			case PointerButton.Right:
+				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y), true);
 				pointer |= Pointer.Right;
 				break;
 			}
@@ -116,41 +127,54 @@ namespace bachelorarbeit_implementierung
 
 		protected override void OnMouseMoved(MouseMovedEventArgs e) {
 			Point scaleFactor = scan.GetScaleFactor ();
-			int pointerSize = 16;
 
 			if (pointer.HasFlag(Pointer.Left)) {
-				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
-				ib.Context.Arc (e.X * scaleFactor.X, e.Y * scaleFactor.Y, 15, 0, 360);
-				ib.Context.SetColor (Colors.Coral);
-				ib.Context.Fill ();
-
-				mask.Image = scan.GetMaskAsImage (currentShownType);
+				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y));
 			} else if(pointer.HasFlag(Pointer.Right)) {
-				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
-
-				ib.Context.Save ();
-				ib.Context.Arc (e.X * scaleFactor.X, e.Y * scaleFactor.Y, pointerSize, 0, 360);
-				ib.Context.Clip ();
-
-				Image i = image.Image.WithSize(scan.Size).ToBitmap ().Crop (new Rectangle (
-					e.X * scaleFactor.X - pointerSize, e.Y * scaleFactor.Y - pointerSize,
-					pointerSize * 2, pointerSize * 2
-				));
-				ib.Context.DrawImage (
-					i, 
-					new Point(e.X * scaleFactor.X - pointerSize, e.Y * scaleFactor.Y - pointerSize)
-				);
-
-				ib.Context.Fill ();
-				ib.Context.Restore ();
-
-				mask.Image = scan.GetMaskAsImage (currentShownType);
+				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y), true);
 			}
 		}
 
 
 		protected override void OnMouseExited(EventArgs e) {
 			pointer = Pointer.None;
+		}
+
+		#endregion
+
+
+		/// <summary>
+		/// Set mask at given position.
+		/// </summary>
+		/// <param name="position">Position.</param>
+		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
+		private void SetMask(Point position, bool unset = false) {
+			if (unset) {
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+
+				ib.Context.Save ();
+				ib.Context.Arc (position.X, position.Y, pointerSize, 0, 360);
+				ib.Context.Clip ();
+
+				double newX = Math.Min (Math.Max (position.X - pointerSize, 0), scan.Size.Width);
+				double newY = Math.Min (Math.Max (position.Y - pointerSize, 0), scan.Size.Height);
+
+				Image i = image.Image.WithSize(scan.Size).ToBitmap ().Crop (
+					new Rectangle (newX, newY, pointerSize * 2, pointerSize * 2)
+				);
+
+				ib.Context.DrawImage (i, new Point(newX, newY));
+				ib.Context.Fill ();
+				ib.Context.Restore ();
+
+			} else {
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+				ib.Context.Arc (position.X, position.Y, pointerSize, 0, 360);
+				ib.Context.SetColor (Colors.Coral);
+				ib.Context.Fill ();
+			}
+
+			mask.Image = scan.GetMaskAsImage (currentShownType);
 		}
 
 
@@ -163,13 +187,18 @@ namespace bachelorarbeit_implementierung
 				image.Image = image.Image.WithBoxSize (s);
 				scan.RequestedBitmapSize = image.Image.Size;
 			}
-			// TODO mask
 		}
 
 
+		/// <summary>
+		/// Determines whether the image of this scan is scaled.
+		/// </summary>
+		/// <returns><c>true</c> if this instance is scaled; otherwise, <c>false</c>.</returns>
 		public bool IsScaled() {
 			return scan.IsScaled ();
 		}
+
+		#region getter/setter
 
 		/// <summary>
 		/// Gets or sets the scan image to show.
@@ -179,29 +208,8 @@ namespace bachelorarbeit_implementierung
 			get {
 				return image.Image;
 			}
-
-			//set {
-			//	image.Image = value;
-
-//				if (value != null) {
-//					ImageBuilder ib = new ImageBuilder (value.Width, value.Height);
-//					ib.Context.Arc (150, 15, 15, 0, 360);
-//					ib.Context.SetColor (Color.FromBytes(255, 0, 100));
-//					ib.Context.Fill ();
-//					ib.Context.SetColor (Colors.Aqua);
-//					ib.Context.Rectangle (0, 0, 50, 50);
-//					ib.Context.Fill ();
-//					var img = ib.ToVectorImage ();
-//
-//					mask.Image = img;
-//
-//					//ImageBuilder ib = new ImageBuilder (value.Width, value.Height);
-//					//ib.Context.SetColor (Color.FromBytes(255, 0, 100));
-//					//ib.Context.Rectangle (new Rectangle (Point.Zero, new Size (100, 100)));
-//					//mask.Image = ib.ToBitmap ();
-//				}
-				//}
 		}
+
 
 		/// <summary>
 		/// Gets or sets the mask.
@@ -217,6 +225,14 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+
+		/// <summary>
+		/// Gets or sets the type of the scan.
+		/// </summary>
+		/// <value>The type of the scan.</value>
+		/// <remarks>
+		/// Reload shown bitmap automatically.
+		/// </remarks>
 		public ScanType ScanType {
 			get {
 				return currentShownType;
@@ -227,6 +243,8 @@ namespace bachelorarbeit_implementierung
                 ShowType(value);
 			}
 		}
+
+		#endregion
 	}
 }
 
