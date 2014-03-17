@@ -32,7 +32,6 @@ namespace bachelorarbeit_implementierung
 		private ImageView mask;
 		private ScanWrapper scan;
 		private ScanType currentShownType;
-		private Menu contextMenu;
 
 		// mouse actions
 		Pointer pointer;
@@ -61,6 +60,11 @@ namespace bachelorarbeit_implementierung
 			InitializeContextMenu ();
 		}
 
+		#region contextmenu 
+
+		private Menu contextMenu;
+		private MenuItem contextEditMask;
+
 		/// <summary>
 		/// Initializes the context menu.
 		/// </summary>
@@ -68,16 +72,10 @@ namespace bachelorarbeit_implementierung
 		{
 			contextMenu = new Menu ();
 
-			MenuItem contextEditMask = new MenuItem ("Edit mask");
+			contextEditMask = new MenuItem ("Edit mask");
 			contextEditMask.UseMnemonic = true;
 			contextEditMask.Clicked += delegate(object sender, EventArgs e) {
-				if (isEditMode) {
-					contextEditMask.Label = "Edit mask";
-				} else {
-					contextEditMask.Label = "End edit mask";
-				}
-
-				isEditMode ^= true;
+				EditMode ^= true;
 			};
 			contextMenu.Items.Add (contextEditMask);
 
@@ -92,16 +90,7 @@ namespace bachelorarbeit_implementierung
 			contextMenu.Items.Add (contextSaveMask);
 		}
 
-		/// <summary>
-		/// Scale scan and mask at once.
-		/// </summary>
-		/// <param name="scale">Scale factor.</param>
-		public void Scale (double scale)
-		{
-			scan.ScaleImage (scale);
-			image.Image = scan.GetAsImage (currentShownType);
-			mask.Image = scan.GetMaskAsImage (currentShownType);
-		}
+		#endregion
 
 		/// <summary>
 		/// Display image of selected scan type
@@ -110,6 +99,7 @@ namespace bachelorarbeit_implementierung
 		private void ShowType (ScanType type)
 		{
 			currentShownType = type;
+			EditMode = false;
 
 			scan.GetAsImageAsync (type, new bachelorarbeit_implementierung.Scan.ImageLoadedCallback (delegate(Image loadedImage) {
 				image.Image = loadedImage;
@@ -238,6 +228,17 @@ namespace bachelorarbeit_implementierung
 		#endregion
 
 		/// <summary>
+		/// Scale scan and mask at once.
+		/// </summary>
+		/// <param name="scale">Scale factor.</param>
+		public void Scale (double scale)
+		{
+			scan.ScaleImage (scale);
+			image.Image = scan.GetAsImage (currentShownType);
+			mask.Image = scan.GetMaskAsImage (currentShownType);
+		}
+
+		/// <summary>
 		/// Set mask at given position.
 		/// </summary>
 		/// <param name="position">Position.</param>
@@ -346,6 +347,22 @@ namespace bachelorarbeit_implementierung
 				//Thread imageLoaderThread = new Thread (() => ShowType (value));
 				//imageLoaderThread.Start ();
 				ShowType (value);
+			}
+		}
+
+
+		private bool EditMode {
+			get {
+				return isEditMode;
+			}
+			set {
+				if (value) {
+					contextEditMask.Label = "End edit mask";
+					isEditMode = true;
+				} else {
+					contextEditMask.Label = "Edit mask";
+					isEditMode = false;
+				}
 			}
 		}
 
