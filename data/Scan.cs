@@ -185,12 +185,9 @@ namespace bachelorarbeit_implementierung
 				memoryStream.Position = 0;
 
 				renderedImage [(int)type] = Xwt.Drawing.Image.FromStream (memoryStream);
-			} else {
-				double w = renderedImage [(int)type].Width;
-				Console.WriteLine (w);
 			}
 
-			return renderedImage[(int)type];
+			return renderedImage [(int)type].WithSize (width, height);
 		}
 
 		public override string ToString() {

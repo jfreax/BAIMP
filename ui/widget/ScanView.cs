@@ -75,7 +75,7 @@ namespace bachelorarbeit_implementierung
 				}
 
 				Image rendered = scan.GetAsImage (type);
-				Console.WriteLine (rendered.Height);
+				Console.WriteLine (scale);
 
 				Application.Invoke (delegate() {
 					image.Image = rendered;
@@ -106,6 +106,11 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+
+		/// <summary>
+		/// Change the shown image to a size that fits in the provided size limits
+		/// </summary>
+		/// <param name="size">Max width and height</param>
 		public void WithBoxSize(Size s) {
 			if (image.Image != null) {
 				image.Image = image.Image.WithBoxSize (s);

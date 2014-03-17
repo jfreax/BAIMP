@@ -165,11 +165,11 @@ namespace bachelorarbeit_implementierung
 		/// <param name="e">Mouse event args.</param>
 		private void MouseMovedNotGtk (object sender, MouseMovedEventArgs e)
 		{
-			e.Handled = false;
-
-			tab.MouseMoved -= MouseMovedNotGtk;
-
 			if (scanView != null && scanView.Image != null) {
+				tab.MouseMoved -= MouseMovedNotGtk;
+
+				e.Handled = true;
+
 				if (scanView.Data.ContainsKey ("pressed") &&
 				    scanView.Data.ContainsKey ("pressedPosition") &&
 				    scanView.Data ["pressedPosition"] != null) {
@@ -184,10 +184,10 @@ namespace bachelorarbeit_implementierung
 					tab.VerticalScrollControl.Value =
 						Math.Min (tab.VerticalScrollControl.UpperValue, newScrollY);
 				}
-			}
 
-			scanView.Data ["pressedPosition"] = e.Position;
-			tab.MouseMoved += MouseMovedNotGtk;
+				scanView.Data ["pressedPosition"] = e.Position;
+				tab.MouseMoved += MouseMovedNotGtk;
+			}
 		}
 
 		/// <summary>
@@ -197,13 +197,11 @@ namespace bachelorarbeit_implementierung
 		/// <param name="e">Mouse event args.</param>
 		private void MouseMovedGtk (object sender, MouseMovedEventArgs e)
 		{
-			e.Handled = false;
-
-			tab.MouseMoved -= MouseMovedGtk;
-
-			//ScanView img = (ScanView)sc.Content;
-
 			if (scanView != null && scanView.Image != null) {
+				tab.MouseMoved -= MouseMovedGtk;
+
+				e.Handled = true;
+
 				if (scanView.Data.ContainsKey ("pressed") &&
 				    scanView.Data.ContainsKey ("pressedPosition") &&
 				    scanView.Data ["pressedPosition"] != null) {
@@ -218,9 +216,9 @@ namespace bachelorarbeit_implementierung
 					tab.VerticalScrollControl.Value =
 						Math.Min (tab.VerticalScrollControl.UpperValue - tab.VisibleRect.Height, newScrollY);
 				}
-			}
 
-			tab.MouseMoved += MouseMovedGtk;
+				tab.MouseMoved += MouseMovedGtk;
+			}
 		}
 	}
 }
