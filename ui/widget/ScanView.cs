@@ -44,6 +44,7 @@ namespace bachelorarbeit_implementierung
 		{
 			scan.ScaleImage (scale);
 			image.Image = scan.GetAsImage (currentShownType);
+			mask.Image = scan.GetMaskAsImage (currentShownType);
 		}
 
 
@@ -86,7 +87,17 @@ namespace bachelorarbeit_implementierung
 		protected override void OnButtonPressed(ButtonEventArgs e) {
 			switch (e.Button) {
 			case PointerButton.Left:
-				Console.WriteLine ("bla");
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+				ib.Context.Arc (e.X, e.Y, 15, 0, 360);
+				ib.Context.SetColor (Color.FromBytes (255, 0, 100));
+				ib.Context.Fill ();
+
+				ib.Context.Rectangle (0, 0, image.Image.Size.Width, image.Image.Size.Height);
+				ib.Context.Fill ();
+
+				mask.Image = scan.GetMaskAsImage (currentShownType);
+
+				Console.WriteLine (image.Image.Size + " und " + mask.Image.Size);
 				break;
 			}
 		}

@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using XD = Xwt.Drawing;
 
 namespace bachelorarbeit_implementierung
 {
@@ -33,7 +34,8 @@ namespace bachelorarbeit_implementierung
 
 		public List<Tuple<string, string>> generalMetadata;
 
-		Xwt.Drawing.Image[] renderedImage;
+		XD.Image[] renderedImage;
+		XD.ImageBuilder[] maskBuilder;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -66,6 +68,7 @@ namespace bachelorarbeit_implementierung
 			data = new float[(int)ScanType.Metadata][];
 			max = new float[(int)ScanType.Metadata];
 			renderedImage = new Xwt.Drawing.Image[(int)ScanType.Metadata];
+			maskBuilder = new XD.ImageBuilder [(int)ScanType.Metadata];
 		}
 
 
@@ -176,7 +179,12 @@ namespace bachelorarbeit_implementierung
 			return bitmap;
 		}
 
-		public Xwt.Drawing.Image GetAsImage(ScanType type) {
+		/// <summary>
+		/// Get as image.
+		/// </summary>
+		/// <returns>The as image.</returns>
+		/// <param name="type">Type.</param>
+		public XD.Image GetAsImage(ScanType type) {
 			if (renderedImage [(int)type] == null) {
 				MemoryStream memoryStream = new MemoryStream ();
 				System.Drawing.Bitmap bmp = GetAsBitmap (type);
@@ -188,10 +196,34 @@ namespace bachelorarbeit_implementierung
 				bmp.Save (memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
 				memoryStream.Position = 0;
 
-				renderedImage [(int)type] = Xwt.Drawing.Image.FromStream (memoryStream);
+				renderedImage [(int)type] = XD.Image.FromStream (memoryStream);
 			}
 
 			return renderedImage [(int)type].WithSize (requestedBitmapSize);
+		}
+
+
+		/// <summary>
+		/// Gets the mask builder to draw on it.
+		/// </summary>
+		/// <returns>The mask builder.</returns>
+		/// <param name="type">Type.</param>
+		public XD.ImageBuilder GetMaskBuilder(ScanType type) {
+			if(maskBuilder[(int)type] == null) {
+				//maskBuilder [(int)type] = new XD.ImageBuilder (requestedBitmapSize.Width, requestedBitmapSize.Height);
+				maskBuilder [(int)type] = new XD.ImageBuilder (width, height);
+			}
+			return maskBuilder [(int)type];
+		}
+
+
+		/// <summary>
+		/// Gets the mask as image.
+		/// </summary>
+		/// <returns>The mask as image.</returns>
+		/// <param name="type">Type.</param>
+		public XD.Image GetMaskAsImage(ScanType type) {
+			return GetMaskBuilder (type).ToVectorImage ().WithSize (requestedBitmapSize);
 		}
 
 
@@ -230,6 +262,7 @@ namespace bachelorarbeit_implementierung
 			get { return requestedBitmapSize; }
 			set { requestedBitmapSize = value;}
 		}
+
 
 		public bool IsScaled() {
 			if (requestedBitmapSize.Height != height ||
