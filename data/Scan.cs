@@ -314,9 +314,7 @@ namespace bachelorarbeit_implementierung
 			return Name;
 		}
 
-		/////////////////////
-		// Getter & Setter //
-		/////////////////////
+		#region getter/setter
 
 		public string FiberType {
 			get { return fiberType; }
@@ -331,6 +329,8 @@ namespace bachelorarbeit_implementierung
 		public Xwt.Size Size {
 			get { return size; }
 		}
+
+		#endregion
 
 		public Xwt.Size RequestedBitmapSize {
 			get { return requestedBitmapSize; }

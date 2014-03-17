@@ -29,10 +29,15 @@ namespace bachelorarbeit_implementierung
 		private Scan scan;
 		private ScanType currentShownType;
 
+		private Menu contextMenu;
+
 		// mouse actions
 		Pointer pointer;
 
 		int pointerSize = 16;
+
+		// state
+		bool isEditMode = false;
 
 
 		/// <summary>
@@ -50,6 +55,32 @@ namespace bachelorarbeit_implementierung
 
 			this.Add (image, 0, 0);
 			this.Add (mask, 0, 0);
+
+			// build context menu
+			InitializeContextMenu ();
+		}
+
+
+		/// <summary>
+		/// Initializes the context menu.
+		/// </summary>
+		private void InitializeContextMenu() {
+			contextMenu = new Menu ();
+
+			MenuItem contextEditMask = new MenuItem ("Edit mask");
+			contextEditMask.UseMnemonic = true;
+			contextEditMask.Clicked += delegate(object sender, EventArgs e) {
+				if(isEditMode) {
+					contextEditMask.Label = "Edit mask";
+				} else {
+					contextEditMask.Label = "End edit mask";
+				}
+
+				isEditMode ^= true;
+			};
+			contextMenu.Items.Add (contextEditMask);
+
+			contextMenu.Items.Add (new MenuItem ("Save changes"));
 		}
 
 		/// <summary>
@@ -102,12 +133,20 @@ namespace bachelorarbeit_implementierung
 
 			switch (e.Button) {
 			case PointerButton.Left:
-				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y));
 				pointer |= Pointer.Left;
+
+				if (isEditMode) {
+					SetMask (
+						new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y),
+						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
+						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Command)
+					);
+				}
 				break;
 			case PointerButton.Right:
-				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y), true);
 				pointer |= Pointer.Right;
+
+				contextMenu.Popup ();
 				break;
 			}
 		}
@@ -126,12 +165,17 @@ namespace bachelorarbeit_implementierung
 
 
 		protected override void OnMouseMoved(MouseMovedEventArgs e) {
-			Point scaleFactor = scan.GetScaleFactor ();
 
-			if (pointer.HasFlag(Pointer.Left)) {
-				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y));
-			} else if(pointer.HasFlag(Pointer.Right)) {
-				SetMask (new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y), true);
+			if (isEditMode) {
+				Point scaleFactor = scan.GetScaleFactor ();
+
+				if (pointer.HasFlag (Pointer.Left)) {
+					SetMask (
+						new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y),
+						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
+						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Command)
+					);
+				}
 			}
 		}
 
@@ -140,8 +184,16 @@ namespace bachelorarbeit_implementierung
 			pointer = Pointer.None;
 		}
 
-		#endregion
 
+		protected override void OnKeyPressed(KeyEventArgs e) {
+			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
+			   e.Modifiers.HasFlag (ModifierKeys.Control)) {
+
+
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Set mask at given position.
