@@ -57,21 +57,30 @@ namespace bachelorarbeit_implementierung
 		{
 			currentShownType = type;
 
-			lock (this.lock_image_loading) {
-				if (scan == null) {
-					return;
-				}
+            scan.GetAsImageAsync(type, new bachelorarbeit_implementierung.Scan.ImageLoadedCallback(delegate(Image loadedImage)
+            {
+                image.Image = loadedImage;
+                if (imageLoadedCallback != null)
+                {
+                    imageLoadedCallback(type);
+                }
+            }));
 
-				Image rendered = scan.GetAsImage (type);
-
-				Application.Invoke (delegate() {
-					image.Image = rendered;
-
-					if (imageLoadedCallback != null) {
-						imageLoadedCallback (type);
-					}
-				});
-			}
+			//lock (this.lock_image_loading) {
+			//	if (scan == null) {
+			//		return;
+			//	}
+            //
+			//	Image rendered = scan.GetAsImage (type);
+            //
+			//	Application.Invoke (delegate() {
+			//		image.Image = rendered;
+//
+			//		if (imageLoadedCallback != null) {
+			//			imageLoadedCallback (type);
+			//		}
+			//	});
+			//}
 		}
 
 		/// <summary>
@@ -171,8 +180,9 @@ namespace bachelorarbeit_implementierung
 				return currentShownType;
 			}
 			set {
-				Thread imageLoaderThread = new Thread (() => ShowType (value));
-				imageLoaderThread.Start ();
+				//Thread imageLoaderThread = new Thread (() => ShowType (value));
+				//imageLoaderThread.Start ();
+                ShowType(value);
 			}
 		}
 	}
