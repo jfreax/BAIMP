@@ -7,6 +7,17 @@ using System.IO;
 
 namespace bachelorarbeit_implementierung
 {
+	[Flags]
+	public enum Pointer
+	{
+		None = 0,
+		Left = 1,
+		Middle = 2,
+		Right = 4,
+		ExtendedButton1 = 8,
+		ExtendedButton2 = 16
+	}
+
 	public class ScanView : Table
 	{
 		Preview.MyCallBack imageLoadedCallback = null;
@@ -17,6 +28,9 @@ namespace bachelorarbeit_implementierung
 		private ImageView mask;
 		private Scan scan;
 		private ScanType currentShownType;
+
+		// mouse actions
+		Pointer pointer;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
@@ -47,7 +61,6 @@ namespace bachelorarbeit_implementierung
 		}
 
 
-
 		/// <summary>
 		/// Display image of selected scan type
 		/// </summary>
@@ -66,6 +79,7 @@ namespace bachelorarbeit_implementierung
             }));
 		}
 
+
 		/// <summary>
 		/// Registers the image loaded callback.
 		/// </summary>
@@ -79,19 +93,64 @@ namespace bachelorarbeit_implementierung
 		protected override void OnButtonPressed(ButtonEventArgs e) {
 			switch (e.Button) {
 			case PointerButton.Left:
-				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
-				ib.Context.Arc (e.X, e.Y, 15, 0, 360);
-				ib.Context.SetColor (Color.FromBytes (255, 0, 100));
-				ib.Context.Fill ();
+				pointer |= Pointer.Left;
+				break;
+			case PointerButton.Right:
+				pointer |= Pointer.Right;
+				break;
+			}
+		}
 
-				ib.Context.Rectangle (0, 0, image.Image.Size.Width, image.Image.Size.Height);
+
+		protected override void OnButtonReleased(ButtonEventArgs e) {
+			switch (e.Button) {
+			case PointerButton.Left:
+				pointer ^= Pointer.Left;
+				break;
+			case PointerButton.Right:
+				pointer ^= Pointer.Right;
+				break;
+			}
+		}
+
+
+		protected override void OnMouseMoved(MouseMovedEventArgs e) {
+			Point scaleFactor = scan.GetScaleFactor ();
+			int pointerSize = 16;
+
+			if (pointer.HasFlag(Pointer.Left)) {
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
+				ib.Context.Arc (e.X * scaleFactor.X, e.Y * scaleFactor.Y, 15, 0, 360);
+				ib.Context.SetColor (Colors.Coral);
 				ib.Context.Fill ();
 
 				mask.Image = scan.GetMaskAsImage (currentShownType);
+			} else if(pointer.HasFlag(Pointer.Right)) {
+				ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
 
-				Console.WriteLine (image.Image.Size + " und " + mask.Image.Size);
-				break;
+				ib.Context.Save ();
+				ib.Context.Arc (e.X * scaleFactor.X, e.Y * scaleFactor.Y, pointerSize, 0, 360);
+				ib.Context.Clip ();
+
+				Image i = image.Image.WithSize(scan.Size).ToBitmap ().Crop (new Rectangle (
+					e.X * scaleFactor.X - pointerSize, e.Y * scaleFactor.Y - pointerSize,
+					pointerSize * 2, pointerSize * 2
+				));
+				ib.Context.DrawImage (
+					i, 
+					new Point(e.X * scaleFactor.X - pointerSize, e.Y * scaleFactor.Y - pointerSize)
+				);
+
+				ib.Context.Fill ();
+				ib.Context.Restore ();
+
+				mask.Image = scan.GetMaskAsImage (currentShownType);
 			}
+		}
+
+
+		protected override void OnMouseExited(EventArgs e) {
+			pointer = Pointer.None;
 		}
 
 

@@ -24,11 +24,10 @@ namespace bachelorarbeit_implementierung
         public delegate void ImageLoadedCallback(XD.Image image);
         private object lock_image_loading = new object();
 
-		int width;
-		int height;
 		float zLengthPerDigitF;
 		string fiberType;
 
+		Xwt.Size size;
 		Xwt.Size requestedBitmapSize;
 
 		string[] filenames;
@@ -53,11 +52,12 @@ namespace bachelorarbeit_implementierung
 			// parse dd+ file informations
 			var ini = new IniFile(filePath);
 
-			height = ini.ReadInteger("general", "Height", 0);
-			width = ini.ReadInteger("general", "Width", 0);
+			int height = ini.ReadInteger("general", "Height", 0);
+			int width = ini.ReadInteger("general", "Width", 0);
 			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
 			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
 
+			size = new Xwt.Size (width, height);
 			requestedBitmapSize = new Xwt.Size (width, height);
 
 			generalMetadata = ini.ReadAllStrings ("general");
@@ -139,12 +139,15 @@ namespace bachelorarbeit_implementierung
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="type">Scantile</param>
 		public unsafe Bitmap GetAsBitmap(ScanType type) {
+			int width = (int)Size.Width;
+			int height = (int)Size.Height;
+
 			Bitmap bitmap = null;
 			if (type == ScanType.Color) {
 				bitmap = new Bitmap (width, height, PixelFormat.Format32bppArgb);
 			} else {
 				//bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
-                bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
+				bitmap = new Bitmap (width, height, PixelFormat.Format32bppRgb);
 			}
 
 			//Create a BitmapData and Lock all pixels to be written 
@@ -159,8 +162,9 @@ namespace bachelorarbeit_implementierung
 			if (type == ScanType.Color) {
 				byte* scan0 = (byte*)bmpData.Scan0.ToPointer();
 
-				byte[] buffer = input.ReadBytes(height * width * 4);
-				for (int i = 0; i < height * width * 4; ++i) {
+				int len = width * height * 4;
+				byte[] buffer = input.ReadBytes(len);
+				for (int i = 0; i < len; ++i) {
 					*scan0 = buffer[i];
 					scan0++;
 				}
@@ -168,8 +172,9 @@ namespace bachelorarbeit_implementierung
 				float[] array = GetAsArray (type);
 				float max = this.max [(int)type];
                 
+				int len = width * height;
 				int* scan0 = (int*)bmpData.Scan0.ToPointer();
-				for (int i = 0; i < height * width; ++i) {
+				for (int i = 0; i < len; ++i) {
 					int color = (int)((array [i] * 255) / max);
 					color |= (color << 24) | (color << 16) | (color << 8);
 					*scan0 = color;
@@ -268,7 +273,7 @@ namespace bachelorarbeit_implementierung
 		public XD.ImageBuilder GetMaskBuilder(ScanType type) {
 			if(maskBuilder[(int)type] == null) {
 				//maskBuilder [(int)type] = new XD.ImageBuilder (requestedBitmapSize.Width, requestedBitmapSize.Height);
-				maskBuilder [(int)type] = new XD.ImageBuilder (width, height);
+				maskBuilder [(int)type] = new XD.ImageBuilder (Size.Width, Size.Height);
 			}
 			return maskBuilder [(int)type];
 		}
@@ -297,6 +302,14 @@ namespace bachelorarbeit_implementierung
 		}
 
 
+		public Xwt.Point GetScaleFactor() {
+			return new Xwt.Point( 
+				Size.Width / RequestedBitmapSize.Width,
+				Size.Height / RequestedBitmapSize.Height
+			);
+		}
+
+
 		public override string ToString() {
 			return Name;
 		}
@@ -315,6 +328,10 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+		public Xwt.Size Size {
+			get { return size; }
+		}
+
 		public Xwt.Size RequestedBitmapSize {
 			get { return requestedBitmapSize; }
 			set { requestedBitmapSize = value;}
@@ -322,8 +339,8 @@ namespace bachelorarbeit_implementierung
 
 
 		public bool IsScaled() {
-			if (requestedBitmapSize.Height != height ||
-			    requestedBitmapSize.Width != width) {
+			if (requestedBitmapSize.Height != size.Height ||
+				requestedBitmapSize.Width != size.Width) {
 				return true;
 			} else {
 				return false;
