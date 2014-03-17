@@ -1,148 +1,140 @@
 using System;
-using System.Windows.Forms;
-using System.Drawing;
+using Xwt;
 using bachelorarbeit_implementierung.Properties;
+using Xwt.Drawing;
+using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace bachelorarbeit_implementierung
 {
-    public class MainWindow : Form
-    {
-		//
-		string path;
+	public class MainWindow : Window
+	{
+		ScanCollection scanCollection;
 
-        // Container
-        SplitContainer splitFiletreePreview;
-        SplitContainer splitPreviewMetadata;
-        TabControl previewTabControl;
+		// widgets
+		HPaned splitFiletreePreview;
+		HBox splitPreviewMetadata;
 
-        // Widgets
-		public ProgressBar progressBar;
-        PictureBox box;
-        TreeView filetree;
+		Preview preview;
+		FileTreeView fileTreeView;
+		MetadataView metadata;
 
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
+		/// </summary>
+		/// <param name="path">Path.</param>
 		public MainWindow (string path)
 		{
-			this.path = path;
+			// restore last window size and location
+            this.Location = new Point(
+                Settings.Default.WindowLocationX, 
+                Settings.Default.WindowLocationY
+            );
 
-			this.Load += OnLoad;
-			this.FormClosing += OnClosing;
+			this.Size = new Size (
+				Settings.Default.WindowSizeWidth,
+				Settings.Default.WindowSizeHeight
+			);
 
-			this.Dock = DockStyle.Fill;
+			// set window preference
+			Title = "Bachelorarbeit - Jens Dieskau";
 
+			// initialize global events
+			//CloseRequested += HandleCloseRequested;
+			Closed += OnClosing;
 
-			//this.AutoSizeMode = AutoSizeMode.GrowOnly;
-			//this.AutoSize = true;
-			//this.Padding = new Padding(0, 0, 20, 20);
-			//this.StartPosition = FormStartPosition.CenterScreen;
+			// load metadata
+			scanCollection = new ScanCollection (path);
 
-			//progressBar = new ProgressBar ();
-			//progressBar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-			//progressBar.Style = ProgressBarStyle.Continuous;
-			//progressBar.Height = 32;
-			//progressBar.Dock = DockStyle.None;
-			//progressBar.Margin = new Padding (12, 12, 12, 12);
-			//this.Controls.Add(progressBar);
-
-			Label label = new Label ();
-			label.Text = "bla";
-			label.BackColor = Color.Blue;
-			label.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-			//label.Dock = DockStyle.Fill;
-
-			this.SuspendLayout();
-			this.Controls.Add (label);
-			this.ResumeLayout(false);
-
-			//Initialize (null);
+			// initialize the user interface
+			InitializeUI ();
 		}
 
 
-		public void Initialize (Bitmap bmp)
+		/// <summary>
+		/// Initializes the user inferface
+		/// </summary>
+		private void InitializeUI() {
+
+			splitFiletreePreview = new HPaned ();
+			splitPreviewMetadata = new HBox ();
+
+			// initialize preview widget
+			preview = new Preview ();
+			//splitPreviewMetadata.Panel1.Content = preview;
+			splitPreviewMetadata.PackStart (preview, true, true);
+
+			// load tree view with all available files
+			fileTreeView = new FileTreeView (scanCollection);
+			splitFiletreePreview.Panel1.Content = fileTreeView;
+
+			// load metadata viewer
+			metadata = new MetadataView ();
+			splitPreviewMetadata.PackEnd (metadata, false, false);
+
+
+			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
+			Content = splitFiletreePreview;
+
+
+			InitializeEvents ();
+			fileTreeView.Initialize (); // call after initialize events!
+		}
+
+
+		/// <summary>
+		/// Initializes all event handlers.
+		/// </summary>
+		private void InitializeEvents()
 		{
-            // Split container
-            splitFiletreePreview = new SplitContainer();
-            splitFiletreePreview.Orientation = Orientation.Vertical;
-            splitFiletreePreview.BorderStyle = BorderStyle.FixedSingle;
-            splitFiletreePreview.Dock = DockStyle.Fill;
+			fileTreeView.SelectionChanged += delegate(object sender, EventArgs e) {
+				if(fileTreeView.SelectedRow != null) {
+					object value = 
+						fileTreeView.store
+							.GetNavigatorAt (fileTreeView.SelectedRow)
+							.GetValue (fileTreeView.nameCol);
 
-            splitPreviewMetadata = new SplitContainer();
-            splitPreviewMetadata.Orientation = Orientation.Vertical;
-            splitPreviewMetadata.BorderStyle = BorderStyle.FixedSingle;
-            splitPreviewMetadata.Dock = DockStyle.Fill;
-
-            // Vorschaufenster
-            previewTabControl = new TabControl();
-            previewTabControl.Dock = DockStyle.Fill;
-            //previewTabControl.Appearance = TabAppearance.FlatButtons;
-
-            box = new PictureBox();
-            box.SizeMode = PictureBoxSizeMode.Zoom;
-            box.Image = bmp;
-            box.Dock = DockStyle.Fill;
-
-            TabPage tabIntensity = new TabPage();
-            tabIntensity.Text = "Intensity";
-            tabIntensity.Controls.Add(box);
-
-            TabPage tabTopography = new TabPage();
-            tabTopography.Text = "Topography";
-            //tabTopography.Controls.Add(box);
-
-            TabPage tabColor = new TabPage();
-            tabColor.Text = "Color";
-            //tabColor.Controls.Add(box);
-
-            previewTabControl.TabPages.Add(tabIntensity);
-            previewTabControl.TabPages.Add(tabTopography);
-            previewTabControl.TabPages.Add(tabColor);
-            splitFiletreePreview.Panel2.Controls.Add(previewTabControl);
+					if( value is ScanWrapper ) {
+						Scan s = (ScanWrapper)value;
+						preview.ShowPreviewOf(s);
+						metadata.Load(s);
+					}
+				}
+			};
+		}
 
 
-            // Scanauswahl
-            filetree = new TreeView();
-            filetree.Dock = DockStyle.Left;
-            filetree.BorderStyle = BorderStyle.Fixed3D;
-            filetree.Nodes.Add("TreeView Node");
-            filetree.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="args">Arguments.</param>
+		private void HandleCloseRequested (object sender, CloseRequestedEventArgs args)
+		{
+			args.AllowClose = MessageDialog.Confirm ("Close?", Command.Ok);
+		}
 
 
-            splitFiletreePreview.Panel1.Controls.Add(filetree);
-            splitFiletreePreview.Panel2.Controls.Add(splitPreviewMetadata);
-            Controls.Add(splitFiletreePreview);
+		/// <summary>
+		/// Raises the closing event.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
+		private void OnClosing(object sender, EventArgs e)
+		{
+			// Copy window location to app settings
+			Settings.Default.WindowLocationX = this.Location.X;
+            Settings.Default.WindowLocationY = this.Location.Y;
 
-            //Controls.AddRange (new Control [] { box, splitter, treeView1});
-        }
+			// Copy window size to app settings
+			Settings.Default.WindowSizeWidth = this.Size.Width;
+			Settings.Default.WindowSizeHeight = this.Size.Height;
 
-        private void OnLoad(object sender, EventArgs e)
-        {
-            // Set window location
-			//this.Location = Settings.Default.WindowLocation;
-			//this.Size = Settings.Default.WindowSize;
-
-			// load metadata
-			//ScanCollection scans = new ScanCollection (path, this);
-
-        }
-
-        private void OnClosing(object sender, FormClosingEventArgs e)
-        {
-            // Copy window location to app settings
-            Settings.Default.WindowLocation = this.Location;
-
-            // Copy window size to app settings
-            if (this.WindowState == FormWindowState.Normal)
-            {
-                Settings.Default.WindowSize = this.Size;
-            }
-            else
-            {
-                Settings.Default.WindowSize = this.RestoreBounds.Size;
-            }
-
-            // Save settings
-            Settings.Default.Save();
-        }
-    }
+			// Save settings
+			Settings.Default.Save();
+		}
+	}
 }
 

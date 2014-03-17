@@ -4,15 +4,22 @@ using System.IO;
 using Mono.Options;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using Xwt;
 
 namespace bachelorarbeit_implementierung
 {
+	public enum OSType {
+		Unix,
+		Windows,
+		MaxOSX
+	};
+
 	class MainClass
 	{
+		public static ToolkitType toolkitType = ToolkitType.Gtk;
+
+		[STAThread]
 		public static void Main (string[] args) {
 
 			bool show_help = false;
@@ -54,35 +61,49 @@ namespace bachelorarbeit_implementierung
 				return;
 			}
 
-
-
 			if (!string.IsNullOrEmpty(path)) {
-				Console.Out.WriteLine ("Path: " + path);
 
 				// start application
-				//Application.EnableVisualStyles();
-				Application.Run (new MainWindow (path));
+				if (GetOS () == OSType.Unix) {
+					toolkitType = ToolkitType.Gtk;
+				} else if (GetOS () == OSType.MaxOSX) {
+					toolkitType = ToolkitType.Cocoa;
+				} else {
+					toolkitType = ToolkitType.Wpf;
+				}
 
-				//Scan scan = new Scan (filename);
+				Application.Initialize (toolkitType);
 
-				//Bitmap bitmap = scan.GetAsBitmap (ScanType.Intensity);
-				//bitmap.Save ("intensity.png");
+				MainWindow w = new MainWindow (path);
+				w.Show ();
+				Application.Run ();
 
-				//Application.Run (new MainWindow (bitmap));
+				w.Dispose ();
+				Application.Dispose ();
 
-
-				//scan.GetAsBitmap (ScanType.Topography).Save("topography.png");
-				//scan.GetAsBitmap (ScanType.Color).Save("color.png");
 			}
 		}
 
+		/// <summary>
+		/// Prints the help.
+		/// </summary>
+		/// <param name="p">Commandline options</param>
 		static void printHelp(OptionSet p)
 		{
 			Console.Out.WriteLine ("Usage: ");
 			p.WriteOptionDescriptions(Console.Out);
 		}
 
-
-
+		static OSType GetOS() {
+			int p = (int) Environment.OSVersion.Platform;
+			if (p == 4 || p == 128) {
+				return OSType.Unix;
+			} else if (p == 6) {
+				return OSType.MaxOSX;
+			} else {
+				return OSType.Windows;
+			}
+		}
 	}
+
 }

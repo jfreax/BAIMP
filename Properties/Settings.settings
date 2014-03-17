@@ -2,11 +2,17 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="bachelorarbeit_implementierung.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="WindowLocation" Type="System.Drawing.Point" Scope="User">
-      <Value Profile="(Default)">0, 0</Value>
+    <Setting Name="WindowLocationX" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">800, 600</Value>
+    <Setting Name="WindowSizeWidth" Type="double" Scope="User">
+      <Value Profile="(Default)">800.0</Value>
+    </Setting>
+    <Setting Name="WindowSizeHeight" Type="double" Scope="User">
+      <Value Profile="(Default)">600.0</Value>
+    </Setting>
+    <Setting Name="WindowLocationY" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>
