@@ -77,8 +77,8 @@
     <Compile Include="data\ScanWrapper.cs" />
     <Compile Include="ui\widget\FileTreeView.cs" />
     <Compile Include="ui\widget\MetadataView.cs" />
-    <Compile Include="ScanDataEventArgs.cs" />
     <Compile Include="ui\widget\AlgorithmView.cs" />
+    <Compile Include="event\ScanDataEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -105,4 +105,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="event\" />
+  </ItemGroup>
 </Project>
