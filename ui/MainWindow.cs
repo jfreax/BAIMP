@@ -114,7 +114,7 @@ namespace baimp
 						e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
 					);
 
-				if(e.Unsaved.Contains("FiberType")) {
+				if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
 					scanCollection.Refresh(scan);
 					fileTreeView.Reload(scan);
 				}

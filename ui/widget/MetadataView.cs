@@ -51,8 +51,11 @@ namespace baimp
 			entryFiberType.BackgroundColor = Colors.White;
 			entryFiberType.ShowFrame = false;
 
-			entryFiberType.LostFocus += delegate(object sender, EventArgs e) {
-				currentScan.FiberType = entryFiberType.Text;
+			//entryFiberType.LostFocus += ChangeFiberType;
+			entryFiberType.KeyPressed += delegate(object sender, KeyEventArgs e) {
+				if(e.Key == Key.Return) {
+					ChangeFiberType(sender, e);
+				}
 			};
 		}
 
@@ -103,6 +106,12 @@ namespace baimp
 
 			table.Add (widget, left, top, rowspan, colspan, hexpand, vexpand, hpos, vpos, marginLeft, marginTop, marginRight, marginBottom, margin);
 			widgets [left] [top] = widget;
+		}
+
+
+		private void ChangeFiberType(object sender, EventArgs e)
+		{
+			currentScan.FiberType = entryFiberType.Text;
 		}
 	}
 }

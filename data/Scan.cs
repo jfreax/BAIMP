@@ -423,10 +423,7 @@ namespace baimp
             maskBuilder[(int)type].Dispose();
             maskBuilder[(int)type] = null;
 
-			unsaved.Remove ("mask_"+((int)type));
-
-			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (unsaved);
-			scanDataChanged(this, dataChangedEvent);
+			NotifySaved ("mask_" + ((int)type));
 		}
 
 		#endregion
@@ -461,7 +458,19 @@ namespace baimp
 		{
 			unsaved.Add (changeOf);
 
-			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (unsaved);
+			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
+			scanDataChanged(this, dataChangedEvent);
+		}
+
+		/// <summary>
+		/// Notifies that an attribute was saved.
+		/// </summary>
+		/// <param name="changeOf">Type of change</param>
+		public void NotifySaved(string changeOf)
+		{
+			unsaved.Remove (changeOf);
+
+			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
 			scanDataChanged(this, dataChangedEvent);
 		}
 
