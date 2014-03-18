@@ -202,20 +202,6 @@ namespace baimp
 			this.SetFocus ();
 		}
 
-		protected override void OnKeyPressed (KeyEventArgs e)
-		{
-			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
-			    e.Modifiers.HasFlag (ModifierKeys.Control)) {
-
-				switch (e.Key) {
-				case Key.s:
-					SaveMask ();
-					break;
-				}
-			}
-		}
-
-
 		#endregion
 
 		/// <summary>

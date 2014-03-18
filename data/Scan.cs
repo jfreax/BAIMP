@@ -328,6 +328,32 @@ namespace baimp
 
 		#region saving
 
+		/// <summary>
+		/// Save all unsaved attributes
+		/// </summary>
+		public void Save() {
+			HashSet<string> unsavedCopy = new HashSet<string> (unsaved);
+			foreach (string us in unsavedCopy) {
+
+				switch (us) {
+				case "mask_0":
+					SaveMask ((ScanType)0);
+					break;
+				case "mask_1":
+					SaveMask ((ScanType)1);
+					break;
+				case "mask_2":
+					SaveMask ((ScanType)2);
+					break;
+				case "mask_3":
+					SaveMask ((ScanType)3);
+					break;
+				case "FiberType":
+					NotifySaved ("FiberType");
+					break;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Saves the mask data to the dd+ file.
@@ -446,7 +472,6 @@ namespace baimp
 
 		#endregion
 
-
 		/// <summary>
 		/// Notifies that something for this scan has changed.
 		/// </summary>
@@ -458,8 +483,10 @@ namespace baimp
 		{
 			unsaved.Add (changeOf);
 
-			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
-			scanDataChanged(this, dataChangedEvent);
+			if (scanDataChanged != null) {
+				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
+				scanDataChanged (this, dataChangedEvent);
+			}
 		}
 
 		/// <summary>
@@ -470,8 +497,10 @@ namespace baimp
 		{
 			unsaved.Remove (changeOf);
 
-			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
-			scanDataChanged(this, dataChangedEvent);
+			if (scanDataChanged != null) {
+				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (changeOf, unsaved);
+				scanDataChanged (this, dataChangedEvent);
+			}
 		}
 
 		/// <summary>
@@ -524,6 +553,12 @@ namespace baimp
 			);
 		}
 
+		public HashSet<string> Unsaved {
+			get {
+				return new HashSet<string>(unsaved);
+			}
+		}
+
 		#endregion
 
 		public Xwt.Size RequestedBitmapSize {
@@ -543,6 +578,10 @@ namespace baimp
 			} else {
 				return false;
 			}
+		}
+
+		public bool HasUnsaved() {
+			return unsaved.Count > 0;
 		}
 	}
 }

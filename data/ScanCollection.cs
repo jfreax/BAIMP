@@ -43,6 +43,9 @@ namespace baimp
 
 			if(!String.IsNullOrEmpty(oldKey)) {
 				this [oldKey].Remove (scan);
+				if (this [oldKey].Count == 0) {
+					this.Remove (oldKey);
+				}
 			}
 
 			if (!this.ContainsKey (scan.FiberType)) {
@@ -50,6 +53,18 @@ namespace baimp
 			}
 
 			this [scan.FiberType].Add (scan);
+		}
+
+		/// <summary>
+		/// Saves all changes.
+		/// </summary>
+		public void SaveAll() {
+			foreach (string key in this.Keys) {
+				foreach (ScanWrapper scan in this[key]) {
+					scan.Save ();
+				}
+				
+			}
 		}
 	}
 }

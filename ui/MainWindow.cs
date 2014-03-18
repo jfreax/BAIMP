@@ -113,14 +113,35 @@ namespace baimp
 					fileTreeView.Reload(scan);
 				}
 
+				Console.WriteLine(e.Unsaved.Count);
+
 				fileTreeView.store.GetNavigatorAt (scan.position)
 					.SetValue(
 						fileTreeView.saveStateCol, 
 						e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
 					);
 			};
+
+			// global key events
+			splitFiletreePreview.KeyPressed += GlobalKeyPressed;
+			splitPreviewMetadata.KeyPressed += GlobalKeyPressed;
 		}
 
+
+		private void GlobalKeyPressed(object sender, KeyEventArgs e) {
+			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
+				e.Modifiers.HasFlag (ModifierKeys.Control)) {
+
+				switch (e.Key) {
+				case Key.s:
+					scanCollection.SaveAll ();
+					break;
+				}
+			}
+
+
+			e.Handled = true;
+		}
 
 		/// <summary>
 		/// 

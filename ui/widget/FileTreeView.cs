@@ -54,7 +54,10 @@ namespace baimp
 				var p = store.AddNode (null).SetValue (nameCol, key).CurrentPosition;
 
 				foreach (ScanWrapper scan in scans[key]) {
-					var v = store.AddNode (p).SetValue (nameCol, scan).CurrentPosition;
+					var v = store.AddNode (p)
+						.SetValue (nameCol, scan)
+						.SetValue (saveStateCol, scan.HasUnsaved() ? "*" : "" )
+						.CurrentPosition;
 					scan.position = v;
 					scan.parentPosition = p;
 					if (currentScan != null) {
