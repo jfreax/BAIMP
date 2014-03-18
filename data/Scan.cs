@@ -318,47 +318,101 @@ namespace bachelorarbeit_implementierung
 
 		#region saving
 
+
 		/// <summary>
 		/// Saves the mask data to the dd+ file.
 		/// </summary>
 		/// <param name="type">Scan type.</param>
-		public void SaveMask(ScanType type)
+		public unsafe void SaveMask(ScanType type)
 		{
-			XD.BitmapImage mask = GetMaskBuilder (type).ToBitmap ();
-			XD.Color maskColor = ScanView.maskColor.WithAlpha (1.0);
+            string base64 = "";
+            XD.BitmapImage mask = GetMaskBuilder(type).ToBitmap();
+            XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
 
-			Parallel.For(0, (int)mask.Height, new Action<int>(y => {
-				for (int x = 0; x < mask.Width; x++) {
-					XD.Color color = mask.GetPixel (x, y);
-					if (color.WithAlpha(1.0) == maskColor) {
-						mask.SetPixel (x, y, color.WithAlpha(0.6));
-					} else {
-						mask.SetPixel (x, y, XD.Colors.Transparent);
-					}
-				}
-			}));
+            if (MainClass.toolkitType == Xwt.ToolkitType.Gtk) {
+                Parallel.For(0, (int)mask.Height, new Action<int>(y =>
+                {
+                    for (int x = 0; x < mask.Width; x++) {
+                        XD.Color color = mask.GetPixel(x, y);
+                        if (color.WithAlpha(1.0) == maskColor) {
+                            mask.SetPixel(x, y, color.WithAlpha(0.6));
+                        }
+                        else {
+                            mask.SetPixel(x, y, XD.Colors.Transparent);
+                        }
+                    }
+                }));
 
-			using (MemoryStream stream = new MemoryStream())
-			{
-				mask.Save(stream, XD.ImageFileType.Png);
+                using (MemoryStream stream = new MemoryStream()) {
+                    mask.Save(stream, XD.ImageFileType.Png);
+                    base64 = Convert.ToBase64String(stream.ToArray());
+                }
+            } else {
+                using (MemoryStream ms = new MemoryStream()) {
+                    mask.Save(ms, XD.ImageFileType.Png);
+                    ms.Seek(0, SeekOrigin.Begin);
 
-				string base64 = Convert.ToBase64String (stream.ToArray ());
-				switch(type) {
-				case ScanType.Intensity:
-					ini.WriteString ("masks", "intensity", base64);
-					break;
-				case ScanType.Topography:
-					ini.WriteString ("masks", "topography", base64);
-					break;
-				case ScanType.Color:
-					ini.WriteString ("masks", "color", base64);
-					break;
-				}
-				ini.UpdateFile ();
+                    Bitmap maskBitmap = new Bitmap(ms);
+                        
+                    BitmapData bmpData = maskBitmap.LockBits(
+                        new Rectangle(0, 0, (int)size.Width, (int)size.Height),
+                        ImageLockMode.ReadWrite, maskBitmap.PixelFormat);
 
-				maskBuilder [(int)type].Dispose ();
-				maskBuilder [(int)type] = null;
-			}
+                    byte* scan0 = (byte*)bmpData.Scan0.ToPointer();
+                    int len = (int)size.Width * (int)size.Height;
+                    for (int i = 0; i < len; ++i) {
+                        byte b = *scan0;
+                        scan0++;
+                        byte g = *scan0;
+                        scan0++;
+                        byte r = *scan0;
+                        scan0++;
+                        XD.Color color = XD.Color.FromBytes(r, g, b);
+
+                        if ((int)(color.Red*10) == (int)(maskColor.Red*10) &&
+                            (int)(color.Green*10) == (int)(maskColor.Green*10) &&
+                            (int)(color.Blue*10) == (int)(maskColor.Blue*10))
+                        {
+                            *scan0 = 153; // 60% alpha
+                        } else {
+                            *(scan0-3) = 0;
+                            *(scan0-2) = 0;
+                            *(scan0-1) = 0;
+                            *(scan0) = 0;
+                        }
+
+                        scan0++;
+                    }
+
+                    maskBitmap.UnlockBits(bmpData);
+
+                    using (MemoryStream stream = new MemoryStream()) {
+                        maskBitmap.Save(stream, ImageFormat.Png);
+                        base64 = Convert.ToBase64String(stream.ToArray());
+                    }
+
+                    maskBitmap.Dispose();
+
+                }
+
+            }
+
+            switch (type)
+            {
+                case ScanType.Intensity:
+                    ini.WriteString("masks", "intensity", base64);
+                    break;
+                case ScanType.Topography:
+                    ini.WriteString("masks", "topography", base64);
+                    break;
+                case ScanType.Color:
+                    ini.WriteString("masks", "color", base64);
+                    break;
+            }
+            ini.UpdateFile();
+
+            maskBuilder[(int)type].Dispose();
+            maskBuilder[(int)type] = null;
 		}
 
 		#endregion

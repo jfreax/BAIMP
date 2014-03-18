@@ -134,11 +134,13 @@ namespace bachelorarbeit_implementierung
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
+                    Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
 					ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
 					ib.Context.NewPath ();
+                    ib.Context.MoveTo(positionInImage);
 
 					SetMask (
-						new Point (e.X * scaleFactor.X, e.Y * scaleFactor.Y),
+                        positionInImage,
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Command)
 					);
