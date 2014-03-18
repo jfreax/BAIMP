@@ -55,7 +55,10 @@ namespace baimp
 			entryFiberType.KeyPressed += delegate(object sender, KeyEventArgs e) {
 				if(e.Key == Key.Return) {
 					ChangeFiberType(sender, e);
+					e.Handled = true;
 				}
+
+				e.Handled = false;
 			};
 		}
 

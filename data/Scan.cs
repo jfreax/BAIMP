@@ -60,7 +60,7 @@ namespace baimp
 			int height = ini.ReadInteger ("general", "Height", 0);
 			int width = ini.ReadInteger ("general", "Width", 0);
 			zLengthPerDigitF = (float)ini.ReadDoubleInvariant ("general", "ZLengthPerDigitF", 0.0);
-			fiberType = ini.ReadString ("general", "FiberType", "Unknown");
+			fiberType = ini.ReadString ("settings", "FiberType", "Unknown");
 
 			size = new Xwt.Size (width, height);
 			requestedBitmapSize = new Xwt.Size (width, height);
@@ -334,7 +334,6 @@ namespace baimp
 		public void Save() {
 			HashSet<string> unsavedCopy = new HashSet<string> (unsaved);
 			foreach (string us in unsavedCopy) {
-
 				switch (us) {
 				case "mask_0":
 					SaveMask ((ScanType)0);
@@ -349,10 +348,13 @@ namespace baimp
 					SaveMask ((ScanType)3);
 					break;
 				case "FiberType":
+					ini.WriteString ("settings", "FiberType", FiberType);
 					NotifySaved ("FiberType");
 					break;
 				}
 			}
+
+			ini.UpdateFile ();
 		}
 
 		/// <summary>
@@ -365,15 +367,14 @@ namespace baimp
             XD.BitmapImage mask = GetMaskBuilder(type).ToBitmap();
             XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
 
-            if (MainClass.toolkitType == Xwt.ToolkitType.Gtk) {
+			if (MainClass.toolkitType == Xwt.ToolkitType.Gtk) {
                 Parallel.For(0, (int)mask.Height, new Action<int>(y =>
                 {
                     for (int x = 0; x < mask.Width; x++) {
                         XD.Color color = mask.GetPixel(x, y);
                         if (color.WithAlpha(1.0) == maskColor) {
                             mask.SetPixel(x, y, color.WithAlpha(0.6));
-                        }
-                        else {
+						} else {
                             mask.SetPixel(x, y, XD.Colors.Transparent);
                         }
                     }
@@ -544,8 +545,7 @@ namespace baimp
 				}
 			}
 		}
-
-
+			
 		public string Name {
 			get {
 				return Path.GetFileNameWithoutExtension (filenames [(int)ScanType.Metadata]);
