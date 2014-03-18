@@ -59,6 +59,13 @@ namespace baimp
 		
 			// build context menu
 			InitializeContextMenu ();
+
+			// event subscribe
+			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+				if(e.Changed.Equals("mask_"+((int)currentShownType))) {
+					mask.Image = scan.GetMaskAsImage (currentShownType);
+				}
+			};
 		}
 
 		#region contextmenu 
