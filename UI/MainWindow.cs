@@ -18,10 +18,10 @@ namespace baimp
 		VPaned splitFileTree_Algo;
 
 		Preview preview;
-		FileTreeView fileTreeView;
+		FileTreeView fileTree;
 		MetadataView metadata;
-		AlgorithmView algorithm;
-		AlgorithmTreeView algorithmTree;
+		AlgorithmTreeView algorithm;
+		PipelineView pipeline;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
@@ -82,20 +82,20 @@ namespace baimp
 			//splitPreviewMetadata.Panel1.Content = preview;
 
 			// load tree view with all available files
-			fileTreeView = new FileTreeView (scanCollection);
+			fileTree = new FileTreeView (scanCollection);
 
 			// load metadata viewer
 			metadata = new MetadataView ();
 
 			// load algorithm list viewer
-			algorithm = new AlgorithmView();
+			algorithm = new AlgorithmTreeView();
 
 			// load algorithm tree viever
-			algorithmTree = new AlgorithmTreeView();
+			pipeline = new PipelineView();
 
 			// set layout
 			splitFileTree_Algo = new VPaned ();
-			splitFileTree_Algo.Panel1.Content = fileTreeView;
+			splitFileTree_Algo.Panel1.Content = fileTree;
 			splitFileTree_Algo.Panel2.Content = algorithm;
 
 			splitPreview_Metadata = new HBox ();
@@ -109,13 +109,13 @@ namespace baimp
 
 			splitAlgorithmTree = new VPaned ();
 			splitAlgorithmTree.Panel1.Content = splitFiletreeAlgo_Preview;
-			splitAlgorithmTree.Panel2.Content = algorithmTree;
+			splitAlgorithmTree.Panel2.Content = pipeline;
 
 			Content = splitAlgorithmTree;
 
 			InitializeEvents ();
-			fileTreeView.InitializeUI (); // call after initialize events!
-			fileTreeView.Reload ();
+			fileTree.InitializeUI (); // call after initialize events!
+			fileTree.Reload ();
 		}
 
 
@@ -124,12 +124,12 @@ namespace baimp
 		/// </summary>
 		private void InitializeEvents()
 		{
-			fileTreeView.SelectionChanged += delegate(object sender, EventArgs e) {
-				if(fileTreeView.SelectedRow != null) {
+			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
+				if(fileTree.SelectedRow != null) {
 					object value = 
-						fileTreeView.store
-							.GetNavigatorAt (fileTreeView.SelectedRow)
-							.GetValue (fileTreeView.nameCol);
+						fileTree.store
+							.GetNavigatorAt (fileTree.SelectedRow)
+							.GetValue (fileTree.nameCol);
 
 					if( value is ScanWrapper ) {
 						ScanWrapper s = (ScanWrapper)value;
@@ -141,7 +141,7 @@ namespace baimp
 
 			foreach (string key in scanCollection.Keys) {
 				foreach (ScanWrapper scan in scanCollection[key]) {
-					scan.ScanDataChanged += fileTreeView.OnScanDataChanged;
+					scan.ScanDataChanged += fileTree.OnScanDataChanged;
 				}
 			}
 

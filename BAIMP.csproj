@@ -79,8 +79,8 @@
     <Compile Include="UI\Widget\Preview.cs" />
     <Compile Include="UI\Widget\FileTreeView.cs" />
     <Compile Include="UI\Widget\MetadataView.cs" />
-    <Compile Include="UI\Widget\AlgorithmView.cs" />
     <Compile Include="Algorithm\Extraction\TestExtraction.cs" />
+    <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

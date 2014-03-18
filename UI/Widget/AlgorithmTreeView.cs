@@ -1,33 +1,66 @@
 ﻿using System;
 using Xwt;
 using Xwt.Drawing;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace baimp
 {
-	public class AlgorithmTreeView : Canvas
+	public class AlgorithmTreeView : TreeView
 	{
-		public AlgorithmTreeView ()
-		{
-			this.MinHeight = 120;
-		}
+		public DataField<object> nameCol;
+		public TreeStore store;
 
+		private Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
 
 		/// <summary>
-		/// Called when the widget needs to be redrawn
+		/// Initializes a new instance of the <see cref="baimp.AlgorithmView"/> class.
 		/// </summary>
-		/// <param name='ctx'>
-		/// Drawing context
-		/// </param>
-		protected override void OnDraw (Xwt.Drawing.Context ctx, Rectangle dirtyRect)
+		public AlgorithmTreeView ()
 		{
-			if (Bounds.IsEmpty)
-				return;
+			nameCol = new DataField<object> ();
+			store = new TreeStore (nameCol);
 
-			ctx.Rectangle (0, 0, Bounds.Width, Bounds.Height);
-			ctx.SetColor (Color.FromBytes (232, 232, 232));
-			ctx.SetLineWidth (1);
-			ctx.Fill ();
+			Type baseType = typeof(BaseAlgorithm);
+			IEnumerable<Type> algorithms = AppDomain.CurrentDomain.GetAssemblies ()
+				.SelectMany (s => s.GetTypes ())
+				.Where(t => t.GetInterfaces().Contains(baseType));
 
+			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>> ();
+			foreach (Type algorithm in algorithms) {
+
+				BaseAlgorithm instance = Activator.CreateInstance(algorithm) as BaseAlgorithm;
+				string algorithmType = instance.AlgorithmType.ToString ();
+
+				if (!algorithmCollection.ContainsKey (algorithmType)) {
+					algorithmCollection [algorithmType] = new List<BaseAlgorithm> ();
+				}
+
+				algorithmCollection [algorithmType].Add (instance);
+			}
+
+			InitializeUI ();
+		}
+
+		/// <summary>
+		/// Initialize the user interface.
+		/// </summary>
+		private void InitializeUI()
+		{
+			this.Columns.Add ("Name", nameCol);
+
+			this.DataSource = store;
+
+			foreach (string key in algorithmCollection.Keys) {
+				var p = store.AddNode (null).SetValue (nameCol, key).CurrentPosition;
+
+				foreach (BaseAlgorithm algo in algorithmCollection[key]) {
+					var v = store.AddNode (p)
+						.SetValue (nameCol, algo)
+						.CurrentPosition;
+				}
+			}
 		}
 	}
 }
