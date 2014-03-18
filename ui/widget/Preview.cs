@@ -114,6 +114,8 @@ namespace bachelorarbeit_implementierung
 					if (scanView != null) {
 						scanView.Data ["pressed"] = true;
 						scanView.Data ["pressedPosition"] = e.Position;
+						scanView.Data ["oldMouseButton"] = scanView.Cursor;
+						scanView.Cursor = CursorType.Move;
 					}
 					break;
 				}
@@ -124,6 +126,7 @@ namespace bachelorarbeit_implementierung
 				case PointerButton.Middle:
 					if (scanView != null) {
 						scanView.Data.Remove ("pressed");
+						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
 					}
 					break;
 				}

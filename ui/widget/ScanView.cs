@@ -358,9 +358,13 @@ namespace bachelorarbeit_implementierung
 			set {
 				if (value) {
 					contextEditMask.Label = "End edit mask";
+					this.Cursor = CursorType.Crosshair;
+
 					isEditMode = true;
 				} else {
 					contextEditMask.Label = "Edit mask";
+					this.Cursor = CursorType.Arrow;
+
 					isEditMode = false;
 				}
 			}
