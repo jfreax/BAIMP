@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bachelorarbeit_implementierung", "bachelorarbeit_implementierung.csproj", "{BD05E3C4-A23D-492D-9CB8-653D8F293D08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BAIMP", "BAIMP.csproj", "{BD05E3C4-A23D-492D-9CB8-653D8F293D08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +15,6 @@ Global
 		{BD05E3C4-A23D-492D-9CB8-653D8F293D08}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = bachelorarbeit_implementierung.csproj
+		StartupItem = BAIMP.csproj
 	EndGlobalSection
 EndGlobal

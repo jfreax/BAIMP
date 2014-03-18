@@ -1,7 +1,7 @@
 using System;
 using Xwt;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class FileTreeView : TreeView
 	{

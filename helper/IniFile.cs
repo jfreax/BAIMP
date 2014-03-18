@@ -25,7 +25,7 @@
  *
  */
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	using System;
 	using System.Collections.Generic;

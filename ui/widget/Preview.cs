@@ -4,7 +4,7 @@ using System.IO;
 using Xwt.Drawing;
 using System.Threading;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class Preview : VBox
 	{

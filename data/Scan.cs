@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using XD = Xwt.Drawing;
 using System.Threading;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public enum ScanType
 	{

@@ -3,15 +3,25 @@ using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class MetadataView : VBox
 	{
 		Label name;
 		Dictionary<int, Widget>[] widgets;
 
-		Table table;
+		Scan currentScan;
 
+		Table table;
+		TextEntry entryFiberType;
+
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MetadataView"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Call <see cref="bachelorarbeit_implementierung.MetadataView.Load" to actual see the metadata information/> 
+		/// </remarks>
 		public MetadataView ()
 		{
 			table = new Table ();
@@ -27,11 +37,34 @@ namespace bachelorarbeit_implementierung
 			name = new Label ("Name");
 			name.TextAlignment = Alignment.Center;
 			table.Add (name, 0, 0, colspan:2);
+
+			InitializeUI ();
 		}
 
 
+		/// <summary>
+		/// Initializes the user interface and their events.
+		/// </summary>
+		private void InitializeUI()
+		{
+			entryFiberType = new TextEntry ();
+			entryFiberType.BackgroundColor = Colors.White;
+			entryFiberType.ShowFrame = false;
+
+			entryFiberType.Changed += delegate(object sender, EventArgs e) {
+				Console.WriteLine(entryFiberType.Text);
+			};
+		}
+
+
+		/// <summary>
+		/// Show metadata of specified scan.
+		/// </summary>
+		/// <param name="scan">Scan.</param>
 		public void Load(Scan scan)
 		{
+			this.currentScan = scan;
+
 			table.Remove (name);
 			name = new Label ("Name");
 			name.TextAlignment = Alignment.Center;
@@ -51,17 +84,16 @@ namespace bachelorarbeit_implementierung
 
 				i++;
 			}
-
-			TextEntry entryFiberType = new TextEntry ();
-			Replace (new Label ("FiberType"), 0, i);
+				
 			entryFiberType.Text = scan.FiberType;
-			entryFiberType.BackgroundColor = Colors.White;
-			entryFiberType.ShowFrame = false;
+			Replace (new Label ("FiberType"), 0, i);
 			Replace (entryFiberType, 1, i++);
+
+
 		}
 
 		/// <summary>
-		/// 
+		/// Replace a widget on a given position with a new one
 		/// </summary>
 		public void Replace (Widget widget, int left, int top, int rowspan = 1, int colspan = 1, bool hexpand = false, bool vexpand = false, WidgetPlacement hpos = WidgetPlacement.Fill, WidgetPlacement vpos = WidgetPlacement.Fill, double marginLeft = -1.0, double marginTop = -1.0, double marginRight = -1.0, double marginBottom = -1.0, double margin = -1.0)
 		{

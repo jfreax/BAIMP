@@ -7,9 +7,9 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BD05E3C4-A23D-492D-9CB8-653D8F293D08}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>bachelorarbeit_implementierung</RootNamespace>
-    <AssemblyName>bachelorarbeit_implementierung</AssemblyName>
-    <StartupObject>bachelorarbeit_implementierung.MainClass</StartupObject>
+    <RootNamespace>baimp</RootNamespace>
+    <AssemblyName>baimp</AssemblyName>
+    <StartupObject>baimp.MainClass</StartupObject>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -55,8 +55,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="Xwt, Version=0.1.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Xwt">
       <HintPath>libs\Xwt.dll</HintPath>
     </Reference>
   </ItemGroup>

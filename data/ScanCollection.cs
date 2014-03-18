@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class ScanCollection : Dictionary<string, List<ScanWrapper> >
 	{

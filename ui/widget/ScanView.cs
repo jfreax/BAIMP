@@ -5,7 +5,7 @@ using Xwt.Drawing;
 using System.Threading;
 using System.IO;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	[Flags]
 	public enum Pointer
@@ -99,7 +99,7 @@ namespace bachelorarbeit_implementierung
 			currentShownType = type;
 			EditMode = false;
 
-			scan.GetAsImageAsync (type, new bachelorarbeit_implementierung.Scan.ImageLoadedCallback (delegate(Image loadedImage) {
+			scan.GetAsImageAsync (type, new baimp.Scan.ImageLoadedCallback (delegate(Image loadedImage) {
 				image.Image = loadedImage;
 				mask.Image = scan.GetMaskAsImage (currentShownType);
 				if (imageLoadedCallback != null) {
@@ -114,7 +114,7 @@ namespace bachelorarbeit_implementierung
 		/// Registers the image loaded callback.
 		/// </summary>
 		/// <param name="cb">Callback function.</param>
-		public void RegisterImageLoadedCallback (bachelorarbeit_implementierung.Preview.MyCallBack cb)
+		public void RegisterImageLoadedCallback (baimp.Preview.MyCallBack cb)
 		{
 			this.imageLoadedCallback = cb;
 		}

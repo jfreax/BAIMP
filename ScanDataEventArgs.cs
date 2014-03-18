@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class ScanDataEventArgs : EventArgs
 	{

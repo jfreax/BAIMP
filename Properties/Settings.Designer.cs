@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace bachelorarbeit_implementierung.Properties {
+namespace baimp {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xwt;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public enum OSType {
 		Unix,

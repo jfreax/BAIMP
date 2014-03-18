@@ -1,12 +1,11 @@
 using System;
 using Xwt;
-using bachelorarbeit_implementierung.Properties;
 using Xwt.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace bachelorarbeit_implementierung
+namespace baimp
 {
 	public class MainWindow : Window
 	{
@@ -131,7 +130,7 @@ namespace bachelorarbeit_implementierung
 		/// Raises the closing event.
 		/// </summary>
 		/// <param name="sender">Sender.</param>
-		/// <param name="e">E.</param>
+		/// <param name="e">Event arguments.</param>
 		private void OnClosing(object sender, EventArgs e)
 		{
 			// Copy window location to app settings
