@@ -113,8 +113,11 @@ namespace baimp
 					if (scanView != null) {
 						scanView.Data ["pressed"] = true;
 						scanView.Data ["pressedPosition"] = e.Position;
-						scanView.Data ["oldMouseButton"] = scanView.Cursor;
-						scanView.Cursor = CursorType.Move;
+
+						if(scanView.Cursor != CursorType.Move) {
+							scanView.Data ["oldMouseButton"] = scanView.Cursor;
+							scanView.Cursor = CursorType.Move;
+						}
 					}
 					break;
 				}
@@ -123,9 +126,12 @@ namespace baimp
 			view.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
 				switch (e.Button) {
 				case PointerButton.Middle:
+					Console.WriteLine("ok=");
 					if (scanView != null) {
 						scanView.Data.Remove ("pressed");
-						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+						if(scanView.Data.ContainsKey("oldMouseButton")) {
+							scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+						}
 					}
 					break;
 				}

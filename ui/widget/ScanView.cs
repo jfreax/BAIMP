@@ -163,7 +163,6 @@ namespace baimp
 				break;
 			case PointerButton.Right:
 				pointer |= Pointer.Right;
-
 				contextMenu.Popup ();
 				break;
 			}
