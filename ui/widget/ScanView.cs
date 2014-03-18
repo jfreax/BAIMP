@@ -52,10 +52,11 @@ namespace bachelorarbeit_implementierung
 
 			this.HorizontalPlacement = WidgetPlacement.Center;
 			this.VerticalPlacement = WidgetPlacement.Center;
+			this.CanGetFocus = true;
 
 			this.Add (image, 0, 0);
 			this.Add (mask, 0, 0);
-
+		
 			// build context menu
 			InitializeContextMenu ();
 		}
@@ -80,12 +81,9 @@ namespace bachelorarbeit_implementierung
 			contextMenu.Items.Add (contextEditMask);
 
 			MenuItem contextSaveMask = new MenuItem ("Save changes");
+			contextSaveMask.UseMnemonic = true;
 			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
-				scan.SaveMask (currentShownType);
-				mask.Image = scan.GetMaskAsImage(currentShownType);
-
-				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (true);
-				scanDataChanged(scan, dataChangedEvent);
+				SaveMask();
 			};
 			contextMenu.Items.Add (contextSaveMask);
 		}
@@ -201,13 +199,24 @@ namespace bachelorarbeit_implementierung
 			}
 		}
 
+		protected override void OnMouseEntered(EventArgs e)
+		{
+			this.SetFocus ();
+		}
+
 		protected override void OnKeyPressed (KeyEventArgs e)
 		{
 			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
 			    e.Modifiers.HasFlag (ModifierKeys.Control)) {
 
+				switch (e.Key) {
+				case Key.s:
+					SaveMask ();
+					break;
+				}
 			}
 		}
+
 
 		#endregion
 
@@ -283,6 +292,17 @@ namespace bachelorarbeit_implementierung
 		}
 
 		/// <summary>
+		/// Save mask into metadata file
+		/// </summary>
+		public void SaveMask() {
+			scan.SaveMask (currentShownType);
+			mask.Image = scan.GetMaskAsImage(currentShownType);
+
+			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (true);
+			scanDataChanged(scan, dataChangedEvent);
+		}
+
+		/// <summary>
 		/// Change the shown image to a size that fits in the provided size limits
 		/// </summary>
 		/// <param name="size">Max width and height</param>
@@ -296,7 +316,6 @@ namespace bachelorarbeit_implementierung
 					mask.Image = mask.Image.WithBoxSize (s);
 				}
 			}
-
 		}
 
 		/// <summary>
