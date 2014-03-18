@@ -168,6 +168,11 @@ namespace baimp
 		}
 
 
+		/// <summary>
+		/// Gets called when current selected scan data changed.
+		/// </summary>
+		/// <param name="sender">Changed scan.</param>
+		/// <param name="e">Event arguments.</param>
 		private void OnScanDataChanged(object sender, ScanDataEventArgs e)
 		{
 			// propagate

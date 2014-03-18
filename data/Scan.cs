@@ -434,15 +434,12 @@ namespace baimp
 
             switch (type)  {
 			case ScanType.Intensity:
-			Console.WriteLine ("WriteString " + "intensity");
-                ini.WriteString("masks", "intensity", base64);
+				ini.WriteString("masks", "intensity", base64);
                 break;
             case ScanType.Topography:
-				Console.WriteLine ("WriteString " + "topography");
                 ini.WriteString("masks", "topography", base64);
                 break;
             case ScanType.Color:
-				Console.WriteLine ("WriteString " + "color");
                 ini.WriteString("masks", "color", base64);
                 break;
             }
