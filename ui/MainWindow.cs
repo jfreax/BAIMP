@@ -57,13 +57,21 @@ namespace baimp
 		/// </summary>
 		private void InitializeUI()
 		{
+			// main menu
 			Menu menu = new Menu ();
 			var file = new MenuItem ("_File");
 			file.SubMenu = new Menu ();
-			file.SubMenu.Items.Add (new MenuItem ("_Open"));
+			//file.SubMenu.Items.Add (new MenuItem ("_Open"));
+
+			MenuItem menuSave = new MenuItem ("_Save");
+			menuSave.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			file.SubMenu.Items.Add (menuSave);
+
+			MenuItem menuClose = new MenuItem ("_Close");
+			menuClose.Clicked += (object sender, EventArgs e) => this.Close();
+			file.SubMenu.Items.Add (menuClose);
 
 			menu.Items.Add (file);
-
 			MainMenu = menu;
 
 			splitFiletreePreview = new HPaned ();
