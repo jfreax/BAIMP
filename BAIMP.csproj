@@ -78,6 +78,7 @@
     <Compile Include="ui\widget\FileTreeView.cs" />
     <Compile Include="ui\widget\MetadataView.cs" />
     <Compile Include="ScanDataEventArgs.cs" />
+    <Compile Include="ui\widget\AlgorithmView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

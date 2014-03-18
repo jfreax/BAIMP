@@ -12,13 +12,14 @@ namespace baimp
 		ScanCollection scanCollection;
 
 		// widgets
-		HPaned splitFiletree_Preview;
+		HPaned splitFiletreeAlgo_Preview;
 		HBox splitPreview_Metadata;
+		VPaned splitFileTree_Algo;
 
 		Preview preview;
 		FileTreeView fileTreeView;
 		MetadataView metadata;
-
+		AlgorithmView algorithm;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
@@ -74,29 +75,40 @@ namespace baimp
 			menu.Items.Add (file);
 			MainMenu = menu;
 
-			splitFiletree_Preview = new HPaned ();
-			splitPreview_Metadata = new HBox ();
-
-			//splitFileTree_Algorithms
-
 			// initialize preview widget
 			preview = new Preview ();
 			//splitPreviewMetadata.Panel1.Content = preview;
-			splitPreview_Metadata.PackStart (preview, true, true);
 
 			// load tree view with all available files
 			fileTreeView = new FileTreeView (scanCollection);
-			splitFiletree_Preview.Panel1.Content = fileTreeView;
 
 			// load metadata viewer
 			metadata = new MetadataView ();
+
+			// load algorithm viewer
+			algorithm = new AlgorithmView();
+
+			// set layout
+			splitFileTree_Algo = new VPaned ();
+			splitFileTree_Algo.Panel1.Content = fileTreeView;
+			splitFileTree_Algo.Panel2.Content = algorithm;
+
+			splitPreview_Metadata = new HBox ();
+			splitPreview_Metadata.PackStart (preview, true, true);
 			splitPreview_Metadata.PackEnd (metadata, false, false);
 
+			splitFiletreeAlgo_Preview = new HPaned ();
+			splitFiletreeAlgo_Preview.Panel1.Content = splitFileTree_Algo;
+			splitFiletreeAlgo_Preview.Panel2.Content = splitPreview_Metadata;
 
-			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
-			splitFiletree_Preview.Panel2.Resize = true;
 
-			Content = splitFiletree_Preview;
+
+
+			splitFiletreeAlgo_Preview.Panel1.Content = splitFileTree_Algo;
+
+			splitFiletreeAlgo_Preview.Panel2.Resize = true;
+
+			Content = splitFiletreeAlgo_Preview;
 
 			InitializeEvents ();
 			fileTreeView.InitializeUI (); // call after initialize events!
@@ -131,7 +143,7 @@ namespace baimp
 			}
 
 			// global key events
-			splitFiletree_Preview.KeyPressed += GlobalKeyPressed;
+			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
 			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
 		}
 
