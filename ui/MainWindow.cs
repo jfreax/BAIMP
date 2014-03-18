@@ -108,16 +108,16 @@ namespace baimp
 			preview.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				ScanWrapper scan = (ScanWrapper) sender;
 
+				if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
+					scanCollection.Refresh(scan);
+					fileTreeView.Reload(scan);
+				}
+
 				fileTreeView.store.GetNavigatorAt (scan.position)
 					.SetValue(
 						fileTreeView.saveStateCol, 
 						e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
 					);
-
-				if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-					scanCollection.Refresh(scan);
-					fileTreeView.Reload(scan);
-				}
 			};
 		}
 
