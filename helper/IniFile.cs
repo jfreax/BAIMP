@@ -200,9 +200,10 @@ namespace baimp
 			if (key != null) {
 				for (; i < Count; i++) {
 					string line = StripComments(this[i]);
-					if (line.StartsWith(key + '=', StringComparison.Ordinal)
-						|| line.StartsWith(key + " =", StringComparison.Ordinal))
+					if (line.StartsWith (key + '=', StringComparison.Ordinal)
+					    || line.StartsWith (key + " =", StringComparison.Ordinal)) {
 						return i;
+					}
 				}
 			}
 			return -1;
@@ -281,7 +282,7 @@ namespace baimp
 				i++;
 				int j = FindKey(key, i);
 				if (j != -1)
-					this[i] = newLine;
+					this[j] = newLine;
 				else
 					Insert(i + 1, newLine);
 			}

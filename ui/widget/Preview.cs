@@ -174,10 +174,19 @@ namespace baimp
 			if (scanDataChanged != null) {
 				scanDataChanged (sender, e);
 			}
+				
+			if (e.Changed.StartsWith ("mask_")) {
+				string[] splitted = e.Changed.Split ('_');
+				if (splitted.Length >= 2) {
+					int index = Convert.ToInt32 (splitted [1]);
 
-			notebook.CurrentTab.Label =
-				Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + 
-				(e != null && e.Unsaved.Contains ("mask_" + ((int)scanView.ScanType)) ? "*" : "");
+					if (notebook.Tabs.Count >= index) {
+						notebook.Tabs [index].Label =
+							Enum.GetName (typeof(ScanType), index) +
+							(e != null && e.Unsaved.Contains ("mask_" + index) ? "*" : "");
+					}
+				}
+			}
 		}
 
 

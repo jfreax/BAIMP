@@ -432,17 +432,19 @@ namespace baimp
                 }
             }
 
-            switch (type)
-            {
-                case ScanType.Intensity:
-                    ini.WriteString("masks", "intensity", base64);
-                    break;
-                case ScanType.Topography:
-                    ini.WriteString("masks", "topography", base64);
-                    break;
-                case ScanType.Color:
-                    ini.WriteString("masks", "color", base64);
-                    break;
+            switch (type)  {
+			case ScanType.Intensity:
+			Console.WriteLine ("WriteString " + "intensity");
+                ini.WriteString("masks", "intensity", base64);
+                break;
+            case ScanType.Topography:
+				Console.WriteLine ("WriteString " + "topography");
+                ini.WriteString("masks", "topography", base64);
+                break;
+            case ScanType.Color:
+				Console.WriteLine ("WriteString " + "color");
+                ini.WriteString("masks", "color", base64);
+                break;
             }
             ini.UpdateFile();
 
@@ -471,6 +473,18 @@ namespace baimp
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Resets mask data
+		/// </summary>
+		/// <param name="type">Scan type.</param>
+		public void ResetMask(ScanType type)
+		{
+			maskBuilder[(int)type].Dispose();
+			maskBuilder[(int)type] = new XD.ImageBuilder(size.Width, size.Height);
+
+			NotifyChange ("mask_" + ((int)type));
+		}
 
 		/// <summary>
 		/// Notifies that something for this scan has changed.

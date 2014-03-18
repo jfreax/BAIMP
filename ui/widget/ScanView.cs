@@ -87,12 +87,20 @@ namespace baimp
 			};
 			contextMenu.Items.Add (contextEditMask);
 
+			MenuItem contextResetMask = new MenuItem ("Reset mask");
+			contextResetMask.UseMnemonic = true;
+			contextResetMask.Clicked += delegate(object sender, EventArgs e) {
+				scan.ResetMask(currentShownType);
+			};
+			contextMenu.Items.Add (contextResetMask);
+
 			MenuItem contextSaveMask = new MenuItem ("Save changes");
 			contextSaveMask.UseMnemonic = true;
 			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
 				SaveMask();
 			};
 			contextMenu.Items.Add (contextSaveMask);
+
 		}
 
 		#endregion
