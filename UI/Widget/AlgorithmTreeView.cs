@@ -61,7 +61,49 @@ namespace baimp
 						.CurrentPosition;
 				}
 			}
+
+//			SetDragDropTarget (DragDropAction.All, TransferDataType.Text);
+//			SetDragSource (	DragDropAction.All, TransferDataType.Text);
+//			DragStarted += delegate(object sender, DragStartedEventArgs e) {
+//				var val = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
+//				e.DragOperation.Data.AddValue (val);
+//				e.DragOperation.Finished += delegate(object s, DragFinishedEventArgs args) {
+//					Console.WriteLine ("D:" + args.DeleteSource);
+//				};
+//			};
 		}
+
+		protected override void OnSelectionChanged(EventArgs e)
+		{
+			if (SelectedRow == null)
+				return;
+
+			object value = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
+			if (value is BaseAlgorithm) {
+
+				TextLayout text = new TextLayout ();
+				text.Text = value.ToString ();
+
+				Size textSize = text.GetSize ();
+
+				var ib = new ImageBuilder (textSize.Width, textSize.Height);
+				ib.Context.DrawTextLayout (text, 0, 0);
+
+				var d = CreateDragOperation ();
+				d.Data.AddValue ("Hola");
+				d.SetDragImage (ib.ToVectorImage (), -6, -4);
+				d.AllowedActions = DragDropAction.Link;
+				d.Start ();
+
+				d.Finished += delegate(object sender, DragFinishedEventArgs e2) {
+					this.UnselectAll ();
+				
+				};
+			} else {
+				this.UnselectRow (SelectedRow);
+			}
+		}
+
 	}
 }
 

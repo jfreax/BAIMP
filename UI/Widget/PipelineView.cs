@@ -9,6 +9,8 @@ namespace baimp
 		public PipelineView ()
 		{
 			this.MinHeight = 120;
+
+			SetDragDropTarget (TransferDataType.Text);
 		}
 
 
@@ -28,6 +30,21 @@ namespace baimp
 			ctx.SetLineWidth (1);
 			ctx.Fill ();
 
+		}
+
+
+		protected override void OnDragOver(DragOverEventArgs e)
+		{
+			e.AllowedAction = DragDropAction.Link;
+		}
+
+
+		protected override void OnDragDrop(DragEventArgs e)
+		{
+			Console.WriteLine ("Dropped! " + e.Action);
+			Console.WriteLine ("Text: " + e.Data.GetValue (TransferDataType.Text));
+
+			e.Success = true;
 		}
 	}
 }
