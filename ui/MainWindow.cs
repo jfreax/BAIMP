@@ -55,7 +55,16 @@ namespace baimp
 		/// <summary>
 		/// Initializes the user inferface
 		/// </summary>
-		private void InitializeUI() {
+		private void InitializeUI()
+		{
+			Menu menu = new Menu ();
+			var file = new MenuItem ("_File");
+			file.SubMenu = new Menu ();
+			file.SubMenu.Items.Add (new MenuItem ("_Open"));
+
+			menu.Items.Add (file);
+
+			MainMenu = menu;
 
 			splitFiletreePreview = new HPaned ();
 			splitPreviewMetadata = new HBox ();

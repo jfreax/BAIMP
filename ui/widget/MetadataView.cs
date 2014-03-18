@@ -41,7 +41,6 @@ namespace baimp
 			InitializeUI ();
 		}
 
-
 		/// <summary>
 		/// Initializes the user interface and their events.
 		/// </summary>
@@ -62,7 +61,6 @@ namespace baimp
 			};
 		}
 
-
 		/// <summary>
 		/// Show metadata of specified scan.
 		/// </summary>
@@ -71,7 +69,8 @@ namespace baimp
 		{
 			this.currentScan = scan;
 
-			table.Remove (name);
+			table.Clear ();
+			//table.Remove (name);
 			name = new Label ("Name");
 			name.TextAlignment = Alignment.Center;
 			name.Text = scan.ToString();
@@ -79,39 +78,28 @@ namespace baimp
 
 			int i = 1;
 			foreach (Tuple<string, string> d in scan.generalMetadata) {
-				Replace (new Label (d.Item1), 0, i);
+				table.Add (new Label (d.Item1), 0, i);
 
 				TextEntry entry = new TextEntry ();
 				entry.Text = d.Item2;
 				entry.ReadOnly = true;
 				entry.ShowFrame = false;
 				entry.BackgroundColor = Color.FromBytes (232, 232, 232);
-				Replace (entry, 1, i);
+				table.Add (entry, 1, i);
 
 				i++;
 			}
 				
 			entryFiberType.Text = scan.FiberType;
-			Replace (new Label ("FiberType"), 0, i);
-			Replace (entryFiberType, 1, i++);
-
-
+			table.Add (new Label ("FiberType"), 0, i);
+			table.Add (entryFiberType, 1, i++);
 		}
 
 		/// <summary>
-		/// Replace a widget on a given position with a new one
+		/// Changes the type of the fiber.
 		/// </summary>
-		public void Replace (Widget widget, int left, int top, int rowspan = 1, int colspan = 1, bool hexpand = false, bool vexpand = false, WidgetPlacement hpos = WidgetPlacement.Fill, WidgetPlacement vpos = WidgetPlacement.Fill, double marginLeft = -1.0, double marginTop = -1.0, double marginRight = -1.0, double marginBottom = -1.0, double margin = -1.0)
-		{
-			if (widgets [left].ContainsKey (top)) {
-				table.Remove (widgets[left][top]);
-			}
-
-			table.Add (widget, left, top, rowspan, colspan, hexpand, vexpand, hpos, vpos, marginLeft, marginTop, marginRight, marginBottom, margin);
-			widgets [left] [top] = widget;
-		}
-
-
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event arguments.</param>
 		private void ChangeFiberType(object sender, EventArgs e)
 		{
 			currentScan.FiberType = entryFiberType.Text;
