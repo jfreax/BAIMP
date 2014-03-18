@@ -51,7 +51,7 @@ namespace baimp
 			entryFiberType.BackgroundColor = Colors.White;
 			entryFiberType.ShowFrame = false;
 
-			//entryFiberType.LostFocus += ChangeFiberType;
+			entryFiberType.LostFocus += ChangeFiberType;
 			entryFiberType.KeyPressed += delegate(object sender, KeyEventArgs e) {
 				if(e.Key == Key.Return) {
 					ChangeFiberType(sender, e);
