@@ -227,6 +227,8 @@ namespace baimp
 			}
 		}
 
+		long lastMoveTimestamp = 0L;
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -234,11 +236,10 @@ namespace baimp
 		/// <param name="e">Mouse event args.</param>
 		private void MouseMovedGtk (object sender, MouseMovedEventArgs e)
 		{
-			if (scanView != null && scanView.Image != null) {
+			if (scanView != null && scanView.Image != null && e.Timestamp - lastMoveTimestamp > 80) {
 				tab.MouseMoved -= MouseMovedGtk;
 
 				e.Handled = true;
-
 				if (scanView.Data.ContainsKey ("pressed") &&
 				    scanView.Data.ContainsKey ("pressedPosition") &&
 				    scanView.Data ["pressedPosition"] != null) {
@@ -255,6 +256,8 @@ namespace baimp
 				}
 
 				tab.MouseMoved += MouseMovedGtk;
+
+				lastMoveTimestamp = e.Timestamp;
 			}
 		}
 

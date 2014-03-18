@@ -12,8 +12,8 @@ namespace baimp
 		ScanCollection scanCollection;
 
 		// widgets
-		HPaned splitFiletreePreview;
-		HBox splitPreviewMetadata;
+		HPaned splitFiletree_Preview;
+		HBox splitPreview_Metadata;
 
 		Preview preview;
 		FileTreeView fileTreeView;
@@ -74,27 +74,29 @@ namespace baimp
 			menu.Items.Add (file);
 			MainMenu = menu;
 
-			splitFiletreePreview = new HPaned ();
-			splitPreviewMetadata = new HBox ();
+			splitFiletree_Preview = new HPaned ();
+			splitPreview_Metadata = new HBox ();
+
+			//splitFileTree_Algorithms
 
 			// initialize preview widget
 			preview = new Preview ();
 			//splitPreviewMetadata.Panel1.Content = preview;
-			splitPreviewMetadata.PackStart (preview, true, true);
+			splitPreview_Metadata.PackStart (preview, true, true);
 
 			// load tree view with all available files
 			fileTreeView = new FileTreeView (scanCollection);
-			splitFiletreePreview.Panel1.Content = fileTreeView;
+			splitFiletree_Preview.Panel1.Content = fileTreeView;
 
 			// load metadata viewer
 			metadata = new MetadataView ();
-			splitPreviewMetadata.PackEnd (metadata, false, false);
+			splitPreview_Metadata.PackEnd (metadata, false, false);
 
 
-			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
-			splitFiletreePreview.Panel2.Resize = true;
+			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
+			splitFiletree_Preview.Panel2.Resize = true;
 
-			Content = splitFiletreePreview;
+			Content = splitFiletree_Preview;
 
 			InitializeEvents ();
 			fileTreeView.InitializeUI (); // call after initialize events!
@@ -129,8 +131,8 @@ namespace baimp
 			}
 
 			// global key events
-			splitFiletreePreview.KeyPressed += GlobalKeyPressed;
-			splitPreviewMetadata.KeyPressed += GlobalKeyPressed;
+			splitFiletree_Preview.KeyPressed += GlobalKeyPressed;
+			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
 		}
 
 
