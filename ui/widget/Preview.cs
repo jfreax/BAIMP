@@ -47,8 +47,8 @@ namespace bachelorarbeit_implementierung
 		public void ShowPreviewOf (ScanWrapper scan)
 		{
 			this.currentScan = scan;
-
 			scanView = new ScanView (scan);
+			tab.Content = scanView;
 
 			scanView.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				scanDataChanged(sender, e);
@@ -56,9 +56,7 @@ namespace bachelorarbeit_implementierung
 				notebook.CurrentTab.Label =
 					Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + (e.Saved ? "" : "*");
 			};
-
-			tab.Content = scanView;
-
+				
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
 				OnPreviewZoom (e);
@@ -68,10 +66,19 @@ namespace bachelorarbeit_implementierung
 			ShowPreview (type);
 		}
 
+
+		/// <summary>
+		/// Gets called when image is ready to display.
+		/// </summary>
+		/// <param name="type">Scan type</param>
 		private void ImageLoadCallBack (ScanType type)
 		{
 			if (!scanView.IsScaled()) {
-				scanView.WithBoxSize (tab.Size);
+				if (tab.VisibleRect.Width < 10) {
+					scanView.WithBoxSize (tab.Size);
+				} else {
+					scanView.WithBoxSize (tab.VisibleRect.Size);
+				}
 			}
 		}
 
