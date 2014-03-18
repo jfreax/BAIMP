@@ -144,6 +144,8 @@ namespace bachelorarbeit_implementierung
 
 			// Save settings
 			Settings.Default.Save();
+
+			Application.Exit();
 		}
 	}
 }
