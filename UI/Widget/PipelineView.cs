@@ -29,7 +29,6 @@ namespace baimp
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.SetLineWidth (1);
 			ctx.Fill ();
-
 		}
 
 
@@ -41,8 +40,8 @@ namespace baimp
 
 		protected override void OnDragDrop(DragEventArgs e)
 		{
-			Console.WriteLine ("Dropped! " + e.Action);
-			Console.WriteLine ("Text: " + e.Data.GetValue (TransferDataType.Text));
+			Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
+			BaseAlgorithm list = Activator.CreateInstance(elementType) as BaseAlgorithm;
 
 			e.Success = true;
 		}

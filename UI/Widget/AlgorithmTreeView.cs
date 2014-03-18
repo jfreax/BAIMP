@@ -81,16 +81,17 @@ namespace baimp
 			object value = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
 			if (value is BaseAlgorithm) {
 
+				Console.WriteLine (value);
+
 				TextLayout text = new TextLayout ();
 				text.Text = value.ToString ();
 
 				Size textSize = text.GetSize ();
-
 				var ib = new ImageBuilder (textSize.Width, textSize.Height);
 				ib.Context.DrawTextLayout (text, 0, 0);
 
 				var d = CreateDragOperation ();
-				d.Data.AddValue ("Hola");
+				d.Data.AddValue (value.GetType().AssemblyQualifiedName);
 				d.SetDragImage (ib.ToVectorImage (), -6, -4);
 				d.AllowedActions = DragDropAction.Link;
 				d.Start ();
