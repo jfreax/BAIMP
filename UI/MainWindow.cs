@@ -12,6 +12,7 @@ namespace baimp
 		ScanCollection scanCollection;
 
 		// widgets
+		VPaned splitAlgorithmTree;
 		HPaned splitFiletreeAlgo_Preview;
 		HBox splitPreview_Metadata;
 		VPaned splitFileTree_Algo;
@@ -20,6 +21,7 @@ namespace baimp
 		FileTreeView fileTreeView;
 		MetadataView metadata;
 		AlgorithmView algorithm;
+		AlgorithmTreeView algorithmTree;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
@@ -85,8 +87,11 @@ namespace baimp
 			// load metadata viewer
 			metadata = new MetadataView ();
 
-			// load algorithm viewer
+			// load algorithm list viewer
 			algorithm = new AlgorithmView();
+
+			// load algorithm tree viever
+			algorithmTree = new AlgorithmTreeView();
 
 			// set layout
 			splitFileTree_Algo = new VPaned ();
@@ -100,15 +105,13 @@ namespace baimp
 			splitFiletreeAlgo_Preview = new HPaned ();
 			splitFiletreeAlgo_Preview.Panel1.Content = splitFileTree_Algo;
 			splitFiletreeAlgo_Preview.Panel2.Content = splitPreview_Metadata;
-
-
-
-
-			splitFiletreeAlgo_Preview.Panel1.Content = splitFileTree_Algo;
-
 			splitFiletreeAlgo_Preview.Panel2.Resize = true;
 
-			Content = splitFiletreeAlgo_Preview;
+			splitAlgorithmTree = new VPaned ();
+			splitAlgorithmTree.Panel1.Content = splitFiletreeAlgo_Preview;
+			splitAlgorithmTree.Panel2.Content = algorithmTree;
+
+			Content = splitAlgorithmTree;
 
 			InitializeEvents ();
 			fileTreeView.InitializeUI (); // call after initialize events!
