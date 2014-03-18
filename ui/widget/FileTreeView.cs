@@ -51,7 +51,9 @@ namespace bachelorarbeit_implementierung
 			this.ExpandAll ();
 			this.SelectRow (pos);
 
-			this.MinWidth = this.ParentWindow.Width;
+            if (MainClass.toolkitType == ToolkitType.Gtk) {
+                this.MinWidth = this.ParentWindow.Width;
+            }
 		}
 	}
 }
