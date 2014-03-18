@@ -171,7 +171,9 @@ namespace baimp
 		private void OnScanDataChanged(object sender, ScanDataEventArgs e)
 		{
 			// propagate
-			scanDataChanged(sender, e);
+			if (scanDataChanged != null) {
+				scanDataChanged (sender, e);
+			}
 
 			notebook.CurrentTab.Label =
 				Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + 

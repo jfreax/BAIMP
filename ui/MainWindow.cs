@@ -105,22 +105,11 @@ namespace baimp
 				}
 			};
 
-			preview.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-				ScanWrapper scan = (ScanWrapper) sender;
-
-				if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-					scanCollection.Refresh(scan);
-					fileTreeView.Reload(scan);
+			foreach (string key in scanCollection.Keys) {
+				foreach (ScanWrapper scan in scanCollection[key]) {
+					scan.ScanDataChanged += fileTreeView.OnScanDataChanged;
 				}
-
-				Console.WriteLine(e.Unsaved.Count);
-
-				fileTreeView.store.GetNavigatorAt (scan.position)
-					.SetValue(
-						fileTreeView.saveStateCol, 
-						e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
-					);
-			};
+			}
 
 			// global key events
 			splitFiletreePreview.KeyPressed += GlobalKeyPressed;

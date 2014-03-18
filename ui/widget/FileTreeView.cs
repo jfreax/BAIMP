@@ -41,7 +41,6 @@ namespace baimp
             }
 		}
 
-
 		/// <summary>
 		/// Reloads file tree information.
 		/// </summary>
@@ -74,6 +73,26 @@ namespace baimp
 
 			this.ExpandAll ();
 			this.SelectRow (pos);
+		}
+
+		/// <summary>
+		/// Gets called when a scan has changed
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
+		public void OnScanDataChanged(object sender, ScanDataEventArgs e) {
+			ScanWrapper scan = (ScanWrapper) sender;
+
+			if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
+				scans.Refresh(scan);
+				Reload(scan);
+			}
+
+			store.GetNavigatorAt (scan.position)
+				.SetValue(
+					saveStateCol, 
+					e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
+				);
 		}
 	}
 }
