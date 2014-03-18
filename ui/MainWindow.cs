@@ -76,6 +76,8 @@ namespace bachelorarbeit_implementierung
 
 
 			splitFiletreePreview.Panel2.Content = splitPreviewMetadata;
+			splitFiletreePreview.Panel2.Resize = true;
+
 			Content = splitFiletreePreview;
 
 			InitializeEvents ();

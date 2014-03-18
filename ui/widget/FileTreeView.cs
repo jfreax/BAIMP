@@ -50,6 +50,8 @@ namespace bachelorarbeit_implementierung
 			this.DataSource = store;
 			this.ExpandAll ();
 			this.SelectRow (pos);
+
+			this.MinWidth = this.ParentWindow.Width;
 		}
 	}
 }
