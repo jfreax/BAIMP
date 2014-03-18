@@ -318,47 +318,78 @@ namespace bachelorarbeit_implementierung
 
 		#region saving
 
+
 		/// <summary>
 		/// Saves the mask data to the dd+ file.
 		/// </summary>
 		/// <param name="type">Scan type.</param>
 		public void SaveMask(ScanType type)
 		{
-			XD.BitmapImage mask = GetMaskBuilder (type).ToBitmap ();
-			XD.Color maskColor = ScanView.maskColor.WithAlpha (1.0);
 
-			Parallel.For(0, (int)mask.Height, new Action<int>(y => {
-				for (int x = 0; x < mask.Width; x++) {
-					XD.Color color = mask.GetPixel (x, y);
-					if (color.WithAlpha(1.0) == maskColor) {
-						mask.SetPixel (x, y, color.WithAlpha(0.6));
-					} else {
-						mask.SetPixel (x, y, XD.Colors.Transparent);
-					}
-				}
-			}));
+                XD.BitmapImage mask = GetMaskBuilder(type).ToBitmap();
+                XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
 
-			using (MemoryStream stream = new MemoryStream())
-			{
-				mask.Save(stream, XD.ImageFileType.Png);
+                if (MainClass.toolkitType == Xwt.ToolkitType.Gtk)
+                {
+                    Parallel.For(0, (int)mask.Height, new Action<int>(y =>
+                    {
+                        for (int x = 0; x < mask.Width; x++)
+                        {
+                            XD.Color color = mask.GetPixel(x, y);
+                            if (color.WithAlpha(1.0) == maskColor)
+                            {
+                                mask.SetPixel(x, y, color.WithAlpha(0.6));
+                            }
+                            else
+                            {
+                                mask.SetPixel(x, y, XD.Colors.Transparent);
+                            }
+                        }
+                    }));
+                }
+                else
+                {
+                    for(int y = 0; y < mask.Height; y++)
+                    {
+                        for (int x = 0; x < mask.Width; x++)
+                        {
+                            XD.Color color = mask.GetPixel(x, y);
+                            if (color.WithAlpha(1.0) == maskColor)
+                            {
+                                mask.SetPixel(x, y, color.WithAlpha(0.6));
+                            }
+                            else
+                            {
+                                mask.SetPixel(x, y, XD.Colors.Transparent);
+                            }
+                        }
+                    };
+                }
 
-				string base64 = Convert.ToBase64String (stream.ToArray ());
-				switch(type) {
-				case ScanType.Intensity:
-					ini.WriteString ("masks", "intensity", base64);
-					break;
-				case ScanType.Topography:
-					ini.WriteString ("masks", "topography", base64);
-					break;
-				case ScanType.Color:
-					ini.WriteString ("masks", "color", base64);
-					break;
-				}
-				ini.UpdateFile ();
 
-				maskBuilder [(int)type].Dispose ();
-				maskBuilder [(int)type] = null;
-			}
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    mask.Save(stream, XD.ImageFileType.Png);
+
+                    string base64 = Convert.ToBase64String(stream.ToArray());
+                    switch (type)
+                    {
+                        case ScanType.Intensity:
+                            ini.WriteString("masks", "intensity", base64);
+                            break;
+                        case ScanType.Topography:
+                            ini.WriteString("masks", "topography", base64);
+                            break;
+                        case ScanType.Color:
+                            ini.WriteString("masks", "color", base64);
+                            break;
+                    }
+                    ini.UpdateFile();
+
+                    maskBuilder[(int)type].Dispose();
+                    maskBuilder[(int)type] = null;
+                }
 		}
 
 		#endregion
