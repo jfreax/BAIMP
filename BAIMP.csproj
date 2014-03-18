@@ -79,6 +79,8 @@
     <Compile Include="ui\widget\MetadataView.cs" />
     <Compile Include="ui\widget\AlgorithmView.cs" />
     <Compile Include="event\ScanDataEventArgs.cs" />
+    <Compile Include="algorithm\BaseAlgorithm.cs" />
+    <Compile Include="algorithm\extraction\TestExtraction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -107,5 +109,7 @@
   <ItemGroup />
   <ItemGroup>
     <Folder Include="event\" />
+    <Folder Include="algorithm\" />
+    <Folder Include="algorithm\extraction\" />
   </ItemGroup>
 </Project>

@@ -126,7 +126,6 @@ namespace baimp
 			view.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
 				switch (e.Button) {
 				case PointerButton.Middle:
-					Console.WriteLine("ok=");
 					if (scanView != null) {
 						scanView.Data.Remove ("pressed");
 						if(scanView.Data.ContainsKey("oldMouseButton")) {
