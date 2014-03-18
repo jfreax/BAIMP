@@ -1,6 +1,7 @@
 using System;
 using Xwt;
 using System.Collections.Generic;
+using Xwt.Drawing;
 
 namespace bachelorarbeit_implementierung
 {
@@ -45,10 +46,18 @@ namespace bachelorarbeit_implementierung
 				entry.Text = d.Item2;
 				entry.ReadOnly = true;
 				entry.ShowFrame = false;
+				entry.BackgroundColor = Color.FromBytes (232, 232, 232);
 				Replace (entry, 1, i);
 
 				i++;
 			}
+
+			TextEntry entryFiberType = new TextEntry ();
+			Replace (new Label ("FiberType"), 0, i);
+			entryFiberType.Text = scan.FiberType;
+			entryFiberType.BackgroundColor = Colors.White;
+			entryFiberType.ShowFrame = false;
+			Replace (entryFiberType, 1, i++);
 		}
 
 		/// <summary>

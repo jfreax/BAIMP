@@ -54,7 +54,7 @@ namespace bachelorarbeit_implementierung
 			int height = ini.ReadInteger ("general", "Height", 0);
 			int width = ini.ReadInteger ("general", "Width", 0);
 			zLengthPerDigitF = (float)ini.ReadDoubleInvariant ("general", "ZLengthPerDigitF", 0.0);
-			fiberType = ini.ReadString ("fiber", "FiberType", "Unbekannt");
+			fiberType = ini.ReadString ("general", "FiberType", "Unknown");
 
 			size = new Xwt.Size (width, height);
 			requestedBitmapSize = new Xwt.Size (width, height);
