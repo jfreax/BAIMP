@@ -26,34 +26,51 @@ namespace baimp
 			store = new TreeStore (nameCol, saveStateCol);
 		}
 
-		public void Initialize()
+		/// <summary>
+		/// Initialize the user interface.
+		/// </summary>
+		public void InitializeUI()
 		{
 			this.Columns.Add ("Name", nameCol).CanResize = true;
 			this.Columns.Add ("*", saveStateCol).CanResize = true;
 
+			this.DataSource = store;
+
+            if (MainClass.toolkitType == ToolkitType.Gtk) {
+                this.MinWidth = this.ParentWindow.Width;
+            }
+		}
+
+
+		/// <summary>
+		/// Reloads file tree information.
+		/// </summary>
+		/// <param name="currentScan">Current focused scan</param>
+		public void Reload(ScanWrapper currentScan = null) {
+			store.Clear ();
+
 			TreePosition pos = null;
-			foreach (string key in scans.Keys)
-			{
+			foreach (string key in scans.Keys) {
 				var p = store.AddNode (null).SetValue (nameCol, key).CurrentPosition;
 
 				foreach (ScanWrapper scan in scans[key]) {
 					var v = store.AddNode (p).SetValue (nameCol, scan).CurrentPosition;
 					scan.position = v;
 					scan.parentPosition = p;
-					if (pos == null) {
-						pos = v;
-
+					if (currentScan != null) {
+						if (currentScan == scan) {
+							pos = v;
+						}
+					} else {
+						if (pos == null) {
+							pos = v;
+						}
 					}
 				}
 			}
 
-			this.DataSource = store;
 			this.ExpandAll ();
 			this.SelectRow (pos);
-
-            if (MainClass.toolkitType == ToolkitType.Gtk) {
-                this.MinWidth = this.ParentWindow.Width;
-            }
 		}
 	}
 }

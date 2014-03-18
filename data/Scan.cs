@@ -24,20 +24,26 @@ namespace baimp
 		public delegate void ImageLoadedCallback (XD.Image image);
 		private object lock_image_loading = new object ();
 
-		float zLengthPerDigitF;
-		string fiberType;
-		Xwt.Size size;
-		Xwt.Size requestedBitmapSize;
+		private float zLengthPerDigitF;
+		private string fiberType;
+		private Xwt.Size size;
+		private Xwt.Size requestedBitmapSize;
 
-		string[] filenames;
-		float[][] data;
-		float[] max;
+		private string[] filenames;
+		private float[][] data;
+		private float[] max;
+
 		public List<Tuple<string, string>> generalMetadata;
 
-		XD.Image[] renderedImage;
-		XD.ImageBuilder[] maskBuilder;
+		private XD.Image[] renderedImage;
+		private XD.ImageBuilder[] maskBuilder;
 
-		IniFile ini;
+		/// <summary>
+		/// List of unsaved elements
+		/// </summary>
+		private HashSet<string> unsaved = new HashSet<string>();
+
+		private IniFile ini;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
@@ -259,6 +265,9 @@ namespace baimp
 		/// </summary>
 		/// <returns>The mask builder.</returns>
 		/// <param name="type">Type.</param>
+		/// <remarks>
+		/// Set the status of this scan to "unsaved"
+		/// </remarks>
 		public XD.ImageBuilder GetMaskBuilder (ScanType type)
 		{
 			if (maskBuilder [(int)type] == null) {
@@ -269,6 +278,7 @@ namespace baimp
 					maskBuilder [(int)type].Context.DrawImage (mask.WithSize (Size), Xwt.Point.Zero, 0.6);
 				}
 			}
+
 			return maskBuilder [(int)type];
 		}
 
@@ -394,7 +404,6 @@ namespace baimp
                     maskBitmap.Dispose();
 
                 }
-
             }
 
             switch (type)
@@ -413,9 +422,48 @@ namespace baimp
 
             maskBuilder[(int)type].Dispose();
             maskBuilder[(int)type] = null;
+
+			unsaved.Remove ("mask_"+((int)type));
+
+			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (unsaved);
+			scanDataChanged(this, dataChangedEvent);
 		}
 
 		#endregion
+
+		#region custom events
+
+		EventHandler<ScanDataEventArgs> scanDataChanged;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
+			add {
+				scanDataChanged += value;
+			}
+			remove {
+				scanDataChanged -= value;
+			}
+		}
+
+		#endregion
+
+
+		/// <summary>
+		/// Notifies that something for this scan has changed.
+		/// </summary>
+		/// <param name="changeOf">Type of change</param>
+		/// <remarks>
+		/// We need to save this data somewhere!
+		/// </remarks>
+		public void NotifyChange(string changeOf)
+		{
+			unsaved.Add (changeOf);
+
+			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (unsaved);
+			scanDataChanged(this, dataChangedEvent);
+		}
 
 		/// <summary>
 		/// Scales the render size of all images
@@ -440,7 +488,14 @@ namespace baimp
 
 		public string FiberType {
 			get { return fiberType; }
+			set {
+				if(!fiberType.Equals(value)) {
+					fiberType = value;
+					NotifyChange ("FiberType");
+				}
+			}
 		}
+
 
 		public string Name {
 			get {

@@ -132,6 +132,8 @@ namespace baimp
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
+					scan.NotifyChange ("mask_"+((int)currentShownType));
+
                     Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
 					ImageBuilder ib = scan.GetMaskBuilder (currentShownType);
 					ib.Context.NewPath ();
@@ -142,10 +144,6 @@ namespace baimp
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Control) ||
 						Keyboard.CurrentModifiers.HasFlag (ModifierKeys.Command)
 					);
-
-					// data was changed
-					ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs ();
-					scanDataChanged(scan, dataChangedEvent);
 				}
 				break;
 			case PointerButton.Right:
@@ -220,24 +218,6 @@ namespace baimp
 
 		#endregion
 
-		#region custom events
-
-		EventHandler<ScanDataEventArgs> scanDataChanged;
-
-		/// <summary>
-		/// Occurs when scan data changed
-		/// </summary>
-		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
-			add {
-				scanDataChanged += value;
-			}
-			remove {
-				scanDataChanged -= value;
-			}
-		}
-
-		#endregion
-
 		/// <summary>
 		/// Scale scan and mask at once.
 		/// </summary>
@@ -297,9 +277,6 @@ namespace baimp
 		public void SaveMask() {
 			scan.SaveMask (currentShownType);
 			mask.Image = scan.GetMaskAsImage(currentShownType);
-
-			ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs (true);
-			scanDataChanged(scan, dataChangedEvent);
 		}
 
 		/// <summary>

@@ -51,8 +51,8 @@ namespace baimp
 			entryFiberType.BackgroundColor = Colors.White;
 			entryFiberType.ShowFrame = false;
 
-			entryFiberType.Changed += delegate(object sender, EventArgs e) {
-				Console.WriteLine(entryFiberType.Text);
+			entryFiberType.LostFocus += delegate(object sender, EventArgs e) {
+				currentScan.FiberType = entryFiberType.Text;
 			};
 		}
 

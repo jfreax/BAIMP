@@ -46,16 +46,15 @@ namespace baimp
 		/// <param name="scan">Scan.</param>
 		public void ShowPreviewOf (ScanWrapper scan)
 		{
+			if (currentScan != null) {
+				currentScan.ScanDataChanged -= OnScanDataChanged;
+			}
+
 			this.currentScan = scan;
 			scanView = new ScanView (scan);
 			tab.Content = scanView;
 
-			scanView.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-				scanDataChanged(sender, e);
-
-				notebook.CurrentTab.Label =
-					Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + (e.Saved ? "" : "*");
-			};
+			currentScan.ScanDataChanged += OnScanDataChanged;
 				
 			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
@@ -166,6 +165,17 @@ namespace baimp
 			}
 
 			e.Handled = true;
+		}
+
+
+		private void OnScanDataChanged(object sender, ScanDataEventArgs e)
+		{
+			// propagate
+			scanDataChanged(sender, e);
+
+			notebook.CurrentTab.Label =
+				Enum.GetName (typeof(ScanType), notebook.CurrentTabIndex) + 
+				(e != null && e.Unsaved.Contains ("mask_" + ((int)scanView.ScanType)) ? "*" : "");
 		}
 
 

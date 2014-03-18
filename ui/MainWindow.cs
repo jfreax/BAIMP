@@ -80,7 +80,8 @@ namespace baimp
 			Content = splitFiletreePreview;
 
 			InitializeEvents ();
-			fileTreeView.Initialize (); // call after initialize events!
+			fileTreeView.InitializeUI (); // call after initialize events!
+			fileTreeView.Reload ();
 		}
 
 
@@ -107,10 +108,16 @@ namespace baimp
 			preview.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				ScanWrapper scan = (ScanWrapper) sender;
 
-				fileTreeView
-					.store
-					.GetNavigatorAt (scan.position)
-					.SetValue(fileTreeView.saveStateCol, e.Saved ? "" : "*");
+				fileTreeView.store.GetNavigatorAt (scan.position)
+					.SetValue(
+						fileTreeView.saveStateCol, 
+						e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
+					);
+
+				if(e.Unsaved.Contains("FiberType")) {
+					scanCollection.Refresh(scan);
+					fileTreeView.Reload(scan);
+				}
 			};
 		}
 

@@ -25,7 +25,31 @@ namespace baimp
 
 				this [scan.FiberType].Add (scan);
 			}
+		}
 
+		/// <summary>
+		/// Refresh specified scan.
+		/// </summary>
+		/// <param name="scan">Scan.</param>
+		public void Refresh(ScanWrapper scan) {
+			string oldKey = "";
+			foreach (string key in this.Keys) {
+				Scan s = this [key].Find (x => x == scan);
+				if (s != null) {
+					oldKey = key;
+					break;
+				}
+			}
+
+			if(!String.IsNullOrEmpty(oldKey)) {
+				this [oldKey].Remove (scan);
+			}
+
+			if (!this.ContainsKey (scan.FiberType)) {
+				this [scan.FiberType] = new List<ScanWrapper> ();
+			}
+
+			this [scan.FiberType].Add (scan);
 		}
 	}
 }
