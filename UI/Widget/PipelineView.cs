@@ -18,8 +18,8 @@ namespace baimp
 		/// </summary>
 		public PipelineView ()
 		{
-			this.MinHeight = 120;
 			this.SetDragDropTarget (TransferDataType.Text);
+			this.MinHeight = elementSize.Height + elementMargin.Top + elementMargin.Bottom;
 		}
 
 
@@ -54,14 +54,14 @@ namespace baimp
 			Rectangle elementBound = new Rectangle (Point.Zero, elementSize);
 
 			double overallHeight = 
-				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * numberOfSiblings;
+				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * (numberOfSiblings+1);
 			double spaceFromTop = 
-				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * bornPosition;
+				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * (bornPosition+1);
 
 			elementBound.X = 
 				(elementBound.Width + elementMargin.Left + elementMargin.Right) * depth;
 			elementBound.Y = Bounds.Center.Y;
-			elementBound.Y += (-overallHeight * 0.5) + spaceFromTop - (elementBound.Height*0.5);
+			elementBound.Y += (-overallHeight * 0.5) + spaceFromTop - elementBound.Height - elementMargin.Top;
 
 			if (depth == 0) {
 				elementBound.X += elementMargin.Left;
@@ -85,6 +85,14 @@ namespace baimp
 			}
 			ctx.SetColor (Colors.Black);
 			ctx.DrawTextLayout (text, elementBound.Location.Offset(textOffset));
+
+			// set min size
+			if (MinHeight < overallHeight) {
+				MinHeight = overallHeight;
+			}
+			if (MinWidth < elementBound.Right + elementMargin.Right) {
+				MinWidth = elementBound.Right + elementMargin.Right;
+			}
 		}
 
 

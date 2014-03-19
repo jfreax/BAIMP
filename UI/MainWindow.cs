@@ -92,6 +92,8 @@ namespace baimp
 
 			// load algorithm tree viever
 			pipeline = new PipelineView();
+			ScrollView pipelineScroller = new ScrollView ();
+			pipelineScroller.Content = pipeline;
 
 			// set layout
 			splitFileTree_Algo = new VPaned ();
@@ -109,7 +111,7 @@ namespace baimp
 
 			splitAlgorithmTree = new VPaned ();
 			splitAlgorithmTree.Panel1.Content = splitFiletreeAlgo_Preview;
-			splitAlgorithmTree.Panel2.Content = pipeline;
+			splitAlgorithmTree.Panel2.Content = pipelineScroller;
 
 			Content = splitAlgorithmTree;
 
