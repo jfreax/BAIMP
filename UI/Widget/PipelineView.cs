@@ -6,6 +6,13 @@ using System.Collections;
 
 namespace baimp
 {
+	enum MouseAction {
+		None = 0,
+		DragDrop = 1, // TODO
+		MoveNode = 2,
+		ConnectNodes = 3
+	}
+
 	public class PipelineView : Canvas
 	{
 		private Graph<PipelineNode> graph;
@@ -17,6 +24,8 @@ namespace baimp
 
 		private PipelineNode nodeToMove = null;
 		private Point nodeToMoveOffset = Point.Zero;
+
+		private MouseAction mouseAction = MouseAction.None;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
@@ -100,7 +109,6 @@ namespace baimp
 
 			ctx.Fill ();
 
-
 			// draw rect
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.RoundRectangle(node.bound, 4);
@@ -170,11 +178,21 @@ namespace baimp
 		{
 			switch (e.Button) {
 			case PointerButton.Left:
-				nodeToMove = GetNodeAt (e.Position);
-				if (nodeToMove != null) {
-					nodeToMoveOffset = new Point (
-						nodeToMove.bound.Location.X - e.Position.X,
-						nodeToMove.bound.Location.Y - e.Position.Y);
+				PipelineNode node = GetNodeAt (e.Position, true);
+				if (node != null) {
+					Tuple<string, Rectangle> inOutMarker = GetInOutMarkerAt (node, e.Position);
+					if (inOutMarker != null) {
+						mouseAction = MouseAction.ConnectNodes;
+					} else {
+						if (node.bound.Contains (e.Position)) {
+							nodeToMoveOffset = new Point (
+								node.bound.Location.X - e.Position.X,
+								node.bound.Location.Y - e.Position.Y
+							);
+							nodeToMove = node;
+							mouseAction = MouseAction.MoveNode;
+						} 
+					}
 				}
 
 				e.Handled = true;
@@ -184,17 +202,32 @@ namespace baimp
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
-			SetNode (nodeToMove);
-			nodeToMove = null;
+			switch (mouseAction) {
+			case MouseAction.MoveNode:
+				SetNode (nodeToMove);
+				break;
+			}
+
+			mouseAction = MouseAction.None;
 		}
 
 		protected override void OnMouseMoved(MouseMovedEventArgs e)
 		{
-			if (nodeToMove != null) {
-				nodeToMove.bound.Location = e.Position.Offset (nodeToMoveOffset);
-				QueueDraw ();
-			} else {
-				TooltipText = GetInOutMarkerAt (e.Position);
+			switch(mouseAction) {
+			case MouseAction.None:
+				Tuple<string, Rectangle> marker = GetInOutMarkerAt (e.Position);
+				if (marker != null) {
+					TooltipText = marker.Item1;
+				} else {
+					TooltipText = string.Empty;
+				}
+				break;
+			case MouseAction.MoveNode:
+				if (nodeToMove != null) {
+					nodeToMove.bound.Location = e.Position.Offset (nodeToMoveOffset);
+					QueueDraw ();
+				}
+				break;
 			}
 		}
 
@@ -241,7 +274,6 @@ namespace baimp
 
 					QueueDraw ();
 				}
-
 			}
 		}
 
@@ -250,14 +282,16 @@ namespace baimp
 		/// </summary>
 		/// <returns>The node at position; or null</returns>
 		/// <param name="position">Position.</param>
-		private PipelineNode GetNodeAt (Point position)
+		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
+		private PipelineNode GetNodeAt (Point position, bool withExtras = false)
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
 				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
 				PipelineNode node = item.Value;
 
-				if (node.bound.Contains (position)) {
+				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
+				if (bound.Contains (position)) {
 					return node;
 				}
 			}
@@ -291,35 +325,51 @@ namespace baimp
 		/// <summary>
 		/// Get the in/out-marker at a given position.
 		/// </summary>
-		/// <returns>The marker description.</returns>
+		/// <returns>The marker description and their position.</returns>
 		/// <param name="position">Position.</param>
-		private string GetInOutMarkerAt (Point position)
+		private Tuple<string, Rectangle> GetInOutMarkerAt (Point position)
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
 				Node<PipelineNode> item = (Node<PipelineNode>)enumerator.Current;
 				PipelineNode node = item.Value;
 
-				Rectangle bound = node.BoundWithExtras;
-				if (bound.Contains(position)) {
-					for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
-						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
+				var ret = GetInOutMarkerAt (node, position);
+				if (ret != null) {
+					return ret;
+				}
+			}
 
-						if (markerBound.Contains (position)) {
-							return node.algorithm.CompatibleInput [i];
-						}
+			return null;
+		}
+
+		/// <summary>
+		/// Get the in/out-marker of a specified node at a given position 
+		/// </summary>
+		/// <returns>The marker description and their position.</returns>
+		/// <param name="node">Node.</param>
+		/// <param name="position">Position.</param>
+		private Tuple<string, Rectangle> GetInOutMarkerAt (PipelineNode node, Point position)
+		{
+			Rectangle bound = node.BoundWithExtras;
+			if (bound.Contains(position)) {
+				for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
+					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
+
+					if (markerBound.Contains (position)) {
+						return new Tuple<string, Rectangle>(node.algorithm.CompatibleInput [i], markerBound);
 					}
-					for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
-						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
+				}
+				for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
+					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
 
-						if (markerBound.Contains (position)) {
-							return node.algorithm.CompatibleOutput [i];
-						}
+					if (markerBound.Contains (position)) {
+						return new Tuple<string, Rectangle>(node.algorithm.CompatibleOutput [i], markerBound);
 					}
 				}
 			}
 
-			return string.Empty;
+			return null;
 		}
 			
 		/// <summary>
