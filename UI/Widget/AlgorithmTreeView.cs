@@ -62,6 +62,8 @@ namespace baimp
 				}
 			}
 
+			this.ExpandAll ();
+
 //			SetDragDropTarget (DragDropAction.All, TransferDataType.Text);
 //			SetDragSource (	DragDropAction.All, TransferDataType.Text);
 //			DragStarted += delegate(object sender, DragStartedEventArgs e) {
@@ -80,9 +82,7 @@ namespace baimp
 
 			object value = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
 			if (value is BaseAlgorithm) {
-
-				Console.WriteLine (value);
-
+			
 				TextLayout text = new TextLayout ();
 				text.Text = value.ToString ();
 

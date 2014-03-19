@@ -1,12 +1,16 @@
 ﻿using System;
 using Xwt;
 using Xwt.Drawing;
+using System.Collections.Generic;
 
 namespace baimp
 {
 	public class PipelineView : Canvas
 	{
 		TreeNode<BaseAlgorithm> tree;
+
+		WidgetSpacing elementMargin = new WidgetSpacing(10, 5, 10, 5);
+		Size elementSize = new Size (100, 30);
 
 
 		/// <summary>
@@ -30,10 +34,57 @@ namespace baimp
 			if (Bounds.IsEmpty)
 				return;
 
-			ctx.Rectangle (0, 0, Bounds.Width, Bounds.Height);
+			if (tree == null)
+				return;
+
+
+			this.DrawElement (ctx, tree.Data, 0, 0, 0);
+
+			int i = 0;
+			foreach (var child in tree.Children ) {
+				this.DrawElement (ctx, tree.Data, 1, tree.Children.Count-1, i);
+				i++;
+			}
+		}
+
+
+		private void DrawElement(Context ctx, BaseAlgorithm algo, int depth, int numberOfSiblings, int bornPosition)
+		{
+			// set position and size
+			Rectangle elementBound = new Rectangle (Point.Zero, elementSize);
+
+			double overallHeight = 
+				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * numberOfSiblings;
+			double spaceFromTop = 
+				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * bornPosition;
+
+			elementBound.X = 
+				(elementBound.Width + elementMargin.Left + elementMargin.Right) * depth;
+			elementBound.Y = Bounds.Center.Y;
+			elementBound.Y += (-overallHeight * 0.5) + spaceFromTop - (elementBound.Height*0.5);
+
+			if (depth == 0) {
+				elementBound.X += elementMargin.Left;
+			}
+
+			// draw rect
+			ctx.RoundRectangle(elementBound, 8);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
-			ctx.SetLineWidth (1);
 			ctx.Fill ();
+
+			// draw text
+			TextLayout text = new TextLayout ();
+			Point textOffset = new Point(0, 8);
+
+			text.Text = algo.ToString();
+			if (text.GetSize().Width < elementSize.Width) {
+				textOffset.X = (elementBound.Width - text.GetSize().Width) * 0.5;
+			} else {
+				text.Width = elementSize.Width;
+				text.Trimming = TextTrimming.WordElipsis;
+			}
+			ctx.SetColor (Colors.Black);
+			ctx.DrawTextLayout (text, elementBound.Location.Offset(textOffset));
 		}
 
 
