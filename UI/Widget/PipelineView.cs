@@ -7,11 +7,12 @@ namespace baimp
 {
 	public class PipelineView : Canvas
 	{
-		TreeNode<BaseAlgorithm> tree;
+		private TreeNode<BaseAlgorithm> tree;
 
-		WidgetSpacing elementMargin = new WidgetSpacing(10, 5, 10, 5);
-		Size elementSize = new Size (200, 30);
+		protected WidgetSpacing nodeMargin = new WidgetSpacing(10, 5, 10, 5);
+		protected Size nodeSize = new Size (200, 30);
 
+		private Point dropOverPosition = Point.Zero;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
@@ -19,7 +20,7 @@ namespace baimp
 		public PipelineView ()
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
-			this.MinHeight = elementSize.Height + elementMargin.Top + elementMargin.Bottom;
+			this.MinHeight = nodeSize.Height + nodeMargin.Top + nodeMargin.Bottom;
 
 			this.BackgroundColor = Colors.WhiteSmoke;
 		}
@@ -38,20 +39,22 @@ namespace baimp
 
 			if (tree == null)
 				return;
-
-
-
+				
+			// draw all nodes
 			Stack<TreeNode<BaseAlgorithm>> stack = new Stack<TreeNode<BaseAlgorithm>>();
 			stack.Push (tree);
 			foreach (var child in stack.Pop()) {
 				int siblings = child.Parent == null ? 0 : child.Parent.Children.Count - 1;
-				this.DrawElement (ctx, tree.Data, child.Level, siblings, child.Position);
+				this.DrawNode (ctx, tree.Data, child.Level, siblings, child.Position);
 					
-
 				foreach (var grandchild in child.Children ) {
-					Console.WriteLine ("Push " + child.Children.Count);
 					stack.Push (grandchild);
 				}
+			}
+
+			// draw marker on drag&drop action
+			if (dropOverPosition != Point.Zero) {
+				DrawDropMarker (ctx, dropOverPosition);
 			}
 		}
 
@@ -64,27 +67,27 @@ namespace baimp
 		/// <param name="depth">Depth.</param>
 		/// <param name="numberOfSiblings">Number of siblings.</param>
 		/// <param name="bornPosition">Position in this depth.</param>
-		private void DrawElement(Context ctx, BaseAlgorithm algo, int depth, int numberOfSiblings, int bornPosition)
+		private void DrawNode(Context ctx, BaseAlgorithm algo, int depth, int numberOfSiblings, int bornPosition)
 		{
 			// set position and size
-			Rectangle elementBound = new Rectangle (Point.Zero, elementSize);
+			Rectangle nodeBound = new Rectangle (Point.Zero, nodeSize);
 
 			double overallHeight = 
-				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * (numberOfSiblings+1);
+				(nodeBound.Height + nodeMargin.Top + nodeMargin.Bottom) * (numberOfSiblings+1);
 			double spaceFromTop = 
-				(elementBound.Height + elementMargin.Top + elementMargin.Bottom) * (bornPosition+1);
+				(nodeBound.Height + nodeMargin.Top + nodeMargin.Bottom) * (bornPosition+1);
 
-			elementBound.X = 
-				(elementBound.Width + elementMargin.Left + elementMargin.Right) * depth;
-			elementBound.Y = Bounds.Center.Y;
-			elementBound.Y += (-overallHeight * 0.5) + spaceFromTop - elementBound.Height - elementMargin.Top;
+			nodeBound.X = 
+				(nodeBound.Width + nodeMargin.Left + nodeMargin.Right) * depth;
+			nodeBound.Y = Bounds.Center.Y;
+			nodeBound.Y += (-overallHeight * 0.5) + spaceFromTop - nodeBound.Height - nodeMargin.Top;
 
 			if (depth == 0) {
-				elementBound.X += elementMargin.Left;
+				nodeBound.X += nodeMargin.Left;
 			}
 
 			// draw rect
-			ctx.RoundRectangle(elementBound, 8);
+			ctx.RoundRectangle(nodeBound, 8);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.Fill ();
 
@@ -93,22 +96,27 @@ namespace baimp
 			Point textOffset = new Point(0, 8);
 
 			text.Text = algo.ToString() + " " + depth + " " + numberOfSiblings + " " + bornPosition;
-			if (text.GetSize().Width < elementSize.Width) {
-				textOffset.X = (elementBound.Width - text.GetSize().Width) * 0.5;
+			if (text.GetSize().Width < nodeSize.Width) {
+				textOffset.X = (nodeBound.Width - text.GetSize().Width) * 0.5;
 			} else {
-				text.Width = elementSize.Width;
+				text.Width = nodeSize.Width;
 				text.Trimming = TextTrimming.WordElipsis;
 			}
 			ctx.SetColor (Colors.Black);
-			ctx.DrawTextLayout (text, elementBound.Location.Offset(textOffset));
+			ctx.DrawTextLayout (text, nodeBound.Location.Offset(textOffset));
 
 			// set min size
 			if (MinHeight < overallHeight) {
 				MinHeight = overallHeight;
 			}
-			if (MinWidth < elementBound.Right + elementMargin.Right) {
-				MinWidth = elementBound.Right + elementMargin.Right;
+			if (MinWidth < nodeBound.Right + nodeMargin.Right) {
+				MinWidth = nodeBound.Right + nodeMargin.Right;
 			}
+		}
+
+		private void DrawDropMarker(Context ctx, Point position)
+		{
+
 		}
 
 
@@ -119,6 +127,9 @@ namespace baimp
 		protected override void OnDragOver(DragOverEventArgs e)
 		{
 			e.AllowedAction = DragDropAction.Link;
+
+			dropOverPosition = e.Position;
+			//DrawDropMarker (e.Position);
 		}
 			
 		/// <summary>
@@ -143,6 +154,10 @@ namespace baimp
 				Console.WriteLine (exception.Message);
 				e.Success = false;
 			}
+		}
+
+		protected override void OnDragLeave (EventArgs args) {
+			dropOverPosition = Point.Zero;
 		}
 	}
 }
