@@ -2,12 +2,13 @@
 using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace baimp
 {
 	public class PipelineView : Canvas
 	{
-		private TreeNode<BaseAlgorithm> tree;
+		private Graph<PipelineNode> graph;
 
 		protected WidgetSpacing nodeMargin = new WidgetSpacing(10, 5, 10, 5);
 		protected Size nodeSize = new Size (200, 30);
@@ -23,6 +24,8 @@ namespace baimp
 			this.MinHeight = nodeSize.Height + nodeMargin.Top + nodeMargin.Bottom;
 
 			this.BackgroundColor = Colors.WhiteSmoke;
+
+			graph = new Graph<PipelineNode>();
 		}
 
 
@@ -36,20 +39,14 @@ namespace baimp
 		{
 			if (Bounds.IsEmpty)
 				return;
-
-			if (tree == null)
-				return;
 				
 			// draw all nodes
-			Stack<TreeNode<BaseAlgorithm>> stack = new Stack<TreeNode<BaseAlgorithm>>();
-			stack.Push (tree);
-			foreach (var child in stack.Pop()) {
-				int siblings = child.Parent == null ? 0 : child.Parent.Children.Count - 1;
-				this.DrawNode (ctx, tree.Data, child.Level, siblings, child.Position);
-					
-				foreach (var grandchild in child.Children ) {
-					stack.Push (grandchild);
-				}
+			IEnumerator enumerator = graph.GetEnumerator();
+			while (enumerator.MoveNext()) {
+				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
+				PipelineNode node = item.Value;
+
+				DrawNode (ctx, node);
 			}
 
 			// draw marker on drag&drop action
@@ -67,27 +64,10 @@ namespace baimp
 		/// <param name="depth">Depth.</param>
 		/// <param name="numberOfSiblings">Number of siblings.</param>
 		/// <param name="bornPosition">Position in this depth.</param>
-		private void DrawNode(Context ctx, BaseAlgorithm algo, int depth, int numberOfSiblings, int bornPosition)
+		private void DrawNode(Context ctx, PipelineNode node)
 		{
-			// set position and size
-			Rectangle nodeBound = new Rectangle (Point.Zero, nodeSize);
-
-			double overallHeight = 
-				(nodeBound.Height + nodeMargin.Top + nodeMargin.Bottom) * (numberOfSiblings+1);
-			double spaceFromTop = 
-				(nodeBound.Height + nodeMargin.Top + nodeMargin.Bottom) * (bornPosition+1);
-
-			nodeBound.X = 
-				(nodeBound.Width + nodeMargin.Left + nodeMargin.Right) * depth;
-			nodeBound.Y = Bounds.Center.Y;
-			nodeBound.Y += (-overallHeight * 0.5) + spaceFromTop - nodeBound.Height - nodeMargin.Top;
-
-			if (depth == 0) {
-				nodeBound.X += nodeMargin.Left;
-			}
-
 			// draw rect
-			ctx.RoundRectangle(nodeBound, 8);
+			ctx.RoundRectangle(node.position, nodeSize.Width, nodeSize.Height, 8);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.Fill ();
 
@@ -95,23 +75,20 @@ namespace baimp
 			TextLayout text = new TextLayout ();
 			Point textOffset = new Point(0, 8);
 
-			text.Text = algo.ToString() + " " + depth + " " + numberOfSiblings + " " + bornPosition;
+			text.Text = node.algorithm.ToString();
 			if (text.GetSize().Width < nodeSize.Width) {
-				textOffset.X = (nodeBound.Width - text.GetSize().Width) * 0.5;
+				textOffset.X = (nodeSize.Width - text.GetSize().Width) * 0.5;
 			} else {
 				text.Width = nodeSize.Width;
 				text.Trimming = TextTrimming.WordElipsis;
 			}
 			ctx.SetColor (Colors.Black);
-			ctx.DrawTextLayout (text, nodeBound.Location.Offset(textOffset));
+			ctx.DrawTextLayout (text, node.position.Offset(textOffset));
 
 			// set min size
-			if (MinHeight < overallHeight) {
-				MinHeight = overallHeight;
-			}
-			if (MinWidth < nodeBound.Right + nodeMargin.Right) {
-				MinWidth = nodeBound.Right + nodeMargin.Right;
-			}
+//			if (MinHeight < overallHeight) {
+//				MinHeight = overallHeight;
+//			}
 		}
 
 		private void DrawDropMarker(Context ctx, Point position)
@@ -142,11 +119,9 @@ namespace baimp
 			try {
 				Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
 				BaseAlgorithm algoInstance = Activator.CreateInstance(elementType) as BaseAlgorithm;
-				if(tree == null) {
-					tree = new TreeNode<BaseAlgorithm>(algoInstance);
-				} else {
-					tree.AddChild(algoInstance);
-				}
+
+				PipelineNode node = new PipelineNode(algoInstance, e.Position);
+				graph.AddNode(node);
 
 				this.QueueDraw();
 
@@ -158,6 +133,19 @@ namespace baimp
 
 		protected override void OnDragLeave (EventArgs args) {
 			dropOverPosition = Point.Zero;
+		}
+
+
+		class PipelineNode
+		{
+			public PipelineNode(BaseAlgorithm algorithm, Point position)
+			{
+				this.algorithm = algorithm;
+				this.position = position;
+			}
+
+			public BaseAlgorithm algorithm;
+			public Point position;
 		}
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace baimp
 {
-	public class Graph<T> : IEnumerable<T>
+	public class Graph<T>
 	{
 		private NodeList<T> nodeSet;
 
@@ -70,7 +70,7 @@ namespace baimp
 					gnode.Costs.RemoveAt(index);
 				}
 			}
-
+				
 			return true;
 		}
 
@@ -89,19 +89,15 @@ namespace baimp
 
 		#region IEnumerable implementation
 
-		public IEnumerator<T> GetEnumerator ()
+		public IEnumerator<Node<T>> GetEnumerator ()
 		{
-			throw new NotImplementedException ();
+			return this.nodeSet.GetEnumerator ();
 		}
 
-		#endregion
-
-		#region IEnumerable implementation
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
-		{
-			throw new NotImplementedException ();
-		}
+//		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+//		{
+//			return this.GetEnumerator ();
+//		}
 
 		#endregion
 	}
