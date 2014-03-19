@@ -10,7 +10,7 @@ namespace baimp
 		TreeNode<BaseAlgorithm> tree;
 
 		WidgetSpacing elementMargin = new WidgetSpacing(10, 5, 10, 5);
-		Size elementSize = new Size (100, 30);
+		Size elementSize = new Size (200, 30);
 
 
 		/// <summary>
@@ -40,16 +40,30 @@ namespace baimp
 				return;
 
 
-			this.DrawElement (ctx, tree.Data, 0, 0, 0);
 
-			int i = 0;
-			foreach (var child in tree.Children ) {
-				this.DrawElement (ctx, tree.Data, 1, tree.Children.Count-1, i);
-				i++;
+			Stack<TreeNode<BaseAlgorithm>> stack = new Stack<TreeNode<BaseAlgorithm>>();
+			stack.Push (tree);
+			foreach (var child in stack.Pop()) {
+				int siblings = child.Parent == null ? 0 : child.Parent.Children.Count - 1;
+				this.DrawElement (ctx, tree.Data, child.Level, siblings, child.Position);
+					
+
+				foreach (var grandchild in child.Children ) {
+					Console.WriteLine ("Push " + child.Children.Count);
+					stack.Push (grandchild);
+				}
 			}
 		}
 
 
+		/// <summary>
+		/// Draws an element.
+		/// </summary>
+		/// <param name="ctx">Drawing context.</param>
+		/// <param name="algo">Algorithmus.</param>
+		/// <param name="depth">Depth.</param>
+		/// <param name="numberOfSiblings">Number of siblings.</param>
+		/// <param name="bornPosition">Position in this depth.</param>
 		private void DrawElement(Context ctx, BaseAlgorithm algo, int depth, int numberOfSiblings, int bornPosition)
 		{
 			// set position and size
@@ -78,7 +92,7 @@ namespace baimp
 			TextLayout text = new TextLayout ();
 			Point textOffset = new Point(0, 8);
 
-			text.Text = algo.ToString();
+			text.Text = algo.ToString() + " " + depth + " " + numberOfSiblings + " " + bornPosition;
 			if (text.GetSize().Width < elementSize.Width) {
 				textOffset.X = (elementBound.Width - text.GetSize().Width) * 0.5;
 			} else {
@@ -98,12 +112,19 @@ namespace baimp
 		}
 
 
+		/// <summary>
+		/// Raises on DragOver event.
+		/// </summary>
+		/// <param name="e">Event arguments.</param>
 		protected override void OnDragOver(DragOverEventArgs e)
 		{
 			e.AllowedAction = DragDropAction.Link;
 		}
-
-
+			
+		/// <summary>
+		/// Raises on DragDrop event.
+		/// </summary>
+		/// <param name="e">Event arguments.</param>
 		protected override void OnDragDrop(DragEventArgs e)
 		{
 			e.Success = true;

@@ -29,6 +29,13 @@ namespace baimp
 			}
 		}
 
+		private int position;
+		public int Position {
+			get {
+				return position;
+			}
+		}
+
 		public TreeNode (T data)
 		{
 			this.Data = data;
@@ -40,7 +47,7 @@ namespace baimp
 
 		public TreeNode<T> AddChild (T child)
 		{
-			TreeNode<T> childNode = new TreeNode<T> (child) { Parent = this };
+			TreeNode<T> childNode = new TreeNode<T> (child) { Parent = this, position = this.Children.Count };
 			this.Children.Add (childNode);
 
 			this.RegisterChildForSearch (childNode);
