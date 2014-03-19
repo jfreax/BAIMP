@@ -82,6 +82,7 @@
     <Compile Include="Algorithm\Extraction\TestExtraction.cs" />
     <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
+    <Compile Include="Data\TreeNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

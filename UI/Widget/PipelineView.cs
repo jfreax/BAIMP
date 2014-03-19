@@ -6,11 +6,16 @@ namespace baimp
 {
 	public class PipelineView : Canvas
 	{
+		TreeNode<BaseAlgorithm> tree;
+
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
+		/// </summary>
 		public PipelineView ()
 		{
 			this.MinHeight = 120;
-
-			SetDragDropTarget (TransferDataType.Text);
+			this.SetDragDropTarget (TransferDataType.Text);
 		}
 
 
@@ -40,10 +45,22 @@ namespace baimp
 
 		protected override void OnDragDrop(DragEventArgs e)
 		{
-			Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
-			BaseAlgorithm list = Activator.CreateInstance(elementType) as BaseAlgorithm;
-
 			e.Success = true;
+			try {
+				Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
+				BaseAlgorithm algoInstance = Activator.CreateInstance(elementType) as BaseAlgorithm;
+				if(tree == null) {
+					tree = new TreeNode<BaseAlgorithm>(algoInstance);
+				} else {
+					tree.AddChild(algoInstance);
+				}
+
+				this.QueueDraw();
+
+			} catch( Exception exception) {
+				Console.WriteLine (exception.Message);
+				e.Success = false;
+			}
 		}
 	}
 }
