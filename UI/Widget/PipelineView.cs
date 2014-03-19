@@ -67,13 +67,13 @@ namespace baimp
 			ctx.SetColor (Colors.DarkOrchid);
 			int i = 0;
 			foreach (string input in node.algorithm.CompatibleInput) {
-				ctx.RoundRectangle (
-					new Point (
-						node.bound.Left - (nodeInOutMarkerSize.Width - 2), 
-						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
-					),
-					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
-				);
+				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, true), 2);
+//					new Point (
+//						node.bound.Left - (nodeInOutMarkerSize.Width - 2), 
+//						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
+//					),
+//					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
+//				);
 				i++;
 			}
 
@@ -89,13 +89,13 @@ namespace baimp
 			ctx.SetColor (Colors.DarkKhaki);
 			i = 0;
 			foreach (string input in node.algorithm.CompatibleOutput) {
-				ctx.RoundRectangle (
-					new Point (
-						node.bound.Right - 2, 
-						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
-					),
-					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
-				);
+				ctx.RoundRectangle (GetBoundForInOutMarkerOf( node, i, false), 2);
+//					new Point (
+//						node.bound.Right - 2, 
+//						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
+//					),
+//					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
+//				);
 				i++;
 			}
 
@@ -179,7 +179,7 @@ namespace baimp
 		{
 			switch (e.Button) {
 			case PointerButton.Left:
-				nodeToMove = GetNodeAtPosition (e.Position);
+				nodeToMove = GetNodeAt (e.Position);
 				if (nodeToMove != null) {
 					nodeToMoveOffset = new Point (
 						nodeToMove.bound.Location.X - e.Position.X,
@@ -201,6 +201,8 @@ namespace baimp
 			if (nodeToMove != null) {
 				nodeToMove.bound.Location = e.Position.Offset (nodeToMoveOffset);
 				QueueDraw ();
+			} else {
+				TooltipText = GetInOutMarkerAt (e.Position);
 			}
 		}
 
@@ -209,7 +211,12 @@ namespace baimp
 
 		#region getter and setter
 
-		PipelineNode GetNodeAtPosition (Point position)
+		/// <summary>
+		/// Get the node at a given position.
+		/// </summary>
+		/// <returns>The node at position; or null</returns>
+		/// <param name="position">Position.</param>
+		PipelineNode GetNodeAt (Point position)
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
@@ -222,6 +229,57 @@ namespace baimp
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Get the in/out-marker at a given position.
+		/// </summary>
+		/// <returns>The marker description.</returns>
+		/// <param name="position">Position.</param>
+		private string GetInOutMarkerAt (Point position)
+		{
+			IEnumerator enumerator = graph.GetEnumerator();
+			while (enumerator.MoveNext ()) {
+				Node<PipelineNode> item = (Node<PipelineNode>)enumerator.Current;
+				PipelineNode node = item.Value;
+
+				Rectangle bound = node.bound.Inflate (nodeInOutMarkerSize);
+				if (bound.Contains(position)) {
+					for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
+						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
+
+						if (markerBound.Contains (position)) {
+							return node.algorithm.CompatibleInput [i];
+						}
+					}
+					for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
+						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
+
+						if (markerBound.Contains (position)) {
+							return node.algorithm.CompatibleOutput [i];
+						}
+					}
+				}
+			}
+
+			return string.Empty;
+		}
+			
+		/// <summary>
+		/// Gets the bound rectangle for an in/out-marker.
+		/// </summary>
+		/// <returns>The bound rectangle</returns>
+		/// <param name="node">Node.</param>
+		/// <param name="number">Number of marker.</param>
+		/// <param name="isInput">If set to <c>true</c>, then its an input marker; otherwise output marker.</param>
+		private Rectangle GetBoundForInOutMarkerOf(PipelineNode node, int number, bool isInput )
+		{
+			return new Rectangle (
+				new Point (
+					isInput ? node.bound.Left - (nodeInOutMarkerSize.Width - 2) : node.bound.Right - 2, 
+					node.bound.Top + (number * nodeInOutSpace) + ((number + 1) * nodeInOutMarkerSize.Height)
+				), nodeInOutMarkerSize
+			);
 		}
 
 		#endregion
