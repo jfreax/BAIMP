@@ -10,15 +10,13 @@ namespace baimp
 	{
 		private Graph<PipelineNode> graph;
 
-		protected WidgetSpacing nodeMargin = new WidgetSpacing(10, 5, 10, 5);
-		protected Size nodeSize = new Size (200, 30);
-		protected Size nodeInOutMarkerSize = new Size (10, 8);
-		protected int nodeInOutSpace = 8;
+		static protected WidgetSpacing nodeMargin = new WidgetSpacing(2, 2, 2, 2);
+		static protected Size nodeSize = new Size (200, 30);
+		static protected Size nodeInOutMarkerSize = new Size (10, 8);
+		static protected int nodeInOutSpace = 8;
 
 		private PipelineNode nodeToMove = null;
 		private Point nodeToMoveOffset = Point.Zero;
-
-		private Point dropOverPosition = Point.Zero;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
@@ -26,7 +24,7 @@ namespace baimp
 		public PipelineView ()
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
-			this.MinHeight = nodeSize.Height + nodeMargin.Top + nodeMargin.Bottom;
+			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing;
 			this.BackgroundColor = Colors.WhiteSmoke;
 
 			graph = new Graph<PipelineNode>();
@@ -68,12 +66,6 @@ namespace baimp
 			int i = 0;
 			foreach (string input in node.algorithm.CompatibleInput) {
 				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, true), 2);
-//					new Point (
-//						node.bound.Left - (nodeInOutMarkerSize.Width - 2), 
-//						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
-//					),
-//					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
-//				);
 				i++;
 			}
 
@@ -89,13 +81,7 @@ namespace baimp
 			ctx.SetColor (Colors.DarkKhaki);
 			i = 0;
 			foreach (string input in node.algorithm.CompatibleOutput) {
-				ctx.RoundRectangle (GetBoundForInOutMarkerOf( node, i, false), 2);
-//					new Point (
-//						node.bound.Right - 2, 
-//						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
-//					),
-//					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
-//				);
+				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, false), 2);
 				i++;
 			}
 
@@ -144,8 +130,6 @@ namespace baimp
 		protected override void OnDragOver(DragOverEventArgs e)
 		{
 			e.AllowedAction = DragDropAction.Link;
-
-			dropOverPosition = e.Position;
 		}
 			
 		protected override void OnDragDrop(DragEventArgs e)
@@ -156,6 +140,7 @@ namespace baimp
 				BaseAlgorithm algoInstance = Activator.CreateInstance(elementType) as BaseAlgorithm;
 
 				PipelineNode node = new PipelineNode(algoInstance, new Rectangle(e.Position, nodeSize));
+				SetNode(node);
 				graph.AddNode(node);
 
 				this.QueueDraw();
@@ -168,7 +153,6 @@ namespace baimp
 
 		protected override void OnDragLeave (EventArgs args)
 		{
-			dropOverPosition = Point.Zero;
 		}
 
 		#endregion
@@ -193,6 +177,7 @@ namespace baimp
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
+			SetNode (nodeToMove);
 			nodeToMove = null;
 		}
 
@@ -212,11 +197,53 @@ namespace baimp
 		#region getter and setter
 
 		/// <summary>
+		/// Sets new position for node. Moves the node, if another is already on this position.
+		/// </summary>
+		/// <param name="nodeToMove">Node to move.</param>
+		/// <param name="position">Position.</param>
+		private void SetNodeAt(PipelineNode nodeToMove, Point position) {
+			nodeToMove.bound.Location = position;
+			SetNode (nodeToMove);
+			QueueDraw ();
+		}
+
+		/// <summary>
+		/// Sets new position for node. Moves the node, if another is already on this position.
+		/// </summary>
+		/// <param name="nodeToMove">Node to move.</param>
+		private void SetNode(PipelineNode nodeToMove) {
+			if (nodeToMove != null) {
+				PipelineNode intersectingNode = GetNodeAt (nodeToMove.BoundWithExtras, nodeToMove, true);
+				if (intersectingNode != null) {
+					Rectangle intersect = 
+						nodeToMove.BoundWithExtras.Intersect (intersectingNode.BoundWithExtras);
+
+					if (intersect.Width < intersect.Height) {
+						if (nodeToMove.bound.Left < intersectingNode.bound.Left) {
+							nodeToMove.bound.Left -= intersect.Width;
+						} else {
+							nodeToMove.bound.Left += intersect.Width;
+						}
+					} else {
+						if (nodeToMove.bound.Top < intersectingNode.bound.Top) {
+							nodeToMove.bound.Top -= intersect.Height;
+						} else {
+							nodeToMove.bound.Top += intersect.Height;
+						}
+					}
+
+					QueueDraw ();
+				}
+
+			}
+		}
+
+		/// <summary>
 		/// Get the node at a given position.
 		/// </summary>
 		/// <returns>The node at position; or null</returns>
 		/// <param name="position">Position.</param>
-		PipelineNode GetNodeAt (Point position)
+		private PipelineNode GetNodeAt (Point position)
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
@@ -224,6 +251,29 @@ namespace baimp
 				PipelineNode node = item.Value;
 
 				if (node.bound.Contains (position)) {
+					return node;
+				}
+			}
+
+			return null;
+		}
+			
+		/// <summary>
+		/// Get the node that intersects a given rectangle
+		/// </summary>
+		/// <returns>The node; or null</returns>
+		/// <param name="rectangle">Rectangle to test with.</param>
+		/// <param name="ignorenode">Optional: Ignore this node.</param>
+		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
+		private PipelineNode GetNodeAt (Rectangle rectangle, PipelineNode ignoreNode = null, bool withExtras = false)
+		{
+			IEnumerator enumerator = graph.GetEnumerator();
+			while (enumerator.MoveNext ()) {
+				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
+				PipelineNode node = item.Value;
+
+				if (node != ignoreNode && 
+					node.BoundWithExtras.IntersectsWith (rectangle)) {
 					return node;
 				}
 			}
@@ -243,7 +293,7 @@ namespace baimp
 				Node<PipelineNode> item = (Node<PipelineNode>)enumerator.Current;
 				PipelineNode node = item.Value;
 
-				Rectangle bound = node.bound.Inflate (nodeInOutMarkerSize);
+				Rectangle bound = node.BoundWithExtras;
 				if (bound.Contains(position)) {
 					for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
 						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
@@ -296,6 +346,17 @@ namespace baimp
 
 			public BaseAlgorithm algorithm;
 			public Rectangle bound;
+
+			public Rectangle BoundWithExtras {
+				get {
+					return bound.Inflate (
+						new Size(
+							nodeInOutMarkerSize.Width + nodeMargin.HorizontalSpacing,
+							nodeMargin.VerticalSpacing
+						)
+					);
+				}
+			}
 		}
 
 		#endregion
