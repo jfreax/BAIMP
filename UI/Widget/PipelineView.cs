@@ -66,8 +66,10 @@ namespace baimp
 		/// <param name="bornPosition">Position in this depth.</param>
 		private void DrawNode(Context ctx, PipelineNode node)
 		{
+			Rectangle nodeBounds = new Rectangle (node.position, nodeSize);
+
 			// draw rect
-			ctx.RoundRectangle(node.position, nodeSize.Width, nodeSize.Height, 8);
+			ctx.RoundRectangle(nodeBounds, 8);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.Fill ();
 
@@ -86,9 +88,12 @@ namespace baimp
 			ctx.DrawTextLayout (text, node.position.Offset(textOffset));
 
 			// set min size
-//			if (MinHeight < overallHeight) {
-//				MinHeight = overallHeight;
-//			}
+			if (nodeBounds.Right > MinWidth) {
+				MinWidth = nodeBounds.Right + nodeMargin.Right;
+			}
+			if (nodeBounds.Bottom > MinHeight) {
+				MinHeight = nodeBounds.Bottom + nodeMargin.Bottom;
+			}
 		}
 
 		private void DrawDropMarker(Context ctx, Point position)
