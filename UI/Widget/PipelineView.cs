@@ -12,6 +12,8 @@ namespace baimp
 
 		protected WidgetSpacing nodeMargin = new WidgetSpacing(10, 5, 10, 5);
 		protected Size nodeSize = new Size (200, 30);
+		protected Size nodeInOutMarkerSize = new Size (10, 8);
+		protected int nodeInOutSpace = 8;
 
 		private PipelineNode nodeToMove = null;
 		private Point nodeToMoveOffset = Point.Zero;
@@ -25,7 +27,6 @@ namespace baimp
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
 			this.MinHeight = nodeSize.Height + nodeMargin.Top + nodeMargin.Bottom;
-
 			this.BackgroundColor = Colors.WhiteSmoke;
 
 			graph = new Graph<PipelineNode>();
@@ -52,11 +53,6 @@ namespace baimp
 
 				DrawNode (ctx, node);
 			}
-
-			// draw marker on drag&drop action
-			if (dropOverPosition != Point.Zero) {
-				DrawDropMarker (ctx, dropOverPosition);
-			}
 		}
 
 
@@ -64,18 +60,59 @@ namespace baimp
 		/// Draws an element.
 		/// </summary>
 		/// <param name="ctx">Drawing context.</param>
-		/// <param name="algo">Algorithmus.</param>
-		/// <param name="depth">Depth.</param>
-		/// <param name="numberOfSiblings">Number of siblings.</param>
-		/// <param name="bornPosition">Position in this depth.</param>
+		/// <param name="node">Node to draw.</param>
 		private void DrawNode(Context ctx, PipelineNode node)
 		{
-			//node.bound = node.bound; //.Inflate(nodeSize);
+			// draw in marker
+			ctx.SetColor (Colors.DarkOrchid);
+			int i = 0;
+			foreach (string input in node.algorithm.CompatibleInput) {
+				ctx.RoundRectangle (
+					new Point (
+						node.bound.Left - (nodeInOutMarkerSize.Width - 2), 
+						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
+					),
+					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
+				);
+				i++;
+			}
+
+			double inMarkerHeight = nodeInOutSpace +
+				node.algorithm.CompatibleOutput.Count * (nodeInOutSpace + nodeInOutMarkerSize.Height);
+			if (inMarkerHeight > node.bound.Height) {
+				node.bound.Height = inMarkerHeight;
+			}
+
+			ctx.Fill ();
+
+			// draw out marker
+			ctx.SetColor (Colors.DarkKhaki);
+			i = 0;
+			foreach (string input in node.algorithm.CompatibleOutput) {
+				ctx.RoundRectangle (
+					new Point (
+						node.bound.Right - 2, 
+						node.bound.Top + (i * nodeInOutSpace) + ((i + 1) * nodeInOutMarkerSize.Height)
+					),
+					nodeInOutMarkerSize.Width, nodeInOutMarkerSize.Height, 2
+				);
+				i++;
+			}
+
+			double outMarkerHeight = nodeInOutSpace +
+				node.algorithm.CompatibleOutput.Count * (nodeInOutSpace + nodeInOutMarkerSize.Height);
+			if (outMarkerHeight > node.bound.Height) {
+				node.bound.Height = outMarkerHeight;
+			}
+
+			ctx.Fill ();
+
 
 			// draw rect
-			ctx.RoundRectangle(node.bound, 4);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
+			ctx.RoundRectangle(node.bound, 4);
 			ctx.Fill ();
+
 
 			// draw text
 			TextLayout text = new TextLayout ();
@@ -100,31 +137,17 @@ namespace baimp
 			}
 		}
 
-		private void DrawDropMarker(Context ctx, Point position)
-		{
-
-		}
-
 		#endregion
 
 		#region drag and drop
 
-		/// <summary>
-		/// Raises on DragOver event.
-		/// </summary>
-		/// <param name="e">Event arguments.</param>
 		protected override void OnDragOver(DragOverEventArgs e)
 		{
 			e.AllowedAction = DragDropAction.Link;
 
 			dropOverPosition = e.Position;
-			//DrawDropMarker (e.Position);
 		}
 			
-		/// <summary>
-		/// Raises on DragDrop event.
-		/// </summary>
-		/// <param name="e">Event arguments.</param>
 		protected override void OnDragDrop(DragEventArgs e)
 		{
 			e.Success = true;

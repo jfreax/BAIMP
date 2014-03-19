@@ -79,7 +79,6 @@ namespace baimp
 
 			// initialize preview widget
 			preview = new Preview ();
-			//splitPreviewMetadata.Panel1.Content = preview;
 
 			// load tree view with all available files
 			fileTree = new FileTreeView (scanCollection);
