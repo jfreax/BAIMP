@@ -13,6 +13,9 @@ namespace baimp
 		protected WidgetSpacing nodeMargin = new WidgetSpacing(10, 5, 10, 5);
 		protected Size nodeSize = new Size (200, 30);
 
+		private PipelineNode nodeToMove = null;
+		private Point nodeToMoveOffset = Point.Zero;
+
 		private Point dropOverPosition = Point.Zero;
 
 		/// <summary>
@@ -28,6 +31,7 @@ namespace baimp
 			graph = new Graph<PipelineNode>();
 		}
 
+		#region drawing
 
 		/// <summary>
 		/// Called when the widget needs to be redrawn
@@ -66,10 +70,10 @@ namespace baimp
 		/// <param name="bornPosition">Position in this depth.</param>
 		private void DrawNode(Context ctx, PipelineNode node)
 		{
-			Rectangle nodeBounds = new Rectangle (node.position, nodeSize);
+			//node.bound = node.bound; //.Inflate(nodeSize);
 
 			// draw rect
-			ctx.RoundRectangle(nodeBounds, 8);
+			ctx.RoundRectangle(node.bound, 4);
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
 			ctx.Fill ();
 
@@ -85,14 +89,14 @@ namespace baimp
 				text.Trimming = TextTrimming.WordElipsis;
 			}
 			ctx.SetColor (Colors.Black);
-			ctx.DrawTextLayout (text, node.position.Offset(textOffset));
+			ctx.DrawTextLayout (text, node.bound.Location.Offset(textOffset));
 
 			// set min size
-			if (nodeBounds.Right > MinWidth) {
-				MinWidth = nodeBounds.Right + nodeMargin.Right;
+			if (node.bound.Right > MinWidth) {
+				MinWidth = node.bound.Right + nodeMargin.Right;
 			}
-			if (nodeBounds.Bottom > MinHeight) {
-				MinHeight = nodeBounds.Bottom + nodeMargin.Bottom;
+			if (node.bound.Bottom > MinHeight) {
+				MinHeight = node.bound.Bottom + nodeMargin.Bottom;
 			}
 		}
 
@@ -101,6 +105,9 @@ namespace baimp
 
 		}
 
+		#endregion
+
+		#region drag and drop
 
 		/// <summary>
 		/// Raises on DragOver event.
@@ -125,7 +132,7 @@ namespace baimp
 				Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
 				BaseAlgorithm algoInstance = Activator.CreateInstance(elementType) as BaseAlgorithm;
 
-				PipelineNode node = new PipelineNode(algoInstance, e.Position);
+				PipelineNode node = new PipelineNode(algoInstance, new Rectangle(e.Position, nodeSize));
 				graph.AddNode(node);
 
 				this.QueueDraw();
@@ -136,22 +143,81 @@ namespace baimp
 			}
 		}
 
-		protected override void OnDragLeave (EventArgs args) {
+		protected override void OnDragLeave (EventArgs args)
+		{
 			dropOverPosition = Point.Zero;
 		}
 
+		#endregion
+
+		#region events
+
+		protected override void OnButtonPressed(ButtonEventArgs e)
+		{
+			switch (e.Button) {
+			case PointerButton.Left:
+				nodeToMove = GetNodeAtPosition (e.Position);
+				if (nodeToMove != null) {
+					nodeToMoveOffset = new Point (
+						nodeToMove.bound.Location.X - e.Position.X,
+						nodeToMove.bound.Location.Y - e.Position.Y);
+				}
+
+				e.Handled = true;
+				break;
+			}
+		}
+
+		protected override void OnButtonReleased(ButtonEventArgs e)
+		{
+			nodeToMove = null;
+		}
+
+		protected override void OnMouseMoved(MouseMovedEventArgs e)
+		{
+			if (nodeToMove != null) {
+				nodeToMove.bound.Location = e.Position.Offset (nodeToMoveOffset);
+				QueueDraw ();
+			}
+		}
+
+
+		#endregion
+
+		#region getter and setter
+
+		PipelineNode GetNodeAtPosition (Point position)
+		{
+			IEnumerator enumerator = graph.GetEnumerator();
+			while (enumerator.MoveNext ()) {
+				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
+				PipelineNode node = item.Value;
+
+				if (node.bound.Contains (position)) {
+					return node;
+				}
+			}
+
+			return null;
+		}
+
+		#endregion
+
+		#region inline classes
 
 		class PipelineNode
 		{
-			public PipelineNode(BaseAlgorithm algorithm, Point position)
+			public PipelineNode(BaseAlgorithm algorithm, Rectangle bound)
 			{
 				this.algorithm = algorithm;
-				this.position = position;
+				this.bound = bound;
 			}
 
 			public BaseAlgorithm algorithm;
-			public Point position;
+			public Rectangle bound;
 		}
+
+		#endregion
 	}
 }
 
