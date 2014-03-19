@@ -20,6 +20,8 @@ namespace baimp
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
 			this.MinHeight = elementSize.Height + elementMargin.Top + elementMargin.Bottom;
+
+			this.BackgroundColor = Colors.WhiteSmoke;
 		}
 
 

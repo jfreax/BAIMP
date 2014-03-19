@@ -47,7 +47,7 @@ namespace baimp
 		private void InitializeUI()
 		{
 			entryFiberType = new TextEntry ();
-			entryFiberType.BackgroundColor = Colors.White;
+			entryFiberType.BackgroundColor = Colors.WhiteSmoke;
 			entryFiberType.ShowFrame = false;
 
 			entryFiberType.LostFocus += ChangeFiberType;
