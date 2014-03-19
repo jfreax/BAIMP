@@ -49,7 +49,14 @@ namespace baimp
 				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
 				PipelineNode node = item.Value;
 
-				DrawNode (ctx, node);
+				if (node != nodeToMove) {
+					DrawNode (ctx, node);
+				}
+			}
+
+			// draw current moving node last
+			if (nodeToMove != null) {
+				DrawNode (ctx, nodeToMove);
 			}
 		}
 
