@@ -8,21 +8,22 @@ namespace baimp
 		private int nodeID;
 
 		private Node parentNode;
-		public string type;
-		public bool isInput;
+
+		public readonly Compatible compatible;
+		public readonly bool isInput;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView+InOutMarker"/> class.
 		/// </summary>
 		/// <param name="parentNode">Parent node.</param>
 		/// <param name="nodeID">Node ID.</param>
-		/// <param name="type">Type.</param>
+		/// <param name="compatible">Compatibility information.</param>
 		/// <param name="isInput">If set to <c>true</c>, then its an input; otherwise output.</param>
-		public InOutMarker(Node parentNode, int nodeID, string type, bool isInput)
+		public InOutMarker(Node parentNode, int nodeID, Compatible compatible, bool isInput)
 		{
 			this.parentNode = parentNode;
 			this.nodeID = nodeID;
-			this.type = type;
+			this.compatible = compatible;
 			this.isInput = isInput;
 		}
 
@@ -44,7 +45,7 @@ namespace baimp
 						return new InOutMarker(
 							node,
 							i,
-							node.algorithm.CompatibleInput [i].ToString(),
+							node.algorithm.CompatibleInput [i],
 							true
 						);
 					}
@@ -56,7 +57,7 @@ namespace baimp
 						return new InOutMarker(
 							node,
 							i + node.algorithm.CompatibleInput.Count,
-							node.algorithm.CompatibleOutput [i].ToString(),
+							node.algorithm.CompatibleOutput [i],
 							false
 						);
 					}

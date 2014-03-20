@@ -271,7 +271,8 @@ namespace baimp
 				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size (Node.nodeInOutSpace, Node.nodeInOutSpace));
 				if (inOutMarker != null) {
 					if (inOutMarker != connectNodesStartMarker &&
-					    inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
+						inOutMarker.isInput != connectNodesStartMarker.isInput &&
+						inOutMarker.compatible.Match(connectNodesStartMarker.compatible)) {
 
 						if (inOutMarker.isInput) {
 							AddEdge (inOutMarker, connectNodesStartMarker);
@@ -323,7 +324,7 @@ namespace baimp
 			if (!mouseAction.HasFlag(MouseAction.MoveNode)) {
 				InOutMarker marker = GetInOutMarkerAt (e.Position);
 				if (marker != null) {
-					TooltipText = marker.type;
+					TooltipText = marker.compatible.ToString();
 				} else {
 					TooltipText = string.Empty;
 				}

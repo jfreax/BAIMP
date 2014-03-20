@@ -22,6 +22,17 @@ namespace baimp
 		}
 
 		/// <summary>
+		/// Tests if another instance is compatible with this one
+		/// </summary>
+		/// <returns><c>true</c>, if compatible, <c>false</c> otherwise.</returns>
+		/// <param name="another">The other compatible instance.</param>
+		public bool Match(Compatible another)
+		{
+			// TODO test constraints
+			return type.Equals (another.Type);
+		}
+
+		/// <summary>
 		/// Type of in-/output
 		/// </summary>
 		/// <value>The type.</value>
