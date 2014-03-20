@@ -6,11 +6,13 @@ using System.Collections;
 
 namespace baimp
 {
+	[Flags]
 	enum MouseAction {
 		None = 0,
 		DragDrop = 1, // TODO
 		MoveNode = 2,
-		ConnectNodes = 3
+		AddEdge = 4,
+		MoveEdge = 8
 	}
 
 	public class PipelineView : Canvas
@@ -110,24 +112,20 @@ namespace baimp
 				
 			// draw all nodes
 			foreach(PipelineNode node in nodes) {
-				if (mouseAction != MouseAction.MoveNode || node != lastSelectedNode) {
+				if (!mouseAction.HasFlag (MouseAction.MoveNode)  || node != lastSelectedNode) {
 					DrawNode (ctx, node);
 				}
 			}
 
 
 			// things to draw after
-			switch(mouseAction) {
-			case MouseAction.None:
-				break;
-			case MouseAction.MoveNode:
+			if(mouseAction.HasFlag(MouseAction.MoveNode)) {
 				DrawNode (ctx, lastSelectedNode); // draw current moving node last
-				break;
-			case MouseAction.ConnectNodes:
+			}
+			if(mouseAction.HasFlag(MouseAction.AddEdge)) {
 				ctx.MoveTo (connectNodesStartMarker.Bounds.Center);
 				ctx.LineTo (connectNodesEnd);
 				ctx.Stroke ();
-				break;
 			}
 		}
 
@@ -293,11 +291,11 @@ namespace baimp
 			switch (e.Button) {
 			case PointerButton.Left:
 				PipelineNode node = GetNodeAt (e.Position, true);
-				if (node != null) {
+				if (node != null) { // clicked on node
 					InOutMarker inOutMarker = InOutMarker.GetInOutMarkerAt (node, e.Position);
 					if (inOutMarker != null) {
 						connectNodesStartMarker = inOutMarker;
-						mouseAction = MouseAction.ConnectNodes;
+						mouseAction |= MouseAction.AddEdge;
 					} else {
 						if (node.bound.Contains (e.Position)) {
 							nodeToMoveOffset = new Point (
@@ -305,8 +303,20 @@ namespace baimp
 								node.bound.Location.Y - e.Position.Y
 							);
 							lastSelectedNode = node;
-							mouseAction = MouseAction.MoveNode;
+							mouseAction |= MouseAction.MoveNode;
 						} 
+					}
+				} else {
+					Edge edge = GetEdgeAt (e.Position);
+					if (edge != null) { // clicked on edge
+						if (edge.r < 0.5) {
+							connectNodesStartMarker = edge.from;
+						} else {
+							connectNodesStartMarker = edge.to;
+						}
+						RemoveEdge (edge);
+						lastSelectedEdge = edge;
+						mouseAction |= MouseAction.AddEdge | MouseAction.MoveEdge;
 					}
 				}
 
@@ -331,15 +341,16 @@ namespace baimp
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
-			switch (mouseAction) {
-			case MouseAction.MoveNode:
+			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
 				SetNode (lastSelectedNode);
-				break;
-			case MouseAction.ConnectNodes:
-				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size(nodeInOutSpace, nodeInOutSpace));
+				mouseAction ^= MouseAction.MoveNode;
+			}
+
+			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
+				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size (nodeInOutSpace, nodeInOutSpace));
 				if (inOutMarker != null) {
 					if (inOutMarker != connectNodesStartMarker &&
-					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
+					    inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
 
 						if (inOutMarker.isInput) {
 							AddEdge (inOutMarker, connectNodesStartMarker);
@@ -347,40 +358,39 @@ namespace baimp
 							AddEdge (connectNodesStartMarker, inOutMarker);
 						}
 					}
-					
+				} else if (mouseAction.HasFlag (MouseAction.MoveEdge) && lastSelectedEdge != null) {
+					AddEdge (lastSelectedEdge);
+					mouseAction ^= MouseAction.MoveEdge;
 				}
-				QueueDraw ();
-				break;
-			}
 
-			mouseAction = MouseAction.None;
+				QueueDraw ();
+				mouseAction ^= MouseAction.AddEdge;
+			}
 		}
 
 		protected override void OnMouseMoved(MouseMovedEventArgs e)
 		{
 			mousePosition = e.Position;
 
-			switch(mouseAction) {
-			case MouseAction.None:
-				break;
-			case MouseAction.MoveNode:
+
+			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
 				if (lastSelectedNode != null) {
 					lastSelectedNode.bound.Location = e.Position.Offset (nodeToMoveOffset);
 					QueueDraw ();
 				}
-				break;
-			case MouseAction.ConnectNodes:
+			}
+			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
 				InOutMarker marker = GetInOutMarkerAt (e.Position, new Size(nodeInOutSpace, nodeInOutSpace));
 				if (marker != null) {
 					connectNodesEnd = marker.Bounds.Center;
 				} else {
 					connectNodesEnd = e.Position;
 				}
+
 				QueueDraw ();
-				break;
 			}
 
-			if (mouseAction != MouseAction.MoveNode) {
+			if (!mouseAction.HasFlag(MouseAction.MoveNode)) {
 				InOutMarker marker = GetInOutMarkerAt (e.Position);
 				if (marker != null) {
 					TooltipText = marker.type;
@@ -507,7 +517,7 @@ namespace baimp
 					}
 					double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
 					if (-epsilon <= sl && sl <= epsilon) {
-						return new Edge (fromNode, toNode);
+						return new Edge (fromNode, toNode, from.X < to.X ? r : 1.0-r);
 					}
 				}
 			}
@@ -568,6 +578,15 @@ namespace baimp
 			}
 
 			edges [from].Add (to);
+		}
+
+		/// <summary>
+		/// Adds a new edge.
+		/// </summary>
+		/// <param name="edge">Edge to add.</param>
+		private void AddEdge(Edge edge)
+		{
+			AddEdge (edge.from, edge.to);
 		}
 
 		/// <summary>
@@ -692,9 +711,18 @@ namespace baimp
 			public InOutMarker from;
 			public InOutMarker to;
 
-			public Edge(InOutMarker from, InOutMarker to) {
+			/// <summary>
+			/// A number between 0 and 1.
+			/// 0.0 means, we clicked on the "from"-side of the edge
+			/// 1.0, on the "to" side.
+			/// Only set on click event.
+			/// </summary>
+			public double r;
+
+			public Edge(InOutMarker from, InOutMarker to, double r = 0.5) {
 				this.from = from;
 				this.to = to;
+				this.r = r;
 			}
 		}
 
