@@ -15,7 +15,13 @@ namespace baimp
 
 	public class PipelineView : Canvas
 	{
-		private Graph<string> graph;
+		public static object NodeInOutMarkerSize {
+			get;
+			set;
+		}
+
+		private List<PipelineNode> nodes;
+		private Dictionary<InOutMarker, List<InOutMarker>> edges;
 
 		static protected WidgetSpacing nodeMargin = new WidgetSpacing(2, 2, 2, 2);
 		static protected Size nodeSize = new Size (200, 30);
@@ -38,7 +44,8 @@ namespace baimp
 			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing * 3;
 			this.BackgroundColor = Colors.WhiteSmoke;
 
-			graph = new Graph<string>();
+			nodes = new List<PipelineNode> ();
+			edges = new Dictionary<InOutMarker, List<InOutMarker>> ();
 		}
 
 		#region drawing
@@ -53,12 +60,16 @@ namespace baimp
 		{
 			if (Bounds.IsEmpty)
 				return;
+
+			// draw all edges
+			foreach (InOutMarker from in edges.Keys) {
+				foreach (InOutMarker to in edges[from]) {
+					DrawEdge (ctx, from, to);
+				}
+			}
 				
 			// draw all nodes
-			IEnumerator enumerator = graph.GetEnumerator();
-			while (enumerator.MoveNext()) {
-				PipelineNode node = (PipelineNode) enumerator.Current;
-
+			foreach(PipelineNode node in nodes) {
 				if (mouseAction != MouseAction.MoveNode || node != nodeToMove) {
 					DrawNode (ctx, node);
 				}
@@ -73,7 +84,7 @@ namespace baimp
 				DrawNode (ctx, nodeToMove); // draw current moving node last
 				break;
 			case MouseAction.ConnectNodes:
-				ctx.MoveTo (connectNodesStartMarker.bounds.Center);
+				ctx.MoveTo (connectNodesStartMarker.Bounds.Center);
 				ctx.LineTo (connectNodesEnd);
 				ctx.Stroke ();
 				break;
@@ -135,6 +146,22 @@ namespace baimp
 
 
 		/// <summary>
+		/// Draws a edge from one marker, to another
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		/// <param name="from">From.</param>
+		/// <param name="to">To.</param>
+		private void DrawEdge(Context ctx, InOutMarker from, InOutMarker to) {
+			ctx.SetColor (Colors.Black);
+
+			ctx.MoveTo (from.Bounds.Center);
+			ctx.LineTo (to.Bounds.Center);
+
+			ctx.Stroke ();
+		}
+
+
+		/// <summary>
 		/// Draws all marker of a specified node.
 		/// </summary>
 		/// <param name="ctx">Context.</param>
@@ -144,7 +171,7 @@ namespace baimp
 			ctx.SetColor (Colors.DarkOrchid);
 			int i = 0;
 			foreach (string input in node.algorithm.CompatibleInput) {
-				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, true), 2);
+				ctx.RoundRectangle (InOutMarker.GetBoundForInOutMarkerOf (node, i, true), 2);
 				i++;
 			}
 
@@ -153,7 +180,7 @@ namespace baimp
 			ctx.SetColor (Colors.DarkKhaki);
 			i = 0;
 			foreach (string input in node.algorithm.CompatibleOutput) {
-				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, false), 2);
+				ctx.RoundRectangle (InOutMarker.GetBoundForInOutMarkerOf (node, i, false), 2);
 				i++;
 			}
 
@@ -203,7 +230,7 @@ namespace baimp
 
 				PipelineNode node = new PipelineNode(algoInstance, new Rectangle(e.Position, nodeSize));
 				SetNode(node);
-				graph.AddNode(node);
+				nodes.Add(node);
 
 				this.QueueDraw();
 
@@ -227,7 +254,7 @@ namespace baimp
 			case PointerButton.Left:
 				PipelineNode node = GetNodeAt (e.Position, true);
 				if (node != null) {
-					InOutMarker inOutMarker = GetInOutMarkerAt (node, e.Position);
+					InOutMarker inOutMarker = InOutMarker.GetInOutMarkerAt (node, e.Position);
 					if (inOutMarker != null) {
 						connectNodesStartMarker = inOutMarker;
 						mouseAction = MouseAction.ConnectNodes;
@@ -261,9 +288,9 @@ namespace baimp
 					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
 
 						if (inOutMarker.isInput) {
-							graph.AddDirectedEdge (inOutMarker.parentNode, connectNodesStartMarker.parentNode, 1);
+							AddNode (inOutMarker, connectNodesStartMarker);
 						} else {
-							graph.AddDirectedEdge (connectNodesStartMarker.parentNode, inOutMarker.parentNode, 1);
+							AddNode (connectNodesStartMarker, inOutMarker);
 						}
 					}
 					
@@ -365,10 +392,7 @@ namespace baimp
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
 		private PipelineNode GetNodeAt (Point position, bool withExtras = false)
 		{
-			IEnumerator enumerator = graph.GetEnumerator();
-			while (enumerator.MoveNext ()) {
-				PipelineNode node = (PipelineNode) enumerator.Current;
-
+			foreach(PipelineNode node in nodes) {
 				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
 				if (bound.Contains (position)) {
 					return node;
@@ -377,7 +401,7 @@ namespace baimp
 
 			return null;
 		}
-			
+
 		/// <summary>
 		/// Get the node that intersects a given rectangle
 		/// </summary>
@@ -387,10 +411,7 @@ namespace baimp
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
 		private PipelineNode GetNodeAt (Rectangle rectangle, PipelineNode ignoreNode = null, bool withExtras = false)
 		{
-			IEnumerator enumerator = graph.GetEnumerator();
-			while (enumerator.MoveNext ()) {
-				PipelineNode node = (PipelineNode) enumerator.Current;
-
+			foreach(PipelineNode node in nodes) {
 				if (node != ignoreNode && 
 					node.BoundWithExtras.IntersectsWith (rectangle)) {
 					return node;
@@ -407,11 +428,8 @@ namespace baimp
 		/// <param name="position">Position.</param>
 		private InOutMarker GetInOutMarkerAt (Point position)
 		{
-			IEnumerator enumerator = graph.GetEnumerator();
-			while (enumerator.MoveNext ()) {
-				PipelineNode node = (PipelineNode) enumerator.Current;
-
-				var ret = GetInOutMarkerAt (node, position);
+			foreach(PipelineNode node in nodes) {
+				var ret = InOutMarker.GetInOutMarkerAt (node, position);
 				if (ret != null) {
 					return ret;
 				}
@@ -419,70 +437,30 @@ namespace baimp
 
 			return null;
 		}
+			
+		#endregion
 
-		/// <summary>
-		/// Get the in/out-marker of a specified node at a given position 
-		/// </summary>
-		/// <returns>The marker description and their position.</returns>
-		/// <param name="node">Node.</param>
-		/// <param name="position">Position.</param>
-		private InOutMarker GetInOutMarkerAt (PipelineNode node, Point position)
+		#region helper
+
+		private void AddNode(InOutMarker from, InOutMarker to)
 		{
-			Rectangle bound = node.BoundWithExtras;
-			if (bound.Contains(position)) {
-				for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
-					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
-
-					if (markerBound.Contains (position)) {
-						return new InOutMarker(node, markerBound, node.algorithm.CompatibleInput [i], true);
-					}
-				}
-				for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
-					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
-
-					if (markerBound.Contains (position)) {
-						return new InOutMarker(node, markerBound, node.algorithm.CompatibleOutput [i], false);
-					}
-				}
+			if (!edges.ContainsKey (from)) {
+				edges [from] = new List<InOutMarker> ();
 			}
 
-			return null;
-		}
-			
-		/// <summary>
-		/// Gets the bound rectangle for an in/out-marker.
-		/// </summary>
-		/// <returns>The bound rectangle</returns>
-		/// <param name="node">Node.</param>
-		/// <param name="number">Number of marker.</param>
-		/// <param name="isInput">If set to <c>true</c>, then its an input marker; otherwise output marker.</param>
-		private Rectangle GetBoundForInOutMarkerOf(PipelineNode node, int number, bool isInput )
-		{
-			return new Rectangle (
-				new Point (
-					isInput ? node.bound.Left - (nodeInOutMarkerSize.Width - 2) : node.bound.Right - 2, 
-					node.bound.Top + (number * nodeInOutSpace) + ((number + 1) * nodeInOutMarkerSize.Height)
-				), nodeInOutMarkerSize
-			);
+			edges [from].Add (to);
 		}
 
 		#endregion
 
 		#region inline classes
 
-		class PipelineNode : GraphNode<string>
+		protected class PipelineNode
 		{
-			/// <summary>
-			/// Initializes a new instance of the <see cref="baimp.PipelineView+PipelineNode"/> class.
-			/// </summary>
-			/// <param name="algorithm">Algorithm.</param>
-			/// <param name="bound">Bounds of node in graph view.</param>
 			public PipelineNode(BaseAlgorithm algorithm, Rectangle bound)
 			{
 				this.algorithm = algorithm;
 				this.bound = bound;
-
-				Value = algorithm.ToString();
 			}
 
 			public BaseAlgorithm algorithm;
@@ -500,21 +478,78 @@ namespace baimp
 			}
 		}
 
-		class InOutMarker
+		protected class InOutMarker
 		{
-			public InOutMarker(PipelineNode parentNode, Rectangle bounds, string type, bool isInput)
+			private int nodeID;
+
+			private PipelineNode parentNode;
+			public string type;
+			public bool isInput;
+
+			public InOutMarker(PipelineNode parentNode, int nodeID, string type, bool isInput)
 			{
 				this.parentNode = parentNode;
-				this.bounds = bounds;
+				this.nodeID = nodeID;
 				this.type = type;
 				this.isInput = isInput;
 			}
 
-			public PipelineNode parentNode;
-			public Rectangle bounds;
-			public string type;
+			/// <summary>
+			/// Get the in/out-marker of a specified node at a given position 
+			/// </summary>
+			/// <returns>The marker description and their position.</returns>
+			/// <param name="node">Node.</param>
+			/// <param name="position">Position.</param>
+			static public InOutMarker GetInOutMarkerAt (PipelineNode node, Point position)
+			{
+				Rectangle bound = node.BoundWithExtras;
+				if (bound.Contains(position)) {
+					for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
+						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
 
-			public bool isInput;
+						if (markerBound.Contains (position)) {
+							return new InOutMarker(node, i, node.algorithm.CompatibleInput [i], true);
+						}
+					}
+					for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
+						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
+
+						if (markerBound.Contains (position)) {
+							return new InOutMarker(node, i + node.algorithm.CompatibleInput.Count, node.algorithm.CompatibleOutput [i], false);
+						}
+					}
+				}
+
+				return null;
+			}
+
+			/// <summary>
+			/// Gets the bound rectangle for an in/out-marker.
+			/// </summary>
+			/// <returns>The bound rectangle</returns>
+			/// <param name="node">Node.</param>
+			/// <param name="number">Number of marker.</param>
+			/// <param name="isInput">If set to <c>true</c>, then its an input marker; otherwise output marker.</param>
+			static public Rectangle GetBoundForInOutMarkerOf(PipelineNode node, int number, bool isInput )
+			{
+				return new Rectangle (
+					new Point (
+						isInput ? node.bound.Left - (nodeInOutMarkerSize.Width - 2) : node.bound.Right - 2, 
+						node.bound.Top + (number * nodeInOutSpace) + ((number + 1) * nodeInOutMarkerSize.Height)
+					), nodeInOutMarkerSize
+				);
+			}
+
+
+			public Rectangle Bounds {
+				get {
+					int i = 
+						nodeID >= parentNode.algorithm.CompatibleInput.Count ?
+						nodeID - parentNode.algorithm.CompatibleInput.Count : nodeID;
+					//Bound.Location
+					return GetBoundForInOutMarkerOf (parentNode, i, nodeID < parentNode.algorithm.CompatibleInput.Count);;
+				}
+			}
 		}
 
 		#endregion
