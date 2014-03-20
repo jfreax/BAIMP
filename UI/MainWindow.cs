@@ -90,8 +90,8 @@ namespace baimp
 			algorithm = new AlgorithmTreeView();
 
 			// load algorithm tree viever
-			pipeline = new PipelineView();
 			ScrollView pipelineScroller = new ScrollView ();
+			pipeline = new PipelineView(pipelineScroller);
 			pipelineScroller.MinHeight = (Node.nodeSize.Height + Node.nodeMargin.VerticalSpacing) * 6;
 			pipelineScroller.Content = pipeline;
 

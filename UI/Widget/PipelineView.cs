@@ -17,11 +17,6 @@ namespace baimp
 
 	public class PipelineView : Canvas
 	{
-		public static object NodeInOutMarkerSize {
-			get;
-			set;
-		}
-
 		private List<Node> nodes;
 		private Dictionary<InOutMarker, List<InOutMarker>> edges;
 
@@ -35,12 +30,17 @@ namespace baimp
 
 		private MouseAction mouseAction = MouseAction.None;
 
+		private MouseMover mouseMover;
+
+		CursorType oldCursor;
+
 		#region initialize
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
 		/// </summary>
-		public PipelineView ()
+		/// <param name="scrollview">Parent scrollview</param>
+		public PipelineView (ScrollView scrollview)
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
 			this.BackgroundColor = Colors.WhiteSmoke;
@@ -48,6 +48,8 @@ namespace baimp
 
 			nodes = new List<Node> ();
 			edges = new Dictionary<InOutMarker, List<InOutMarker>> ();
+			mouseMover = new MouseMover (scrollview);
+			mouseMover.Timer = 20;
 
 			InitializeContextMenus ();
 		}
@@ -240,10 +242,18 @@ namespace baimp
 					contextMenuEdge.Popup ();
 				} else {
 					Node nodeRight = GetNodeAt (e.Position, true);
-					if(nodeRight != null) {
+					if (nodeRight != null) {
 						lastSelectedNode = nodeRight;
 						contextMenuNode.Popup ();
 					}
+				}
+				break;
+			case PointerButton.Middle:
+				mouseMover.EnableMouseMover(e.Position);
+
+				if(oldCursor != CursorType.Move) {
+					oldCursor = this.Cursor;
+					this.Cursor = CursorType.Move;
 				}
 
 				break;
@@ -276,6 +286,15 @@ namespace baimp
 
 				QueueDraw ();
 				mouseAction ^= MouseAction.AddEdge;
+			}
+
+			switch (e.Button) {
+			case PointerButton.Middle:
+				if (mouseMover.Enabled) {
+					mouseMover.DisableMouseMover();
+					this.Cursor = oldCursor;
+				}
+				break;
 			}
 		}
 
@@ -315,6 +334,15 @@ namespace baimp
 		{
 			this.SetFocus ();
 		}
+
+		protected override void OnMouseExited(EventArgs e)
+		{
+			if (mouseMover.Enabled) {
+				mouseMover.DisableMouseMover();
+				this.Cursor = oldCursor;
+			}
+		}
+
 
 		protected override void OnKeyPressed(KeyEventArgs e) {
 			switch (e.Key) {

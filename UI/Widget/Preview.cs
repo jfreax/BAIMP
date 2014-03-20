@@ -137,7 +137,10 @@ namespace baimp
 				case PointerButton.Middle:
 					if (mouseMover.Enabled) {
 						mouseMover.DisableMouseMover();
-						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+
+						if(scanView != null) {
+							scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+						}
 					}
 					break;
 				}
@@ -146,6 +149,9 @@ namespace baimp
 			view.MouseExited += delegate(object sender, EventArgs e) {
 				if (mouseMover.Enabled) {
 					mouseMover.DisableMouseMover();
+					if(scanView != null) {
+						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+					}
 				}
 			};
 

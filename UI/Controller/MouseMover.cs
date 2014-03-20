@@ -9,7 +9,15 @@ namespace baimp
 		private long lastMoveTimestamp;
 		private Point lastPosition;
 
+
+		private long timer = 50;
 		private bool enabled;
+
+		public MouseMover() {}
+
+		public MouseMover(ScrollView scrollview) {
+			RegisterMouseMover (scrollview);
+		}
 
 
 		/// <summary>
@@ -28,14 +36,16 @@ namespace baimp
 		/// <param name="mousePosition">Initial mouse position.</param>
 		public void EnableMouseMover(Point mousePosition)
 		{
-			this.lastPosition = mousePosition;
-			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				scrollview.MouseMoved += MouseMovedGtk;
-			} else {
-				scrollview.MouseMoved += MouseMovedNotGtk;
-			}
+			if (scrollview != null) {
+				this.lastPosition = mousePosition;
+				if (MainClass.toolkitType == ToolkitType.Gtk) {
+					scrollview.MouseMoved += MouseMovedGtk;
+				} else {
+					scrollview.MouseMoved += MouseMovedNotGtk;
+				}
 
-			enabled = true;
+				enabled = true;
+			}
 		}
 
 		/// <summary>
@@ -43,13 +53,15 @@ namespace baimp
 		/// </summary>
 		public void DisableMouseMover()
 		{
-			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				scrollview.MouseMoved -= MouseMovedGtk;
-			} else {
-				scrollview.MouseMoved -= MouseMovedNotGtk;
-			}
+			if (scrollview != null) {
+				if (MainClass.toolkitType == ToolkitType.Gtk) {
+					scrollview.MouseMoved -= MouseMovedGtk;
+				} else {
+					scrollview.MouseMoved -= MouseMovedNotGtk;
+				}
 
-			enabled = false;
+				enabled = false;
+			}
 		}
 
 		/// <summary>
@@ -68,7 +80,7 @@ namespace baimp
 		/// <param name="e">Mouse event args.</param>
 		private void MouseMovedGtk (object sender, MouseMovedEventArgs e)
 		{
-			if (e.Timestamp - lastMoveTimestamp > 80) {
+			if (e.Timestamp - lastMoveTimestamp > timer) {
 				e.Handled = true;
 	
 				Point oldPosition = lastPosition;
@@ -94,6 +106,19 @@ namespace baimp
 		{
 			MouseMovedGtk (sender, e);
 			lastPosition = e.Position;
+		}
+
+		/// <summary>
+		/// Time between two move calls in ms
+		/// </summary>
+		/// <value>The timer.</value>
+		public long Timer {
+			get {
+				return timer;
+			}
+			set {
+				timer = value;
+			}
 		}
 	}
 }
