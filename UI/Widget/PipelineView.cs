@@ -15,7 +15,7 @@ namespace baimp
 
 	public class PipelineView : Canvas
 	{
-		private Graph<PipelineNode> graph;
+		private Graph<string> graph;
 
 		static protected WidgetSpacing nodeMargin = new WidgetSpacing(2, 2, 2, 2);
 		static protected Size nodeSize = new Size (200, 30);
@@ -38,7 +38,7 @@ namespace baimp
 			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing * 3;
 			this.BackgroundColor = Colors.WhiteSmoke;
 
-			graph = new Graph<PipelineNode>();
+			graph = new Graph<string>();
 		}
 
 		#region drawing
@@ -57,8 +57,7 @@ namespace baimp
 			// draw all nodes
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext()) {
-				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
-				PipelineNode node = item.Value;
+				PipelineNode node = (PipelineNode) enumerator.Current;
 
 				if (mouseAction != MouseAction.MoveNode || node != nodeToMove) {
 					DrawNode (ctx, node);
@@ -262,9 +261,9 @@ namespace baimp
 					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
 
 						if (inOutMarker.isInput) {
-							//	graph.AddDirectedEdge (inOutMarker, connectNodesStartMarker);
+							graph.AddDirectedEdge (inOutMarker.parentNode, connectNodesStartMarker.parentNode, 1);
 						} else {
-							//graph.AddDirectedEdge (connectNodesStartMarker, inOutMarker);
+							graph.AddDirectedEdge (connectNodesStartMarker.parentNode, inOutMarker.parentNode, 1);
 						}
 					}
 					
@@ -368,8 +367,7 @@ namespace baimp
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
-				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
-				PipelineNode node = item.Value;
+				PipelineNode node = (PipelineNode) enumerator.Current;
 
 				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
 				if (bound.Contains (position)) {
@@ -391,8 +389,7 @@ namespace baimp
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
-				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
-				PipelineNode node = item.Value;
+				PipelineNode node = (PipelineNode) enumerator.Current;
 
 				if (node != ignoreNode && 
 					node.BoundWithExtras.IntersectsWith (rectangle)) {
@@ -412,8 +409,7 @@ namespace baimp
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
-				Node<PipelineNode> item = (Node<PipelineNode>)enumerator.Current;
-				PipelineNode node = item.Value;
+				PipelineNode node = (PipelineNode) enumerator.Current;
 
 				var ret = GetInOutMarkerAt (node, position);
 				if (ret != null) {
@@ -474,7 +470,7 @@ namespace baimp
 
 		#region inline classes
 
-		class PipelineNode
+		class PipelineNode : GraphNode<string>
 		{
 			/// <summary>
 			/// Initializes a new instance of the <see cref="baimp.PipelineView+PipelineNode"/> class.
@@ -485,6 +481,8 @@ namespace baimp
 			{
 				this.algorithm = algorithm;
 				this.bound = bound;
+
+				Value = algorithm.ToString();
 			}
 
 			public BaseAlgorithm algorithm;
