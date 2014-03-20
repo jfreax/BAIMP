@@ -14,6 +14,10 @@ namespace baimp
 		{
 			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
 
+			if (files.Length == 0) {
+				throw new FileNotFoundException ("No files found");
+			}
+
 			int n = files.Length;
 			foreach (String file in files) {
 				// parse scan metadata
