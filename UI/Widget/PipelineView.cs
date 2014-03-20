@@ -279,8 +279,11 @@ namespace baimp
 						} else {
 							AddEdge (connectNodesStartMarker, inOutMarker);
 						}
+
+						lastSelectedEdge = null;
 					}
-				} else if (mouseAction.HasFlag (MouseAction.MoveEdge) && lastSelectedEdge != null) {
+				} 
+				if (mouseAction.HasFlag (MouseAction.MoveEdge) && lastSelectedEdge != null) {
 					AddEdge (lastSelectedEdge);
 					mouseAction ^= MouseAction.MoveEdge;
 				}

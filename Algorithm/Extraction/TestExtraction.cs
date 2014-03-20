@@ -15,7 +15,7 @@ namespace baimp
 
 			compatibleInput.Add (new Compatible("in #1", typeof(string)));
 
-			compatibleOutput.Add (new Compatible("out #1", typeof(string)));
+			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
 			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
 		}
 
