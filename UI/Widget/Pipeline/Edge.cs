@@ -5,8 +5,11 @@ namespace baimp
 {
 	public class Edge
 	{
+		private static Color color = Colors.Black.WithAlpha(0.2);
+
 		public InOutMarker from;
 		public InOutMarker to;
+
 
 		/// <summary>
 		/// A number between 0 and 1.
@@ -29,7 +32,7 @@ namespace baimp
 		/// <param name="from">From.</param>
 		/// <param name="to">To.</param>
 		public void Draw(Context ctx) {
-			ctx.SetColor (Colors.LightGray);
+			ctx.SetColor (color);
 
 			ctx.MoveTo (from.Bounds.Center);
 

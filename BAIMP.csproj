@@ -89,8 +89,8 @@
     <Compile Include="UI\Controller\MouseMover.cs" />
     <Compile Include="UI\Extensions\BoxMouseMover.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
-    <Compile Include="Algorithm\Constraint.cs" />
     <Compile Include="Algorithm\Sources\Files.cs" />
+    <Compile Include="Contraints\BaseConstraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -127,5 +127,6 @@
     <Folder Include="Algorithm\Segmentation\" />
     <Folder Include="Algorithm\Sources\" />
     <Folder Include="Algorithm\Filter\" />
+    <Folder Include="Contraints\" />
   </ItemGroup>
 </Project>

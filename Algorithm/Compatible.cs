@@ -6,7 +6,7 @@ namespace baimp
 	{
 		private string name;
 		private Type type;
-		public readonly Constraint[] constraints;
+		public readonly BaseConstraint[] constraints;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.Compatible"/> class.
@@ -14,7 +14,7 @@ namespace baimp
 		/// <param name="name">Name of this compatible.</param>
 		/// <param name="type">In- or output type.</param>
 		/// <param name="constraints">Constraints.</param>
-		public Compatible (string name, Type type, params Constraint[] constraints)
+		public Compatible (string name, Type type, params BaseConstraint[] constraints)
 		{
 			this.name = name;
 			this.type = type;
