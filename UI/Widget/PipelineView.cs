@@ -25,10 +25,10 @@ namespace baimp
 		private List<PipelineNode> nodes;
 		private Dictionary<InOutMarker, List<InOutMarker>> edges;
 
-		static protected WidgetSpacing nodeMargin = new WidgetSpacing(2, 2, 2, 2);
-		static protected Size nodeSize = new Size (200, 30);
-		static protected Size nodeInOutMarkerSize = new Size (10, 8);
-		static protected int nodeInOutSpace = 8;
+		static public WidgetSpacing nodeMargin = new WidgetSpacing(2, 2, 2, 2);
+		static public Size nodeSize = new Size (200, 40);
+		static public Size nodeInOutMarkerSize = new Size (10, 8);
+		static public int nodeInOutSpace = 8;
 
 		private Point nodeToMoveOffset = Point.Zero;
 		private InOutMarker connectNodesStartMarker;
@@ -48,7 +48,6 @@ namespace baimp
 		public PipelineView ()
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
-			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing * 3;
 			this.BackgroundColor = Colors.WhiteSmoke;
 			this.CanGetFocus = true;
 
