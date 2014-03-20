@@ -4,6 +4,8 @@ using System.Collections.Generic;
 namespace baimp
 {
 	public enum AlgorithmType {
+		Source,
+		Filter,
 		Extraction,
 		Misc
 	};

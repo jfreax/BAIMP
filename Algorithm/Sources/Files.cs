@@ -3,35 +3,34 @@ using System.Collections.Generic;
 
 namespace baimp
 {
-	public class TestExtraction : BaseAlgorithm
+	public class Files : BaseAlgorithm
 	{
 		private List<Compatible> compatibleInput;
 		private List<Compatible> compatibleOutput;
 
-		public TestExtraction ()
+		public Files ()
 		{
 			compatibleInput = new List<Compatible> ();
 			compatibleOutput = new List<Compatible> ();
 
-			compatibleInput.Add (new Compatible("in #1", typeof(string[])));
-
-			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
-			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
+			compatibleOutput.Add (new Compatible("out #1", typeof(string[])));
 		}
+
+		#region BaseAlgorithm implementation
 
 		public AlgorithmType AlgorithmType {
 			get {
-				return AlgorithmType.Extraction;
+				return AlgorithmType.Source;
 			}
 		}
-			
-		public List<Compatible> CompatibleInput {
+
+		public System.Collections.Generic.List<Compatible> CompatibleInput {
 			get {
 				return compatibleInput;
 			}
 		}
-			
-		public List<Compatible> CompatibleOutput {
+
+		public System.Collections.Generic.List<Compatible> CompatibleOutput {
 			get {
 				return compatibleOutput;
 			}
@@ -41,6 +40,7 @@ namespace baimp
 			return this.GetType().Name;
 		}
 
+		#endregion
 	}
 }
 
