@@ -282,7 +282,7 @@ namespace baimp
 				SetNode (nodeToMove);
 				break;
 			case MouseAction.ConnectNodes:
-				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position);
+				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size(nodeInOutSpace, nodeInOutSpace));
 				if (inOutMarker != null) {
 					if (inOutMarker != connectNodesStartMarker &&
 					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
@@ -314,7 +314,12 @@ namespace baimp
 				}
 				break;
 			case MouseAction.ConnectNodes:
-				connectNodesEnd = e.Position;
+				InOutMarker marker = GetInOutMarkerAt (e.Position, new Size(nodeInOutSpace, nodeInOutSpace));
+				if (marker != null) {
+					connectNodesEnd = marker.Bounds.Center;
+				} else {
+					connectNodesEnd = e.Position;
+				}
 				QueueDraw ();
 				break;
 			}
@@ -426,10 +431,11 @@ namespace baimp
 		/// </summary>
 		/// <returns>The marker description and their position.</returns>
 		/// <param name="position">Position.</param>
-		private InOutMarker GetInOutMarkerAt (Point position)
+		/// <param name="inflate">Inflate search region.</param>
+		private InOutMarker GetInOutMarkerAt (Point position, Size? inflate = null)
 		{
 			foreach(PipelineNode node in nodes) {
-				var ret = InOutMarker.GetInOutMarkerAt (node, position);
+				var ret = InOutMarker.GetInOutMarkerAt (node, position, inflate);
 				if (ret != null) {
 					return ret;
 				}
@@ -486,6 +492,13 @@ namespace baimp
 			public string type;
 			public bool isInput;
 
+			/// <summary>
+			/// Initializes a new instance of the <see cref="baimp.PipelineView+InOutMarker"/> class.
+			/// </summary>
+			/// <param name="parentNode">Parent node.</param>
+			/// <param name="nodeID">Node ID.</param>
+			/// <param name="type">Type.</param>
+			/// <param name="isInput">If set to <c>true</c>, then its an input; otherwise output.</param>
 			public InOutMarker(PipelineNode parentNode, int nodeID, string type, bool isInput)
 			{
 				this.parentNode = parentNode;
@@ -500,21 +513,22 @@ namespace baimp
 			/// <returns>The marker description and their position.</returns>
 			/// <param name="node">Node.</param>
 			/// <param name="position">Position.</param>
-			static public InOutMarker GetInOutMarkerAt (PipelineNode node, Point position)
+			/// <param name="inflate">Inflate search region.</param>
+			static public InOutMarker GetInOutMarkerAt (PipelineNode node, Point position, Size? inflate = null)
 			{
 				Rectangle bound = node.BoundWithExtras;
 				if (bound.Contains(position)) {
 					for(int i = 0; i < node.algorithm.CompatibleInput.Count; i++) {
 						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
 
-						if (markerBound.Contains (position)) {
+						if (markerBound.Inflate(inflate ?? Size.Zero).Contains (position)) {
 							return new InOutMarker(node, i, node.algorithm.CompatibleInput [i], true);
 						}
 					}
 					for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
 						Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
 
-						if (markerBound.Contains (position)) {
+						if (markerBound.Inflate(inflate ?? Size.Zero).Contains (position)) {
 							return new InOutMarker(node, i + node.algorithm.CompatibleInput.Count, node.algorithm.CompatibleOutput [i], false);
 						}
 					}
@@ -546,7 +560,6 @@ namespace baimp
 					int i = 
 						nodeID >= parentNode.algorithm.CompatibleInput.Count ?
 						nodeID - parentNode.algorithm.CompatibleInput.Count : nodeID;
-					//Bound.Location
 					return GetBoundForInOutMarkerOf (parentNode, i, nodeID < parentNode.algorithm.CompatibleInput.Count);;
 				}
 			}
