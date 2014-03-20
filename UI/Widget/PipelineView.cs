@@ -342,9 +342,9 @@ namespace baimp
 					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
 
 						if (inOutMarker.isInput) {
-							AddNode (inOutMarker, connectNodesStartMarker);
+							AddEdge (inOutMarker, connectNodesStartMarker);
 						} else {
-							AddNode (connectNodesStartMarker, inOutMarker);
+							AddEdge (connectNodesStartMarker, inOutMarker);
 						}
 					}
 					
@@ -485,6 +485,11 @@ namespace baimp
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the edge at position.
+		/// </summary>
+		/// <returns>The <see cref="System.Tuple`2[[baimp.PipelineView+InOutMarker],[baimp.PipelineView+InOutMarker]]"/>.</returns>
+		/// <param name="position">Position.</param>
 		private Tuple<InOutMarker, InOutMarker> GetEdgeAt(Point position)
 		{
 			double epsilon = 4.0;
@@ -551,7 +556,12 @@ namespace baimp
 
 		#region helper
 
-		private void AddNode(InOutMarker from, InOutMarker to)
+		/// <summary>
+		/// Adds a new edge.
+		/// </summary>
+		/// <param name="from">From.</param>
+		/// <param name="to">To.</param>
+		private void AddEdge(InOutMarker from, InOutMarker to)
 		{
 			if (!edges.ContainsKey (from)) {
 				edges [from] = new List<InOutMarker> ();
@@ -560,6 +570,10 @@ namespace baimp
 			edges [from].Add (to);
 		}
 
+		/// <summary>
+		/// Removes a edge.
+		/// </summary>
+		/// <param name="edge">Edge.</param>
 		private void RemoveEdge(Tuple<InOutMarker, InOutMarker> edge)
 		{
 			edges [edge.Item1].Remove (edge.Item2);
