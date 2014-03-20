@@ -32,6 +32,7 @@ namespace baimp
 		private InOutMarker connectNodesStartMarker;
 		private Point connectNodesEnd;
 
+		private Point mousePosition = Point.Zero;
 		private PipelineNode lastSelectedNode = null;
 		private Tuple<InOutMarker, InOutMarker> lastSelectedEdge = null;
 
@@ -47,6 +48,7 @@ namespace baimp
 			this.SetDragDropTarget (TransferDataType.Text);
 			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing * 3;
 			this.BackgroundColor = Colors.WhiteSmoke;
+			this.CanGetFocus = true;
 
 			nodes = new List<PipelineNode> ();
 			edges = new Dictionary<InOutMarker, List<InOutMarker>> ();
@@ -66,7 +68,7 @@ namespace baimp
 			MenuItem contextMenuEdgeDelete = new MenuItem ("Delete edge");
 			contextMenuEdgeDelete.Clicked += delegate(object sender, EventArgs e) {
 				if(lastSelectedEdge != null) {
-					edges[lastSelectedEdge.Item1].Remove(lastSelectedEdge.Item2);
+					RemoveEdge(lastSelectedEdge);
 					QueueDraw ();
 				}
 			};
@@ -356,6 +358,8 @@ namespace baimp
 
 		protected override void OnMouseMoved(MouseMovedEventArgs e)
 		{
+			mousePosition = e.Position;
+
 			switch(mouseAction) {
 			case MouseAction.None:
 				break;
@@ -386,6 +390,28 @@ namespace baimp
 			}
 		}
 
+		protected override void OnMouseEntered(EventArgs e)
+		{
+			this.SetFocus ();
+		}
+
+		protected override void OnKeyPressed(KeyEventArgs e) {
+			switch (e.Key) {
+			case Key.Delete:
+				Tuple<InOutMarker, InOutMarker> edge = GetEdgeAt (mousePosition);
+				if (edge != null) {
+					RemoveEdge (edge);
+					QueueDraw ();
+				} else {
+					PipelineNode node = GetNodeAt (mousePosition, true);
+					if (node != null) {
+						nodes.Remove (node);
+						QueueDraw ();
+					}
+				}
+				break;
+			}
+		}
 
 		#endregion
 
@@ -532,6 +558,11 @@ namespace baimp
 			}
 
 			edges [from].Add (to);
+		}
+
+		private void RemoveEdge(Tuple<InOutMarker, InOutMarker> edge)
+		{
+			edges [edge.Item1].Remove (edge.Item2);
 		}
 
 		#endregion
