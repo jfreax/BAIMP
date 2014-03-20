@@ -28,11 +28,11 @@ namespace baimp
 		static protected Size nodeInOutMarkerSize = new Size (10, 8);
 		static protected int nodeInOutSpace = 8;
 
-		private PipelineNode nodeToMove = null;
 		private Point nodeToMoveOffset = Point.Zero;
 		private InOutMarker connectNodesStartMarker;
 		private Point connectNodesEnd;
 
+		private PipelineNode lastSelectedNode = null;
 		private Tuple<InOutMarker, InOutMarker> lastSelectedEdge = null;
 
 		private MouseAction mouseAction = MouseAction.None;
@@ -55,6 +55,7 @@ namespace baimp
 		}
 
 		private Menu contextMenuEdge;
+		private Menu contextMenuNode;
 
 		/// <summary>
 		/// Initializes all context menus.
@@ -70,6 +71,17 @@ namespace baimp
 				}
 			};
 			contextMenuEdge.Items.Add (contextMenuEdgeDelete);
+
+
+			contextMenuNode = new Menu ();
+			MenuItem contextMenuNodeDelete = new MenuItem ("Delete node");
+			contextMenuNodeDelete.Clicked += delegate(object sender, EventArgs e) {
+				if(lastSelectedNode != null) {
+					nodes.Remove(lastSelectedNode);
+					QueueDraw ();
+				}
+			};
+			contextMenuNode.Items.Add (contextMenuNodeDelete);
 		}
 
 		#endregion
@@ -96,7 +108,7 @@ namespace baimp
 				
 			// draw all nodes
 			foreach(PipelineNode node in nodes) {
-				if (mouseAction != MouseAction.MoveNode || node != nodeToMove) {
+				if (mouseAction != MouseAction.MoveNode || node != lastSelectedNode) {
 					DrawNode (ctx, node);
 				}
 			}
@@ -107,7 +119,7 @@ namespace baimp
 			case MouseAction.None:
 				break;
 			case MouseAction.MoveNode:
-				DrawNode (ctx, nodeToMove); // draw current moving node last
+				DrawNode (ctx, lastSelectedNode); // draw current moving node last
 				break;
 			case MouseAction.ConnectNodes:
 				ctx.MoveTo (connectNodesStartMarker.Bounds.Center);
@@ -290,7 +302,7 @@ namespace baimp
 								node.bound.Location.X - e.Position.X,
 								node.bound.Location.Y - e.Position.Y
 							);
-							nodeToMove = node;
+							lastSelectedNode = node;
 							mouseAction = MouseAction.MoveNode;
 						} 
 					}
@@ -303,6 +315,12 @@ namespace baimp
 				lastSelectedEdge = GetEdgeAt (e.Position);
 				if (lastSelectedEdge != null) {
 					contextMenuEdge.Popup ();
+				} else {
+					PipelineNode nodeRight = GetNodeAt (e.Position, true);
+					if(nodeRight != null) {
+						lastSelectedNode = nodeRight;
+						contextMenuNode.Popup ();
+					}
 				}
 
 				break;
@@ -313,7 +331,7 @@ namespace baimp
 		{
 			switch (mouseAction) {
 			case MouseAction.MoveNode:
-				SetNode (nodeToMove);
+				SetNode (lastSelectedNode);
 				break;
 			case MouseAction.ConnectNodes:
 				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size(nodeInOutSpace, nodeInOutSpace));
@@ -342,8 +360,8 @@ namespace baimp
 			case MouseAction.None:
 				break;
 			case MouseAction.MoveNode:
-				if (nodeToMove != null) {
-					nodeToMove.bound.Location = e.Position.Offset (nodeToMoveOffset);
+				if (lastSelectedNode != null) {
+					lastSelectedNode.bound.Location = e.Position.Offset (nodeToMoveOffset);
 					QueueDraw ();
 				}
 				break;
