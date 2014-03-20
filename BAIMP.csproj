@@ -83,6 +83,9 @@
     <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
     <Compile Include="Data\TreeNode.cs" />
+    <Compile Include="UI\Widget\Pipeline\InOutMarker.cs" />
+    <Compile Include="UI\Widget\Pipeline\Node.cs" />
+    <Compile Include="UI\Widget\Pipeline\Edge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -113,5 +116,6 @@
     <Folder Include="Algorithm\" />
     <Folder Include="Event\" />
     <Folder Include="Algorithm\Extraction\" />
+    <Folder Include="UI\Widget\Pipeline\" />
   </ItemGroup>
 </Project>
