@@ -34,7 +34,7 @@ namespace baimp
 
 		private Point mousePosition = Point.Zero;
 		private PipelineNode lastSelectedNode = null;
-		private Tuple<InOutMarker, InOutMarker> lastSelectedEdge = null;
+		private Edge lastSelectedEdge = null;
 
 		private MouseAction mouseAction = MouseAction.None;
 
@@ -398,7 +398,7 @@ namespace baimp
 		protected override void OnKeyPressed(KeyEventArgs e) {
 			switch (e.Key) {
 			case Key.Delete:
-				Tuple<InOutMarker, InOutMarker> edge = GetEdgeAt (mousePosition);
+				Edge edge = GetEdgeAt (mousePosition);
 				if (edge != null) {
 					RemoveEdge (edge);
 					QueueDraw ();
@@ -490,7 +490,7 @@ namespace baimp
 		/// </summary>
 		/// <returns>The <see cref="System.Tuple`2[[baimp.PipelineView+InOutMarker],[baimp.PipelineView+InOutMarker]]"/>.</returns>
 		/// <param name="position">Position.</param>
-		private Tuple<InOutMarker, InOutMarker> GetEdgeAt(Point position)
+		private Edge GetEdgeAt(Point position)
 		{
 			double epsilon = 4.0;
 
@@ -507,7 +507,7 @@ namespace baimp
 					}
 					double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
 					if (-epsilon <= sl && sl <= epsilon) {
-						return new Tuple<InOutMarker, InOutMarker> (fromNode, toNode);
+						return new Edge (fromNode, toNode);
 					}
 				}
 			}
@@ -574,9 +574,9 @@ namespace baimp
 		/// Removes a edge.
 		/// </summary>
 		/// <param name="edge">Edge.</param>
-		private void RemoveEdge(Tuple<InOutMarker, InOutMarker> edge)
+		private void RemoveEdge(Edge edge)
 		{
-			edges [edge.Item1].Remove (edge.Item2);
+			edges [edge.from].Remove (edge.to);
 		}
 
 		#endregion
@@ -684,6 +684,17 @@ namespace baimp
 						nodeID - parentNode.algorithm.CompatibleInput.Count : nodeID;
 					return GetBoundForInOutMarkerOf (parentNode, i, nodeID < parentNode.algorithm.CompatibleInput.Count);;
 				}
+			}
+		}
+
+		protected class Edge
+		{
+			public InOutMarker from;
+			public InOutMarker to;
+
+			public Edge(InOutMarker from, InOutMarker to) {
+				this.from = from;
+				this.to = to;
 			}
 		}
 
