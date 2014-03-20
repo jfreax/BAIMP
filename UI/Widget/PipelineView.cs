@@ -33,7 +33,11 @@ namespace baimp
 		private InOutMarker connectNodesStartMarker;
 		private Point connectNodesEnd;
 
+		private Tuple<InOutMarker, InOutMarker> lastSelectedEdge = null;
+
 		private MouseAction mouseAction = MouseAction.None;
+
+		#region initialize
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
@@ -46,7 +50,29 @@ namespace baimp
 
 			nodes = new List<PipelineNode> ();
 			edges = new Dictionary<InOutMarker, List<InOutMarker>> ();
+
+			InitializeContextMenus ();
 		}
+
+		private Menu contextMenuEdge;
+
+		/// <summary>
+		/// Initializes all context menus.
+		/// </summary>
+		private void InitializeContextMenus ()
+		{
+			contextMenuEdge = new Menu ();
+			MenuItem contextMenuEdgeDelete = new MenuItem ("Delete edge");
+			contextMenuEdgeDelete.Clicked += delegate(object sender, EventArgs e) {
+				if(lastSelectedEdge != null) {
+					edges[lastSelectedEdge.Item1].Remove(lastSelectedEdge.Item2);
+					QueueDraw ();
+				}
+			};
+			contextMenuEdge.Items.Add (contextMenuEdgeDelete);
+		}
+
+		#endregion
 
 		#region drawing
 
@@ -272,6 +298,14 @@ namespace baimp
 
 				e.Handled = true;
 				break;
+
+			case PointerButton.Right:
+				lastSelectedEdge = GetEdgeAt (e.Position);
+				if (lastSelectedEdge != null) {
+					contextMenuEdge.Popup ();
+				}
+
+				break;
 			}
 		}
 
@@ -401,6 +435,31 @@ namespace baimp
 				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
 				if (bound.Contains (position)) {
 					return node;
+				}
+			}
+
+			return null;
+		}
+
+		private Tuple<InOutMarker, InOutMarker> GetEdgeAt(Point position)
+		{
+			double epsilon = 4.0;
+
+			foreach (InOutMarker fromNode in edges.Keys) {
+				Point from = fromNode.Bounds.Center;
+
+				foreach (InOutMarker toNode in edges[fromNode]) {
+					Point to = toNode.Bounds.Center;
+
+					double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
+					double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
+					if (r < 0 || r > 1) {
+						continue;
+					}
+					double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
+					if (-epsilon <= sl && sl <= epsilon) {
+						return new Tuple<InOutMarker, InOutMarker> (fromNode, toNode);
+					}
 				}
 			}
 
