@@ -24,6 +24,8 @@ namespace baimp
 
 		private PipelineNode nodeToMove = null;
 		private Point nodeToMoveOffset = Point.Zero;
+		private InOutMarker connectNodesStartMarker;
+		private Point connectNodesEnd;
 
 		private MouseAction mouseAction = MouseAction.None;
 
@@ -33,7 +35,7 @@ namespace baimp
 		public PipelineView ()
 		{
 			this.SetDragDropTarget (TransferDataType.Text);
-			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing;
+			this.MinHeight = nodeSize.Height + nodeMargin.VerticalSpacing * 3;
 			this.BackgroundColor = Colors.WhiteSmoke;
 
 			graph = new Graph<PipelineNode>();
@@ -58,14 +60,24 @@ namespace baimp
 				Node<PipelineNode> item = (Node<PipelineNode>) enumerator.Current;
 				PipelineNode node = item.Value;
 
-				if (node != nodeToMove) {
+				if (mouseAction != MouseAction.MoveNode || node != nodeToMove) {
 					DrawNode (ctx, node);
 				}
 			}
 
-			// draw current moving node last
-			if (nodeToMove != null) {
-				DrawNode (ctx, nodeToMove);
+
+			// things to draw after
+			switch(mouseAction) {
+			case MouseAction.None:
+				break;
+			case MouseAction.MoveNode:
+				DrawNode (ctx, nodeToMove); // draw current moving node last
+				break;
+			case MouseAction.ConnectNodes:
+				ctx.MoveTo (connectNodesStartMarker.bounds.Center);
+				ctx.LineTo (connectNodesEnd);
+				ctx.Stroke ();
+				break;
 			}
 		}
 
@@ -78,27 +90,13 @@ namespace baimp
 		private void DrawNode(Context ctx, PipelineNode node)
 		{
 			// draw in marker
-			ctx.SetColor (Colors.DarkOrchid);
-			int i = 0;
-			foreach (string input in node.algorithm.CompatibleInput) {
-				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, true), 2);
-				i++;
-			}
+			DrawNodesInOutMarker (ctx, node);
 
+			// change height of node if neccessary
 			double inMarkerHeight = nodeInOutSpace +
 				node.algorithm.CompatibleOutput.Count * (nodeInOutSpace + nodeInOutMarkerSize.Height);
 			if (inMarkerHeight > node.bound.Height) {
 				node.bound.Height = inMarkerHeight;
-			}
-
-			ctx.Fill ();
-
-			// draw out marker
-			ctx.SetColor (Colors.DarkKhaki);
-			i = 0;
-			foreach (string input in node.algorithm.CompatibleOutput) {
-				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, false), 2);
-				i++;
 			}
 
 			double outMarkerHeight = nodeInOutSpace +
@@ -106,8 +104,6 @@ namespace baimp
 			if (outMarkerHeight > node.bound.Height) {
 				node.bound.Height = outMarkerHeight;
 			}
-
-			ctx.Fill ();
 
 			// draw rect
 			ctx.SetColor (Color.FromBytes (232, 232, 232));
@@ -136,6 +132,58 @@ namespace baimp
 			if (node.bound.Bottom > MinHeight) {
 				MinHeight = node.bound.Bottom + nodeMargin.Bottom;
 			}
+		}
+
+
+		/// <summary>
+		/// Draws all marker of a specified node.
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		/// <param name="node">Node.</param>
+		private void DrawNodesInOutMarker(Context ctx, PipelineNode node)
+		{
+			ctx.SetColor (Colors.DarkOrchid);
+			int i = 0;
+			foreach (string input in node.algorithm.CompatibleInput) {
+				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, true), 2);
+				i++;
+			}
+
+			ctx.Fill ();
+
+			ctx.SetColor (Colors.DarkKhaki);
+			i = 0;
+			foreach (string input in node.algorithm.CompatibleOutput) {
+				ctx.RoundRectangle (GetBoundForInOutMarkerOf (node, i, false), 2);
+				i++;
+			}
+
+			ctx.Fill ();
+		}
+
+
+		/// <summary>
+		/// Draw one markes on specified position and size
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		/// <param name="position">Position</param>
+		/// <param name="isInput">If set to <c>true</c>, then its an input marker</param>
+		private void DrawMarker(Context ctx, Point position, bool isInput)
+		{
+			if (isInput) {
+				ctx.SetColor (Colors.DarkOrchid);
+			} else {
+				ctx.SetColor (Colors.DarkKhaki);
+			}
+
+			Rectangle bounds = new Rectangle (
+				position.X - (nodeInOutMarkerSize.Width * 0.5),
+				position.Y - (nodeInOutMarkerSize.Height * 0.5),
+				nodeInOutMarkerSize.Width,
+				nodeInOutMarkerSize.Height
+			);
+			ctx.RoundRectangle (bounds, 2);
+			ctx.Fill ();
 		}
 
 		#endregion
@@ -180,8 +228,9 @@ namespace baimp
 			case PointerButton.Left:
 				PipelineNode node = GetNodeAt (e.Position, true);
 				if (node != null) {
-					Tuple<string, Rectangle> inOutMarker = GetInOutMarkerAt (node, e.Position);
+					InOutMarker inOutMarker = GetInOutMarkerAt (node, e.Position);
 					if (inOutMarker != null) {
+						connectNodesStartMarker = inOutMarker;
 						mouseAction = MouseAction.ConnectNodes;
 					} else {
 						if (node.bound.Contains (e.Position)) {
@@ -206,6 +255,22 @@ namespace baimp
 			case MouseAction.MoveNode:
 				SetNode (nodeToMove);
 				break;
+			case MouseAction.ConnectNodes:
+				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position);
+				if (inOutMarker != null) {
+					if (inOutMarker != connectNodesStartMarker &&
+					   inOutMarker.isInput != connectNodesStartMarker.isInput) { // TODO check if compatible
+
+						if (inOutMarker.isInput) {
+							//	graph.AddDirectedEdge (inOutMarker, connectNodesStartMarker);
+						} else {
+							//graph.AddDirectedEdge (connectNodesStartMarker, inOutMarker);
+						}
+					}
+					
+				}
+				QueueDraw ();
+				break;
 			}
 
 			mouseAction = MouseAction.None;
@@ -215,12 +280,6 @@ namespace baimp
 		{
 			switch(mouseAction) {
 			case MouseAction.None:
-				Tuple<string, Rectangle> marker = GetInOutMarkerAt (e.Position);
-				if (marker != null) {
-					TooltipText = marker.Item1;
-				} else {
-					TooltipText = string.Empty;
-				}
 				break;
 			case MouseAction.MoveNode:
 				if (nodeToMove != null) {
@@ -228,6 +287,19 @@ namespace baimp
 					QueueDraw ();
 				}
 				break;
+			case MouseAction.ConnectNodes:
+				connectNodesEnd = e.Position;
+				QueueDraw ();
+				break;
+			}
+
+			if (mouseAction != MouseAction.MoveNode) {
+				InOutMarker marker = GetInOutMarkerAt (e.Position);
+				if (marker != null) {
+					TooltipText = marker.type;
+				} else {
+					TooltipText = string.Empty;
+				}
 			}
 		}
 
@@ -241,6 +313,9 @@ namespace baimp
 		/// </summary>
 		/// <param name="nodeToMove">Node to move.</param>
 		/// <param name="position">Position.</param>
+		/// <remarks>
+		/// Automatically issues a recall
+		/// </remarks>
 		private void SetNodeAt(PipelineNode nodeToMove, Point position) {
 			nodeToMove.bound.Location = position;
 			SetNode (nodeToMove);
@@ -251,6 +326,9 @@ namespace baimp
 		/// Sets new position for node. Moves the node, if another is already on this position.
 		/// </summary>
 		/// <param name="nodeToMove">Node to move.</param>
+		/// <remarks>
+		/// Automatically issues a recall
+		/// </remarks>
 		private void SetNode(PipelineNode nodeToMove) {
 			if (nodeToMove != null) {
 				PipelineNode intersectingNode = GetNodeAt (nodeToMove.BoundWithExtras, nodeToMove, true);
@@ -327,7 +405,7 @@ namespace baimp
 		/// </summary>
 		/// <returns>The marker description and their position.</returns>
 		/// <param name="position">Position.</param>
-		private Tuple<string, Rectangle> GetInOutMarkerAt (Point position)
+		private InOutMarker GetInOutMarkerAt (Point position)
 		{
 			IEnumerator enumerator = graph.GetEnumerator();
 			while (enumerator.MoveNext ()) {
@@ -349,7 +427,7 @@ namespace baimp
 		/// <returns>The marker description and their position.</returns>
 		/// <param name="node">Node.</param>
 		/// <param name="position">Position.</param>
-		private Tuple<string, Rectangle> GetInOutMarkerAt (PipelineNode node, Point position)
+		private InOutMarker GetInOutMarkerAt (PipelineNode node, Point position)
 		{
 			Rectangle bound = node.BoundWithExtras;
 			if (bound.Contains(position)) {
@@ -357,14 +435,14 @@ namespace baimp
 					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
 
 					if (markerBound.Contains (position)) {
-						return new Tuple<string, Rectangle>(node.algorithm.CompatibleInput [i], markerBound);
+						return new InOutMarker(node, markerBound, node.algorithm.CompatibleInput [i], true);
 					}
 				}
 				for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
 					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
 
 					if (markerBound.Contains (position)) {
-						return new Tuple<string, Rectangle>(node.algorithm.CompatibleOutput [i], markerBound);
+						return new InOutMarker(node, markerBound, node.algorithm.CompatibleOutput [i], false);
 					}
 				}
 			}
@@ -395,6 +473,11 @@ namespace baimp
 
 		class PipelineNode
 		{
+			/// <summary>
+			/// Initializes a new instance of the <see cref="baimp.PipelineView+PipelineNode"/> class.
+			/// </summary>
+			/// <param name="algorithm">Algorithm.</param>
+			/// <param name="bound">Bounds of node in graph view.</param>
 			public PipelineNode(BaseAlgorithm algorithm, Rectangle bound)
 			{
 				this.algorithm = algorithm;
@@ -414,6 +497,23 @@ namespace baimp
 					);
 				}
 			}
+		}
+
+		class InOutMarker
+		{
+			public InOutMarker(PipelineNode parentNode, Rectangle bounds, string type, bool isInput)
+			{
+				this.parentNode = parentNode;
+				this.bounds = bounds;
+				this.type = type;
+				this.isInput = isInput;
+			}
+
+			public PipelineNode parentNode;
+			public Rectangle bounds;
+			public string type;
+
+			public bool isInput;
 		}
 
 		#endregion
