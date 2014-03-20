@@ -327,7 +327,7 @@ namespace baimp
 			if (!mouseAction.HasFlag(MouseAction.MoveNode)) {
 				InOutMarker marker = GetInOutMarkerAt (e.Position);
 				if (marker != null) {
-					TooltipText = marker.compatible.ToString();
+					TooltipText = marker.compatible.ToString() + "\n" + marker.compatible.Type.ToString();
 				} else {
 					TooltipText = string.Empty;
 				}
