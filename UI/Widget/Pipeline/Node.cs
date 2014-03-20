@@ -15,10 +15,14 @@ namespace baimp
 		public BaseAlgorithm algorithm;
 		public Rectangle bound;
 
+		private Canvas canvas;
+
 		public Node(BaseAlgorithm algorithm, Rectangle bound)
 		{
 			this.algorithm = algorithm;
 			this.bound = bound;
+
+			canvas = new Canvas ();
 		}
 
 		#region draw
@@ -50,7 +54,6 @@ namespace baimp
 			ctx.RoundRectangle(bound, 4);
 			ctx.Fill ();
 
-
 			// draw text
 			TextLayout text = new TextLayout ();
 			Point textOffset = new Point(0, 8);
@@ -64,14 +67,6 @@ namespace baimp
 			}
 			ctx.SetColor (Colors.Black);
 			ctx.DrawTextLayout (text, bound.Location.Offset(textOffset));
-
-			// set min size
-//			if (node.bound.Right > MinWidth) {
-//				MinWidth = node.bound.Right + nodeMargin.Right;
-//			}
-//			if (node.bound.Bottom > MinHeight) {
-//				MinHeight = node.bound.Bottom + nodeMargin.Bottom;
-//			}
 		}
 
 

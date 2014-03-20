@@ -111,6 +111,22 @@ namespace baimp
 						node.Draw (ctx);
 					}
 				}
+					
+				// set min size
+				Rectangle boundwe = node.BoundWithExtras;
+				if (boundwe.Right > MinWidth) {
+					MinWidth = boundwe.Right + Node.nodeMargin.Right;
+				}
+				if (boundwe.Bottom > MinHeight) {
+					MinHeight = boundwe.Bottom + Node.nodeMargin.Bottom;
+				}
+				Point offset = new Point (Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
+				if (offset != Point.Zero) {
+					Console.WriteLine (offset);
+					TranslateAllNodesBy (offset);
+					QueueDraw ();
+					return;
+				}
 			}
 
 
@@ -472,6 +488,17 @@ namespace baimp
 		private void RemoveEdge(Edge edge)
 		{
 			edges [edge.from].Remove (edge.to);
+		}
+
+		/// <summary>
+		/// Translates all nodes by given offset.
+		/// </summary>
+		/// <param name="offset">Offset.</param>
+		private void TranslateAllNodesBy(Point offset)
+		{
+			foreach (Node node in nodes) {
+				node.bound = node.bound.Offset (offset);
+			}
 		}
 
 		#endregion
