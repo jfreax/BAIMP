@@ -86,6 +86,8 @@
     <Compile Include="UI\Widget\Pipeline\InOutMarker.cs" />
     <Compile Include="UI\Widget\Pipeline\Node.cs" />
     <Compile Include="UI\Widget\Pipeline\Edge.cs" />
+    <Compile Include="UI\Controller\MouseMover.cs" />
+    <Compile Include="UI\Extensions\BoxMouseMover.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -117,5 +119,7 @@
     <Folder Include="Event\" />
     <Folder Include="Algorithm\Extraction\" />
     <Folder Include="UI\Widget\Pipeline\" />
+    <Folder Include="UI\Controller\" />
+    <Folder Include="UI\Extensions\" />
   </ItemGroup>
 </Project>

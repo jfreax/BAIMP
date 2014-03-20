@@ -135,10 +135,7 @@ namespace baimp
 
 				// move scrollbar
 				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
-				//boundwe.Location = boundwe.Location.Offset (nodeToMoveOffset);
 				ScrollView sv = this.Parent as ScrollView;
-
-				Console.WriteLine (nodeToMoveOffset);
 
 				double viewportRight = sv.HorizontalScrollControl.Value + sv.Size.Width;
 				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;

@@ -14,6 +14,8 @@ namespace baimp
 		ScanView scanView;
 		Notebook notebook;
 
+		MouseMover mouseMover;
+
 		ScanWrapper currentScan;
 
 		/// <summary>
@@ -22,6 +24,7 @@ namespace baimp
 		public Preview ()
 		{
 			tab = new ScrollView ();
+			mouseMover = new MouseMover ();
 			InitializeEvents (tab);
 
 			notebook = new Notebook ();
@@ -66,6 +69,19 @@ namespace baimp
 			ShowPreview (type);
 		}
 
+		/// <summary>
+		/// Shows an specific preview into appropriate tab.
+		/// </summary>
+		/// <param name="type">Type.</param>
+		private void ShowPreview (ScanType type)
+		{
+
+			if (scanView != null) {
+				scanView.ScanType = type;
+			}
+		}
+
+		#region callbacks
 
 		/// <summary>
 		/// Gets called when image is ready to display.
@@ -82,17 +98,9 @@ namespace baimp
 			}
 		}
 
-		/// <summary>
-		/// Shows an specific preview into appropriate tab.
-		/// </summary>
-		/// <param name="type">Type.</param>
-		private void ShowPreview (ScanType type)
-		{
+		#endregion
 
-			if (scanView != null) {
-				scanView.ScanType = type;
-			}
-		}
+		#region events
 
 		/// <summary>
 		/// Initializes all events.
@@ -100,6 +108,7 @@ namespace baimp
 		/// <param name="view">View.</param>
 		private void InitializeEvents (ScrollView view)
 		{
+			mouseMover.RegisterMouseMover (tab);
 
 			view.BoundsChanged += delegate(object sender, EventArgs e) {
 				scanView.WithBoxSize (tab.VisibleRect.Size);
@@ -112,8 +121,7 @@ namespace baimp
 					break;
 				case PointerButton.Middle:
 					if (scanView != null) {
-						scanView.Data ["pressed"] = true;
-						scanView.Data ["pressedPosition"] = e.Position;
+						mouseMover.EnableMouseMover(e.Position);
 
 						if(scanView.Cursor != CursorType.Move) {
 							scanView.Data ["oldMouseButton"] = scanView.Cursor;
@@ -127,28 +135,19 @@ namespace baimp
 			view.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
 				switch (e.Button) {
 				case PointerButton.Middle:
-					if (scanView != null) {
-						scanView.Data.Remove ("pressed");
-						if(scanView.Data.ContainsKey("oldMouseButton")) {
-							scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
-						}
+					if (mouseMover.Enabled) {
+						mouseMover.DisableMouseMover();
+						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
 					}
 					break;
 				}
 			};
 
 			view.MouseExited += delegate(object sender, EventArgs e) {
-				if (scanView != null) {
-					scanView.Data.Remove ("pressed");
+				if (mouseMover.Enabled) {
+					mouseMover.DisableMouseMover();
 				}
 			};
-
-			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				view.MouseMoved += MouseMovedGtk;
-			} else {
-				view.MouseMoved += MouseMovedNotGtk;
-			}
-
 
 			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
 				OnPreviewZoom (e);
@@ -200,79 +199,13 @@ namespace baimp
 			}
 		}
 
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="sender">ScrollView.</param>
-		/// <param name="e">Mouse event args.</param>
-		private void MouseMovedNotGtk (object sender, MouseMovedEventArgs e)
-		{
-			if (scanView != null && scanView.Image != null) {
-				tab.MouseMoved -= MouseMovedNotGtk;
-
-				e.Handled = true;
-
-				if (scanView.Data.ContainsKey ("pressed") &&
-				    scanView.Data.ContainsKey ("pressedPosition") &&
-				    scanView.Data ["pressedPosition"] != null) {
-
-					Point oldPosition = (Point)scanView.Data ["pressedPosition"];
-
-					double newScrollX = tab.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
-					double newScrollY = tab.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
-
-					tab.HorizontalScrollControl.Value =
-						Math.Min (tab.HorizontalScrollControl.UpperValue, newScrollX);
-					tab.VerticalScrollControl.Value =
-						Math.Min (tab.VerticalScrollControl.UpperValue, newScrollY);
-				}
-
-				scanView.Data ["pressedPosition"] = e.Position;
-				tab.MouseMoved += MouseMovedNotGtk;
-			}
-		}
-
-		long lastMoveTimestamp = 0L;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="sender">ScrollView</param>
-		/// <param name="e">Mouse event args.</param>
-		private void MouseMovedGtk (object sender, MouseMovedEventArgs e)
-		{
-			if (scanView != null && scanView.Image != null && e.Timestamp - lastMoveTimestamp > 80) {
-				tab.MouseMoved -= MouseMovedGtk;
-
-				e.Handled = true;
-				if (scanView.Data.ContainsKey ("pressed") &&
-				    scanView.Data.ContainsKey ("pressedPosition") &&
-				    scanView.Data ["pressedPosition"] != null) {
-
-					Point oldPosition = (Point)scanView.Data ["pressedPosition"];
-
-					double newScrollX = tab.HorizontalScrollControl.Value + oldPosition.X - e.Position.X;
-					double newScrollY = tab.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
-
-					tab.HorizontalScrollControl.Value =
-						Math.Min (tab.HorizontalScrollControl.UpperValue - tab.VisibleRect.Width, newScrollX);
-					tab.VerticalScrollControl.Value =
-						Math.Min (tab.VerticalScrollControl.UpperValue - tab.VisibleRect.Height, newScrollY);
-				}
-
-				tab.MouseMoved += MouseMovedGtk;
-
-				lastMoveTimestamp = e.Timestamp;
-			}
-		}
-
 		EventHandler<ScanDataEventArgs> scanDataChanged;
 
 		/// <summary>
 		/// Occurs when scan data changed
 		/// </summary>
-		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
+		public event EventHandler<ScanDataEventArgs> ScanDataChanged
+		{
 			add {
 				scanDataChanged += value;
 			}
@@ -280,6 +213,8 @@ namespace baimp
 				scanDataChanged -= value;
 			}
 		}
+
+		#endregion
 	}
 }
 
