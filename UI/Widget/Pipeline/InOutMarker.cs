@@ -41,14 +41,24 @@ namespace baimp
 					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, true);
 
 					if (markerBound.Inflate(inflate ?? Size.Zero).Contains (position)) {
-						return new InOutMarker(node, i, node.algorithm.CompatibleInput [i], true);
+						return new InOutMarker(
+							node,
+							i,
+							node.algorithm.CompatibleInput [i].ToString(),
+							true
+						);
 					}
 				}
 				for(int i = 0; i < node.algorithm.CompatibleOutput.Count; i++) {
 					Rectangle markerBound = GetBoundForInOutMarkerOf (node, i, false);
 
 					if (markerBound.Inflate(inflate ?? Size.Zero).Contains (position)) {
-						return new InOutMarker(node, i + node.algorithm.CompatibleInput.Count, node.algorithm.CompatibleOutput [i], false);
+						return new InOutMarker(
+							node,
+							i + node.algorithm.CompatibleInput.Count,
+							node.algorithm.CompatibleOutput [i].ToString(),
+							false
+						);
 					}
 				}
 			}

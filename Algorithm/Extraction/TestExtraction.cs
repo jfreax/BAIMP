@@ -5,18 +5,18 @@ namespace baimp
 {
 	public class TestExtraction : BaseAlgorithm
 	{
-		private List<string> compatibleInput;
-		private List<string> compatibleOutput;
+		private List<Compatible> compatibleInput;
+		private List<Compatible> compatibleOutput;
 
 		public TestExtraction ()
 		{
-			compatibleInput = new List<string> ();
-			compatibleOutput = new List<string> ();
+			compatibleInput = new List<Compatible> ();
+			compatibleOutput = new List<Compatible> ();
 
-			compatibleInput.Add ("in #1");
+			compatibleInput.Add (new Compatible("in #1", typeof(string)));
 
-			compatibleOutput.Add ("out #1");
-			compatibleOutput.Add ("out #2");
+			compatibleOutput.Add (new Compatible("out #1", typeof(string)));
+			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
 		}
 
 		public AlgorithmType AlgorithmType {
@@ -25,13 +25,13 @@ namespace baimp
 			}
 		}
 			
-		public List<string> CompatibleInput {
+		public List<Compatible> CompatibleInput {
 			get {
 				return compatibleInput;
 			}
 		}
 			
-		public List<string> CompatibleOutput {
+		public List<Compatible> CompatibleOutput {
 			get {
 				return compatibleOutput;
 			}

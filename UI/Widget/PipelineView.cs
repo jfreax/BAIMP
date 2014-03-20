@@ -98,7 +98,7 @@ namespace baimp
 		{
 			if (Bounds.IsEmpty)
 				return;
-
+				
 			// draw all edges
 			foreach (InOutMarker from in edges.Keys) {
 				foreach (InOutMarker to in edges[from]) {

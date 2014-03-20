@@ -15,11 +15,11 @@ namespace baimp
 			get;
 		}
 
-		List<string> CompatibleInput {
+		List<Compatible> CompatibleInput {
 			get;
 		}
 
-		List<string> CompatibleOutput {
+		List<Compatible> CompatibleOutput {
 			get;
 		}
 	}

@@ -78,7 +78,7 @@ namespace baimp
 		{
 			ctx.SetColor (Colors.DarkOrchid);
 			int i = 0;
-			foreach (string input in algorithm.CompatibleInput) {
+			foreach (Compatible input in algorithm.CompatibleInput) {
 				ctx.RoundRectangle (InOutMarker.GetBoundForInOutMarkerOf (this, i, true), 2);
 				i++;
 			}
@@ -87,7 +87,7 @@ namespace baimp
 
 			ctx.SetColor (Colors.DarkKhaki);
 			i = 0;
-			foreach (string input in algorithm.CompatibleOutput) {
+			foreach (Compatible output in algorithm.CompatibleOutput) {
 				ctx.RoundRectangle (InOutMarker.GetBoundForInOutMarkerOf (this, i, false), 2);
 				i++;
 			}

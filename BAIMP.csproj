@@ -88,6 +88,8 @@
     <Compile Include="UI\Widget\Pipeline\Edge.cs" />
     <Compile Include="UI\Controller\MouseMover.cs" />
     <Compile Include="UI\Extensions\BoxMouseMover.cs" />
+    <Compile Include="Algorithm\Compatible.cs" />
+    <Compile Include="Algorithm\Constraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -121,5 +123,6 @@
     <Folder Include="UI\Widget\Pipeline\" />
     <Folder Include="UI\Controller\" />
     <Folder Include="UI\Extensions\" />
+    <Folder Include="Algorithm\Segmentation\" />
   </ItemGroup>
 </Project>
