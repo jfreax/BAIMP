@@ -29,25 +29,12 @@ namespace baimp
 		/// <param name="from">From.</param>
 		/// <param name="to">To.</param>
 		public void Draw(Context ctx) {
-			ctx.SetColor (Colors.Black);
+			ctx.SetColor (Colors.LightGray);
 
 			ctx.MoveTo (from.Bounds.Center);
+
+			ctx.SetLineWidth (3.0);
 			ctx.LineTo (to.Bounds.Center);
-
-			ctx.Stroke ();
-		}
-
-		/// <summary>
-		/// Draws a edge from one marker, to another
-		/// </summary>
-		/// <param name="ctx">Context.</param>
-		/// <param name="from">From.</param>
-		/// <param name="to">To.</param>
-		static public void DrawEdge(Context ctx, InOutMarker fromArg, InOutMarker toArg) {
-			ctx.SetColor (Colors.Black);
-
-			ctx.MoveTo (fromArg.Bounds.Center);
-			ctx.LineTo (toArg.Bounds.Center);
 
 			ctx.Stroke ();
 		}

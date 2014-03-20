@@ -18,7 +18,7 @@ namespace baimp
 	public class PipelineView : Canvas
 	{
 		private List<Node> nodes;
-		private Dictionary<InOutMarker, List<InOutMarker>> edges;
+		private List<Edge> edges;
 
 		private Point nodeToMoveOffset = Point.Zero;
 		private InOutMarker connectNodesStartMarker;
@@ -47,7 +47,7 @@ namespace baimp
 			this.CanGetFocus = true;
 
 			nodes = new List<Node> ();
-			edges = new Dictionary<InOutMarker, List<InOutMarker>> ();
+			edges = new List<Edge> ();
 			mouseMover = new MouseMover (scrollview);
 			mouseMover.Timer = 20;
 
@@ -100,10 +100,8 @@ namespace baimp
 				return;
 				
 			// draw all edges
-			foreach (InOutMarker from in edges.Keys) {
-				foreach (InOutMarker to in edges[from]) {
-					Edge.DrawEdge (ctx, from, to);
-				}
+			foreach (Edge edge in edges) {
+				edge.Draw (ctx);
 			}
 				
 			// draw all nodes
@@ -447,21 +445,19 @@ namespace baimp
 		{
 			double epsilon = 4.0;
 
-			foreach (InOutMarker fromNode in edges.Keys) {
-				Point from = fromNode.Bounds.Center;
+			foreach (Edge edge in edges) {
+				Point from = edge.from.Bounds.Center;
+				Point to = edge.to.Bounds.Center;
 
-				foreach (InOutMarker toNode in edges[fromNode]) {
-					Point to = toNode.Bounds.Center;
-
-					double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
-					double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
-					if (r < 0 || r > 1) {
-						continue;
-					}
-					double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
-					if (-epsilon <= sl && sl <= epsilon) {
-						return new Edge (fromNode, toNode, from.X < to.X ? r : 1.0-r);
-					}
+				double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
+				double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
+				if (r < 0 || r > 1) {
+					continue;
+				}
+				double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
+				if (-epsilon <= sl && sl <= epsilon) {
+					edge.r = from.X < to.X ? r : 1.0 - r;
+					return edge;
 				}
 			}
 
@@ -516,11 +512,11 @@ namespace baimp
 		/// <param name="to">To.</param>
 		private void AddEdge(InOutMarker from, InOutMarker to)
 		{
-			if (!edges.ContainsKey (from)) {
-				edges [from] = new List<InOutMarker> ();
+			if (from.isInput) {
+				AddEdge (new Edge (from, to));
+			} else {
+				AddEdge (new Edge (to, from));
 			}
-
-			edges [from].Add (to);
 		}
 
 		/// <summary>
@@ -529,7 +525,7 @@ namespace baimp
 		/// <param name="edge">Edge to add.</param>
 		private void AddEdge(Edge edge)
 		{
-			AddEdge (edge.from, edge.to);
+			edges.Add (edge);
 		}
 
 		/// <summary>
@@ -538,7 +534,7 @@ namespace baimp
 		/// <param name="edge">Edge.</param>
 		private void RemoveEdge(Edge edge)
 		{
-			edges [edge.from].Remove (edge.to);
+			edges.Remove (edge);
 		}
 
 		/// <summary>
