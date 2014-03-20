@@ -1,4 +1,6 @@
-bachelorarbeit_implementierung.userprefs
+*.userprefs
+*.sln
+
 app.config
 bin/
 obj/
