@@ -326,30 +326,33 @@ namespace baimp
 		/// Sets new position for node. Moves the node, if another is already on this position.
 		/// </summary>
 		/// <param name="nodeToMove">Node to move.</param>
+		/// <param name="iteration">Max number of iteration to find optimal placement.</param>
 		/// <remarks>
-		/// Automatically issues a recall
+		/// Automatically issues a redraw.
+		/// After max number of iteration, place the node at the bottom of the graph.
 		/// </remarks>
-		private void SetNode(PipelineNode nodeToMove) {
+		private void SetNode(PipelineNode nodeToMove, int iteration = 20) {
 			if (nodeToMove != null) {
 				PipelineNode intersectingNode = GetNodeAt (nodeToMove.BoundWithExtras, nodeToMove, true);
 				if (intersectingNode != null) {
 					Rectangle intersect = 
 						nodeToMove.BoundWithExtras.Intersect (intersectingNode.BoundWithExtras);
 
-					if (intersect.Width < intersect.Height) {
+					if (iteration > 0 && intersect.Width < intersect.Height) {
 						if (nodeToMove.bound.Left < intersectingNode.bound.Left) {
 							nodeToMove.bound.Left -= intersect.Width;
 						} else {
 							nodeToMove.bound.Left += intersect.Width;
 						}
 					} else {
-						if (nodeToMove.bound.Top < intersectingNode.bound.Top) {
+						if (iteration > 0 && nodeToMove.bound.Top < intersectingNode.bound.Top) {
 							nodeToMove.bound.Top -= intersect.Height;
 						} else {
 							nodeToMove.bound.Top += intersect.Height;
 						}
 					}
 
+					SetNode(nodeToMove, iteration - 1);
 					QueueDraw ();
 				}
 			}
