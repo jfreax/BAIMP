@@ -4,9 +4,9 @@ namespace baimp
 {
 	public class Compatible
 	{
-		string name;
-		Type type;
-		Constraint[] constraints;
+		private string name;
+		private Type type;
+		public readonly Constraint[] constraints;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.Compatible"/> class.
