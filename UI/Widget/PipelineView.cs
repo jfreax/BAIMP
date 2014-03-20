@@ -122,7 +122,6 @@ namespace baimp
 				}
 				Point offset = new Point (Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
 				if (offset != Point.Zero) {
-					Console.WriteLine (offset);
 					TranslateAllNodesBy (offset);
 					QueueDraw ();
 					return;
@@ -132,7 +131,30 @@ namespace baimp
 
 			// things to draw after
 			if(mouseAction.HasFlag(MouseAction.MoveNode)) {
-				lastSelectedNode.Draw (ctx);
+				lastSelectedNode.Draw (ctx); // draw currently moving node last
+
+				// move scrollbar
+				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
+				//boundwe.Location = boundwe.Location.Offset (nodeToMoveOffset);
+				ScrollView sv = this.Parent as ScrollView;
+
+				Console.WriteLine (nodeToMoveOffset);
+
+				double viewportRight = sv.HorizontalScrollControl.Value + sv.Size.Width;
+				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;
+				if (boundwe.Right - offsetH > viewportRight) {
+					sv.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
+				} else if (boundwe.Left + offsetH < sv.HorizontalScrollControl.Value) {
+					sv.HorizontalScrollControl.Value -= sv.HorizontalScrollControl.Value - offsetH - boundwe.Left;
+				}
+
+				double viewportBottom = sv.VerticalScrollControl.Value + sv.Size.Height;
+				double offsetV = (nodeToMoveOffset.Y + boundwe.Height) * 0.5;
+				if (boundwe.Bottom - offsetV > viewportBottom) {
+					sv.VerticalScrollControl.Value += boundwe.Bottom - offsetV - viewportBottom;
+				} else if (boundwe.Top + offsetV < sv.VerticalScrollControl.Value) {
+					sv.VerticalScrollControl.Value -= sv.VerticalScrollControl.Value - offsetV - boundwe.Top;
+				}
 			}
 			if(mouseAction.HasFlag(MouseAction.AddEdge)) {
 				ctx.MoveTo (connectNodesStartMarker.Bounds.Center);
