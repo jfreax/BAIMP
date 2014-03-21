@@ -28,14 +28,14 @@ namespace baimp
 
 		#endregion
 
-		public void AddEdge(Edge e)
+		public void AddEdge(Edge edge)
 		{
-			edges.Add (e);
+			edges.Add (edge);
 		}
 
-		public void RemoveEdge(Edge e)
+		public void RemoveEdge(Edge edge)
 		{
-			edges.Remove (e);
+			edges.Remove (edge);
 		}
 
 		public List<Edge> Edges

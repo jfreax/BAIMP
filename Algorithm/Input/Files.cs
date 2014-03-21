@@ -7,7 +7,7 @@ namespace baimp
 	{
 		public Files (PipelineNode parent) : base(parent)
 		{
-			compatibleOutput.Add (new Compatible(this, "out #1", typeof(string[])));
+			compatibleOutput.Add (new Compatible("out #1", typeof(string[])));
 		}
 
 		#region BaseAlgorithm implementation

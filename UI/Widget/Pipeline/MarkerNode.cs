@@ -22,14 +22,6 @@ namespace baimp
 			this.isInput = isInput;
 
 			this.positionNo = positionNo;
-
-			// TODO set position
-//			bounds = new Rectangle (
-//				position.X - (nodeInOutMarkerSize.Width * 0.5),
-//				position.Y - (nodeInOutMarkerSize.Height * 0.5),
-//				nodeInOutMarkerSize.Width,
-//				nodeInOutMarkerSize.Height
-//			);
 		}
 
 		public override void Draw(Context ctx) {
@@ -41,6 +33,27 @@ namespace baimp
 
 			ctx.RoundRectangle (Bounds, 2);
 			ctx.Fill ();
+		}
+
+
+		/// <summary>
+		/// Tests if another node is compatible with this one.
+		/// Compatible == there can be a edge between this nodes.
+		/// </summary>
+		/// <returns><c>true</c>, if compatible, <c>false</c> otherwise.</returns>
+		/// <param name="another">The other compatible instance.</param>
+		public bool Match(MarkerNode otherNode)
+		{
+			if (parent == otherNode.parent)
+				return false;
+
+			if (this == otherNode)
+				return false;
+
+			if (isInput == otherNode.isInput)
+				return false;
+
+			return compatible.Match (otherNode.compatible);
 		}
 
 		public void AddEdgeTo(Node otherNode)

@@ -7,10 +7,10 @@ namespace baimp
 	{
 		public TestExtraction (PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add (new Compatible(this, "in #1", typeof(string[])));
+			compatibleInput.Add (new Compatible("in #1", typeof(string[])));
 
-			compatibleOutput.Add (new Compatible(this, "out #1", typeof(int)));
-			compatibleOutput.Add (new Compatible(this, "out #2", typeof(string)));
+			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
+			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
 		}
 
 		public override AlgorithmType AlgorithmType {

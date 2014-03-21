@@ -4,7 +4,6 @@ namespace baimp
 {
 	public class Compatible
 	{
-		BaseAlgorithm parent;
 		private string name;
 		private Type type;
 		public readonly BaseConstraint[] constraints;
@@ -15,9 +14,8 @@ namespace baimp
 		/// <param name="name">Name of this compatible.</param>
 		/// <param name="type">In- or output type.</param>
 		/// <param name="constraints">Constraints.</param>
-		public Compatible (BaseAlgorithm parent, string name, Type type, params BaseConstraint[] constraints)
+		public Compatible (string name, Type type, params BaseConstraint[] constraints)
 		{
-			this.parent = parent;
 			this.name = name;
 			this.type = type;
 			this.constraints = constraints;

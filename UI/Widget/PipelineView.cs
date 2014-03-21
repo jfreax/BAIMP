@@ -154,7 +154,8 @@ namespace baimp
 					sv.VerticalScrollControl.Value -= sv.VerticalScrollControl.Value - offsetV - boundwe.Top;
 				}
 			}
-			if(mouseAction.HasFlag(MouseAction.AddEdge)) {
+
+			if(mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
 				ctx.MoveTo (connectNodesStartMarker.Bounds.Center);
 				ctx.LineTo (connectNodesEnd);
 				ctx.Stroke ();
@@ -220,14 +221,14 @@ namespace baimp
 				} else {
 					PipelineEdge edge = GetEdgeAt (e.Position);
 					if (edge != null) { // clicked on edge
-						if (edge.r < 0.5) {
+						if (edge.r >= 0.5) {
 							connectNodesStartMarker = (MarkerNode) edge.from;
 						} else {
 							connectNodesStartMarker = (MarkerNode) edge.to;
 						}
 						edge.Active = false;
 						lastSelectedEdge = edge;
-						mouseAction |= MouseAction.AddEdge | MouseAction.MoveEdge;
+						mouseAction |= MouseAction.MoveEdge;
 					}
 				}
 
@@ -260,40 +261,61 @@ namespace baimp
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
-			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
-				SetNodePosition (lastSelectedNode);
-				mouseAction ^= MouseAction.MoveNode;
-			}
-
-			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
-				MarkerNode mNode = GetInOutMarkerAt (e.Position, PipelineNode.NodeInOutSpace);
-				if (mNode != null) {
-					if (mNode != connectNodesStartMarker &&
-						mNode.isInput != connectNodesStartMarker.isInput &&
-						mNode.compatible.Match(connectNodesStartMarker.compatible)) {
-
-						if (mNode.isInput) {
-							connectNodesStartMarker.AddEdgeTo (mNode);
-						} else {
-							mNode.AddEdgeTo (connectNodesStartMarker);
-						}
-
-						lastSelectedEdge = null;
-					}
-				} 
-				if (mouseAction.HasFlag (MouseAction.MoveEdge) && lastSelectedEdge != null) {
-					lastSelectedEdge.Active = true;
-					mouseAction ^= MouseAction.MoveEdge;
-				}
-
-				QueueDraw ();
-				mouseAction ^= MouseAction.AddEdge;
-			}
+			MarkerNode mNode = GetInOutMarkerAt (e.Position, PipelineNode.NodeInOutSpace);
 
 			switch (e.Button) {
+			case PointerButton.Left:
+				// Move node
+				if (mouseAction.HasFlag (MouseAction.MoveNode)) {
+					SetNodePosition (lastSelectedNode);
+					mouseAction ^= MouseAction.MoveNode;
+				}
+
+				// Move edge
+				if (mouseAction.HasFlag (MouseAction.MoveEdge)) {
+					if (mNode != null) {
+						if (lastSelectedEdge.r < 0.5) {
+							if (mNode.Match (lastSelectedEdge.to as MarkerNode)) {
+								lastSelectedEdge.Remove ();
+								mNode.AddEdgeTo (lastSelectedEdge.to);
+							}
+						} else {
+							if (mNode.Match (lastSelectedEdge.from as MarkerNode)) {
+								lastSelectedEdge.to = mNode;
+							}
+						}
+					}
+
+
+					lastSelectedEdge.Active = true;
+					lastSelectedEdge = null;
+					mouseAction ^= MouseAction.MoveEdge;
+
+					QueueDraw ();
+				}
+
+				// Add edge
+				if (mouseAction.HasFlag (MouseAction.AddEdge)) {
+					if (mNode != null) {
+						if (mNode.Match (connectNodesStartMarker)) {
+							if (mNode.isInput) {
+								connectNodesStartMarker.AddEdgeTo (mNode);
+							} else {
+								mNode.AddEdgeTo (connectNodesStartMarker);
+							}
+
+							lastSelectedEdge = null;
+						}
+					} 
+
+					QueueDraw ();
+					mouseAction ^= MouseAction.AddEdge;
+				}
+
+				break;
 			case PointerButton.Middle:
 				if (mouseMover.Enabled) {
-					mouseMover.DisableMouseMover();
+					mouseMover.DisableMouseMover ();
 					this.Cursor = oldCursor;
 				}
 				break;
@@ -304,14 +326,13 @@ namespace baimp
 		{
 			mousePosition = e.Position;
 
-
 			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
 				if (lastSelectedNode != null) {
 					lastSelectedNode.bound.Location = e.Position.Offset (nodeToMoveOffset);
 					QueueDraw ();
 				}
 			}
-			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
+			if (mouseAction.HasFlag (MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
 				MarkerNode mNode = GetInOutMarkerAt (e.Position, PipelineNode.NodeInOutSpace);
 				if (mNode != null) {
 					connectNodesEnd = mNode.Bounds.Center;
