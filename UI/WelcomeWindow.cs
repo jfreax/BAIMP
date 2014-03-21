@@ -8,6 +8,8 @@ namespace baimp
 	{
 		public WelcomeWindow ()
 		{
+			Title = "BAIMP";
+
 			// initialize global events
 			Closed += OnClosing;
 

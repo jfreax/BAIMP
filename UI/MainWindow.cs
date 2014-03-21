@@ -76,7 +76,7 @@ namespace baimp
 			);
 
 			// set window preference
-			Title = "Bachelorarbeit - Jens Dieskau";
+			Title = "BAIMP";
 
 			// main menu
 			Menu menu = new Menu ();
