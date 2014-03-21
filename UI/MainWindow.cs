@@ -99,7 +99,7 @@ namespace baimp
 			file.SubMenu.Items.Add (menuImport);
 
 			MenuItem menuSave = new MenuItem ("_Save");
-			menuSave.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			menuSave.Clicked += (object sender, EventArgs e) => SaveAll ();
 			file.SubMenu.Items.Add (menuSave);
 
 			file.SubMenu.Items.Add (new SeparatorMenuItem ());
@@ -195,6 +195,11 @@ namespace baimp
 
 		#endregion
 
+		private void SaveAll() {
+			project.Save ();
+			scanCollection.SaveAll ();
+		}
+
 		#region Events
 
 		private void GlobalKeyPressed(object sender, KeyEventArgs e) {
@@ -203,8 +208,7 @@ namespace baimp
 
 				switch (e.Key) {
 				case Key.s:
-					project.Save ();
-					scanCollection.SaveAll ();
+					SaveAll ();
 					break;
 				}
 			}

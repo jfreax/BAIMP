@@ -37,7 +37,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Commandlineparameters> -p /mnt/data5/Scans/</Commandlineparameters>
+    <Commandlineparameters> -f test.baimp</Commandlineparameters>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
