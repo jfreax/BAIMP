@@ -31,7 +31,7 @@ namespace baimp
 		public MainWindow (Project project)
 		{
 			this.project = project;
-			scanCollection = new ScanCollection (null as string[]);
+			scanCollection = new ScanCollection (project.Files.ToArray());
 
 			Initialize ();
 		}

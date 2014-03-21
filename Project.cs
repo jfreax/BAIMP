@@ -21,9 +21,9 @@ namespace baimp
 				while (xmlReader.Read ()) {
 					switch (xmlReader.NodeType) {
 					case XmlNodeType.Element:
-						if (xmlReader.Name == "Files") {
+						if (xmlReader.Name == "files") {
 							while (xmlReader.Read ()) {
-								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "Name") {
+								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "name") {
 									files.Add (xmlReader.ReadString());
 								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
 									break;
