@@ -83,15 +83,17 @@
     <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
     <Compile Include="Data\TreeNode.cs" />
-    <Compile Include="UI\Widget\Pipeline\InOutMarker.cs" />
-    <Compile Include="UI\Widget\Pipeline\Node.cs" />
-    <Compile Include="UI\Widget\Pipeline\Edge.cs" />
     <Compile Include="UI\Controller\MouseMover.cs" />
     <Compile Include="UI\Extensions\BoxMouseMover.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
     <Compile Include="Contraints\BaseConstraint.cs" />
     <Compile Include="Algorithm\Input\Files.cs" />
     <Compile Include="Contraints\MaximumUses.cs" />
+    <Compile Include="UI\Widget\Pipeline\PipelineNode.cs" />
+    <Compile Include="UI\Widget\Pipeline\PipelineEdge.cs" />
+    <Compile Include="Data\Node.cs" />
+    <Compile Include="Data\Edge.cs" />
+    <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

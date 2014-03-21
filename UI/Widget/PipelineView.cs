@@ -17,16 +17,15 @@ namespace baimp
 
 	public class PipelineView : Canvas
 	{
-		private List<Node> nodes;
-		private List<Edge> edges;
+		private List<PipelineNode> nodes;
 
 		private Point nodeToMoveOffset = Point.Zero;
-		private InOutMarker connectNodesStartMarker;
+		private MarkerNode connectNodesStartMarker;
 		private Point connectNodesEnd;
 
 		private Point mousePosition = Point.Zero;
-		private Node lastSelectedNode = null;
-		private Edge lastSelectedEdge = null;
+		private PipelineNode lastSelectedNode = null;
+		private PipelineEdge lastSelectedEdge = null;
 
 		private MouseAction mouseAction = MouseAction.None;
 
@@ -46,8 +45,8 @@ namespace baimp
 			this.BackgroundColor = Colors.WhiteSmoke;
 			this.CanGetFocus = true;
 
-			nodes = new List<Node> ();
-			edges = new List<Edge> ();
+			nodes = new List<PipelineNode> ();
+
 			mouseMover = new MouseMover (scrollview);
 			mouseMover.Timer = 20;
 
@@ -66,7 +65,7 @@ namespace baimp
 			MenuItem contextMenuEdgeDelete = new MenuItem ("Delete edge");
 			contextMenuEdgeDelete.Clicked += delegate(object sender, EventArgs e) {
 				if(lastSelectedEdge != null) {
-					RemoveEdge(lastSelectedEdge);
+					lastSelectedEdge.from.RemoveEdge(lastSelectedEdge);
 					QueueDraw ();
 				}
 			};
@@ -77,7 +76,7 @@ namespace baimp
 			MenuItem contextMenuNodeDelete = new MenuItem ("Delete node");
 			contextMenuNodeDelete.Clicked += delegate(object sender, EventArgs e) {
 				if(lastSelectedNode != null) {
-					nodes.Remove(lastSelectedNode);
+					RemoveNode (lastSelectedNode);
 					QueueDraw ();
 				}
 			};
@@ -99,13 +98,15 @@ namespace baimp
 			if (Bounds.IsEmpty)
 				return;
 				
-			// draw all edges
-			foreach (Edge edge in edges) {
-				edge.Draw (ctx);
+			// draw all marker nodes
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					mNode.Draw (ctx);
+				}
 			}
 				
 			// draw all nodes
-			foreach(Node node in nodes) {
+			foreach(PipelineNode node in nodes) {
 				if (!mouseAction.HasFlag (MouseAction.MoveNode)  || node != lastSelectedNode) {
 					if (node.bound.IntersectsWith (dirtyRect)) {
 						node.Draw (ctx);
@@ -115,10 +116,10 @@ namespace baimp
 				// set min size
 				Rectangle boundwe = node.BoundWithExtras;
 				if (boundwe.Right > MinWidth) {
-					MinWidth = boundwe.Right + Node.nodeMargin.Right;
+					MinWidth = boundwe.Right + PipelineNode.NodeMargin.Right;
 				}
 				if (boundwe.Bottom > MinHeight) {
-					MinHeight = boundwe.Bottom + Node.nodeMargin.Bottom;
+					MinHeight = boundwe.Bottom + PipelineNode.NodeMargin.Bottom;
 				}
 				Point offset = new Point (Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
 				if (offset != Point.Zero) {
@@ -176,8 +177,8 @@ namespace baimp
 			try {
 				Type algoType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
 
-				Node node = new Node(algoType, new Rectangle(e.Position, Node.nodeSize));
-				SetNode(node);
+				PipelineNode node = new PipelineNode(algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
+				SetNodePosition(node);
 				nodes.Add(node);
 
 				this.QueueDraw();
@@ -200,11 +201,11 @@ namespace baimp
 		{
 			switch (e.Button) {
 			case PointerButton.Left:
-				Node node = GetNodeAt (e.Position, true);
+				PipelineNode node = GetNodeAt (e.Position, true);
 				if (node != null) { // clicked on node
-					InOutMarker inOutMarker = InOutMarker.GetInOutMarkerAt (node, e.Position);
-					if (inOutMarker != null) {
-						connectNodesStartMarker = inOutMarker;
+					MarkerNode mNode = node.GetInOutMarkerAt (e.Position);
+					if (mNode != null) {
+						connectNodesStartMarker = mNode;
 						mouseAction |= MouseAction.AddEdge;
 					} else {
 						if (node.bound.Contains (e.Position)) {
@@ -217,14 +218,14 @@ namespace baimp
 						} 
 					}
 				} else {
-					Edge edge = GetEdgeAt (e.Position);
+					PipelineEdge edge = GetEdgeAt (e.Position);
 					if (edge != null) { // clicked on edge
 						if (edge.r < 0.5) {
-							connectNodesStartMarker = edge.from;
+							connectNodesStartMarker = (MarkerNode) edge.from;
 						} else {
-							connectNodesStartMarker = edge.to;
+							connectNodesStartMarker = (MarkerNode) edge.to;
 						}
-						RemoveEdge (edge);
+						edge.Active = false;
 						lastSelectedEdge = edge;
 						mouseAction |= MouseAction.AddEdge | MouseAction.MoveEdge;
 					}
@@ -238,7 +239,7 @@ namespace baimp
 				if (lastSelectedEdge != null) {
 					contextMenuEdge.Popup ();
 				} else {
-					Node nodeRight = GetNodeAt (e.Position, true);
+					PipelineNode nodeRight = GetNodeAt (e.Position, true);
 					if (nodeRight != null) {
 						lastSelectedNode = nodeRight;
 						contextMenuNode.Popup ();
@@ -260,28 +261,28 @@ namespace baimp
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
 			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
-				SetNode (lastSelectedNode);
+				SetNodePosition (lastSelectedNode);
 				mouseAction ^= MouseAction.MoveNode;
 			}
 
 			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
-				InOutMarker inOutMarker = GetInOutMarkerAt (e.Position, new Size (Node.nodeInOutSpace, Node.nodeInOutSpace));
-				if (inOutMarker != null) {
-					if (inOutMarker != connectNodesStartMarker &&
-						inOutMarker.isInput != connectNodesStartMarker.isInput &&
-						inOutMarker.compatible.Match(connectNodesStartMarker.compatible)) {
+				MarkerNode mNode = GetInOutMarkerAt (e.Position, PipelineNode.NodeInOutSpace);
+				if (mNode != null) {
+					if (mNode != connectNodesStartMarker &&
+						mNode.isInput != connectNodesStartMarker.isInput &&
+						mNode.compatible.Match(connectNodesStartMarker.compatible)) {
 
-						if (inOutMarker.isInput) {
-							AddEdge (inOutMarker, connectNodesStartMarker);
+						if (mNode.isInput) {
+							connectNodesStartMarker.AddEdgeTo (mNode);
 						} else {
-							AddEdge (connectNodesStartMarker, inOutMarker);
+							mNode.AddEdgeTo (connectNodesStartMarker);
 						}
 
 						lastSelectedEdge = null;
 					}
 				} 
 				if (mouseAction.HasFlag (MouseAction.MoveEdge) && lastSelectedEdge != null) {
-					AddEdge (lastSelectedEdge);
+					lastSelectedEdge.Active = true;
 					mouseAction ^= MouseAction.MoveEdge;
 				}
 
@@ -311,9 +312,9 @@ namespace baimp
 				}
 			}
 			if (mouseAction.HasFlag (MouseAction.AddEdge)) {
-				InOutMarker marker = GetInOutMarkerAt (e.Position, new Size(Node.nodeInOutSpace, Node.nodeInOutSpace));
-				if (marker != null) {
-					connectNodesEnd = marker.Bounds.Center;
+				MarkerNode mNode = GetInOutMarkerAt (e.Position, PipelineNode.NodeInOutSpace);
+				if (mNode != null) {
+					connectNodesEnd = mNode.Bounds.Center;
 				} else {
 					connectNodesEnd = e.Position;
 				}
@@ -322,9 +323,9 @@ namespace baimp
 			}
 
 			if (!mouseAction.HasFlag(MouseAction.MoveNode)) {
-				InOutMarker marker = GetInOutMarkerAt (e.Position);
-				if (marker != null) {
-					TooltipText = marker.compatible.ToString() + "\n" + marker.compatible.Type.ToString();
+				MarkerNode mNode = GetInOutMarkerAt (e.Position);
+				if (mNode != null) {
+					TooltipText = mNode.compatible.ToString() + "\n" + mNode.compatible.Type.ToString();
 				} else {
 					TooltipText = string.Empty;
 				}
@@ -344,18 +345,17 @@ namespace baimp
 			}
 		}
 
-
 		protected override void OnKeyPressed(KeyEventArgs e) {
 			switch (e.Key) {
 			case Key.Delete:
-				Edge edge = GetEdgeAt (mousePosition);
+				PipelineEdge edge = GetEdgeAt (mousePosition);
 				if (edge != null) {
-					RemoveEdge (edge);
+					edge.Remove ();
 					QueueDraw ();
 				} else {
-					Node node = GetNodeAt (mousePosition, true);
+					PipelineNode node = GetNodeAt (mousePosition, true);
 					if (node != null) {
-						nodes.Remove (node);
+						RemoveNode (node);
 						QueueDraw ();
 					}
 				}
@@ -375,9 +375,9 @@ namespace baimp
 		/// <remarks>
 		/// Automatically issues a recall
 		/// </remarks>
-		private void SetNodeAt(Node nodeToMove, Point position) {
+		private void SetNodeAt(PipelineNode nodeToMove, Point position) {
 			nodeToMove.bound.Location = position;
-			SetNode (nodeToMove);
+			SetNodePosition (nodeToMove);
 			QueueDraw ();
 		}
 
@@ -390,9 +390,9 @@ namespace baimp
 		/// Automatically issues a redraw.
 		/// After max number of iteration, place the node at the bottom of the graph.
 		/// </remarks>
-		private void SetNode(Node nodeToMove, int iteration = 20) {
+		private void SetNodePosition(PipelineNode nodeToMove, int iteration = 20) {
 			if (nodeToMove != null) {
-				Node intersectingNode = GetNodeAt (nodeToMove.BoundWithExtras, nodeToMove, true);
+				PipelineNode intersectingNode = GetNodeAt (nodeToMove.BoundWithExtras, nodeToMove, true);
 				if (intersectingNode != null) {
 					Rectangle intersect = 
 						nodeToMove.BoundWithExtras.Intersect (intersectingNode.BoundWithExtras);
@@ -411,10 +411,43 @@ namespace baimp
 						}
 					}
 
-					SetNode(nodeToMove, iteration - 1);
+					SetNodePosition(nodeToMove, iteration - 1);
 					QueueDraw ();
 				}
 			}
+		}
+
+		/// <summary>
+		/// Gets the edge at position.
+		/// </summary>
+		/// <returns>The <see cref="System.Tuple`2[[baimp.PipelineView+InOutMarker],[baimp.PipelineView+InOutMarker]]"/>.</returns>
+		/// <param name="position">Position.</param>
+		private PipelineEdge GetEdgeAt(Point position)
+		{
+			double epsilon = 4.0;
+
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					foreach (Edge e in mNode) {
+						PipelineEdge edge = (PipelineEdge)e;
+						Point from = edge.from.Bounds.Center;
+						Point to = edge.to.Bounds.Center;
+
+						double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
+						double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
+						if (r < 0 || r > 1) {
+							continue;
+						}
+						double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
+						if (-epsilon <= sl && sl <= epsilon) {
+							edge.r = from.X < to.X ? r : 1.0 - r;
+							return edge;
+						}
+					}
+				}
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -423,40 +456,12 @@ namespace baimp
 		/// <returns>The node at position; or null</returns>
 		/// <param name="position">Position.</param>
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
-		private Node GetNodeAt (Point position, bool withExtras = false)
+		private PipelineNode GetNodeAt (Point position, bool withExtras = false)
 		{
-			foreach(Node node in nodes) {
+			foreach(PipelineNode node in nodes) {
 				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
 				if (bound.Contains (position)) {
 					return node;
-				}
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Gets the edge at position.
-		/// </summary>
-		/// <returns>The <see cref="System.Tuple`2[[baimp.PipelineView+InOutMarker],[baimp.PipelineView+InOutMarker]]"/>.</returns>
-		/// <param name="position">Position.</param>
-		private Edge GetEdgeAt(Point position)
-		{
-			double epsilon = 4.0;
-
-			foreach (Edge edge in edges) {
-				Point from = edge.from.Bounds.Center;
-				Point to = edge.to.Bounds.Center;
-
-				double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
-				double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
-				if (r < 0 || r > 1) {
-					continue;
-				}
-				double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
-				if (-epsilon <= sl && sl <= epsilon) {
-					edge.r = from.X < to.X ? r : 1.0 - r;
-					return edge;
 				}
 			}
 
@@ -470,9 +475,9 @@ namespace baimp
 		/// <param name="rectangle">Rectangle to test with.</param>
 		/// <param name="ignorenode">Optional: Ignore this node.</param>
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
-		private Node GetNodeAt (Rectangle rectangle, Node ignoreNode = null, bool withExtras = false)
+		private PipelineNode GetNodeAt (Rectangle rectangle, PipelineNode ignoreNode = null, bool withExtras = false)
 		{
-			foreach(Node node in nodes) {
+			foreach(PipelineNode node in nodes) {
 				if (node != ignoreNode && 
 					node.BoundWithExtras.IntersectsWith (rectangle)) {
 					return node;
@@ -488,16 +493,34 @@ namespace baimp
 		/// <returns>The marker description and their position.</returns>
 		/// <param name="position">Position.</param>
 		/// <param name="inflate">Inflate search region.</param>
-		private InOutMarker GetInOutMarkerAt (Point position, Size? inflate = null)
+		private MarkerNode GetInOutMarkerAt (Point position, Size? inflate = null)
 		{
-			foreach(Node node in nodes) {
-				var ret = InOutMarker.GetInOutMarkerAt (node, position, inflate);
-				if (ret != null) {
-					return ret;
+			foreach(PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					if (mNode.Bounds.Inflate(inflate ?? Size.Zero).Contains (position)) {
+						return mNode;
+					}
 				}
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Removes a node.
+		/// </summary>
+		/// <param name="node">Node to remove.</param>
+		private void RemoveNode(PipelineNode node) {
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					for (int i = 0; i < mNode.Edges.Count; i++) {
+						if (mNode.Edges [i].from == mNode) {
+							mNode.Edges[i].Remove ();
+						}
+					}
+				}
+			}
+			nodes.Remove (node);
 		}
 			
 		#endregion
@@ -505,44 +528,12 @@ namespace baimp
 		#region helper
 
 		/// <summary>
-		/// Adds a new edge.
-		/// </summary>
-		/// <param name="from">From.</param>
-		/// <param name="to">To.</param>
-		private void AddEdge(InOutMarker from, InOutMarker to)
-		{
-			if (from.isInput) {
-				AddEdge (new Edge (from, to));
-			} else {
-				AddEdge (new Edge (to, from));
-			}
-		}
-
-		/// <summary>
-		/// Adds a new edge.
-		/// </summary>
-		/// <param name="edge">Edge to add.</param>
-		private void AddEdge(Edge edge)
-		{
-			edges.Add (edge);
-		}
-
-		/// <summary>
-		/// Removes a edge.
-		/// </summary>
-		/// <param name="edge">Edge.</param>
-		private void RemoveEdge(Edge edge)
-		{
-			edges.Remove (edge);
-		}
-
-		/// <summary>
 		/// Translates all nodes by given offset.
 		/// </summary>
 		/// <param name="offset">Offset.</param>
 		private void TranslateAllNodesBy(Point offset)
 		{
-			foreach (Node node in nodes) {
+			foreach (PipelineNode node in nodes) {
 				node.bound = node.bound.Offset (offset);
 			}
 		}

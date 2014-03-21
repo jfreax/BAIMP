@@ -30,7 +30,7 @@ namespace baimp
 			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>> ();
 			foreach (Type algorithm in algorithms) {
 
-				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (Node)null) as BaseAlgorithm;
+				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (PipelineNode)null) as BaseAlgorithm;
 				string algorithmType = instance.AlgorithmType.ToString ();
 
 				if (!algorithmCollection.ContainsKey (algorithmType)) {

@@ -12,13 +12,13 @@ namespace baimp
 
 	abstract public class BaseAlgorithm
 	{
-		public readonly Node parent;
+		public readonly PipelineNode parent;
 
 		protected List<Compatible> compatibleInput;
 		protected List<Compatible> compatibleOutput;
 
 
-		public BaseAlgorithm (Node parent) {
+		public BaseAlgorithm (PipelineNode parent) {
 			this.parent = parent;
 
 			compatibleInput = new List<Compatible> ();

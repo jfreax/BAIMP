@@ -5,7 +5,7 @@ namespace baimp
 {
 	public class TestExtraction : BaseAlgorithm
 	{
-		public TestExtraction (Node parent) : base(parent)
+		public TestExtraction (PipelineNode parent) : base(parent)
 		{
 			compatibleInput.Add (new Compatible(this, "in #1", typeof(string[])));
 
