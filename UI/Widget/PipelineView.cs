@@ -98,7 +98,6 @@ namespace baimp
 			if (Bounds.IsEmpty)
 				return;
 				
-
 			// draw all nodes
 			foreach(PipelineNode node in nodes) {
 				if (!mouseAction.HasFlag (MouseAction.MoveNode)  || node != lastSelectedNode) {
@@ -122,6 +121,10 @@ namespace baimp
 					return;
 				}
 			}
+
+			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
+				lastSelectedNode.Draw (ctx); // draw currently moving node last
+			}
 				
 			// draw alle edges
 			foreach (PipelineNode pNode in nodes) {
@@ -137,9 +140,8 @@ namespace baimp
 				}
 			}
 
-			// things to draw after
+			// update things
 			if(mouseAction.HasFlag(MouseAction.MoveNode)) {
-				lastSelectedNode.Draw (ctx); // draw currently moving node last
 
 				// move scrollbar
 				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
