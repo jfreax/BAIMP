@@ -6,8 +6,8 @@ namespace baimp
 {
 	public class MarkerNode : Node
 	{
-		static public Size NodeInOutMarkerSize = new Size (10, 8);
-		static public int NodeInOutSpace = 8;
+		static public int NodeInOutMarkerSize = 10;
+		static public int NodeInOutSpace = 18;
 
 		public readonly bool isInput;
 		public readonly Compatible compatible;
@@ -24,17 +24,28 @@ namespace baimp
 			this.positionNo = positionNo;
 		}
 
-		public override void Draw(Context ctx) {
-			foreach (Edge edge in edges) {
-				edge.Draw (ctx);
-			}
+		/// <summary>
+		/// Draw the marker.
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		public override void Draw(Context ctx)
+		{
+			ctx.SetColor (Colors.Black);
 
-			ctx.SetColor (Colors.DarkKhaki);
-
-			ctx.RoundRectangle (Bounds, 2);
+			ctx.Rectangle (Bounds);
 			ctx.Fill ();
 		}
 
+		/// <summary>
+		/// Draws the edges.
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		public void DrawEdges(Context ctx)
+		{
+			foreach (Edge edge in edges) {
+				edge.Draw (ctx);
+			}
+		}
 
 		/// <summary>
 		/// Tests if another node is compatible with this one.
@@ -61,17 +72,26 @@ namespace baimp
 			edges.Add (new PipelineEdge(this, otherNode));
 		}
 
+		#region Properties
+
 		public override Rectangle Bounds {
 			get {
 				return new Rectangle (
 					new Point (
-						isInput ? parent.bound.Left - (NodeInOutMarkerSize.Width - 2) : parent.bound.Right - 2,
-						parent.bound.Top + (positionNo * NodeInOutSpace) + ((positionNo + 1) * NodeInOutMarkerSize.Height)
-					), NodeInOutMarkerSize
+						isInput ? parent.bound.Left - NodeInOutMarkerSize : parent.bound.Right,
+						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
+					), new Size(NodeInOutMarkerSize, Height)
 				);
 			}
 
 		}
+
+		public double Height {
+			get;
+			set;
+		}
+
+		#endregion
 	}
 }
 

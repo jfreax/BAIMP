@@ -98,13 +98,7 @@ namespace baimp
 			if (Bounds.IsEmpty)
 				return;
 				
-			// draw all marker nodes
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
-					mNode.Draw (ctx);
-				}
-			}
-				
+
 			// draw all nodes
 			foreach(PipelineNode node in nodes) {
 				if (!mouseAction.HasFlag (MouseAction.MoveNode)  || node != lastSelectedNode) {
@@ -113,7 +107,7 @@ namespace baimp
 					}
 				}
 					
-				// set min size
+				// set canvas min size
 				Rectangle boundwe = node.BoundWithExtras;
 				if (boundwe.Right > MinWidth) {
 					MinWidth = boundwe.Right + PipelineNode.NodeMargin.Right;
@@ -128,7 +122,20 @@ namespace baimp
 					return;
 				}
 			}
-
+				
+			// draw alle edges
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					mNode.DrawEdges (ctx);
+				}
+			}
+		
+			// draw all markers
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode) {
+					mNode.Draw (ctx);
+				}
+			}
 
 			// things to draw after
 			if(mouseAction.HasFlag(MouseAction.MoveNode)) {
@@ -204,7 +211,7 @@ namespace baimp
 			case PointerButton.Left:
 				PipelineNode node = GetNodeAt (e.Position, true);
 				if (node != null) { // clicked on node
-					MarkerNode mNode = node.GetInOutMarkerAt (e.Position);
+					MarkerNode mNode = node.GetMarkerNodeAt (e.Position);
 					if (mNode != null) {
 						connectNodesStartMarker = mNode;
 						mouseAction |= MouseAction.AddEdge;
