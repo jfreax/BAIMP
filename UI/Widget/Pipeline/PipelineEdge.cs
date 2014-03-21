@@ -35,7 +35,7 @@ namespace baimp
 
 			ctx.MoveTo (from.Bounds.Center);
 
-			ctx.SetLineWidth (3.0);
+			ctx.SetLineWidth (1.0);
 			ctx.LineTo (to.Bounds.Center);
 
 			ctx.Stroke ();

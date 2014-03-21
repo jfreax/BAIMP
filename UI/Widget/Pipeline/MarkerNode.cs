@@ -30,10 +30,15 @@ namespace baimp
 		/// <param name="ctx">Context.</param>
 		public override void Draw(Context ctx)
 		{
-			ctx.SetColor (Colors.Black);
+			ctx.SetColor (PipelineNode.NodeColorBorder);
 
-			ctx.Rectangle (Bounds);
-			ctx.Fill ();
+			//ctx.Rectangle (Bounds);
+			//ctx.Fill ();
+			Rectangle bndTmp = Bounds;
+			ctx.SetLineWidth (1);
+			ctx.MoveTo (bndTmp.Left, bndTmp.Center.Y);
+			ctx.LineTo (bndTmp.Right, bndTmp.Center.Y);
+			ctx.Stroke ();
 		}
 
 		/// <summary>
