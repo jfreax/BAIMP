@@ -4,25 +4,49 @@ using System.Collections.Generic;
 namespace baimp
 {
 	public enum AlgorithmType {
-		Source,
+		Input,
 		Filter,
 		Extraction,
 		Misc
 	};
 
-	public interface BaseAlgorithm
+	abstract public class BaseAlgorithm
 	{
+		public readonly Node parent;
 
-		AlgorithmType AlgorithmType {
+		protected List<Compatible> compatibleInput;
+		protected List<Compatible> compatibleOutput;
+
+
+		public BaseAlgorithm (Node parent) {
+			this.parent = parent;
+
+			compatibleInput = new List<Compatible> ();
+			compatibleOutput = new List<Compatible> ();
+		}
+
+		abstract public AlgorithmType AlgorithmType {
 			get;
 		}
 
-		List<Compatible> CompatibleInput {
+		abstract public string HelpText {
 			get;
 		}
 
-		List<Compatible> CompatibleOutput {
-			get;
+		public List<Compatible> CompatibleInput {
+			get {
+				return compatibleInput;
+			}
+		}
+
+		public List<Compatible> CompatibleOutput {
+			get {
+				return compatibleOutput;
+			}
+		}
+
+		public override string ToString() {
+			return this.GetType().Name;
 		}
 	}
 }

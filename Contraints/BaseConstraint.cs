@@ -2,11 +2,9 @@
 
 namespace baimp
 {
-	abstract public class BaseConstraint
+	public interface BaseConstraint
 	{
-		public BaseConstraint ()
-		{
-		}
+
 	}
 }
 

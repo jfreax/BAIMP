@@ -15,11 +15,14 @@ namespace baimp
 		public BaseAlgorithm algorithm;
 		public Rectangle bound;
 
+
 		private Canvas canvas;
 
-		public Node(BaseAlgorithm algorithm, Rectangle bound)
+		public Node(Type algoType, Rectangle bound)
 		{
-			this.algorithm = algorithm;
+			BaseAlgorithm algoInstance = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
+
+			this.algorithm = algoInstance;
 			this.bound = bound;
 
 			canvas = new Canvas ();

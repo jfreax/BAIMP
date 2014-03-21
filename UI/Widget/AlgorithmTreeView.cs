@@ -25,12 +25,12 @@ namespace baimp
 			Type baseType = typeof(BaseAlgorithm);
 			IEnumerable<Type> algorithms = AppDomain.CurrentDomain.GetAssemblies ()
 				.SelectMany (s => s.GetTypes ())
-				.Where(t => t.GetInterfaces().Contains(baseType));
+				.Where(t => t.BaseType == baseType);
 
 			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>> ();
 			foreach (Type algorithm in algorithms) {
 
-				BaseAlgorithm instance = Activator.CreateInstance(algorithm) as BaseAlgorithm;
+				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (Node)null) as BaseAlgorithm;
 				string algorithmType = instance.AlgorithmType.ToString ();
 
 				if (!algorithmCollection.ContainsKey (algorithmType)) {

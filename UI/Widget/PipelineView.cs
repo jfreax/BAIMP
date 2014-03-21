@@ -174,16 +174,15 @@ namespace baimp
 		{
 			e.Success = true;
 			try {
-				Type elementType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
-				BaseAlgorithm algoInstance = Activator.CreateInstance(elementType) as BaseAlgorithm;
+				Type algoType = Type.GetType(e.Data.GetValue (TransferDataType.Text).ToString());
 
-				Node node = new Node(algoInstance, new Rectangle(e.Position, Node.nodeSize));
+				Node node = new Node(algoType, new Rectangle(e.Position, Node.nodeSize));
 				SetNode(node);
 				nodes.Add(node);
 
 				this.QueueDraw();
 
-			} catch( Exception exception) {
+			} catch (Exception exception) {
 				Console.WriteLine (exception.Message);
 				e.Success = false;
 			}
