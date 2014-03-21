@@ -33,6 +33,7 @@ namespace baimp
 			openDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
 			if (openDialog.Run ()) {
 				Project project = new Project (openDialog.FileName);
+				this.Hide();
 				(new MainWindow (project)).Show ();
 			}
 		}

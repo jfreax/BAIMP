@@ -2,6 +2,7 @@
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
+using Xwt;
 
 namespace baimp
 {
@@ -54,6 +55,24 @@ namespace baimp
 				xmlWriter.Close ();
 			}
 
+		}
+
+		public void ImportDialog ()
+		{
+			SelectFolderDialog dlg = new SelectFolderDialog ("Import folder");
+			dlg.Multiselect = true;
+			if (dlg.Run ()) {
+				foreach (string path in dlg.Folders) {
+					Import (path);
+				}
+			}
+		}
+
+		public void Import(string path)
+		{
+			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
+
+			files.AddRange (newFiles);
 		}
 
 		#region Properties

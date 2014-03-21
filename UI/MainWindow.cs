@@ -9,6 +9,7 @@ namespace baimp
 {
 	public class MainWindow : Window
 	{
+		Project project;
 		ScanCollection scanCollection;
 
 		// widgets
@@ -29,6 +30,7 @@ namespace baimp
 		/// <param name="project">Project.</param>
 		public MainWindow (Project project)
 		{
+			this.project = project;
 			scanCollection = new ScanCollection (null as string[]);
 
 			Initialize ();
@@ -82,11 +84,27 @@ namespace baimp
 			file.SubMenu = new Menu ();
 			//file.SubMenu.Items.Add (new MenuItem ("_Open"));
 
+			MenuItem menuNew = new MenuItem ("_New Project");
+			//menuNew.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			file.SubMenu.Items.Add (menuNew);
+
+			MenuItem menuOpen = new MenuItem ("_Open Project");
+			//menuOpen.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			file.SubMenu.Items.Add (menuOpen);
+
+			file.SubMenu.Items.Add (new SeparatorMenuItem ());
+
+			MenuItem menuImport = new MenuItem ("_Import Scans");
+			menuImport.Clicked += (object sender, EventArgs e) => project.ImportDialog ();
+			file.SubMenu.Items.Add (menuImport);
+
 			MenuItem menuSave = new MenuItem ("_Save");
 			menuSave.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
 			file.SubMenu.Items.Add (menuSave);
 
-			MenuItem menuClose = new MenuItem ("_Close");
+			file.SubMenu.Items.Add (new SeparatorMenuItem ());
+
+			MenuItem menuClose = new MenuItem ("_Exit");
 			menuClose.Clicked += (object sender, EventArgs e) => this.Close();
 			file.SubMenu.Items.Add (menuClose);
 
