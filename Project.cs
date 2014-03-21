@@ -50,13 +50,38 @@ namespace baimp
 				xmlWriter.Formatting = Formatting.Indented;
 
 				xmlWriter.WriteStartDocument ();
-				xmlWriter.WriteStartElement ("Files");
+				xmlWriter.WriteStartElement ("files");
 				xmlWriter.WriteEndDocument ();
 				xmlWriter.Close ();
 			}
 
 		}
 
+		/// <summary>
+		/// Save project file
+		/// </summary>
+		public void Save ()
+		{
+			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
+				xmlWriter.Formatting = Formatting.Indented;
+
+				xmlWriter.WriteStartDocument ();
+				xmlWriter.WriteStartElement ("files");
+
+				foreach (string file in files) {
+					xmlWriter.WriteStartElement ("name");
+					xmlWriter.WriteValue (file);
+					xmlWriter.WriteEndElement ();
+				}
+
+				xmlWriter.WriteEndDocument ();
+				xmlWriter.Close ();
+			}
+		}
+
+		/// <summary>
+		/// Show dialog to select folder to import scan
+		/// </summary>
 		public void ImportDialog ()
 		{
 			SelectFolderDialog dlg = new SelectFolderDialog ("Import folder");
@@ -67,6 +92,10 @@ namespace baimp
 			}
 		}
 
+		/// <summary>
+		/// Import the scans from specified folder.
+		/// </summary>
+		/// <param name="path">Path.</param>
 		public void Import(string path)
 		{
 			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);

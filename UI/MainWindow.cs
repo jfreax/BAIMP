@@ -203,6 +203,7 @@ namespace baimp
 
 				switch (e.Key) {
 				case Key.s:
+					project.Save ();
 					scanCollection.SaveAll ();
 					break;
 				}
