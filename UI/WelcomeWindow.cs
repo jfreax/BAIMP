@@ -44,7 +44,7 @@ namespace baimp
 			if (saveDialog.Run ()) {
 				string filename = saveDialog.FileName;
 				if (Path.GetExtension (filename) != "baimp") {
-					filename = Path.GetFullPath(filename) + Path.GetFileNameWithoutExtension (filename) + ".baimp";
+					filename = Path.GetDirectoryName(filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
 				}
 
 				Project project = new Project (filename);
