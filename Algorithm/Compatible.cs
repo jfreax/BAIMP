@@ -28,14 +28,14 @@ namespace baimp
 		/// <param name="another">The other compatible instance.</param>
 		public bool Match(Compatible another)
 		{
-			if (!type.Equals (another.Type)) {
+			if (!Type.Equals (another.Type)) {
 				return false;
 			}
 
 			foreach (BaseConstraint constraint in constraints) {
-				if (constraint is MaximumUses) {
-					//parent.
-				}
+//				if (constraint is MaximumUses) {
+//					//parent.
+//				}
 			}
 
 			return true;

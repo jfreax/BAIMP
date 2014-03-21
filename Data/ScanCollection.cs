@@ -6,10 +6,19 @@ namespace baimp
 {
 	public class ScanCollection : Dictionary<string, List<ScanWrapper> >
 	{
+
+		#region Initialize
+
+		public ScanCollection (string[] files) {
+			if (files != null && files.Length > 0) {
+				Initialize (files);
+			}
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanCollection"/> class.
 		/// </summary>
-		/// <param name="path">Path.</param>
+		/// <param name="path">Path to load recursive.</param>
 		public ScanCollection (string path)
 		{
 			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
@@ -18,7 +27,11 @@ namespace baimp
 				throw new FileNotFoundException ("No files found");
 			}
 
-			int n = files.Length;
+			Initialize (files);
+		}
+
+		private void Initialize (string[] files)
+		{
 			foreach (String file in files) {
 				// parse scan metadata
 				ScanWrapper scan = new ScanWrapper (file);
@@ -30,6 +43,8 @@ namespace baimp
 				this [scan.FiberType].Add (scan);
 			}
 		}
+
+		#endregion
 
 		/// <summary>
 		/// Refresh specified scan.

@@ -24,16 +24,49 @@ namespace baimp
 		PipelineView pipeline;
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="baimp.MainWindow"/> class.
+		/// </summary>
+		/// <param name="project">Project.</param>
+		public MainWindow (Project project)
+		{
+			scanCollection = new ScanCollection (null as string[]);
+
+			Initialize ();
+		}
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
 		/// </summary>
 		/// <param name="path">Path.</param>
 		public MainWindow (string path)
 		{
+			// load metadata
+			scanCollection = new ScanCollection (path);
+
+			Initialize ();
+		}
+
+		#region Initialize
+
+		private void Initialize()
+		{
+			InitializeUI ();
+			InitializeEvents ();
+
+			fileTree.InitializeUI (); // call after initialize events!
+			fileTree.Reload ();
+		}
+
+		/// <summary>
+		/// Initializes the user inferface
+		/// </summary>
+		private void InitializeUI()
+		{
 			// restore last window size and location
-            this.Location = new Point(
-                Settings.Default.WindowLocationX, 
-                Settings.Default.WindowLocationY
-            );
+			this.Location = new Point(
+				Settings.Default.WindowLocationX, 
+				Settings.Default.WindowLocationY
+			);
 
 			this.Size = new Size (
 				Settings.Default.WindowSizeWidth,
@@ -43,23 +76,6 @@ namespace baimp
 			// set window preference
 			Title = "Bachelorarbeit - Jens Dieskau";
 
-			// initialize global events
-			//CloseRequested += HandleCloseRequested;
-			Closed += OnClosing;
-
-			// load metadata
-			scanCollection = new ScanCollection (path);
-
-			// initialize the user interface
-			InitializeUI ();
-		}
-
-
-		/// <summary>
-		/// Initializes the user inferface
-		/// </summary>
-		private void InitializeUI()
-		{
 			// main menu
 			Menu menu = new Menu ();
 			var file = new MenuItem ("_File");
@@ -114,10 +130,6 @@ namespace baimp
 			splitAlgorithmTree.Panel2.Content = pipelineScroller;
 
 			Content = splitAlgorithmTree;
-
-			InitializeEvents ();
-			fileTree.InitializeUI (); // call after initialize events!
-			fileTree.Reload ();
 		}
 
 
@@ -126,6 +138,10 @@ namespace baimp
 		/// </summary>
 		private void InitializeEvents()
 		{
+			// initialize global events
+			//CloseRequested += HandleCloseRequested;
+			Closed += OnClosing;
+
 			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
 				if(fileTree.SelectedRow != null) {
 					object value = 
@@ -148,10 +164,13 @@ namespace baimp
 			}
 
 			// global key events
-			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
-			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
+//			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
+//			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
 		}
 
+		#endregion
+
+		#region Events
 
 		private void GlobalKeyPressed(object sender, KeyEventArgs e) {
 			if (e.Modifiers.HasFlag (ModifierKeys.Command) ||
@@ -199,6 +218,8 @@ namespace baimp
 
 			Application.Exit();
 		}
+
+		#endregion
 	}
 }
 

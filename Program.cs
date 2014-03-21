@@ -74,9 +74,11 @@ namespace baimp
 
 				Application.Initialize (toolkitType);
 
-				MainWindow w = null;
+				//MainWindow w = null;
+				Window w = null;
 				try {
-					w = new MainWindow (path);
+					//w = new MainWindow (path);
+					w = new WelcomeWindow ();
 				} catch (Exception e) {
 					Console.WriteLine (e.Message);
 					return;

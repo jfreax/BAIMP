@@ -111,7 +111,8 @@ namespace baimp
 			mouseMover.RegisterMouseMover (tab);
 
 			view.BoundsChanged += delegate(object sender, EventArgs e) {
-				scanView.WithBoxSize (tab.VisibleRect.Size);
+				if(scanView != null)
+					scanView.WithBoxSize (tab.VisibleRect.Size);
 			};
 
 			view.ButtonPressed += delegate(object sender, ButtonEventArgs e) {

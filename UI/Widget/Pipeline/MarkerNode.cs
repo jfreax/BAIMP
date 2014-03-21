@@ -32,8 +32,6 @@ namespace baimp
 		{
 			ctx.SetColor (PipelineNode.NodeColorBorder);
 
-			//ctx.Rectangle (Bounds);
-			//ctx.Fill ();
 			Rectangle bndTmp = Bounds;
 			ctx.SetLineWidth (1);
 			ctx.MoveTo (bndTmp.Left, bndTmp.Center.Y);

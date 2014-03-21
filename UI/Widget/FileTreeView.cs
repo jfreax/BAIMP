@@ -11,6 +11,7 @@ namespace baimp
 
 		private ScanCollection scans;
 
+		#region Initialize
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.FileTreeView"/> class.
@@ -37,9 +38,12 @@ namespace baimp
 			this.DataSource = store;
 
             if (MainClass.toolkitType == ToolkitType.Gtk) {
-                this.MinWidth = this.ParentWindow.Width;
+//                this.MinWidth = this.ParentWindow.Width;
+				//TODO
             }
 		}
+
+		#endregion
 
 		/// <summary>
 		/// Reloads file tree information.
@@ -72,7 +76,9 @@ namespace baimp
 			}
 
 			this.ExpandAll ();
-			this.SelectRow (pos);
+			if (scans.Count > 0) {
+				this.SelectRow (pos);
+			}
 		}
 
 		/// <summary>

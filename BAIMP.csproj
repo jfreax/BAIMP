@@ -94,6 +94,8 @@
     <Compile Include="Data\Node.cs" />
     <Compile Include="Data\Edge.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
+    <Compile Include="UI\WelcomeWindow.cs" />
+    <Compile Include="Project.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
