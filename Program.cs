@@ -30,7 +30,7 @@ namespace baimp
 			// commandline parsing
 			var p = new OptionSet () { { "h|?|help", "show help screen",
 					v => show_help = v != null
-				}, { "f|file=", "vk4, dd+ or image file to open",
+				}, { "f|file=", "project file to open",
 					v => filename = v
 				}, { "p|path=", "path to folder with scans",
 					v => path = v
@@ -38,11 +38,6 @@ namespace baimp
 					v => featureExtraction = v
 				},
 			};
-
-			// print help if not arguments are given
-			if (args.Length == 0) {
-				printHelp (p);
-			}
 
 			try
 			{
@@ -61,36 +56,30 @@ namespace baimp
 				return;
 			}
 
-			if (!string.IsNullOrEmpty(path)) {
-
-				// start application
-				if (GetOS () == OSType.Unix) {
-					toolkitType = ToolkitType.Gtk;
-				} else if (GetOS () == OSType.MaxOSX) {
-					toolkitType = ToolkitType.Cocoa;
-				} else {
-					toolkitType = ToolkitType.Wpf;
-				}
-
-				Application.Initialize (toolkitType);
-
-				//MainWindow w = null;
-				Window w = null;
-				try {
-					//w = new MainWindow (path);
-					w = new WelcomeWindow ();
-				} catch (Exception e) {
-					Console.WriteLine (e.Message);
-					return;
-				}
-
-				w.Show ();
-				Application.Run ();
-
-				w.Dispose ();
-				Application.Dispose ();
-
+			// start application
+			if (GetOS () == OSType.Unix) {
+				toolkitType = ToolkitType.Gtk;
+			} else if (GetOS () == OSType.MaxOSX) {
+				toolkitType = ToolkitType.Cocoa;
+			} else {
+				toolkitType = ToolkitType.Wpf;
 			}
+
+			Application.Initialize (toolkitType);
+			Window w = null;
+			if (!string.IsNullOrEmpty (filename)) {
+				Project project = new Project (filename);
+				w = new MainWindow (project);
+			} else {
+				w = new WelcomeWindow ();
+			}
+
+
+			w.Show ();
+			Application.Run ();
+
+			w.Dispose ();
+			Application.Dispose ();
 		}
 
 		/// <summary>
