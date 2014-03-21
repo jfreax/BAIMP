@@ -1,5 +1,6 @@
 ﻿using System;
 using Xwt.Drawing;
+using Xwt;
 
 namespace baimp
 {
@@ -32,11 +33,13 @@ namespace baimp
 			}
 
 			ctx.SetColor (color);
-
-			ctx.MoveTo (from.Bounds.Center);
-
 			ctx.SetLineWidth (1.0);
-			ctx.LineTo (to.Bounds.Center);
+
+			Rectangle fromBound = from.Bounds;
+			Rectangle toBound = to.Bounds;
+
+			ctx.MoveTo (fromBound.Right, fromBound.Center.Y);
+			ctx.LineTo (toBound.Left, toBound.Center.Y);
 
 			ctx.Stroke ();
 		}
