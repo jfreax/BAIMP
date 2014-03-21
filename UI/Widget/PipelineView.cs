@@ -461,7 +461,7 @@ namespace baimp
 						}
 						double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
 						if (-epsilon <= sl && sl <= epsilon) {
-							edge.r = from.X < to.X ? r : 1.0 - r;
+							edge.r = r;
 							return edge;
 						}
 					}

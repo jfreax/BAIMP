@@ -11,7 +11,7 @@ namespace baimp
 		/// A number between 0 and 1.
 		/// 0.0 means, we clicked on the "from"-side of the edge
 		/// 1.0, on the "to" side.
-		/// Only set on click event.
+		/// Set on click event.
 		/// </summary>
 		public double r;
 
