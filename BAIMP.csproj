@@ -97,6 +97,7 @@
     <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
     <Compile Include="UI\WelcomeWindow.cs" />
     <Compile Include="Project.cs" />
+    <Compile Include="Event\ProjectChangedEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

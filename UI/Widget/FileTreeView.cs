@@ -38,8 +38,7 @@ namespace baimp
 			this.DataSource = store;
 
             if (MainClass.toolkitType == ToolkitType.Gtk) {
-//                this.MinWidth = this.ParentWindow.Width;
-				//TODO
+                this.MinWidth = this.ParentWindow.Width;
             }
 		}
 

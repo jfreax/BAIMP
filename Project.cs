@@ -60,7 +60,6 @@ namespace baimp
 		public void ImportDialog ()
 		{
 			SelectFolderDialog dlg = new SelectFolderDialog ("Import folder");
-			dlg.Multiselect = true;
 			if (dlg.Run ()) {
 				foreach (string path in dlg.Folders) {
 					Import (path);
@@ -71,9 +70,28 @@ namespace baimp
 		public void Import(string path)
 		{
 			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-
 			files.AddRange (newFiles);
+
+			projectChanged (this, new ProjectChangedEventArgs (newFiles));
 		}
+
+		#region custom events
+
+		EventHandler<ProjectChangedEventArgs> projectChanged;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<ProjectChangedEventArgs> ProjectChanged {
+			add {
+				projectChanged += value;
+			}
+			remove {
+				projectChanged -= value;
+			}
+		}
+
+		#endregion
 
 		#region Properties
 

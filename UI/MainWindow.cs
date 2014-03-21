@@ -181,9 +181,16 @@ namespace baimp
 				}
 			}
 
+			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
+				if(e.addedFiles != null && e.addedFiles.Length > 0) {
+					scanCollection.AddFiles(e.addedFiles);
+					fileTree.Reload();
+				}
+			};
+
 			// global key events
-//			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
-//			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
+			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
+			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
 		}
 
 		#endregion

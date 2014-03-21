@@ -11,7 +11,7 @@ namespace baimp
 
 		public ScanCollection (string[] files) {
 			if (files != null && files.Length > 0) {
-				Initialize (files);
+				AddFiles (files);
 			}
 		}
 
@@ -27,10 +27,12 @@ namespace baimp
 				throw new FileNotFoundException ("No files found");
 			}
 
-			Initialize (files);
+			AddFiles (files);
 		}
 
-		private void Initialize (string[] files)
+		#endregion
+
+		public void AddFiles (string[] files)
 		{
 			foreach (String file in files) {
 				// parse scan metadata
@@ -44,7 +46,6 @@ namespace baimp
 			}
 		}
 
-		#endregion
 
 		/// <summary>
 		/// Refresh specified scan.
