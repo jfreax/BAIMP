@@ -98,6 +98,9 @@
     <Compile Include="UI\WelcomeWindow.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
+    <Compile Include="UI\Widget\Pipeline\Xml\XmlNode.cs" />
+    <Compile Include="UI\Widget\Pipeline\Xml\XmlPipeline.cs" />
+    <Compile Include="UI\Widget\Pipeline\Xml\XmlEdge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -135,5 +138,6 @@
     <Folder Include="Algorithm\Filter\" />
     <Folder Include="Contraints\" />
     <Folder Include="Algorithm\Input\" />
+    <Folder Include="UI\Widget\Pipeline\Xml\" />
   </ItemGroup>
 </Project>

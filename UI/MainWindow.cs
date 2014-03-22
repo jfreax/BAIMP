@@ -202,7 +202,7 @@ namespace baimp
 		#endregion
 
 		private void SaveAll() {
-			project.Save ();
+			project.Save (pipeline);
 			scanCollection.SaveAll ();
 		}
 

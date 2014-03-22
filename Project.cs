@@ -3,12 +3,14 @@ using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 using Xwt;
+using System.Xml.Serialization;
 
 namespace baimp
 {
 	public class Project
 	{
 		private List<string> files;
+		private List<PipelineNode> loadedNodes;
 
 		#region Initialize
 
@@ -34,7 +36,22 @@ namespace baimp
 						if (xmlReader.Name == "files") {
 							while (xmlReader.Read ()) {
 								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "name") {
-									files.Add (xmlReader.ReadString());
+									files.Add (xmlReader.ReadString ());
+								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
+									break;
+								}
+
+							}
+						} else if (xmlReader.Name == "pipeline") {
+							while (xmlReader.Read ()) {
+								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "node") {
+									if (xmlReader.AttributeCount >= 3) {
+//										Console.WriteLine (xmlReader.GetAttribute (0) + xmlReader.ReadAttributeValue);
+//										Console.WriteLine (xmlReader.GetAttribute (1) + xmlReader.ReadAttributeValue);
+//										Console.WriteLine (xmlReader.GetAttribute (2) + xmlReader.ReadAttributeValue);
+//										//PipelineNode node = new PipelineNode (algoType, new Rectangle (e.Position, PipelineNode.NodeSize));
+										//loadedNodes.Add (xmlReader.ReadString ());
+									}
 								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
 									break;
 								}
@@ -72,21 +89,39 @@ namespace baimp
 		/// <summary>
 		/// Save project file
 		/// </summary>
-		public void Save ()
+		public void Save (PipelineView pipeline)
 		{
+
+
 			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 
 				xmlWriter.WriteStartDocument ();
-				xmlWriter.WriteStartElement ("files");
+				xmlWriter.WriteStartElement ("project");
+				xmlWriter.WriteAttributeString ("version", "1.0");
 
+				xmlWriter.WriteStartElement ("files");
 				foreach (string file in files) {
 					xmlWriter.WriteStartElement ("name");
 					xmlWriter.WriteValue (file);
 					xmlWriter.WriteEndElement ();
 				}
 
+				XmlPipeline pipe = new baimp.XmlPipeline ();
+				pipe.nodes = new XmlNode[pipeline.Nodes.Count];
+
+				int i = 0;
+				foreach (PipelineNode pNode in pipeline.Nodes) {
+					pipe.nodes [i] = (new XmlNode (i, pNode.bound.X, pNode.bound.Y, pNode.algorithm.GetType ().AssemblyQualifiedName));
+					//pipe.nodes [i].edge = new XmlEdge[pNode.]
+					i++;
+				}
+				XmlSerializer serializer = new XmlSerializer(typeof(baimp.XmlPipeline));
+				serializer.Serialize (xmlWriter, pipe);
+
+
 				xmlWriter.WriteEndDocument ();
+
 				xmlWriter.Close ();
 			}
 		}
@@ -175,6 +210,12 @@ namespace baimp
 		public List<string> Files {
 			get {
 				return files;
+			}
+		}
+
+		public List<PipelineNode> LoadedNodes {
+			get {
+				return loadedNodes;
 			}
 		}
 		#endregion

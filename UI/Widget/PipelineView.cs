@@ -555,6 +555,19 @@ namespace baimp
 			
 		#endregion
 
+		#region Properties
+
+		public List<PipelineNode> Nodes {
+			get {
+				return nodes;
+			}
+			set {
+				nodes = value;
+			}
+		}
+
+		#endregion
+
 		#region helper
 
 		/// <summary>

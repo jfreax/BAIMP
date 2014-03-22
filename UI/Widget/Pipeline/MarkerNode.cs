@@ -95,6 +95,13 @@ namespace baimp
 		}
 
 		#endregion
+
+		public void Add(object o)
+		{
+			if (o is Edge) {
+				edges.Add (o as Edge);
+			}
+		}
 	}
 }
 

@@ -130,6 +130,14 @@ namespace baimp
 			return null;
 		}
 
+		public void Add(object o)
+		{
+			if (o is MarkerNode) {
+				base.Add (o as MarkerNode);
+			}
+		}
+
+
 		#region properties
 
 		public Rectangle BoundWithExtras {
