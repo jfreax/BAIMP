@@ -31,29 +31,21 @@ namespace baimp
 
 		protected void open(object sender, EventArgs e)
 		{
-			OpenFileDialog openDialog = new OpenFileDialog ("Open Project");
-			openDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
-			if (openDialog.Run ()) {
-				Project project = new Project (openDialog.FileName);
-				this.Hide();
+			Project project = new Project ();
+			if (project.OpenDialog ()) {
+				this.Hide ();
 				(new MainWindow (project)).Show ();
 			}
 		}
 
 		protected void save(object sender, EventArgs e)
 		{
-			SaveFileDialog saveDialog = new SaveFileDialog ("New Project");
-			saveDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
-			if (saveDialog.Run ()) {
-				string filename = saveDialog.FileName;
-				if (Path.GetExtension (filename) != "baimp") {
-					filename = Path.GetDirectoryName(filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
-				}
+			Project project = new Project ();
+			project.NewDialog ();
 
-				Project project = new Project (filename);
-				this.Hide();
-				(new MainWindow (project)).Show ();
-			}
+			this.Hide();
+			(new MainWindow (project)).Show ();
+
 		}
 
 		/// <summary>

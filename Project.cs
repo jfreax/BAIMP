@@ -10,8 +10,18 @@ namespace baimp
 	{
 		private List<string> files;
 
+		#region Initialize
+
+		public Project ()
+		{
+		}
+
 		public Project (string filePath)
 		{
+			Initialize (filePath);
+		}
+
+		private void Initialize (string filePath) {
 			this.files = new List<string> ();
 			this.FilePath = filePath;
 
@@ -28,7 +38,7 @@ namespace baimp
 								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
 									break;
 								}
-								
+
 							}
 						}
 
@@ -40,6 +50,8 @@ namespace baimp
 				CreateNewDocument ();
 			}
 		}
+
+		#endregion
 
 		/// <summary>
 		/// Creates a new project file.
@@ -79,6 +91,8 @@ namespace baimp
 			}
 		}
 
+		#region Dialogs
+
 		/// <summary>
 		/// Show dialog to select folder to import scan
 		/// </summary>
@@ -91,6 +105,35 @@ namespace baimp
 				}
 			}
 		}
+
+		public bool OpenDialog ()
+		{
+			OpenFileDialog openDialog = new OpenFileDialog ("Open Project");
+			openDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
+			if (openDialog.Run ()) {
+				Initialize (openDialog.FileName);
+				if (projectChanged != null) {
+					projectChanged (this, new ProjectChangedEventArgs (true));
+				}
+			}
+
+			return Files.Count > 0;
+		}
+
+		public void NewDialog () {
+			SaveFileDialog saveDialog = new SaveFileDialog ("New Project");
+			saveDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
+			if (saveDialog.Run ()) {
+				string filename = saveDialog.FileName;
+				if (Path.GetExtension (filename) != "baimp") {
+					filename = Path.GetDirectoryName (filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
+				}
+
+				Initialize (filename);
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Import the scans from specified folder.

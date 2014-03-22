@@ -85,11 +85,11 @@ namespace baimp
 			//file.SubMenu.Items.Add (new MenuItem ("_Open"));
 
 			MenuItem menuNew = new MenuItem ("_New Project");
-			//menuNew.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			menuNew.Clicked += (object sender, EventArgs e) => project.NewDialog ();
 			file.SubMenu.Items.Add (menuNew);
 
 			MenuItem menuOpen = new MenuItem ("_Open Project");
-			//menuOpen.Clicked += (object sender, EventArgs e) => scanCollection.SaveAll ();
+			menuOpen.Clicked += (object sender, EventArgs e) => project.OpenDialog ();
 			file.SubMenu.Items.Add (menuOpen);
 
 			file.SubMenu.Items.Add (new SeparatorMenuItem ());
@@ -182,8 +182,14 @@ namespace baimp
 			}
 
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
-				if(e.addedFiles != null && e.addedFiles.Length > 0) {
-					scanCollection.AddFiles(e.addedFiles);
+				if(e != null) {
+					if(e.refresh) {
+						scanCollection.Clear();
+						scanCollection.AddFiles(project.Files.ToArray());
+					} else if(e.addedFiles != null && e.addedFiles.Length > 0) {
+						scanCollection.AddFiles(e.addedFiles);
+					}
+
 					fileTree.Reload();
 				}
 			};
