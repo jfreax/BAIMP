@@ -2,11 +2,13 @@
 using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.Collections;
 
 
 namespace baimp
 {
-	public class PipelineNode : List<MarkerNode>
+	public class PipelineNode
 	{
 		static public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
 		static public Size NodeSize = new Size (200, 40);
@@ -17,14 +19,26 @@ namespace baimp
 		static public Color NodeColorBorder = Color.FromBytes (202, 202, 202);
 		static public Color NodeColorShadow = Color.FromBytes (232, 232, 232);
 
+		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
 
+		[XmlIgnore]
 		public BaseAlgorithm algorithm;
+
+		[XmlIgnore]
 		public Rectangle bound;
 
+		[XmlIgnore]
+		public List<MarkerNode> mNodes;
+
+		public PipelineNode()
+		{
+		}
 
 		public PipelineNode(Type algoType, Rectangle bound)
 		{
+			this.mNodes = new List<MarkerNode> ();
+
 			BaseAlgorithm algoInstance = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
 
 			this.algorithm = algoInstance;
@@ -93,11 +107,11 @@ namespace baimp
 
 			// in-/output text
 			ctx.SetColor (Colors.Black);
-			foreach (MarkerNode mNode in this) {
+			foreach (MarkerNode mNode in mNodes) {
 				text.Text = mNode.compatible.ToString ();
 				mNode.Height = text.GetSize ().Height;
 				Point pos = mNode.Bounds.Location;
-				if (mNode.isInput) {
+				if (mNode.IsInput) {
 					pos.X = mNode.Bounds.Right + contentOffset.X;
 				} else {
 					pos.X = bound.Right - contentOffset.X - text.GetSize ().Width;
@@ -121,7 +135,7 @@ namespace baimp
 		/// <param name="position">Position.</param>
 		public MarkerNode GetMarkerNodeAt(Point position)
 		{
-			foreach (MarkerNode mNode in this) {
+			foreach (MarkerNode mNode in mNodes) {
 				if(mNode.Bounds.Contains(position)) {
 					return mNode;
 				}
@@ -133,7 +147,7 @@ namespace baimp
 		public void Add(object o)
 		{
 			if (o is MarkerNode) {
-				base.Add (o as MarkerNode);
+				mNodes.Add (o as MarkerNode);
 			}
 		}
 
@@ -151,7 +165,50 @@ namespace baimp
 			}
 		}
 
+		[XmlAttribute]
+		public double X {
+			get {
+				return bound.X;
+			}
+			set {
+				bound.X = value;
+			}
+		}
+
+		[XmlAttribute]
+		public double Y {
+			get {
+				return bound.Y;
+			}
+			set {
+				bound.Y = value;
+			}
+		}
+			
+		[XmlAttribute]
+		public string Type {
+			get {
+				return algorithm.GetType().AssemblyQualifiedName;
+			}
+			set {
+				//bound.Y = value;
+			}
+		}
+
+		[XmlArray("markers")]
+		[XmlArrayItem(ElementName="marker")]
+		public List<MarkerNode> MNodes
+		{
+			get {
+				return mNodes;
+			}
+			set {
+				mNodes = value;
+			}
+		}
+
 		#endregion
+
 	}
 }
 

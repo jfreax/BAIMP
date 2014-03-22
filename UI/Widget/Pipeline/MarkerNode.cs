@@ -1,6 +1,7 @@
 ﻿using System;
 using Xwt.Drawing;
 using Xwt;
+using System.Xml.Serialization;
 
 namespace baimp
 {
@@ -9,17 +10,23 @@ namespace baimp
 		static public int NodeInOutMarkerSize = 10;
 		static public int NodeInOutSpace = 18;
 
-		public readonly bool isInput;
+		[XmlIgnore]
 		public readonly Compatible compatible;
+
+		[XmlIgnore]
 		public readonly PipelineNode parent;
 
 		private int positionNo;
+
+		public MarkerNode ()
+		{
+		}
 
 		public MarkerNode (PipelineNode parent, Compatible compatible, int positionNo, bool isInput)
 		{
 			this.parent = parent;
 			this.compatible = compatible;
-			this.isInput = isInput;
+			this.IsInput = isInput;
 
 			this.positionNo = positionNo;
 		}
@@ -64,7 +71,7 @@ namespace baimp
 			if (this == otherNode)
 				return false;
 
-			if (isInput == otherNode.isInput)
+			if (IsInput == otherNode.IsInput)
 				return false;
 
 			return compatible.Match (otherNode.compatible);
@@ -81,7 +88,7 @@ namespace baimp
 			get {
 				return new Rectangle (
 					new Point (
-						isInput ? parent.bound.Left - NodeInOutMarkerSize : parent.bound.Right,
+						IsInput ? parent.bound.Left - NodeInOutMarkerSize : parent.bound.Right,
 						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
 					), new Size(NodeInOutMarkerSize, Height)
 				);
@@ -89,19 +96,19 @@ namespace baimp
 
 		}
 
+		[XmlIgnore]
 		public double Height {
 			get;
 			set;
 		}
 
-		#endregion
-
-		public void Add(object o)
-		{
-			if (o is Edge) {
-				edges.Add (o as Edge);
-			}
+		[XmlAttribute("input")]
+		public bool IsInput {
+			get;
+			set;
 		}
+
+		#endregion
 	}
 }
 

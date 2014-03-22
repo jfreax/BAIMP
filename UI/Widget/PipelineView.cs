@@ -128,14 +128,14 @@ namespace baimp
 				
 			// draw alle edges
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
 					mNode.DrawEdges (ctx);
 				}
 			}
 		
 			// draw all markers
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
 					mNode.Draw (ctx);
 				}
 			}
@@ -307,7 +307,7 @@ namespace baimp
 				if (mouseAction.HasFlag (MouseAction.AddEdge)) {
 					if (mNode != null) {
 						if (mNode.Match (connectNodesStartMarker)) {
-							if (mNode.isInput) {
+							if (mNode.IsInput) {
 								connectNodesStartMarker.AddEdgeTo (mNode);
 							} else {
 								mNode.AddEdgeTo (connectNodesStartMarker);
@@ -457,8 +457,8 @@ namespace baimp
 			double epsilon = 4.0;
 
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
-					foreach (Edge e in mNode) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
+					foreach (Edge e in mNode.Edges) {
 						PipelineEdge edge = (PipelineEdge)e;
 						Point from = edge.from.Bounds.Center;
 						Point to = edge.to.Bounds.Center;
@@ -526,7 +526,7 @@ namespace baimp
 		private MarkerNode GetInOutMarkerAt (Point position, Size? inflate = null)
 		{
 			foreach(PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
 					if (mNode.Bounds.Inflate(inflate ?? Size.Zero).Contains (position)) {
 						return mNode;
 					}
@@ -542,7 +542,7 @@ namespace baimp
 		/// <param name="node">Node to remove.</param>
 		private void RemoveNode(PipelineNode node) {
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
 					for (int i = 0; i < mNode.Edges.Count; i++) {
 						if (mNode.Edges [i].from == mNode) {
 							mNode.Edges[i].Remove ();

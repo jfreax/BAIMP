@@ -1,9 +1,11 @@
 ﻿using System;
 using Xwt.Drawing;
 using Xwt;
+using System.Xml.Serialization;
 
 namespace baimp
 {
+	[Serializable]
 	public class PipelineEdge : Edge
 	{
 		private static Color color = Colors.Black.WithAlpha(0.2);
@@ -14,7 +16,13 @@ namespace baimp
 		/// 1.0, on the "to" side.
 		/// Set on click event.
 		/// </summary>
+		[XmlIgnore]
 		public double r;
+
+		public PipelineEdge ()
+		{
+
+		}
 
 		public PipelineEdge (Node from, Node to)
 			: base (from, to)

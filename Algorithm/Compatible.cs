@@ -8,6 +8,11 @@ namespace baimp
 		private Type type;
 		public readonly BaseConstraint[] constraints;
 
+		public Compatible ()
+		{
+
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.Compatible"/> class.
 		/// </summary>

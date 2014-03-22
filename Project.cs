@@ -7,9 +7,14 @@ using System.Xml.Serialization;
 
 namespace baimp
 {
+	[XmlRoot("project")]
 	public class Project
 	{
+		[XmlAttribute]
+		public int version = 1;
+
 		private List<string> files;
+
 		private List<PipelineNode> loadedNodes;
 
 		#region Initialize
@@ -28,41 +33,20 @@ namespace baimp
 			this.FilePath = filePath;
 
 			if (File.Exists (filePath)) {
-				XmlTextReader xmlReader = new XmlTextReader (filePath);
+				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
+				//using (XmlTextReader xmlReader = new XmlTextReader (filePath)) {
 
-				while (xmlReader.Read ()) {
-					switch (xmlReader.NodeType) {
-					case XmlNodeType.Element:
-						if (xmlReader.Name == "files") {
-							while (xmlReader.Read ()) {
-								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "name") {
-									files.Add (xmlReader.ReadString ());
-								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
-									break;
-								}
+					XmlSerializer deserializer = new XmlSerializer(this.GetType());
+					Project p = (Project) deserializer.Deserialize (xmlReader);
 
-							}
-						} else if (xmlReader.Name == "pipeline") {
-							while (xmlReader.Read ()) {
-								if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "node") {
-									if (xmlReader.AttributeCount >= 3) {
-//										Console.WriteLine (xmlReader.GetAttribute (0) + xmlReader.ReadAttributeValue);
-//										Console.WriteLine (xmlReader.GetAttribute (1) + xmlReader.ReadAttributeValue);
-//										Console.WriteLine (xmlReader.GetAttribute (2) + xmlReader.ReadAttributeValue);
-//										//PipelineNode node = new PipelineNode (algoType, new Rectangle (e.Position, PipelineNode.NodeSize));
-										//loadedNodes.Add (xmlReader.ReadString ());
-									}
-								} else if (xmlReader.NodeType == XmlNodeType.EndElement) {
-									break;
-								}
+					this.Files = p.Files;
+					this.version = p.version;
 
-							}
-						}
-
-						break;
+					if (projectChanged != null) {
+						projectChanged (this, new ProjectChangedEventArgs (true));
 					}
-
 				}
+
 			} else {
 				CreateNewDocument ();
 			}
@@ -91,34 +75,45 @@ namespace baimp
 		/// </summary>
 		public void Save (PipelineView pipeline)
 		{
-
+			this.loadedNodes = pipeline.Nodes;
 
 			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 
-				xmlWriter.WriteStartDocument ();
-				xmlWriter.WriteStartElement ("project");
-				xmlWriter.WriteAttributeString ("version", "1.0");
+//				xmlWriter.WriteStartDocument ();
+//				xmlWriter.WriteStartElement ("project");
+//				xmlWriter.WriteAttributeString ("version", "1.0");
+//
+//				xmlWriter.WriteStartElement ("files");
+//				foreach (string file in files) {
+//					xmlWriter.WriteStartElement ("name");
+//					xmlWriter.WriteValue (file);
+//					xmlWriter.WriteEndElement ();
+//				}
 
-				xmlWriter.WriteStartElement ("files");
-				foreach (string file in files) {
-					xmlWriter.WriteStartElement ("name");
-					xmlWriter.WriteValue (file);
-					xmlWriter.WriteEndElement ();
-				}
+				//XmlPipeline pipe = new baimp.XmlPipeline ();
+//				pipe.nodes = new XmlNode[pipeline.Nodes.Count];
+//
+//				int i = 0;
+//				foreach (PipelineNode pNode in pipeline.Nodes) {
+//					pipe.nodes [i] = (new XmlNode (i, pNode.bound.X, pNode.bound.Y, pNode.algorithm.GetType ().AssemblyQualifiedName));
+//					//pipe.nodes [i].edge = new XmlEdge[pNode.]
+//					i++;
+//				}
+//				XmlSerializer serializer = new XmlSerializer(typeof(baimp.XmlPipeline));
+//				serializer.Serialize (xmlWriter, pipe);
 
-				XmlPipeline pipe = new baimp.XmlPipeline ();
-				pipe.nodes = new XmlNode[pipeline.Nodes.Count];
+				var extraTypes = new[] {
+					typeof(PipelineNode),
+					typeof(MarkerNode),
+					typeof(List<MarkerNode>),
+					typeof(PipelineEdge),
+					typeof(Edge),
+					typeof(Node)
+				};
 
-				int i = 0;
-				foreach (PipelineNode pNode in pipeline.Nodes) {
-					pipe.nodes [i] = (new XmlNode (i, pNode.bound.X, pNode.bound.Y, pNode.algorithm.GetType ().AssemblyQualifiedName));
-					//pipe.nodes [i].edge = new XmlEdge[pNode.]
-					i++;
-				}
-				XmlSerializer serializer = new XmlSerializer(typeof(baimp.XmlPipeline));
-				serializer.Serialize (xmlWriter, pipe);
-
+				XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);
+				serializer.Serialize (xmlWriter, this);
 
 				xmlWriter.WriteEndDocument ();
 
@@ -202,23 +197,37 @@ namespace baimp
 
 		#region Properties
 
-		string FilePath {
+		[XmlIgnore]
+		public string FilePath {
 			get;
 			set;
 		}
-			
-		public List<string> Files {
+
+		[XmlElement(ElementName="files")]
+		public List<string> Files
+		{
 			get {
 				return files;
 			}
+			set {
+				files = value;
+			}
 		}
 
-		public List<PipelineNode> LoadedNodes {
+		[XmlArray("nodes")]
+		[XmlArrayItem(ElementName="node")]
+		public List<PipelineNode> LoadedNodes
+		{
 			get {
 				return loadedNodes;
 			}
+			set {
+				loadedNodes = value;
+			}
 		}
+
 		#endregion
+
 	}
 }
 
