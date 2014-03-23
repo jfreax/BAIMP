@@ -78,8 +78,10 @@ namespace baimp
 		/// Draw this node.
 		/// </summary>
 		/// <param name="ctx">Drawing context.</param>
-		public void Draw(Context ctx)
+		public bool Draw(Context ctx)
 		{
+			bool ret = false;
+
 			// draw box
 			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
 			ctx.SetColor (NodeColorShadow);
@@ -138,8 +140,11 @@ namespace baimp
 				// resize widget if necessary
 				if (pos.Y + mNode.Height + NodeInOutSpace.Height > bound.Bottom) {
 					bound.Bottom = pos.Y + mNode.Height + NodeInOutSpace.Height;
+					ret = true;
 				}
 			}
+
+			return ret;
 		}
 			
 		#endregion

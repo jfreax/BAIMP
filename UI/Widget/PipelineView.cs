@@ -107,7 +107,9 @@ namespace baimp
 			foreach(PipelineNode node in nodes) {
 				if (!mouseAction.HasFlag (MouseAction.MoveNode)  || node != lastSelectedNode) {
 					if (node.bound.IntersectsWith (dirtyRect)) {
-						node.Draw (ctx);
+						if (node.Draw (ctx)) {
+							QueueDraw (node.bound);
+						}
 					}
 				}
 					
@@ -128,7 +130,9 @@ namespace baimp
 			}
 
 			if (mouseAction.HasFlag (MouseAction.MoveNode)) {
-				lastSelectedNode.Draw (ctx); // draw currently moving node last
+				if (lastSelectedNode.Draw (ctx)) {
+					QueueDraw (lastSelectedNode.bound);
+				}
 			}
 				
 			// draw alle edges
