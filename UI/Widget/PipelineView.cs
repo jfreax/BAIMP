@@ -303,10 +303,10 @@ namespace baimp
 								lastSelectedEdge.Item2.to = mNode;
 							}
 						}
-						QueueDraw ();
 						EmitDataChanged ();
 					}
 
+					QueueDraw ();
 					lastSelectedEdge.Item2.Active = true;
 					lastSelectedEdge = null;
 					mouseAction ^= MouseAction.MoveEdge;
