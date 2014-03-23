@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace baimp
 {
 	[Serializable]
-	public class PipelineEdge : Edge
+	public class MarkerEdge : Edge
 	{
 		private static Color color = Colors.Black.WithAlpha(0.2);
 
@@ -19,12 +19,12 @@ namespace baimp
 		[XmlIgnore]
 		public double r;
 
-		public PipelineEdge ()
+		public MarkerEdge ()
 		{
 
 		}
 
-		public PipelineEdge (Node to)
+		public MarkerEdge (Node to)
 			: base (to)
 		{
 		}

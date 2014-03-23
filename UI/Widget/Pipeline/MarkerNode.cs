@@ -52,7 +52,7 @@ namespace baimp
 		/// <param name="ctx">Context.</param>
 		public void DrawEdges(Context ctx)
 		{
-			foreach (PipelineEdge edge in edges) {
+			foreach (MarkerEdge edge in edges) {
 				edge.Draw (ctx, this);
 			}
 		}
@@ -79,7 +79,7 @@ namespace baimp
 
 		public void AddEdgeTo(Node otherNode)
 		{
-			edges.Add (new PipelineEdge(otherNode));
+			edges.Add (new MarkerEdge(otherNode));
 		}
 
 		#region Properties

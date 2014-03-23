@@ -92,13 +92,13 @@
     <Compile Include="Algorithm\Input\Files.cs" />
     <Compile Include="Contraints\MaximumUses.cs" />
     <Compile Include="UI\Widget\Pipeline\PipelineNode.cs" />
-    <Compile Include="UI\Widget\Pipeline\PipelineEdge.cs" />
     <Compile Include="Data\Node.cs" />
     <Compile Include="Data\Edge.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
     <Compile Include="UI\WelcomeWindow.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
+    <Compile Include="UI\Widget\Pipeline\MarkerEdge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

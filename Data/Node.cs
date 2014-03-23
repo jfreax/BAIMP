@@ -38,7 +38,7 @@ namespace baimp
 
 		[XmlArray("edges")]
 		[XmlArrayItem(ElementName="edge", Type=typeof(Edge))]
-		[XmlArrayItem(ElementName="edge", Type=typeof(PipelineEdge))]
+		[XmlArrayItem(ElementName="edge", Type=typeof(MarkerEdge))]
 		public List<Edge> Edges
 		{
 			get {

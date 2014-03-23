@@ -25,7 +25,7 @@ namespace baimp
 
 		private Point mousePosition = Point.Zero;
 		private PipelineNode lastSelectedNode = null;
-		private Tuple<MarkerNode, PipelineEdge> lastSelectedEdge = null;
+		private Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
 
 		private MouseAction mouseAction = MouseAction.None;
 
@@ -233,7 +233,7 @@ namespace baimp
 						} 
 					}
 				} else {
-					Tuple<MarkerNode, PipelineEdge> edge = GetEdgeAt (e.Position);
+					Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt (e.Position);
 					if (edge != null) { // clicked on edge
 						if (edge.Item2.r >= 0.5) {
 							connectNodesStartMarker = edge.Item1;
@@ -383,7 +383,7 @@ namespace baimp
 		protected override void OnKeyPressed(KeyEventArgs e) {
 			switch (e.Key) {
 			case Key.Delete:
-				Tuple<MarkerNode, PipelineEdge> edge = GetEdgeAt (mousePosition);
+				Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt (mousePosition);
 				if (edge != null) {
 					//edge.Remove (); //TODO
 					QueueDraw ();
@@ -457,14 +457,14 @@ namespace baimp
 		/// </summary>
 		/// <returns>The <see cref="System.Tuple`2[[baimp.MarkerNode],[baimp.PipelineEdge]]"/>.</returns>
 		/// <param name="position">Position.</param>
-		private Tuple<MarkerNode, PipelineEdge> GetEdgeAt(Point position)
+		private Tuple<MarkerNode, MarkerEdge> GetEdgeAt(Point position)
 		{
 			double epsilon = 4.0;
 
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
 					foreach (Edge e in mNode.Edges) {
-						PipelineEdge edge = (PipelineEdge)e;
+						MarkerEdge edge = (MarkerEdge)e;
 						Point from = mNode.Bounds.Center;
 						Point to = edge.to.Bounds.Center;
 
@@ -476,7 +476,7 @@ namespace baimp
 						double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
 						if (-epsilon <= sl && sl <= epsilon) {
 							edge.r = r;
-							return new Tuple<MarkerNode, PipelineEdge>(mNode, edge);
+							return new Tuple<MarkerNode, MarkerEdge>(mNode, edge);
 						}
 					}
 				}

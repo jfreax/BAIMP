@@ -53,7 +53,7 @@ namespace baimp
 
 					foreach (PipelineNode pNode in p.LoadedNodes) {
 						foreach (MarkerNode mNode in pNode.mNodes) {
-							foreach (PipelineEdge edge in mNode.Edges) {
+							foreach (MarkerEdge edge in mNode.Edges) {
 								edge.to = allNodes [edge.ToNodeID];
 							}
 						}
@@ -101,7 +101,7 @@ namespace baimp
 					typeof(PipelineNode),
 					typeof(MarkerNode),
 					typeof(List<MarkerNode>),
-					typeof(PipelineEdge),
+					typeof(MarkerEdge),
 					typeof(Edge),
 					typeof(Node)
 				};
