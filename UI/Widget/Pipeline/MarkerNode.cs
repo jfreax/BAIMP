@@ -31,6 +31,8 @@ namespace baimp
 			this.positionNo = positionNo;
 		}
 
+		#region drawing
+
 		/// <summary>
 		/// Draw the marker.
 		/// </summary>
@@ -57,6 +59,8 @@ namespace baimp
 			}
 		}
 
+		#endregion
+
 		/// <summary>
 		/// Tests if another node is compatible with this one.
 		/// Compatible == there can be a edge between this nodes.
@@ -75,11 +79,6 @@ namespace baimp
 				return false;
 
 			return compatible.Match (otherNode.compatible);
-		}
-
-		public void AddEdgeTo(Node otherNode)
-		{
-			edges.Add (new MarkerEdge(otherNode));
 		}
 
 		#region Properties

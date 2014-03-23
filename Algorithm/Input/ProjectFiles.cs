@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xwt.Drawing;
 
 namespace baimp
 {
@@ -7,7 +8,9 @@ namespace baimp
 	{
 		public ProjectFiles (PipelineNode parent) : base(parent)
 		{
-			compatibleOutput.Add (new Compatible("out #1", typeof(string[])));
+			compatibleOutput.Add (new Compatible("Intensity", typeof(Image[])));
+			compatibleOutput.Add (new Compatible("Topography", typeof(Image[])));
+			compatibleOutput.Add (new Compatible("Color", typeof(Image[])));
 		}
 
 		#region BaseAlgorithm implementation
@@ -20,8 +23,13 @@ namespace baimp
 			
 		public override string HelpText {
 			get {
-				return "Test algorithm";
+				return "Test only";
 			}
+		}
+
+		public override string ToString ()
+		{
+			return "Project files";
 		}
 
 		#endregion

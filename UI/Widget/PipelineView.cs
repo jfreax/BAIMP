@@ -138,7 +138,9 @@ namespace baimp
 			// draw alle edges
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
-					mNode.DrawEdges (ctx);
+					if (!mNode.IsInput) {
+						mNode.DrawEdges (ctx);
+					}
 				}
 			}
 		
@@ -471,20 +473,22 @@ namespace baimp
 
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
-					foreach (Edge e in mNode.Edges) {
-						MarkerEdge edge = (MarkerEdge)e;
-						Point from = mNode.Bounds.Center;
-						Point to = edge.to.Bounds.Center;
+					if(!mNode.IsInput) {
+						foreach (Edge e in mNode.Edges) {
+							MarkerEdge edge = (MarkerEdge)e;
+							Point from = mNode.Bounds.Center;
+							Point to = edge.to.Bounds.Center;
 
-						double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
-						double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
-						if (r < 0 || r > 1) {
-							continue;
-						}
-						double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt(segmentLengthSqr);
-						if (-epsilon <= sl && sl <= epsilon) {
-							edge.r = r;
-							return new Tuple<MarkerNode, MarkerEdge>(mNode, edge);
+							double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
+							double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
+							if (r < 0 || r > 1) {
+								continue;
+							}
+							double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / System.Math.Sqrt (segmentLengthSqr);
+							if (-epsilon <= sl && sl <= epsilon) {
+								edge.r = r;
+								return new Tuple<MarkerNode, MarkerEdge> (mNode, edge);
+							}
 						}
 					}
 				}

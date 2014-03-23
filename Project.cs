@@ -47,7 +47,7 @@ namespace baimp
 						pNode.Initialize ();
 
 						foreach (MarkerNode mNode in pNode.mNodes) {
-							allNodes.Add (mNode.id, mNode);
+							allNodes.Add (mNode.ID, mNode);
 						}
 					}
 

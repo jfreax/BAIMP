@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace baimp
 {
-	public abstract class Edge
+	public class Edge
 	{
 		[XmlIgnore]
 		private bool active = true;
@@ -22,7 +22,7 @@ namespace baimp
 			this.to = to;
 		}
 
-		public abstract void Draw (Context ctx);
+		public virtual void Draw (Context ctx) {}
 
 
 		#region Properties

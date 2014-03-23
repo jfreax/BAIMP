@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xwt.Drawing;
 
 namespace baimp
 {
@@ -7,7 +8,7 @@ namespace baimp
 	{
 		public TestExtraction (PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add (new Compatible("in #1", typeof(string[])));
+			compatibleInput.Add (new Compatible("in #1", typeof(Image[])));
 
 			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
 			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
