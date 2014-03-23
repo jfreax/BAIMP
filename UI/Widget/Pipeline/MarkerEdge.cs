@@ -35,11 +35,8 @@ namespace baimp
 		/// <param name="ctx">Context.</param>
 		/// <param name="from">From.</param>
 		/// <param name="to">To.</param>
-		public void Draw(Context ctx, MarkerNode from) {
-			if (!Active) {
-				return;
-			}
-
+		public void Draw(Context ctx, MarkerNode from)
+		{
 			ctx.SetColor (color);
 			ctx.SetLineWidth (1.0);
 

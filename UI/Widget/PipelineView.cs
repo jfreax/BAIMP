@@ -246,7 +246,7 @@ namespace baimp
 						} else {
 							connectNodesStartMarker = (MarkerNode) edge.Item2.to;
 						}
-						edge.Item2.Active = false;
+						edge.Item1.RemoveEdge (edge.Item2);
 						lastSelectedEdge = edge;
 						mouseAction |= MouseAction.MoveEdge;
 					}
@@ -297,21 +297,22 @@ namespace baimp
 					if (mNode != null) {
 						if (lastSelectedEdge.Item2.r < 0.5) {
 							if (mNode.Match (lastSelectedEdge.Item2.to as MarkerNode)) {
-								lastSelectedEdge.Item1.RemoveEdge(lastSelectedEdge.Item2);
 								mNode.AddEdgeTo (lastSelectedEdge.Item2.to);
 							}
 						} else {
 							if (mNode.Match (lastSelectedEdge.Item1)) {
 								lastSelectedEdge.Item2.to = mNode;
+								lastSelectedEdge.Item1.AddEdge (lastSelectedEdge.Item2);
 							}
 						}
 						EmitDataChanged ();
+					} else {
+						lastSelectedEdge.Item1.AddEdge (lastSelectedEdge.Item2);
 					}
 
-					QueueDraw ();
-					lastSelectedEdge.Item2.Active = true;
 					lastSelectedEdge = null;
 					mouseAction ^= MouseAction.MoveEdge;
+					QueueDraw ();
 				}
 
 				// Add edge

@@ -8,7 +8,7 @@ namespace baimp
 	{
 		public TestExtraction (PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add (new Compatible("in #1", typeof(Image[])));
+			compatibleInput.Add (new Compatible("in #1", typeof(Image[]), new MaximumUses(1)));
 
 			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
 			compatibleOutput.Add (new Compatible("out #2", typeof(string)));

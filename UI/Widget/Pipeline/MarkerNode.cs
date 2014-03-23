@@ -78,7 +78,11 @@ namespace baimp
 			if (IsInput == otherNode.IsInput)
 				return false;
 
-			return compatible.Match (otherNode.compatible);
+			if (IsInput) {
+				return otherNode.compatible.Match (otherNode, this);
+			} else {
+				return compatible.Match (this, otherNode);
+			}
 		}
 
 		#region Properties

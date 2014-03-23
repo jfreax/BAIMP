@@ -31,16 +31,24 @@ namespace baimp
 		/// </summary>
 		/// <returns><c>true</c>, if compatible, <c>false</c> otherwise.</returns>
 		/// <param name="another">The other compatible instance.</param>
-		public bool Match(Compatible another)
+		public bool Match(MarkerNode nodeFrom, MarkerNode nodeTo)
 		{
+			Compatible another = nodeTo.compatible;
+
 			if (!Type.Equals (another.Type)) {
 				return false;
 			}
-
+				
 			foreach (BaseConstraint constraint in constraints) {
-//				if (constraint is MaximumUses) {
-//					//parent.
-//				}
+				if (!constraint.FulFills (nodeFrom, nodeTo)) {
+					return false;
+				}
+			}
+
+			foreach (BaseConstraint constraint in another.constraints) {
+				if (!constraint.FulFills (nodeTo, nodeFrom)) {
+					return false;
+				}
 			}
 
 			return true;

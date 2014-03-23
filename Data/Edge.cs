@@ -7,9 +7,6 @@ namespace baimp
 	public class Edge
 	{
 		[XmlIgnore]
-		private bool active = true;
-
-		[XmlIgnore]
 		public Node to;
 
 		public Edge ()
@@ -26,20 +23,6 @@ namespace baimp
 
 
 		#region Properties
-
-		/// <summary>
-		/// Gets or sets a value indicating whether this <see cref="baimp.Edge"/> should be drawn or not.
-		/// </summary>
-		/// <value><c>true</c> draw; otherwise, <c>false</c>.</value>
-		[XmlIgnore]
-		public bool Active {
-			get {
-				return active;
-			}
-			set {
-				active = value;
-			}
-		}
 			
 		/// <summary>
 		/// ID of target node
@@ -63,7 +46,6 @@ namespace baimp
 		/// Temp variable for xml serializer
 		/// </summary>
 		private int toid = -1;
-
 
 		#endregion
 	}
