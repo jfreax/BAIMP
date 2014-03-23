@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace baimp
 {
-	public class Files : BaseAlgorithm
+	public class ProjectFiles : BaseAlgorithm
 	{
-		public Files (PipelineNode parent) : base(parent)
+		public ProjectFiles (PipelineNode parent) : base(parent)
 		{
 			compatibleOutput.Add (new Compatible("out #1", typeof(string[])));
 		}

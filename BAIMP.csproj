@@ -89,7 +89,6 @@
     <Compile Include="UI\Extensions\BoxMouseMover.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
     <Compile Include="Contraints\BaseConstraint.cs" />
-    <Compile Include="Algorithm\Input\Files.cs" />
     <Compile Include="Contraints\MaximumUses.cs" />
     <Compile Include="UI\Widget\Pipeline\PipelineNode.cs" />
     <Compile Include="Data\Node.cs" />
@@ -100,6 +99,7 @@
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerEdge.cs" />
     <Compile Include="Event\SaveStateEventArgs.cs" />
+    <Compile Include="Algorithm\Input\ProjectFiles.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
