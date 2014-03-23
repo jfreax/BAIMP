@@ -26,22 +26,22 @@ namespace baimp
 		public BaseAlgorithm algorithm;
 
 		[XmlIgnore]
-		public Rectangle bound;
+		public Rectangle bound = new Rectangle(Point.Zero, NodeSize);
 
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
 
+		#region Initialize
+
 		public PipelineNode()
 		{
+
 		}
 
-		public PipelineNode(Type algoType, Rectangle bound)
+		public PipelineNode(string algoType, Rectangle bound)
 		{
 			this.mNodes = new List<MarkerNode> ();
-
-			BaseAlgorithm algoInstance = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
-
-			this.algorithm = algoInstance;
+			this.AlgorithmType = algoType;
 			this.bound = bound;
 
 			int i = 0;
@@ -55,6 +55,22 @@ namespace baimp
 				i++;
 			}
 		}
+
+		/// <summary>
+		/// Call only, if mNodes are set from outside
+		/// </summary>
+		public void Initialize() {
+			foreach (MarkerNode mNode in mNodes) {
+				mNode.parent = this;
+				if (mNode.IsInput) {
+					mNode.compatible = algorithm.CompatibleInput [mNode.Position];
+				} else {
+					mNode.compatible = algorithm.CompatibleOutput [mNode.Position];
+				}
+			}
+		}
+
+		#endregion
 
 		#region draw
 
@@ -185,13 +201,14 @@ namespace baimp
 			}
 		}
 			
-		[XmlAttribute]
-		public string Type {
+		[XmlAttribute("type")]
+		public string AlgorithmType {
 			get {
 				return algorithm.GetType().AssemblyQualifiedName;
 			}
 			set {
-				//bound.Y = value;
+				Type algoType = Type.GetType(value);
+				algorithm = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
 			}
 		}
 
@@ -204,6 +221,14 @@ namespace baimp
 			}
 			set {
 				mNodes = value;
+				foreach (MarkerNode mNode in mNodes) {
+					mNode.parent = this;
+					if (mNode.IsInput) {
+						mNode.compatible = algorithm.CompatibleInput [mNode.Position];
+					} else {
+						mNode.compatible = algorithm.CompatibleOutput [mNode.Position];
+					}
+				}
 			}
 		}
 

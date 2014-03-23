@@ -11,10 +11,10 @@ namespace baimp
 		static public int NodeInOutSpace = 18;
 
 		[XmlIgnore]
-		public readonly Compatible compatible;
+		public Compatible compatible;
 
 		[XmlIgnore]
-		public readonly PipelineNode parent;
+		public PipelineNode parent;
 
 		private int positionNo;
 
@@ -52,8 +52,8 @@ namespace baimp
 		/// <param name="ctx">Context.</param>
 		public void DrawEdges(Context ctx)
 		{
-			foreach (Edge edge in edges) {
-				edge.Draw (ctx);
+			foreach (PipelineEdge edge in edges) {
+				edge.Draw (ctx, this);
 			}
 		}
 
@@ -79,7 +79,7 @@ namespace baimp
 
 		public void AddEdgeTo(Node otherNode)
 		{
-			edges.Add (new PipelineEdge(this, otherNode));
+			edges.Add (new PipelineEdge(otherNode));
 		}
 
 		#region Properties
@@ -106,6 +106,17 @@ namespace baimp
 		public bool IsInput {
 			get;
 			set;
+		}
+
+		[XmlAttribute("position")]
+		public int Position {
+			get {
+				return positionNo;
+			}
+			set {
+				positionNo = value;
+
+			}
 		}
 
 		#endregion

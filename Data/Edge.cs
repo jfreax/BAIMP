@@ -10,9 +10,6 @@ namespace baimp
 		private bool active = true;
 
 		[XmlIgnore]
-		public Node from;
-
-		[XmlIgnore]
 		public Node to;
 
 		public Edge ()
@@ -20,22 +17,13 @@ namespace baimp
 
 		}
 
-		public Edge (Node from, Node to)
+		public Edge (Node to)
 		{
-			this.from = from;
 			this.to = to;
 		}
 
 		public abstract void Draw (Context ctx);
 
-
-		/// <summary>
-		/// Remove this edge from node.
-		/// </summary>
-		public void Remove()
-		{
-			from.RemoveEdge (this);
-		}
 
 		#region Properties
 
@@ -53,27 +41,29 @@ namespace baimp
 			}
 		}
 			
-		[XmlAttribute("toMarker")]
+		/// <summary>
+		/// ID of target node
+		/// </summary>
+		/// <value>To node I.</value>
+		[XmlAttribute("to")]
 		public int ToNodeID
 		{
 			get {
+				if (to == null) {
+					return toid;
+				}
 				return to.id;
 			}
 			set {
-				to.id = value;
+				toid = value;
 			}
 		}
 
-		[XmlAttribute("fromMarker")]
-		public int FromNodeID
-		{
-			get {
-				return from.id;
-			}
-			set {
-				from.id = value;
-			}
-		}
+		/// <summary>
+		/// Temp variable for xml serializer
+		/// </summary>
+		private int toid = -1;
+
 
 		#endregion
 	}

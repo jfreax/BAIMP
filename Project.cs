@@ -34,13 +34,30 @@ namespace baimp
 
 			if (File.Exists (filePath)) {
 				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
-				//using (XmlTextReader xmlReader = new XmlTextReader (filePath)) {
 
 					XmlSerializer deserializer = new XmlSerializer(this.GetType());
 					Project p = (Project) deserializer.Deserialize (xmlReader);
 
 					this.Files = p.Files;
 					this.version = p.version;
+					this.LoadedNodes = p.LoadedNodes;
+
+					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode> ();
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						pNode.Initialize ();
+
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							allNodes.Add (mNode.id, mNode);
+						}
+					}
+
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							foreach (PipelineEdge edge in mNode.Edges) {
+								edge.to = allNodes [edge.ToNodeID];
+							}
+						}
+					}
 
 					if (projectChanged != null) {
 						projectChanged (this, new ProjectChangedEventArgs (true));
@@ -79,29 +96,6 @@ namespace baimp
 
 			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
-
-//				xmlWriter.WriteStartDocument ();
-//				xmlWriter.WriteStartElement ("project");
-//				xmlWriter.WriteAttributeString ("version", "1.0");
-//
-//				xmlWriter.WriteStartElement ("files");
-//				foreach (string file in files) {
-//					xmlWriter.WriteStartElement ("name");
-//					xmlWriter.WriteValue (file);
-//					xmlWriter.WriteEndElement ();
-//				}
-
-				//XmlPipeline pipe = new baimp.XmlPipeline ();
-//				pipe.nodes = new XmlNode[pipeline.Nodes.Count];
-//
-//				int i = 0;
-//				foreach (PipelineNode pNode in pipeline.Nodes) {
-//					pipe.nodes [i] = (new XmlNode (i, pNode.bound.X, pNode.bound.Y, pNode.algorithm.GetType ().AssemblyQualifiedName));
-//					//pipe.nodes [i].edge = new XmlEdge[pNode.]
-//					i++;
-//				}
-//				XmlSerializer serializer = new XmlSerializer(typeof(baimp.XmlPipeline));
-//				serializer.Serialize (xmlWriter, pipe);
 
 				var extraTypes = new[] {
 					typeof(PipelineNode),

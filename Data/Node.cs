@@ -26,16 +26,6 @@ namespace baimp
 
 		abstract public void Draw (Context ctx);
 
-
-//		#region IEnumerable implementation
-//
-//		public IEnumerator GetEnumerator ()
-//		{
-//			return edges.GetEnumerator ();
-//		}
-//
-//		#endregion
-
 		public void AddEdge(Edge edge)
 		{
 			edges.Add (edge);

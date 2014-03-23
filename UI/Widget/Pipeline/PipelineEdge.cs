@@ -24,8 +24,8 @@ namespace baimp
 
 		}
 
-		public PipelineEdge (Node from, Node to)
-			: base (from, to)
+		public PipelineEdge (Node to)
+			: base (to)
 		{
 		}
 
@@ -35,7 +35,7 @@ namespace baimp
 		/// <param name="ctx">Context.</param>
 		/// <param name="from">From.</param>
 		/// <param name="to">To.</param>
-		public override void Draw(Context ctx) {
+		public void Draw(Context ctx, MarkerNode from) {
 			if (!Active) {
 				return;
 			}
@@ -51,6 +51,15 @@ namespace baimp
 
 			ctx.Stroke ();
 		}
+
+		#region implemented abstract members of Edge
+
+		public override void Draw (Context ctx)
+		{
+			throw new NotImplementedException ();
+		}
+
+		#endregion
 	}
 }
 

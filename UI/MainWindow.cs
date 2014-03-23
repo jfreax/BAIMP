@@ -125,7 +125,7 @@ namespace baimp
 
 			// load algorithm tree viever
 			ScrollView pipelineScroller = new ScrollView ();
-			pipeline = new PipelineView(pipelineScroller);
+			pipeline = new PipelineView(pipelineScroller, project.LoadedNodes);
 			pipelineScroller.MinHeight = (PipelineNode.NodeSize.Height + PipelineNode.NodeMargin.VerticalSpacing) * 6;
 			pipelineScroller.Content = pipeline;
 
@@ -186,6 +186,7 @@ namespace baimp
 					if(e.refresh) {
 						scanCollection.Clear();
 						scanCollection.AddFiles(project.Files.ToArray());
+						pipeline.Nodes = project.LoadedNodes;
 					} else if(e.addedFiles != null && e.addedFiles.Length > 0) {
 						scanCollection.AddFiles(e.addedFiles);
 					}
