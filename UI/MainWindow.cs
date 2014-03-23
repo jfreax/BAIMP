@@ -178,6 +178,13 @@ namespace baimp
 			foreach (string key in scanCollection.Keys) {
 				foreach (ScanWrapper scan in scanCollection[key]) {
 					scan.ScanDataChanged += fileTree.OnScanDataChanged;
+					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+						if(e.Unsaved != null && e.Unsaved.Count > 0) {
+							if (!this.Title.EndsWith("*")) {
+								this.Title += "*";
+							}
+						}
+					};
 				}
 			}
 
@@ -195,7 +202,12 @@ namespace baimp
 				}
 			};
 
-			pipeline.DataChanged += fileTree.OnDataChanged;
+			pipeline.DataChanged += delegate(object sender, SaveStateEventArgs e) {
+				if (!this.Title.EndsWith("*")) {
+					this.Title += "*";
+				}
+			};
+
 
 			// global key events
 			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
@@ -207,7 +219,9 @@ namespace baimp
 			project.Save (pipeline);
 			scanCollection.SaveAll ();
 
-			fileTree.OnDataChanged (this, new SaveStateEventArgs (true));
+			if (this.Title.EndsWith("*")) {
+				this.Title = this.Title.Remove (this.Title.Length - 1);
+			}
 		}
 
 		#region Events
