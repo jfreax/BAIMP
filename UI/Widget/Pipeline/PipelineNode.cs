@@ -186,7 +186,7 @@ namespace baimp
 			}
 		}
 
-		[XmlAttribute]
+		[XmlAttribute("y")]
 		public double X {
 			get {
 				return bound.X;
@@ -196,7 +196,7 @@ namespace baimp
 			}
 		}
 
-		[XmlAttribute]
+		[XmlAttribute("x")]
 		public double Y {
 			get {
 				return bound.Y;

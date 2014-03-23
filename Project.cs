@@ -208,7 +208,7 @@ namespace baimp
 			}
 		}
 
-		[XmlArray("nodes")]
+		[XmlArray("pipeline")]
 		[XmlArrayItem(ElementName="node")]
 		public List<PipelineNode> LoadedNodes
 		{
