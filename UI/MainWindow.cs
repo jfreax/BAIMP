@@ -196,8 +196,7 @@ namespace baimp
 			};
 
 			// global key events
-			splitFiletreeAlgo_Preview.KeyPressed += GlobalKeyPressed;
-			splitPreview_Metadata.KeyPressed += GlobalKeyPressed;
+			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
 		}
 
 		#endregion
