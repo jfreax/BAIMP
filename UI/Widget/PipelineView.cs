@@ -325,10 +325,10 @@ namespace baimp
 							lastSelectedEdge = null;
 						}
 
-						QueueDraw ();
 						EmitDataChanged ();
 					} 
 
+					QueueDraw ();
 					mouseAction ^= MouseAction.AddEdge;
 				}
 

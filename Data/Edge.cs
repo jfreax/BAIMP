@@ -52,7 +52,7 @@ namespace baimp
 				if (to == null) {
 					return toid;
 				}
-				return to.id;
+				return to.ID;
 			}
 			set {
 				toid = value;

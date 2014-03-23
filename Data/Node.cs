@@ -11,7 +11,7 @@ namespace baimp
 	{
 		private static int global_node_id = 0;
 
-		public int id;
+		private int id;
 
 		protected Rectangle bounds;
 		protected List<Edge> edges;
@@ -49,6 +49,18 @@ namespace baimp
 		public virtual Rectangle Bounds {
 			get {
 				return bounds;
+			}
+		}
+
+		[XmlElement("id")]
+		public int ID {
+			get {
+				return id;
+			}
+			set {
+				id = value;
+				if (id > global_node_id)
+					global_node_id = id;
 			}
 		}
 
