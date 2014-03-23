@@ -9,7 +9,7 @@ namespace baimp
 	[Flags]
 	enum MouseAction {
 		None = 0,
-		DragDrop = 1, // TODO
+		DragDrop = 1,
 		MoveNode = 2,
 		AddEdge = 4,
 		MoveEdge = 8
@@ -295,7 +295,7 @@ namespace baimp
 					if (mNode != null) {
 						if (lastSelectedEdge.Item2.r < 0.5) {
 							if (mNode.Match (lastSelectedEdge.Item2.to as MarkerNode)) {
-								//lastSelectedEdge.Remove (); // TODO
+								lastSelectedEdge.Item1.RemoveEdge(lastSelectedEdge.Item2);
 								mNode.AddEdgeTo (lastSelectedEdge.Item2.to);
 							}
 						} else {
@@ -391,7 +391,7 @@ namespace baimp
 			case Key.Delete:
 				Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt (mousePosition);
 				if (edge != null) {
-					//edge.Remove (); //TODO
+					edge.Item1.RemoveEdge(edge.Item2);
 					QueueDraw ();
 					EmitDataChanged ();
 				} else {
