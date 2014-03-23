@@ -197,7 +197,8 @@ namespace baimp
 			set;
 		}
 
-		[XmlElement(ElementName="files")]
+		[XmlArray("files")]
+		[XmlArrayItem("file")]
 		public List<string> Files
 		{
 			get {
@@ -209,7 +210,7 @@ namespace baimp
 		}
 
 		[XmlArray("pipeline")]
-		[XmlArrayItem(ElementName="node")]
+		[XmlArrayItem("node")]
 		public List<PipelineNode> LoadedNodes
 		{
 			get {
