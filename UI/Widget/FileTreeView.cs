@@ -48,7 +48,8 @@ namespace baimp
 		/// Reloads file tree information.
 		/// </summary>
 		/// <param name="currentScan">Current focused scan</param>
-		public void Reload(ScanWrapper currentScan = null) {
+		public void Reload(ScanWrapper currentScan = null)
+		{
 			store.Clear ();
 
 			TreePosition pos = null;
@@ -84,8 +85,9 @@ namespace baimp
 		/// Gets called when a scan has changed
 		/// </summary>
 		/// <param name="sender">Sender.</param>
-		/// <param name="e">E.</param>
-		public void OnScanDataChanged(object sender, ScanDataEventArgs e) {
+		/// <param name="e">Event arguments</param>
+		public void OnScanDataChanged(object sender, ScanDataEventArgs e)
+		{
 			ScanWrapper scan = (ScanWrapper) sender;
 
 			if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
@@ -98,6 +100,20 @@ namespace baimp
 					saveStateCol, 
 					e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
 				);
+		}
+
+		/// <summary>
+		/// Raised when current data changed
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event argument.</param>
+		public void OnDataChanged(object sender, SaveStateEventArgs e)
+		{
+			if (e.saved) {
+				store.GetNavigatorAt (this.SelectedRow).SetValue (saveStateCol, "");
+			} else {
+				store.GetNavigatorAt (this.SelectedRow).SetValue (saveStateCol, "*");
+			}
 		}
 	}
 }

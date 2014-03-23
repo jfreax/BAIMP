@@ -45,6 +45,8 @@ namespace baimp
 
 		private IniFile ini;
 
+		#region Initialize
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
 		/// </summary>
@@ -80,7 +82,9 @@ namespace baimp
 			maskBuilder = new XD.ImageBuilder [(int)ScanType.Metadata];
 		}
 
-		#region loading
+		#endregion
+
+		#region Loading
 
 		/// <summary>
 		/// Get specified scan as byte buffer.
@@ -326,7 +330,7 @@ namespace baimp
 
 		#endregion
 
-		#region saving
+		#region Saving
 
 		/// <summary>
 		/// Save all unsaved attributes
@@ -534,7 +538,7 @@ namespace baimp
 			return Name;
 		}
 
-		#region getter/setter
+		#region Getter and setter
 
 		public string FiberType {
 			get { return fiberType; }

@@ -195,6 +195,8 @@ namespace baimp
 				}
 			};
 
+			pipeline.DataChanged += fileTree.OnDataChanged;
+
 			// global key events
 			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
 		}
@@ -204,6 +206,8 @@ namespace baimp
 		private void SaveAll() {
 			project.Save (pipeline);
 			scanCollection.SaveAll ();
+
+			fileTree.OnDataChanged (this, new SaveStateEventArgs (true));
 		}
 
 		#region Events

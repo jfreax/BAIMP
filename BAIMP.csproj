@@ -99,6 +99,7 @@
     <Compile Include="Project.cs" />
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerEdge.cs" />
+    <Compile Include="Event\SaveStateEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

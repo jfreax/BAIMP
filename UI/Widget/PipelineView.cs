@@ -287,6 +287,7 @@ namespace baimp
 				if (mouseAction.HasFlag (MouseAction.MoveNode)) {
 					SetNodePosition (lastSelectedNode);
 					mouseAction ^= MouseAction.MoveNode;
+					EmitDataChanged ();
 				}
 
 				// Move edge
@@ -302,14 +303,13 @@ namespace baimp
 								lastSelectedEdge.Item2.to = mNode;
 							}
 						}
+						QueueDraw ();
+						EmitDataChanged ();
 					}
-
 
 					lastSelectedEdge.Item2.Active = true;
 					lastSelectedEdge = null;
 					mouseAction ^= MouseAction.MoveEdge;
-
-					QueueDraw ();
 				}
 
 				// Add edge
@@ -324,9 +324,11 @@ namespace baimp
 
 							lastSelectedEdge = null;
 						}
+
+						QueueDraw ();
+						EmitDataChanged ();
 					} 
 
-					QueueDraw ();
 					mouseAction ^= MouseAction.AddEdge;
 				}
 
@@ -391,11 +393,13 @@ namespace baimp
 				if (edge != null) {
 					//edge.Remove (); //TODO
 					QueueDraw ();
+					EmitDataChanged ();
 				} else {
 					PipelineNode node = GetNodeAt (mousePosition, true);
 					if (node != null) {
 						RemoveNode (node);
 						QueueDraw ();
+						EmitDataChanged ();
 					}
 				}
 				break;
@@ -579,6 +583,24 @@ namespace baimp
 
 		#endregion
 
+		#region custom events
+
+		EventHandler<SaveStateEventArgs> dataChanged;
+
+		/// <summary>
+		/// Occurs when data changed
+		/// </summary>
+		public event EventHandler<SaveStateEventArgs> DataChanged {
+			add {
+				dataChanged += value;
+			}
+			remove {
+				dataChanged -= value;
+			}
+		}
+
+		#endregion
+
 		#region helper
 
 		/// <summary>
@@ -589,6 +611,13 @@ namespace baimp
 		{
 			foreach (PipelineNode node in nodes) {
 				node.bound = node.bound.Offset (offset);
+			}
+		}
+
+		private void EmitDataChanged()
+		{
+			if (dataChanged != null) {
+				dataChanged (this, new SaveStateEventArgs (false));
 			}
 		}
 
