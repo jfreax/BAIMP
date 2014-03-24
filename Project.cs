@@ -13,7 +13,7 @@ namespace baimp
 		[XmlAttribute]
 		public int version = 1;
 
-		private List<string> files;
+		private List<string> files = new List<string> ();
 
 		private List<PipelineNode> loadedNodes;
 
@@ -31,7 +31,6 @@ namespace baimp
 		}
 
 		private void Initialize (string filePath) {
-			this.files = new List<string> ();
 			this.FilePath = filePath;
 
 			if (File.Exists (filePath)) {
