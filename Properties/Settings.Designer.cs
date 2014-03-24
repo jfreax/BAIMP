@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace baimp {
+namespace baimp.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -25,7 +25,7 @@ namespace baimp {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("120.0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public double WindowLocationX {
             get {
                 return ((double)(this["WindowLocationX"]));
@@ -34,25 +34,10 @@ namespace baimp {
                 this["WindowLocationX"] = value;
             }
         }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("120.0")]
-        public double WindowLocationY
-        {
-            get
-            {
-                return ((double)(this["WindowLocationY"]));
-            }
-            set
-            {
-                this["WindowLocationY"] = value;
-            }
-        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800.0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
         public double WindowSizeWidth {
             get {
                 return ((double)(this["WindowSizeWidth"]));
@@ -64,7 +49,7 @@ namespace baimp {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("600.0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
         public double WindowSizeHeight {
             get {
                 return ((double)(this["WindowSizeHeight"]));
@@ -74,5 +59,27 @@ namespace baimp {
             }
         }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double WindowLocationY {
+            get {
+                return ((double)(this["WindowLocationY"]));
+            }
+            set {
+                this["WindowLocationY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection LastOpenedProjects {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["LastOpenedProjects"]));
+            }
+            set {
+                this["LastOpenedProjects"] = value;
+            }
+        }
     }
 }
