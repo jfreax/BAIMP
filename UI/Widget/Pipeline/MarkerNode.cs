@@ -2,6 +2,7 @@
 using Xwt.Drawing;
 using Xwt;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace baimp
 {
@@ -14,6 +15,9 @@ namespace baimp
 		[XmlIgnore]
 		public PipelineNode parent;
 		private int positionNo;
+
+		[XmlIgnore]
+		public Queue<IType> inputData = new Queue<IType>();
 
 		public MarkerNode()
 		{

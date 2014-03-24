@@ -116,6 +116,7 @@
     <Compile Include="Algorithm\Descriptor\GLCM.cs" />
     <Compile Include="DataTypes\TMatrix.cs" />
     <Compile Include="DataTypes\TBitmap.cs" />
+    <Compile Include="Processing\Process.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -155,6 +156,7 @@
     <Folder Include="Algorithm\Input\" />
     <Folder Include="DataTypes\" />
     <Folder Include="Algorithm\Descriptor\" />
+    <Folder Include="Processing\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

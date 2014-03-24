@@ -148,6 +148,17 @@ namespace baimp
 
 		#endregion
 
+		public bool IsReady()
+		{
+			foreach (MarkerNode mNode in MNodes) {
+				if (mNode.inputData.Count == 0) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Gets the marker at position if there is one.
 		/// </summary>
