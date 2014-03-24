@@ -66,20 +66,9 @@ namespace baimp
 			}
 
 			Application.Initialize (toolkitType);
-			Window w = null;
-			if (!string.IsNullOrEmpty (filename)) {
-				try {
-					Project project = new Project (filename);
-					w = new MainWindow (project);
-				} catch (Exception e) {
-					Console.WriteLine ("Error while opening project file \"" + filename + "\"");
-					Console.WriteLine (e.Message);
-					w = new WelcomeWindow ();
-				}
-			} else {
-				w = new WelcomeWindow ();
-			}
 
+			Project project = new Project (filename);
+			Window w = new MainWindow (project);
 
 			w.Show ();
 			Application.Run ();

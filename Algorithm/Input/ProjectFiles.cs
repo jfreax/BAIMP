@@ -8,9 +8,9 @@ namespace baimp
 	{
 		public ProjectFiles (PipelineNode parent) : base(parent)
 		{
-			compatibleOutput.Add (new Compatible("Intensity", typeof(Image[])));
-			compatibleOutput.Add (new Compatible("Topography", typeof(Image[]), new MaximumUses(2)));
-			compatibleOutput.Add (new Compatible("Color", typeof(Image[])));
+			compatibleOutput.Add (new Compatible("Intensity", typeof(TImage[])));
+			compatibleOutput.Add (new Compatible("Topography", typeof(TImage[]), new MaximumUses(2)));
+			compatibleOutput.Add (new Compatible("Color", typeof(TImage[])));
 		}
 
 		#region BaseAlgorithm implementation

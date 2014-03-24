@@ -9,7 +9,12 @@ namespace baimp
 
 		#region Initialize
 
-		public ScanCollection (string[] files) {
+		public ScanCollection ()
+		{
+		}
+
+		public ScanCollection (string[] files)
+		{
 			if (files != null && files.Length > 0) {
 				AddFiles (files);
 			}

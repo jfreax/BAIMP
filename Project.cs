@@ -25,7 +25,9 @@ namespace baimp
 
 		public Project (string filePath)
 		{
-			Initialize (filePath);
+			if (!string.IsNullOrEmpty(filePath)) {
+				Initialize(filePath);
+			}
 		}
 
 		private void Initialize (string filePath) {
@@ -90,10 +92,15 @@ namespace baimp
 		/// <summary>
 		/// Save project file
 		/// </summary>
-		public void Save (PipelineView pipeline)
+		public bool Save (PipelineView pipeline)
 		{
-			this.loadedNodes = pipeline.Nodes;
+			if (FilePath == null) {
+				if (!NewDialog()) {
+					return false;
+				}
+			}
 
+			this.loadedNodes = pipeline.Nodes;
 			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 
@@ -110,9 +117,10 @@ namespace baimp
 				serializer.Serialize (xmlWriter, this);
 
 				xmlWriter.WriteEndDocument ();
-
 				xmlWriter.Close ();
 			}
+
+			return true;
 		}
 
 		#region Dialogs
@@ -135,26 +143,39 @@ namespace baimp
 			OpenFileDialog openDialog = new OpenFileDialog ("Open Project");
 			openDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
 			if (openDialog.Run ()) {
+				if (string.IsNullOrEmpty(openDialog.FileName)) {
+					return false;
+				}
+
 				Initialize (openDialog.FileName);
 				if (projectChanged != null) {
 					projectChanged (this, new ProjectChangedEventArgs (true));
 				}
+
+				return Files.Count > 0;
 			}
 
-			return Files.Count > 0;
+			return false;
 		}
 
-		public void NewDialog () {
+		public bool NewDialog () {
 			SaveFileDialog saveDialog = new SaveFileDialog ("New Project");
 			saveDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
 			if (saveDialog.Run ()) {
 				string filename = saveDialog.FileName;
+				if (string.IsNullOrEmpty(filename)) {
+					return false;
+				}
+
 				if (Path.GetExtension (filename) != "baimp") {
 					filename = Path.GetDirectoryName (filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
 				}
 
 				Initialize (filename);
+				return true;
 			}
+
+			return false;
 		}
 
 		#endregion

@@ -31,7 +31,12 @@ namespace baimp
 		public MainWindow (Project project)
 		{
 			this.project = project;
-			scanCollection = new ScanCollection (project.Files.ToArray());
+
+			if (project.Files != null) {
+				scanCollection = new ScanCollection(project.Files.ToArray());
+			} else {
+				scanCollection = new ScanCollection();
+			}
 
 			Initialize ();
 		}
@@ -216,11 +221,14 @@ namespace baimp
 		#endregion
 
 		private void SaveAll() {
-			project.Save (pipeline);
-			scanCollection.SaveAll ();
+			if (project.Save(pipeline)) {
+				scanCollection.SaveAll();
 
-			if (this.Title.EndsWith("*")) {
-				this.Title = this.Title.Remove (this.Title.Length - 1);
+				if (this.Title.EndsWith("*")) {
+					this.Title = this.Title.Remove(this.Title.Length - 1);
+				}
+			} else {
+				// TODO show error "cannot save"
 			}
 		}
 
