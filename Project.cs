@@ -17,7 +17,7 @@ namespace baimp
 
 		private List<PipelineNode> loadedNodes;
 
-		#region Initialize
+		#region initialize
 
 		public Project ()
 		{
@@ -26,67 +26,11 @@ namespace baimp
 		public Project (string filePath)
 		{
 			if (!string.IsNullOrEmpty(filePath)) {
-				Initialize(filePath);
-			}
-		}
-
-		private void Initialize (string filePath) {
-			this.FilePath = filePath;
-
-			if (File.Exists (filePath)) {
-				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
-
-					XmlSerializer deserializer = new XmlSerializer(this.GetType());
-					Project p = (Project) deserializer.Deserialize (xmlReader);
-
-					this.Files = p.Files;
-					this.version = p.version;
-					this.LoadedNodes = p.LoadedNodes;
-
-					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode> ();
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						pNode.Initialize ();
-
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							allNodes.Add (mNode.ID, mNode);
-						}
-					}
-
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							foreach (Edge edge in mNode.Edges) {
-								edge.to = allNodes [edge.ToNodeID];
-							}
-						}
-					}
-
-					if (projectChanged != null) {
-						projectChanged (this, new ProjectChangedEventArgs (true));
-					}
-				}
-
-			} else {
-				CreateNewDocument ();
+				Open(filePath);
 			}
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Creates a new project file.
-		/// </summary>
-		void CreateNewDocument ()
-		{
-			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
-				xmlWriter.Formatting = Formatting.Indented;
-
-				xmlWriter.WriteStartDocument ();
-				xmlWriter.WriteStartElement ("files");
-				xmlWriter.WriteEndDocument ();
-				xmlWriter.Close ();
-			}
-
-		}
 
 		/// <summary>
 		/// Save project file
@@ -122,7 +66,7 @@ namespace baimp
 			return true;
 		}
 
-		#region Dialogs
+		#region dialogs
 
 		/// <summary>
 		/// Show dialog to select folder to import scan
@@ -146,7 +90,7 @@ namespace baimp
 					return false;
 				}
 
-				Initialize (openDialog.FileName);
+				Open (openDialog.FileName);
 				if (projectChanged != null) {
 					projectChanged (this, new ProjectChangedEventArgs (true));
 				}
@@ -170,7 +114,7 @@ namespace baimp
 					filename = Path.GetDirectoryName (filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
 				}
 
-				Initialize (filename);
+				this.FilePath = filename;
 				return true;
 			}
 
@@ -178,6 +122,50 @@ namespace baimp
 		}
 
 		#endregion
+
+		#region opening
+
+		/// <summary>
+		/// Open the specified file.
+		/// </summary>
+		/// <param name="filePath">File path.</param>
+		private void Open (string filePath) {
+			this.FilePath = filePath;
+
+			if (File.Exists (filePath)) {
+				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
+
+					XmlSerializer deserializer = new XmlSerializer(this.GetType());
+					Project p = (Project) deserializer.Deserialize (xmlReader);
+
+					this.Files = p.Files;
+					this.version = p.version;
+					this.LoadedNodes = p.LoadedNodes;
+
+					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode> ();
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						pNode.Initialize ();
+
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							allNodes.Add (mNode.ID, mNode);
+						}
+					}
+
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							foreach (Edge edge in mNode.Edges) {
+								edge.to = allNodes [edge.ToNodeID];
+							}
+						}
+					}
+
+					if (projectChanged != null) {
+						projectChanged (this, new ProjectChangedEventArgs (true));
+					}
+				}
+
+			}
+		}
 
 		/// <summary>
 		/// Import the scans from specified folder.
@@ -190,6 +178,8 @@ namespace baimp
 
 			projectChanged (this, new ProjectChangedEventArgs (newFiles));
 		}
+
+		#endregion
 
 		#region custom events
 
