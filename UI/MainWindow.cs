@@ -88,19 +88,35 @@ namespace baimp
 			Menu menu = new Menu();
 			var file = new MenuItem("_File");
 			file.SubMenu = new Menu();
-			//file.SubMenu.Items.Add (new MenuItem ("_Open"));
 
-			MenuItem menuNew = new MenuItem("_New Project");
+			MenuItem menuNew = new MenuItem("_New...");
 			menuNew.Clicked += (object sender, EventArgs e) => project.NewDialog();
 			file.SubMenu.Items.Add(menuNew);
 
-			MenuItem menuOpen = new MenuItem("_Open Project");
+			MenuItem menuOpen = new MenuItem("_Open...");
 			menuOpen.Clicked += (object sender, EventArgs e) => project.OpenDialog();
 			file.SubMenu.Items.Add(menuOpen);
 
+			if (Settings.Default.LastOpenedProjects != null) {
+				MenuItem menuLastOpened = new MenuItem("Recently opened");
+				menuLastOpened.SubMenu = new Menu();
+				file.SubMenu.Items.Add(menuLastOpened);
+
+				for (int i = Settings.Default.LastOpenedProjects.Count-1; i >= 0; i--) {
+					string path = Settings.Default.LastOpenedProjects[i];
+
+					MenuItem menuLastOpenedi = new MenuItem(path);
+					menuLastOpenedi.Clicked += delegate(object sender, EventArgs e) {
+						project.Open(path);
+					};
+
+					menuLastOpened.SubMenu.Items.Add(menuLastOpenedi);
+				}
+			}
+
 			file.SubMenu.Items.Add(new SeparatorMenuItem());
 
-			MenuItem menuImport = new MenuItem("_Import Scans");
+			MenuItem menuImport = new MenuItem("_Import...");
 			menuImport.Clicked += (object sender, EventArgs e) => project.ImportDialog();
 			file.SubMenu.Items.Add(menuImport);
 

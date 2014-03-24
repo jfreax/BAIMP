@@ -4,12 +4,16 @@ using System.IO;
 using System.Collections.Generic;
 using Xwt;
 using System.Xml.Serialization;
+using baimp.Properties;
+using System.Collections.Specialized;
 
 namespace baimp
 {
 	[XmlRoot("project")]
 	public class Project
 	{
+		public readonly static int MaxLastOpenedProject = 5;
+
 		[XmlAttribute]
 		public int version = 1;
 		private List<string> files = new List<string>();
@@ -29,6 +33,84 @@ namespace baimp
 		}
 
 		#endregion
+
+		#region opening
+
+		/// <summary>
+		/// Open the specified file.
+		/// </summary>
+		/// <param name="filePath">File path.</param>
+		public void Open(string filePath)
+		{
+			this.FilePath = Path.GetFullPath(filePath);
+
+
+			StringCollection last = Settings.Default.LastOpenedProjects;
+			if (last == null) { 
+				last = new StringCollection();
+				Settings.Default.LastOpenedProjects = last;
+			} else {
+				if (last.Contains(FilePath)) {
+					last.Remove(FilePath);
+				} else if (last.Count >= MaxLastOpenedProject) {
+					last.RemoveAt(0);
+				}
+			}
+
+			last.Add(FilePath);
+			Settings.Default.LastOpenedProjects = last;
+			Settings.Default.Save();
+
+			if (File.Exists(FilePath)) {
+				using (XmlTextReader xmlReader = new XmlTextReader(FilePath)) {
+
+					XmlSerializer deserializer = new XmlSerializer(this.GetType());
+					Project p = (Project) deserializer.Deserialize(xmlReader);
+
+					this.Files = p.Files;
+					this.version = p.version;
+					this.LoadedNodes = p.LoadedNodes;
+
+					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						pNode.Initialize();
+
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							allNodes.Add(mNode.ID, mNode);
+						}
+					}
+
+					foreach (PipelineNode pNode in p.LoadedNodes) {
+						foreach (MarkerNode mNode in pNode.mNodes) {
+							foreach (Edge edge in mNode.Edges) {
+								edge.to = allNodes[edge.ToNodeID];
+							}
+						}
+					}
+
+					if (projectChanged != null) {
+						projectChanged(this, new ProjectChangedEventArgs(true));
+					}
+				}
+
+			}
+		}
+
+		/// <summary>
+		/// Import the scans from specified folder.
+		/// </summary>
+		/// <param name="path">Path.</param>
+		public void Import(string path)
+		{
+			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
+			files.AddRange(newFiles);
+
+			projectChanged(this, new ProjectChangedEventArgs(newFiles));
+		}
+
+		#endregion
+
+		#region saving
 
 		/// <summary>
 		/// Save project file
@@ -63,6 +145,8 @@ namespace baimp
 
 			return true;
 		}
+
+		#endregion
 
 		#region dialogs
 
@@ -118,65 +202,6 @@ namespace baimp
 			}
 
 			return false;
-		}
-
-		#endregion
-
-		#region opening
-
-		/// <summary>
-		/// Open the specified file.
-		/// </summary>
-		/// <param name="filePath">File path.</param>
-		private void Open(string filePath)
-		{
-			this.FilePath = filePath;
-
-			if (File.Exists(filePath)) {
-				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
-
-					XmlSerializer deserializer = new XmlSerializer(this.GetType());
-					Project p = (Project) deserializer.Deserialize(xmlReader);
-
-					this.Files = p.Files;
-					this.version = p.version;
-					this.LoadedNodes = p.LoadedNodes;
-
-					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						pNode.Initialize();
-
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							allNodes.Add(mNode.ID, mNode);
-						}
-					}
-
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							foreach (Edge edge in mNode.Edges) {
-								edge.to = allNodes[edge.ToNodeID];
-							}
-						}
-					}
-
-					if (projectChanged != null) {
-						projectChanged(this, new ProjectChangedEventArgs(true));
-					}
-				}
-
-			}
-		}
-
-		/// <summary>
-		/// Import the scans from specified folder.
-		/// </summary>
-		/// <param name="path">Path.</param>
-		public void Import(string path)
-		{
-			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-			files.AddRange(newFiles);
-
-			projectChanged(this, new ProjectChangedEventArgs(newFiles));
 		}
 
 		#endregion
