@@ -125,7 +125,6 @@ namespace baimp
 				if (offset != Point.Zero) {
 					TranslateAllNodesBy (offset);
 					QueueDraw ();
-					return;
 				}
 			}
 
