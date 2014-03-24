@@ -112,8 +112,10 @@
     <Compile Include="Algorithm\Input\ProjectFiles.cs" />
     <Compile Include="DataTypes\BaseType.cs" />
     <Compile Include="DataTypes\TFilePath.cs" />
-    <Compile Include="DataTypes\TImage.cs" />
     <Compile Include="DataTypes\IType.cs" />
+    <Compile Include="Algorithm\Descriptor\GLCM.cs" />
+    <Compile Include="DataTypes\TMatrix.cs" />
+    <Compile Include="DataTypes\TBitmap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -152,6 +154,7 @@
     <Folder Include="Contraints\" />
     <Folder Include="Algorithm\Input\" />
     <Folder Include="DataTypes\" />
+    <Folder Include="Algorithm\Descriptor\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

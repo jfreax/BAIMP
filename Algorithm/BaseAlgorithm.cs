@@ -7,6 +7,7 @@ namespace baimp
 	{
 		Input,
 		Filter,
+		Descriptor,
 		Extraction,
 		Misc
 	}
