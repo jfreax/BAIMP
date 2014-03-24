@@ -94,7 +94,12 @@ namespace baimp
 			file.SubMenu.Items.Add(menuNew);
 
 			MenuItem menuOpen = new MenuItem("_Open...");
-			menuOpen.Clicked += (object sender, EventArgs e) => project.OpenDialog();
+			menuOpen.Clicked += delegate {
+				if (!project.OpenDialog() && !string.IsNullOrEmpty(project.ErrorMessage)) {
+					MessageDialog.ShowMessage ("Error while opening the file", project.ErrorMessage);
+					project.ErrorMessage = null;
+				}
+			};
 			file.SubMenu.Items.Add(menuOpen);
 
 			if (Settings.Default.LastOpenedProjects != null) {
@@ -107,7 +112,10 @@ namespace baimp
 
 					MenuItem menuLastOpenedi = new MenuItem(path);
 					menuLastOpenedi.Clicked += delegate(object sender, EventArgs e) {
-						project.Open(path);
+						if (!project.Open(path) && !string.IsNullOrEmpty(project.ErrorMessage)) {
+							MessageDialog.ShowMessage ("Error while opening the file", project.ErrorMessage);
+							project.ErrorMessage = null;
+						}
 					};
 
 					menuLastOpened.SubMenu.Items.Add(menuLastOpenedi);

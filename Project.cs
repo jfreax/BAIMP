@@ -40,31 +40,23 @@ namespace baimp
 		/// Open the specified file.
 		/// </summary>
 		/// <param name="filePath">File path.</param>
-		public void Open(string filePath)
+		public bool Open(string filePath)
 		{
 			this.ProjectFile = Path.GetFullPath(filePath);
 
-			StringCollection last = Settings.Default.LastOpenedProjects;
-			if (last == null) { 
-				last = new StringCollection();
-				Settings.Default.LastOpenedProjects = last;
-			} else {
-				if (last.Contains(ProjectFile)) {
-					last.Remove(ProjectFile);
-				} else if (last.Count >= MaxLastOpenedProject) {
-					last.RemoveAt(0);
-				}
-			}
-
-			last.Add(ProjectFile);
-			Settings.Default.LastOpenedProjects = last;
-			Settings.Default.Save();
-
 			if (File.Exists(ProjectFile)) {
 				using (XmlTextReader xmlReader = new XmlTextReader(ProjectFile)) {
+					Project p = null;
 
-					XmlSerializer deserializer = new XmlSerializer(this.GetType());
-					Project p = (Project) deserializer.Deserialize(xmlReader);
+					try {
+						XmlSerializer deserializer = new XmlSerializer(this.GetType());
+						p = (Project) deserializer.Deserialize(xmlReader);
+					} catch (Exception e) {
+						Console.WriteLine(e.Message);
+						Console.WriteLine(e.InnerException.Message);
+						this.ErrorMessage = e.Message + "\n" + e.InnerException.Message;
+						return false;
+					}
 
 					this.Files = p.Files;
 					this.version = p.version;
@@ -91,8 +83,28 @@ namespace baimp
 						projectChanged(this, new ProjectChangedEventArgs(true));
 					}
 				}
-
+			} else {
+				ErrorMessage = "File not found";
+				return false;
 			}
+
+			StringCollection last = Settings.Default.LastOpenedProjects;
+			if (last == null) { 
+				last = new StringCollection();
+				Settings.Default.LastOpenedProjects = last;
+			} else {
+				if (last.Contains(ProjectFile)) {
+					last.Remove(ProjectFile);
+				} else if (last.Count >= MaxLastOpenedProject) {
+					last.RemoveAt(0);
+				}
+			}
+
+			last.Add(ProjectFile);
+			Settings.Default.LastOpenedProjects = last;
+			Settings.Default.Save();
+
+			return true;
 		}
 
 		/// <summary>
@@ -171,7 +183,10 @@ namespace baimp
 					return false;
 				}
 
-				Open(openDialog.FileName);
+				if (!Open(openDialog.FileName)) {
+					return false;
+				}
+
 				if (projectChanged != null) {
 					projectChanged(this, new ProjectChangedEventArgs(true));
 				}
@@ -189,6 +204,7 @@ namespace baimp
 			if (saveDialog.Run()) {
 				string filename = saveDialog.FileName;
 				if (string.IsNullOrEmpty(filename)) {
+					ErrorMessage = "File not found";
 					return false;
 				}
 
@@ -234,6 +250,12 @@ namespace baimp
 
 		[XmlIgnore]
 		public string ProjectFile {
+			get;
+			set;
+		}
+
+		[XmlIgnore]
+		public string ErrorMessage {
 			get;
 			set;
 		}
