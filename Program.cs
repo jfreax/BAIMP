@@ -12,15 +12,16 @@ namespace baimp
 	public enum OSType {
 		Unix,
 		Windows,
-		MaxOSX
-	};
+		MaxOSX}
+;
 
 	class MainClass
 	{
 		public static ToolkitType toolkitType = ToolkitType.Gtk;
 
 		[STAThread]
-		public static void Main (string[] args) {
+		public static void Main(string[] args)
+		{
 
 			bool show_help = false;
 			string filename = null;
@@ -28,7 +29,7 @@ namespace baimp
 			string featureExtraction = null;
 
 			// commandline parsing
-			var p = new OptionSet () { { "h|?|help", "show help screen",
+			var p = new OptionSet() { { "h|?|help", "show help screen",
 					v => show_help = v != null
 				}, { "f|file=", "project file to open",
 					v => filename = v
@@ -39,42 +40,39 @@ namespace baimp
 				},
 			};
 
-			try
-			{
+			try {
 				p.Parse(args);
-			}
-			catch (OptionException e)
-			{
-				Console.Out.WriteLine (e.Message);
-				printHelp (p);
+			} catch (OptionException e) {
+				Console.Out.WriteLine(e.Message);
+				printHelp(p);
 				return;
 			}
 
 			// print help
 			if (show_help) {
-				printHelp (p);
+				printHelp(p);
 				return;
 			}
 
 			// start application
-			if (GetOS () == OSType.Unix) {
+			if (GetOS() == OSType.Unix) {
 				toolkitType = ToolkitType.Gtk;
-			} else if (GetOS () == OSType.MaxOSX) {
+			} else if (GetOS() == OSType.MaxOSX) {
 				toolkitType = ToolkitType.Cocoa;
 			} else {
 				toolkitType = ToolkitType.Wpf;
 			}
 
-			Application.Initialize (toolkitType);
+			Application.Initialize(toolkitType);
 
-			Project project = new Project (filename);
-			Window w = new MainWindow (project);
+			Project project = new Project(filename);
+			Window w = new MainWindow(project);
 
-			w.Show ();
-			Application.Run ();
+			w.Show();
+			Application.Run();
 
-			w.Dispose ();
-			Application.Dispose ();
+			w.Dispose();
+			Application.Dispose();
 		}
 
 		/// <summary>
@@ -83,11 +81,12 @@ namespace baimp
 		/// <param name="p">Commandline options</param>
 		static void printHelp(OptionSet p)
 		{
-			Console.Out.WriteLine ("Usage: ");
+			Console.Out.WriteLine("Usage: ");
 			p.WriteOptionDescriptions(Console.Out);
 		}
 
-		static OSType GetOS() {
+		static OSType GetOS()
+		{
 			int p = (int) Environment.OSVersion.Platform;
 			if (p == 4 || p == 128) {
 				return OSType.Unix;
@@ -98,5 +97,4 @@ namespace baimp
 			}
 		}
 	}
-
 }

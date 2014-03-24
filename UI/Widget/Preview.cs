@@ -8,72 +8,70 @@ namespace baimp
 {
 	public class Preview : VBox
 	{
-		public delegate void MyCallBack (ScanType type);
+		public delegate void MyCallBack(ScanType type);
 
 		ScrollView tab;
 		ScanView scanView;
 		Notebook notebook;
-
 		MouseMover mouseMover;
-
 		ScanWrapper currentScan;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Preview"/> class.
 		/// </summary>
-		public Preview ()
+		public Preview()
 		{
-			tab = new ScrollView ();
-			mouseMover = new MouseMover ();
-			InitializeEvents (tab);
+			tab = new ScrollView();
+			mouseMover = new MouseMover();
+			InitializeEvents(tab);
 
-			notebook = new Notebook ();
-			for (int i = 0; i < (int)ScanType.Metadata; i++) {
-				notebook.Add (new FrameBox(), Enum.GetName (typeof(ScanType), i));
+			notebook = new Notebook();
+			for (int i = 0; i < (int) ScanType.Metadata; i++) {
+				notebook.Add(new FrameBox(), Enum.GetName(typeof(ScanType), i));
 			}
 
 			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
-				ScanType type = (ScanType)notebook.CurrentTabIndex;
-				ShowPreview (type);
+				ScanType type = (ScanType) notebook.CurrentTabIndex;
+				ShowPreview(type);
 			};
 
-			this.PackStart (notebook, false, false);
+			this.PackStart(notebook, false, false);
 
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
-			this.PackEnd (tab, true, true);
+			this.PackEnd(tab, true, true);
 		}
 
 		/// <summary>
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		public void ShowPreviewOf (ScanWrapper scan)
+		public void ShowPreviewOf(ScanWrapper scan)
 		{
 			if (currentScan != null) {
 				currentScan.ScanDataChanged -= OnScanDataChanged;
 			}
 
 			this.currentScan = scan;
-			scanView = new ScanView (scan);
+			scanView = new ScanView(scan);
 			tab.Content = scanView;
 
 			currentScan.ScanDataChanged += OnScanDataChanged;
 				
-			scanView.RegisterImageLoadedCallback (new MyCallBack (ImageLoadCallBack));
+			scanView.RegisterImageLoadedCallback(new MyCallBack(ImageLoadCallBack));
 			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-				OnPreviewZoom (e);
+				OnPreviewZoom(e);
 			};
 
-			ScanType type = (ScanType)notebook.CurrentTabIndex;
-			ShowPreview (type);
+			ScanType type = (ScanType) notebook.CurrentTabIndex;
+			ShowPreview(type);
 		}
 
 		/// <summary>
 		/// Shows an specific preview into appropriate tab.
 		/// </summary>
 		/// <param name="type">Type.</param>
-		private void ShowPreview (ScanType type)
+		private void ShowPreview(ScanType type)
 		{
 
 			if (scanView != null) {
@@ -87,13 +85,13 @@ namespace baimp
 		/// Gets called when image is ready to display.
 		/// </summary>
 		/// <param name="type">Scan type</param>
-		private void ImageLoadCallBack (ScanType type)
+		private void ImageLoadCallBack(ScanType type)
 		{
 			if (!scanView.IsScaled()) {
 				if (tab.VisibleRect.Width < 10) {
-					scanView.WithBoxSize (tab.Size);
+					scanView.WithBoxSize(tab.Size);
 				} else {
-					scanView.WithBoxSize (tab.VisibleRect.Size);
+					scanView.WithBoxSize(tab.VisibleRect.Size);
 				}
 			}
 		}
@@ -106,13 +104,13 @@ namespace baimp
 		/// Initializes all events.
 		/// </summary>
 		/// <param name="view">View.</param>
-		private void InitializeEvents (ScrollView view)
+		private void InitializeEvents(ScrollView view)
 		{
-			mouseMover.RegisterMouseMover (tab);
+			mouseMover.RegisterMouseMover(tab);
 
 			view.BoundsChanged += delegate(object sender, EventArgs e) {
-				if(scanView != null)
-					scanView.WithBoxSize (tab.VisibleRect.Size);
+				if (scanView != null)
+					scanView.WithBoxSize(tab.VisibleRect.Size);
 			};
 
 			view.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
@@ -124,8 +122,8 @@ namespace baimp
 					if (scanView != null) {
 						mouseMover.EnableMouseMover(e.Position);
 
-						if(scanView.Cursor != CursorType.Move) {
-							scanView.Data ["oldMouseButton"] = scanView.Cursor;
+						if (scanView.Cursor != CursorType.Move) {
+							scanView.Data["oldMouseButton"] = scanView.Cursor;
 							scanView.Cursor = CursorType.Move;
 						}
 					}
@@ -139,7 +137,7 @@ namespace baimp
 					if (mouseMover.Enabled) {
 						mouseMover.DisableMouseMover();
 
-						if(scanView != null) {
+						if (scanView != null) {
 							scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
 						}
 					}
@@ -150,14 +148,14 @@ namespace baimp
 			view.MouseExited += delegate(object sender, EventArgs e) {
 				if (mouseMover.Enabled) {
 					mouseMover.DisableMouseMover();
-					if(scanView != null) {
+					if (scanView != null) {
 						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
 					}
 				}
 			};
 
 			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-				OnPreviewZoom (e);
+				OnPreviewZoom(e);
 			};
 		}
 
@@ -166,19 +164,18 @@ namespace baimp
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event args</param>
-		private void OnPreviewZoom (MouseScrolledEventArgs e)
+		private void OnPreviewZoom(MouseScrolledEventArgs e)
 		{
 			if (scanView != null) {
 				if (e.Direction == ScrollDirection.Down) {
-					scanView.Scale (0.9);
+					scanView.Scale(0.9);
 				} else {
-					scanView.Scale (1.1);
+					scanView.Scale(1.1);
 				}
 			}
 
 			e.Handled = true;
 		}
-
 
 		/// <summary>
 		/// Gets called when current selected scan data changed.
@@ -189,18 +186,18 @@ namespace baimp
 		{
 			// propagate
 			if (scanDataChanged != null) {
-				scanDataChanged (sender, e);
+				scanDataChanged(sender, e);
 			}
 				
-			if (e.Changed.StartsWith ("mask_")) {
-				string[] splitted = e.Changed.Split ('_');
+			if (e.Changed.StartsWith("mask_")) {
+				string[] splitted = e.Changed.Split('_');
 				if (splitted.Length >= 2) {
-					int index = Convert.ToInt32 (splitted [1]);
+					int index = Convert.ToInt32(splitted[1]);
 
 					if (notebook.Tabs.Count >= index) {
-						notebook.Tabs [index].Label =
-							Enum.GetName (typeof(ScanType), index) +
-							(e != null && e.Unsaved.Contains ("mask_" + index) ? "*" : "");
+						notebook.Tabs[index].Label =
+							Enum.GetName(typeof(ScanType), index) +
+						(e != null && e.Unsaved.Contains("mask_" + index) ? "*" : "");
 					}
 				}
 			}
@@ -211,8 +208,7 @@ namespace baimp
 		/// <summary>
 		/// Occurs when scan data changed
 		/// </summary>
-		public event EventHandler<ScanDataEventArgs> ScanDataChanged
-		{
+		public event EventHandler<ScanDataEventArgs> ScanDataChanged {
 			add {
 				scanDataChanged += value;
 			}

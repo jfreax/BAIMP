@@ -9,28 +9,28 @@ namespace baimp
 		[XmlIgnore]
 		public Node to;
 
-		public Edge ()
+		public Edge()
 		{
 
 		}
 
-		public Edge (Node to)
+		public Edge(Node to)
 		{
 			this.to = to;
 		}
 
-		public virtual void Draw (Context ctx) {}
+		public virtual void Draw(Context ctx)
+		{
+		}
 
+		#region properties
 
-		#region Properties
-			
 		/// <summary>
 		/// ID of target node
 		/// </summary>
 		/// <value>To node I.</value>
 		[XmlAttribute("to")]
-		public int ToNodeID
-		{
+		public int ToNodeID {
 			get {
 				if (to == null) {
 					return toid;

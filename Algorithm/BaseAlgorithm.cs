@@ -3,29 +3,29 @@ using System.Collections.Generic;
 
 namespace baimp
 {
-	public enum AlgorithmType {
+	public enum AlgorithmType
+	{
 		Input,
 		Filter,
 		Extraction,
 		Misc
-	};
+	}
 
 	abstract public class BaseAlgorithm
 	{
 		public readonly PipelineNode parent;
-
 		protected List<Compatible> compatibleInput;
 		protected List<Compatible> compatibleOutput;
 
-
-		public BaseAlgorithm (PipelineNode parent) {
+		public BaseAlgorithm(PipelineNode parent)
+		{
 			this.parent = parent;
 
-			compatibleInput = new List<Compatible> ();
-			compatibleOutput = new List<Compatible> ();
+			compatibleInput = new List<Compatible>();
+			compatibleOutput = new List<Compatible>();
 		}
 
-		abstract public IType[] Run (params IType[] inputArgs);
+		abstract public IType[] Run(params IType[] inputArgs);
 
 		abstract public AlgorithmType AlgorithmType {
 			get;
@@ -47,7 +47,8 @@ namespace baimp
 			}
 		}
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return this.GetType().Name;
 		}
 	}

@@ -10,25 +10,23 @@ namespace baimp
 	abstract public class Node
 	{
 		private static int global_node_id = 0;
-
 		private int id;
-
 		protected Rectangle bounds;
 		protected List<Edge> edges;
 
-		public Node ()
+		public Node()
 		{
 			id = global_node_id;
 			global_node_id++;
 
-			edges = new List<Edge> ();
+			edges = new List<Edge>();
 		}
 
 		/// <summary>
 		/// Draw this node.
 		/// </summary>
 		/// <param name="ctx">Context.</param>
-		abstract public void Draw (Context ctx);
+		abstract public void Draw(Context ctx);
 
 		/// <summary>
 		/// Add an edge.
@@ -38,9 +36,9 @@ namespace baimp
 		virtual public void AddEdge(Edge edge, bool directed = false)
 		{
 			if (!directed) {
-				edge.to.AddEdge (new Edge (this), true);
+				edge.to.AddEdge(new Edge(this), true);
 			}
-			edges.Add (edge);
+			edges.Add(edge);
 		}
 
 		/// <summary>
@@ -50,7 +48,7 @@ namespace baimp
 		/// <param name="directed">If set to <c>true</c> directed.</param>
 		public void AddEdgeTo(Node otherNode, bool directed = false)
 		{
-			AddEdge (new MarkerEdge(otherNode), directed);
+			AddEdge(new MarkerEdge(otherNode), directed);
 		}
 
 		/// <summary>
@@ -61,9 +59,9 @@ namespace baimp
 		virtual public void RemoveEdge(Edge edge, bool directed = false)
 		{
 			if (!directed) {
-				edge.to.RemoveEdgeTo (this, true);
+				edge.to.RemoveEdgeTo(this, true);
 			}
-			edges.Remove (edge);
+			edges.Remove(edge);
 		}
 
 		/// <summary>
@@ -75,17 +73,16 @@ namespace baimp
 		{
 			foreach (Edge edge in edges) {
 				if (edge.to.ID == otherNode.ID) {
-					RemoveEdge (edge, directed);
+					RemoveEdge(edge, directed);
 					return;
 				}
 			}
 		}
 
 		[XmlArray("edges")]
-        [XmlArrayItem(ElementName = "connect", Type = typeof(MarkerEdge))]
-		[XmlArrayItem(ElementName="edge", Type=typeof(Edge))]
-        public List<Edge> Edges
-		{
+		[XmlArrayItem(ElementName = "connect", Type = typeof(MarkerEdge))]
+		[XmlArrayItem(ElementName = "edge", Type = typeof(Edge))]
+		public List<Edge> Edges {
 			get {
 				return edges;
 			}
@@ -109,9 +106,10 @@ namespace baimp
 			}
 		}
 
-		public void Add(System.Object o) {
+		public void Add(System.Object o)
+		{
 			if (o is Edge) {
-				AddEdge (o as Edge);
+				AddEdge(o as Edge);
 			}
 		}
 	}

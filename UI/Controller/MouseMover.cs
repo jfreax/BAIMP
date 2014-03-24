@@ -8,17 +8,17 @@ namespace baimp
 		private ScrollView scrollview;
 		private long lastMoveTimestamp;
 		private Point lastPosition;
-
-
 		private long timer = 50;
 		private bool enabled;
 
-		public MouseMover() {}
-
-		public MouseMover(ScrollView scrollview) {
-			RegisterMouseMover (scrollview);
+		public MouseMover()
+		{
 		}
 
+		public MouseMover(ScrollView scrollview)
+		{
+			RegisterMouseMover(scrollview);
+		}
 
 		/// <summary>
 		/// Registers a scrollview on which the mouse mover acts
@@ -72,13 +72,12 @@ namespace baimp
 			get { return enabled; }
 		}
 
-
 		/// <summary>
 		/// Gets called on mouse move when enabled and gtk toolkit active
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Mouse event args.</param>
-		private void MouseMovedGtk (object sender, MouseMovedEventArgs e)
+		private void MouseMovedGtk(object sender, MouseMovedEventArgs e)
 		{
 			if (e.Timestamp - lastMoveTimestamp > timer) {
 				e.Handled = true;
@@ -89,22 +88,22 @@ namespace baimp
 				double newScrollY = scrollview.VerticalScrollControl.Value + oldPosition.Y - e.Position.Y;
 
 				scrollview.HorizontalScrollControl.Value =
-					Math.Min (scrollview.HorizontalScrollControl.UpperValue - scrollview.VisibleRect.Width, newScrollX);
+					Math.Min(scrollview.HorizontalScrollControl.UpperValue - scrollview.VisibleRect.Width, newScrollX);
 				scrollview.VerticalScrollControl.Value =
-					Math.Min (scrollview.VerticalScrollControl.UpperValue - scrollview.VisibleRect.Height, newScrollY);
+					Math.Min(scrollview.VerticalScrollControl.UpperValue - scrollview.VisibleRect.Height, newScrollY);
 				
 				lastMoveTimestamp = e.Timestamp;
 			}
 		}
-			
+
 		/// <summary>
 		/// Gets called on mouse move when enabled
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Mouse event args.</param>
-		private void MouseMovedNotGtk (object sender, MouseMovedEventArgs e)
+		private void MouseMovedNotGtk(object sender, MouseMovedEventArgs e)
 		{
-			MouseMovedGtk (sender, e);
+			MouseMovedGtk(sender, e);
 			lastPosition = e.Position;
 		}
 

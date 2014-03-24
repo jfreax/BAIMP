@@ -9,7 +9,6 @@ namespace baimp
 	public class MarkerEdge : Edge
 	{
 		private static Color color = Colors.Black.WithAlpha(0.2);
-
 		/// <summary>
 		/// A number between 0 and 1.
 		/// 0.0 means, we clicked on the "from"-side of the edge
@@ -19,13 +18,13 @@ namespace baimp
 		[XmlIgnore]
 		public double r;
 
-		public MarkerEdge ()
+		public MarkerEdge()
 		{
 
 		}
 
-		public MarkerEdge (Node to)
-			: base (to)
+		public MarkerEdge(Node to)
+			: base(to)
 		{
 		}
 
@@ -37,23 +36,23 @@ namespace baimp
 		/// <param name="to">To.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
-			ctx.SetColor (color);
-			ctx.SetLineWidth (1.0);
+			ctx.SetColor(color);
+			ctx.SetLineWidth(1.0);
 
 			Rectangle fromBound = from.Bounds;
 			Rectangle toBound = to.Bounds;
 
-			ctx.MoveTo (fromBound.Right, fromBound.Center.Y);
-			ctx.LineTo (toBound.Left, toBound.Center.Y);
+			ctx.MoveTo(fromBound.Right, fromBound.Center.Y);
+			ctx.LineTo(toBound.Left, toBound.Center.Y);
 
-			ctx.Stroke ();
+			ctx.Stroke();
 		}
 
 		#region implemented abstract members of Edge
 
-		public override void Draw (Context ctx)
+		public override void Draw(Context ctx)
 		{
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 		}
 
 		#endregion

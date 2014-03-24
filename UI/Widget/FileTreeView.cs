@@ -8,23 +8,22 @@ namespace baimp
 		public DataField<object> nameCol;
 		public DataField<object> saveStateCol;
 		public TreeStore store;
-
 		private ScanCollection scans;
 
-		#region Initialize
+		#region initialize
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.FileTreeView"/> class.
 		/// </summary>
 		/// <param name="scans">Collection of all open scans</param>
 		/// <param name="preview">Reference to preview widget</param>
-		public FileTreeView (ScanCollection scans)
+		public FileTreeView(ScanCollection scans)
 		{
 			this.scans = scans;
 
-			nameCol = new DataField<object> ();
-			saveStateCol = new DataField<object> ();
-			store = new TreeStore (nameCol, saveStateCol);
+			nameCol = new DataField<object>();
+			saveStateCol = new DataField<object>();
+			store = new TreeStore(nameCol, saveStateCol);
 		}
 
 		/// <summary>
@@ -32,14 +31,14 @@ namespace baimp
 		/// </summary>
 		public void InitializeUI()
 		{
-			this.Columns.Add ("Name", nameCol).CanResize = true;
-			this.Columns.Add ("*", saveStateCol).CanResize = true;
+			this.Columns.Add("Name", nameCol).CanResize = true;
+			this.Columns.Add("*", saveStateCol).CanResize = true;
 
 			this.DataSource = store;
 
-            if (MainClass.toolkitType == ToolkitType.Gtk) {
-                this.MinWidth = this.ParentWindow.Width;
-            }
+			if (MainClass.toolkitType == ToolkitType.Gtk) {
+				this.MinWidth = this.ParentWindow.Width;
+			}
 		}
 
 		#endregion
@@ -50,16 +49,16 @@ namespace baimp
 		/// <param name="currentScan">Current focused scan</param>
 		public void Reload(ScanWrapper currentScan = null)
 		{
-			store.Clear ();
+			store.Clear();
 
 			TreePosition pos = null;
 			foreach (string key in scans.Keys) {
-				var p = store.AddNode (null).SetValue (nameCol, key).CurrentPosition;
+				var p = store.AddNode(null).SetValue(nameCol, key).CurrentPosition;
 
 				foreach (ScanWrapper scan in scans[key]) {
-					var v = store.AddNode (p)
-						.SetValue (nameCol, scan)
-						.SetValue (saveStateCol, scan.HasUnsaved() ? "*" : "" )
+					var v = store.AddNode(p)
+						.SetValue(nameCol, scan)
+						.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 						.CurrentPosition;
 					scan.position = v;
 					scan.parentPosition = p;
@@ -75,9 +74,9 @@ namespace baimp
 				}
 			}
 
-			this.ExpandAll ();
+			this.ExpandAll();
 			if (scans.Count > 0) {
-				this.SelectRow (pos);
+				this.SelectRow(pos);
 			}
 		}
 
@@ -90,16 +89,16 @@ namespace baimp
 		{
 			ScanWrapper scan = (ScanWrapper) sender;
 
-			if(e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
+			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
 				scans.Refresh(scan);
 				Reload(scan);
 			}
 
-			store.GetNavigatorAt (scan.position)
+			store.GetNavigatorAt(scan.position)
 				.SetValue(
-					saveStateCol, 
-					e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
-				);
+				saveStateCol, 
+				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
+			);
 		}
 
 		/// <summary>
@@ -110,9 +109,9 @@ namespace baimp
 		public void OnDataChanged(object sender, SaveStateEventArgs e)
 		{
 			if (e.saved) {
-				store.GetNavigatorAt (this.SelectedRow).SetValue (saveStateCol, "");
+				store.GetNavigatorAt(this.SelectedRow).SetValue(saveStateCol, "");
 			} else {
-				store.GetNavigatorAt (this.SelectedRow).SetValue (saveStateCol, "*");
+				store.GetNavigatorAt(this.SelectedRow).SetValue(saveStateCol, "*");
 			}
 		}
 	}

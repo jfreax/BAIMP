@@ -6,11 +6,11 @@ namespace baimp
 	{
 		protected T raw;
 
-		public BaseType ()
+		public BaseType()
 		{
 		}
 
-		public BaseType (T raw)
+		public BaseType(T raw)
 		{
 			this.raw = raw;
 		}

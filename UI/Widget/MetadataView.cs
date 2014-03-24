@@ -9,12 +9,9 @@ namespace baimp
 	{
 		Label name;
 		Dictionary<int, Widget>[] widgets;
-
 		Scan currentScan;
-
 		Table table;
 		TextEntry entryFiberType;
-
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MetadataView"/> class.
@@ -22,23 +19,23 @@ namespace baimp
 		/// <remarks>
 		/// Call <see cref="bachelorarbeit_implementierung.MetadataView.Load" to actual see the metadata information/> 
 		/// </remarks>
-		public MetadataView ()
+		public MetadataView()
 		{
-			table = new Table ();
-			Expander expander = new Expander ();
+			table = new Table();
+			Expander expander = new Expander();
 			expander.Expanded = true;
 			expander.Content = table;
-			this.PackStart (expander, true);
+			this.PackStart(expander, true);
 
 			widgets = new Dictionary<int, Widget>[2];
-			widgets [0] = new Dictionary<int, Widget> ();
-			widgets [1] = new Dictionary<int, Widget> ();
+			widgets[0] = new Dictionary<int, Widget>();
+			widgets[1] = new Dictionary<int, Widget>();
 
-			name = new Label ("Name");
+			name = new Label("Name");
 			name.TextAlignment = Alignment.Center;
-			table.Add (name, 0, 0, colspan:2);
+			table.Add(name, 0, 0, colspan: 2);
 
-			InitializeUI ();
+			InitializeUI();
 		}
 
 		/// <summary>
@@ -46,13 +43,13 @@ namespace baimp
 		/// </summary>
 		private void InitializeUI()
 		{
-			entryFiberType = new TextEntry ();
+			entryFiberType = new TextEntry();
 			entryFiberType.BackgroundColor = Colors.WhiteSmoke;
 			entryFiberType.ShowFrame = false;
 
 			entryFiberType.LostFocus += ChangeFiberType;
 			entryFiberType.KeyPressed += delegate(object sender, KeyEventArgs e) {
-				if(e.Key == Key.Return) {
+				if (e.Key == Key.Return) {
 					ChangeFiberType(sender, e);
 					e.Handled = true;
 				}
@@ -69,30 +66,30 @@ namespace baimp
 		{
 			this.currentScan = scan;
 
-			table.Clear ();
+			table.Clear();
 			//table.Remove (name);
-			name = new Label ("Name");
+			name = new Label("Name");
 			name.TextAlignment = Alignment.Center;
 			name.Text = scan.ToString();
-			table.Add (name, 0, 0, colspan:2);
+			table.Add(name, 0, 0, colspan: 2);
 
 			int i = 1;
 			foreach (Tuple<string, string> d in scan.generalMetadata) {
-				table.Add (new Label (d.Item1), 0, i);
+				table.Add(new Label(d.Item1), 0, i);
 
-				TextEntry entry = new TextEntry ();
+				TextEntry entry = new TextEntry();
 				entry.Text = d.Item2;
 				entry.ReadOnly = true;
 				entry.ShowFrame = false;
-				entry.BackgroundColor = Color.FromBytes (232, 232, 232);
-				table.Add (entry, 1, i);
+				entry.BackgroundColor = Color.FromBytes(232, 232, 232);
+				table.Add(entry, 1, i);
 
 				i++;
 			}
 				
 			entryFiberType.Text = scan.FiberType;
-			table.Add (new Label ("FiberType"), 0, i);
-			table.Add (entryFiberType, 1, i++);
+			table.Add(new Label("FiberType"), 0, i);
+			table.Add(entryFiberType, 1, i++);
 		}
 
 		/// <summary>

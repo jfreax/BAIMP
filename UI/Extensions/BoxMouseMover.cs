@@ -4,7 +4,7 @@ namespace baimp
 {
 	public class BoxMouseMover
 	{
-		public BoxMouseMover ()
+		public BoxMouseMover()
 		{
 		}
 	}

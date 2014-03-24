@@ -18,8 +18,9 @@ namespace baimp
 		/// </summary>
 		public TreePosition parentPosition;
 
-
-		public ScanWrapper(string filePath) : base(filePath) {}
+		public ScanWrapper(string filePath) : base(filePath)
+		{
+		}
 	}
 }
 

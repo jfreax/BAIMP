@@ -6,7 +6,7 @@ namespace baimp
 	{
 		public bool saved = false;
 
-		public SaveStateEventArgs (bool saved)
+		public SaveStateEventArgs(bool saved)
 		{
 			this.saved = saved;
 		}

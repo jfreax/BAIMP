@@ -8,9 +8,8 @@ namespace baimp
 		private Type type;
 		public readonly BaseConstraint[] constraints;
 
-		public Compatible ()
+		public Compatible()
 		{
-
 		}
 
 		/// <summary>
@@ -19,7 +18,7 @@ namespace baimp
 		/// <param name="name">Name of this compatible.</param>
 		/// <param name="type">In- or output type.</param>
 		/// <param name="constraints">Constraints.</param>
-		public Compatible (string name, Type type, params BaseConstraint[] constraints)
+		public Compatible(string name, Type type, params BaseConstraint[] constraints)
 		{
 			this.name = name;
 			this.type = type;
@@ -35,18 +34,18 @@ namespace baimp
 		{
 			Compatible another = nodeTo.compatible;
 
-			if (!Type.Equals (another.Type)) {
+			if (!Type.Equals(another.Type)) {
 				return false;
 			}
 				
 			foreach (BaseConstraint constraint in constraints) {
-				if (!constraint.FulFills (nodeFrom, nodeTo)) {
+				if (!constraint.FulFills(nodeFrom, nodeTo)) {
 					return false;
 				}
 			}
 
 			foreach (BaseConstraint constraint in another.constraints) {
-				if (!constraint.FulFills (nodeTo, nodeFrom)) {
+				if (!constraint.FulFills(nodeTo, nodeFrom)) {
 					return false;
 				}
 			}
@@ -62,8 +61,7 @@ namespace baimp
 			get { return type; }
 		}
 
-
-		public override string ToString ()
+		public override string ToString()
 		{
 			return name;
 		}

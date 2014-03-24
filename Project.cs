@@ -12,18 +12,16 @@ namespace baimp
 	{
 		[XmlAttribute]
 		public int version = 1;
-
-		private List<string> files = new List<string> ();
-
+		private List<string> files = new List<string>();
 		private List<PipelineNode> loadedNodes;
 
 		#region initialize
 
-		public Project ()
+		public Project()
 		{
 		}
 
-		public Project (string filePath)
+		public Project(string filePath)
 		{
 			if (!string.IsNullOrEmpty(filePath)) {
 				Open(filePath);
@@ -35,7 +33,7 @@ namespace baimp
 		/// <summary>
 		/// Save project file
 		/// </summary>
-		public bool Save (PipelineView pipeline)
+		public bool Save(PipelineView pipeline)
 		{
 			if (FilePath == null) {
 				if (!NewDialog()) {
@@ -44,7 +42,7 @@ namespace baimp
 			}
 
 			this.loadedNodes = pipeline.Nodes;
-			using (XmlTextWriter xmlWriter = new XmlTextWriter (FilePath, null)) {
+			using (XmlTextWriter xmlWriter = new XmlTextWriter(FilePath, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 
 				var extraTypes = new[] {
@@ -57,10 +55,10 @@ namespace baimp
 				};
 
 				XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);
-				serializer.Serialize (xmlWriter, this);
+				serializer.Serialize(xmlWriter, this);
 
-				xmlWriter.WriteEndDocument ();
-				xmlWriter.Close ();
+				xmlWriter.WriteEndDocument();
+				xmlWriter.Close();
 			}
 
 			return true;
@@ -71,28 +69,28 @@ namespace baimp
 		/// <summary>
 		/// Show dialog to select folder to import scan
 		/// </summary>
-		public void ImportDialog ()
+		public void ImportDialog()
 		{
-			SelectFolderDialog dlg = new SelectFolderDialog ("Import folder");
-			if (dlg.Run ()) {
+			SelectFolderDialog dlg = new SelectFolderDialog("Import folder");
+			if (dlg.Run()) {
 				foreach (string path in dlg.Folders) {
-					Import (path);
+					Import(path);
 				}
 			}
 		}
 
-		public bool OpenDialog ()
+		public bool OpenDialog()
 		{
-			OpenFileDialog openDialog = new OpenFileDialog ("Open Project");
-			openDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
-			if (openDialog.Run ()) {
+			OpenFileDialog openDialog = new OpenFileDialog("Open Project");
+			openDialog.Filters.Add(new FileDialogFilter("BAIMP Project file", "*.baimp"));
+			if (openDialog.Run()) {
 				if (string.IsNullOrEmpty(openDialog.FileName)) {
 					return false;
 				}
 
-				Open (openDialog.FileName);
+				Open(openDialog.FileName);
 				if (projectChanged != null) {
-					projectChanged (this, new ProjectChangedEventArgs (true));
+					projectChanged(this, new ProjectChangedEventArgs(true));
 				}
 
 				return Files.Count > 0;
@@ -101,17 +99,18 @@ namespace baimp
 			return false;
 		}
 
-		public bool NewDialog () {
-			SaveFileDialog saveDialog = new SaveFileDialog ("New Project");
-			saveDialog.Filters.Add (new FileDialogFilter ("BAIMP Project file", "*.baimp"));
-			if (saveDialog.Run ()) {
+		public bool NewDialog()
+		{
+			SaveFileDialog saveDialog = new SaveFileDialog("New Project");
+			saveDialog.Filters.Add(new FileDialogFilter("BAIMP Project file", "*.baimp"));
+			if (saveDialog.Run()) {
 				string filename = saveDialog.FileName;
 				if (string.IsNullOrEmpty(filename)) {
 					return false;
 				}
 
-				if (Path.GetExtension (filename) != "baimp") {
-					filename = Path.GetDirectoryName (filename) + "/" + Path.GetFileNameWithoutExtension (filename) + ".baimp";
+				if (Path.GetExtension(filename) != "baimp") {
+					filename = Path.GetDirectoryName(filename) + "/" + Path.GetFileNameWithoutExtension(filename) + ".baimp";
 				}
 
 				this.FilePath = filename;
@@ -129,38 +128,39 @@ namespace baimp
 		/// Open the specified file.
 		/// </summary>
 		/// <param name="filePath">File path.</param>
-		private void Open (string filePath) {
+		private void Open(string filePath)
+		{
 			this.FilePath = filePath;
 
-			if (File.Exists (filePath)) {
+			if (File.Exists(filePath)) {
 				using (XmlTextReader xmlReader = new XmlTextReader(filePath)) {
 
 					XmlSerializer deserializer = new XmlSerializer(this.GetType());
-					Project p = (Project) deserializer.Deserialize (xmlReader);
+					Project p = (Project) deserializer.Deserialize(xmlReader);
 
 					this.Files = p.Files;
 					this.version = p.version;
 					this.LoadedNodes = p.LoadedNodes;
 
-					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode> ();
+					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
 					foreach (PipelineNode pNode in p.LoadedNodes) {
-						pNode.Initialize ();
+						pNode.Initialize();
 
 						foreach (MarkerNode mNode in pNode.mNodes) {
-							allNodes.Add (mNode.ID, mNode);
+							allNodes.Add(mNode.ID, mNode);
 						}
 					}
 
 					foreach (PipelineNode pNode in p.LoadedNodes) {
 						foreach (MarkerNode mNode in pNode.mNodes) {
 							foreach (Edge edge in mNode.Edges) {
-								edge.to = allNodes [edge.ToNodeID];
+								edge.to = allNodes[edge.ToNodeID];
 							}
 						}
 					}
 
 					if (projectChanged != null) {
-						projectChanged (this, new ProjectChangedEventArgs (true));
+						projectChanged(this, new ProjectChangedEventArgs(true));
 					}
 				}
 
@@ -174,9 +174,9 @@ namespace baimp
 		public void Import(string path)
 		{
 			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-			files.AddRange (newFiles);
+			files.AddRange(newFiles);
 
-			projectChanged (this, new ProjectChangedEventArgs (newFiles));
+			projectChanged(this, new ProjectChangedEventArgs(newFiles));
 		}
 
 		#endregion
@@ -199,7 +199,7 @@ namespace baimp
 
 		#endregion
 
-		#region Properties
+		#region properties
 
 		[XmlIgnore]
 		public string FilePath {
@@ -209,8 +209,7 @@ namespace baimp
 
 		[XmlArray("files")]
 		[XmlArrayItem("file")]
-		public List<string> Files
-		{
+		public List<string> Files {
 			get {
 				return files;
 			}
@@ -221,8 +220,7 @@ namespace baimp
 
 		[XmlArray("pipeline")]
 		[XmlArrayItem("node")]
-		public List<PipelineNode> LoadedNodes
-		{
+		public List<PipelineNode> LoadedNodes {
 			get {
 				return loadedNodes;
 			}
@@ -232,7 +230,6 @@ namespace baimp
 		}
 
 		#endregion
-
 	}
 }
 

@@ -6,19 +6,19 @@ namespace baimp
 {
 	public class TestExtraction : BaseAlgorithm
 	{
-		public TestExtraction (PipelineNode parent) : base(parent)
+		public TestExtraction(PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add (new Compatible("in #1", typeof(TImage[]), new MaximumUses(1)));
+			compatibleInput.Add(new Compatible("in #1", typeof(TImage[]), new MaximumUses(1)));
 
-			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
-			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
+			compatibleOutput.Add(new Compatible("out #1", typeof(int)));
+			compatibleOutput.Add(new Compatible("out #2", typeof(string)));
 		}
-			
-		public override IType[] Run (params IType[] inputArgs)
+
+		public override IType[] Run(params IType[] inputArgs)
 		{
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 		}
-			
+
 		public override AlgorithmType AlgorithmType {
 			get {
 				return AlgorithmType.Extraction;

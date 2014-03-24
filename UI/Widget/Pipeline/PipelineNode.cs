@@ -5,19 +5,17 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Collections;
 
-
 namespace baimp
 {
 	public class PipelineNode
 	{
 		static public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
-		static public Size NodeSize = new Size (200, 40);
+		static public Size NodeSize = new Size(200, 40);
 		static public Size NodeInOutSpace = new Size(8, 8);
 		static public int NodeRadius = 2;
-
-		static public Color NodeColor = Color.FromBytes (252, 252, 252);
-		static public Color NodeColorBorder = Color.FromBytes (202, 202, 202);
-		static public Color NodeColorShadow = Color.FromBytes (232, 232, 232);
+		static public Color NodeColor = Color.FromBytes(252, 252, 252);
+		static public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
+		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 
 		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
@@ -31,7 +29,7 @@ namespace baimp
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
 
-		#region Initialize
+		#region initialize
 
 		public PipelineNode()
 		{
@@ -40,18 +38,18 @@ namespace baimp
 
 		public PipelineNode(string algoType, Rectangle bound)
 		{
-			this.mNodes = new List<MarkerNode> ();
+			this.mNodes = new List<MarkerNode>();
 			this.AlgorithmType = algoType;
 			this.bound = bound;
 
 			int i = 0;
-			foreach(Compatible c in algorithm.CompatibleInput) {
-				this.Add (new MarkerNode (this, c, i, true));
+			foreach (Compatible c in algorithm.CompatibleInput) {
+				this.Add(new MarkerNode(this, c, i, true));
 				i++;
 			}
 			i = 0;
-			foreach(Compatible c in algorithm.CompatibleOutput) {
-				this.Add (new MarkerNode (this, c, i, false));
+			foreach (Compatible c in algorithm.CompatibleOutput) {
+				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
 		}
@@ -59,20 +57,21 @@ namespace baimp
 		/// <summary>
 		/// Call only, if mNodes are set from outside
 		/// </summary>
-		public void Initialize() {
+		public void Initialize()
+		{
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
 				if (mNode.IsInput) {
-					mNode.compatible = algorithm.CompatibleInput [mNode.Position];
+					mNode.compatible = algorithm.CompatibleInput[mNode.Position];
 				} else {
-					mNode.compatible = algorithm.CompatibleOutput [mNode.Position];
+					mNode.compatible = algorithm.CompatibleOutput[mNode.Position];
 				}
 			}
 		}
 
 		#endregion
 
-		#region draw
+		#region drawing
 
 		/// <summary>
 		/// Draw this node.
@@ -84,21 +83,21 @@ namespace baimp
 
 			// draw box
 			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
-			ctx.SetColor (NodeColorShadow);
-			ctx.SetLineWidth (2);
+			ctx.SetColor(NodeColorShadow);
+			ctx.SetLineWidth(2);
 			ctx.Fill();
 
 			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
-			ctx.SetColor (NodeColorBorder);
-			ctx.SetLineWidth (2);
+			ctx.SetColor(NodeColorBorder);
+			ctx.SetLineWidth(2);
 			ctx.Stroke();
 
 			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
-			ctx.SetColor (NodeColor);
-			ctx.Fill ();
+			ctx.SetColor(NodeColor);
+			ctx.Fill();
 
 			// draw headline
-			TextLayout text = new TextLayout ();
+			TextLayout text = new TextLayout();
 			Point textOffset = new Point(0, 4);
 
 			text.Text = algorithm.ToString();
@@ -108,34 +107,34 @@ namespace baimp
 				text.Width = NodeSize.Width;
 				text.Trimming = TextTrimming.WordElipsis;
 			}
-			Point textPosition = bound.Location.Offset (textOffset);
+			Point textPosition = bound.Location.Offset(textOffset);
 
-			ctx.SetColor (Colors.Black);
-			ctx.DrawTextLayout (text, textPosition);
+			ctx.SetColor(Colors.Black);
+			ctx.DrawTextLayout(text, textPosition);
 
 			// stroke under headline
 			contentOffset.X = 6;
-			contentOffset.Y = textOffset.Y + text.GetSize ().Height + 4;
+			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
 
-			ctx.SetColor (NodeColorBorder);
-			ctx.MoveTo (bound.Location.Offset(contentOffset));
-			ctx.LineTo (bound.Right - 6, contentOffset.Y + bound.Location.Y);
-			ctx.SetLineWidth (1.0);
-			ctx.Stroke ();
+			ctx.SetColor(NodeColorBorder);
+			ctx.MoveTo(bound.Location.Offset(contentOffset));
+			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
+			ctx.SetLineWidth(1.0);
+			ctx.Stroke();
 
 			// in-/output text
-			ctx.SetColor (Colors.Black);
+			ctx.SetColor(Colors.Black);
 			foreach (MarkerNode mNode in mNodes) {
-				text.Text = mNode.compatible.ToString ();
-				mNode.Height = text.GetSize ().Height;
+				text.Text = mNode.compatible.ToString();
+				mNode.Height = text.GetSize().Height;
 				Point pos = mNode.Bounds.Location;
 				if (mNode.IsInput) {
 					pos.X = mNode.Bounds.Right + contentOffset.X;
 				} else {
-					pos.X = bound.Right - contentOffset.X - text.GetSize ().Width;
+					pos.X = bound.Right - contentOffset.X - text.GetSize().Width;
 				}
-				ctx.DrawTextLayout (text, pos);
-				ctx.Stroke ();
+				ctx.DrawTextLayout(text, pos);
+				ctx.Stroke();
 
 				// resize widget if necessary
 				if (pos.Y + mNode.Height + NodeInOutSpace.Height > bound.Bottom) {
@@ -146,7 +145,7 @@ namespace baimp
 
 			return ret;
 		}
-			
+
 		#endregion
 
 		/// <summary>
@@ -157,7 +156,7 @@ namespace baimp
 		public MarkerNode GetMarkerNodeAt(Point position)
 		{
 			foreach (MarkerNode mNode in mNodes) {
-				if(mNode.Bounds.Contains(position)) {
+				if (mNode.Bounds.Contains(position)) {
 					return mNode;
 				}
 			}
@@ -168,16 +167,15 @@ namespace baimp
 		public void Add(object o)
 		{
 			if (o is MarkerNode) {
-				mNodes.Add (o as MarkerNode);
+				mNodes.Add(o as MarkerNode);
 			}
 		}
-
 
 		#region properties
 
 		public Rectangle BoundWithExtras {
 			get {
-				return bound.Inflate (
+				return bound.Inflate(
 					new Size(
 						MarkerNode.NodeInOutMarkerSize + NodeMargin.HorizontalSpacing,
 						NodeMargin.VerticalSpacing
@@ -205,7 +203,7 @@ namespace baimp
 				bound.Y = value;
 			}
 		}
-			
+
 		[XmlAttribute("type")]
 		public string AlgorithmType {
 			get {
@@ -218,9 +216,8 @@ namespace baimp
 		}
 
 		[XmlArray("markers")]
-		[XmlArrayItem(ElementName="marker")]
-		public List<MarkerNode> MNodes
-		{
+		[XmlArrayItem(ElementName = "marker")]
+		public List<MarkerNode> MNodes {
 			get {
 				return mNodes;
 			}
@@ -229,16 +226,15 @@ namespace baimp
 				foreach (MarkerNode mNode in mNodes) {
 					mNode.parent = this;
 					if (mNode.IsInput) {
-						mNode.compatible = algorithm.CompatibleInput [mNode.Position];
+						mNode.compatible = algorithm.CompatibleInput[mNode.Position];
 					} else {
-						mNode.compatible = algorithm.CompatibleOutput [mNode.Position];
+						mNode.compatible = algorithm.CompatibleOutput[mNode.Position];
 					}
 				}
 			}
 		}
 
 		#endregion
-
 	}
 }
 

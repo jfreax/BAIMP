@@ -30,62 +30,63 @@ namespace baimp
 		}
 
 		private int position;
+
 		public int Position {
 			get {
 				return position;
 			}
 		}
 
-		public TreeNode (T data)
+		public TreeNode(T data)
 		{
 			this.Data = data;
-			this.Children = new LinkedList<TreeNode<T>> ();
+			this.Children = new LinkedList<TreeNode<T>>();
 
-			this.ElementsIndex = new LinkedList<TreeNode<T>> ();
-			this.ElementsIndex.Add (this);
+			this.ElementsIndex = new LinkedList<TreeNode<T>>();
+			this.ElementsIndex.Add(this);
 		}
 
-		public TreeNode<T> AddChild (T child)
+		public TreeNode<T> AddChild(T child)
 		{
-			TreeNode<T> childNode = new TreeNode<T> (child) { Parent = this, position = this.Children.Count };
-			this.Children.Add (childNode);
+			TreeNode<T> childNode = new TreeNode<T>(child) { Parent = this, position = this.Children.Count };
+			this.Children.Add(childNode);
 
-			this.RegisterChildForSearch (childNode);
+			this.RegisterChildForSearch(childNode);
 
 			return childNode;
 		}
 
-		public override string ToString ()
+		public override string ToString()
 		{
-			return Data != null ? Data.ToString () : "[data null]";
+			return Data != null ? Data.ToString() : "[data null]";
 		}
 
 		#region searching
 
 		private ICollection<TreeNode<T>> ElementsIndex { get; set; }
 
-		private void RegisterChildForSearch (TreeNode<T> node)
+		private void RegisterChildForSearch(TreeNode<T> node)
 		{
-			ElementsIndex.Add (node);
+			ElementsIndex.Add(node);
 			if (Parent != null)
-				Parent.RegisterChildForSearch (node);
+				Parent.RegisterChildForSearch(node);
 		}
 
-		public TreeNode<T> FindTreeNode (Func<TreeNode<T>, bool> predicate)
+		public TreeNode<T> FindTreeNode(Func<TreeNode<T>, bool> predicate)
 		{
-			return this.ElementsIndex.FirstOrDefault (predicate);
+			return this.ElementsIndex.FirstOrDefault(predicate);
 		}
 
 		#endregion
 
 		#region iterating
 
-		IEnumerator IEnumerable.GetEnumerator ()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return GetEnumerator ();
+			return GetEnumerator();
 		}
 
-		public IEnumerator<TreeNode<T>> GetEnumerator ()
+		public IEnumerator<TreeNode<T>> GetEnumerator()
 		{
 			yield return this;
 			foreach (var directChild in this.Children) {

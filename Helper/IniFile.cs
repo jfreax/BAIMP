@@ -54,6 +54,7 @@ namespace baimp
 		}
 
 		private readonly string fileName_;
+
 		/// <summary>
 		/// Gets the name of the associated file.
 		/// </summary>
@@ -64,21 +65,24 @@ namespace baimp
 		/// <summary>
 		/// Adds a line to the bottom of the file.
 		/// </summary>
-		protected void Add(string line) {
+		protected void Add(string line)
+		{
 			lines_.Add(line);
 		}
 
 		/// <summary>
 		/// Inserts a line at the specified index.
 		/// </summary>
-		protected void Insert(int index, string line) {
+		protected void Insert(int index, string line)
+		{
 			lines_.Insert(index, line);
 		}
 
 		/// <summary>
 		/// Removes a line at the specified index.
 		/// </summary>
-		protected void RemoveLine(int index) {
+		protected void RemoveLine(int index)
+		{
 			lines_.RemoveAt(index);
 		}
 
@@ -86,7 +90,8 @@ namespace baimp
 		/// Initializes a new IniFile and caches the
 		/// contents of fileName if it exists.
 		/// </summary>
-		public IniFile(string fileName) {
+		public IniFile(string fileName)
+		{
 			fileName_ = fileName;
 			if (File.Exists(fileName)) {
 				using (StreamReader reader = new StreamReader(fileName)) {
@@ -99,12 +104,14 @@ namespace baimp
 		/// <summary>
 		/// Dispose the object and save the file.
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
 			if (disposing)
 				UpdateFile();
 		}
@@ -113,7 +120,8 @@ namespace baimp
 		/// Write cached contents to file. The file is created if it
 		/// doesn't exist.
 		/// </summary>
-		public virtual void UpdateFile() {
+		public virtual void UpdateFile()
+		{
 			using (StreamWriter writer = new StreamWriter(FileName)) {
 				for (int i = 0; i < Count; i++)
 					writer.WriteLine(this[i]);
@@ -124,7 +132,8 @@ namespace baimp
 		/// Removes comments (starting with ;) and supoerflous
 		/// whitespace from line
 		/// </summary>
-		protected static string StripComments(string line) {
+		protected static string StripComments(string line)
+		{
 			if (line != null) {
 				if (line.IndexOf(';') != -1)
 					return line.Remove(line.IndexOf(';')).Trim();
@@ -133,7 +142,8 @@ namespace baimp
 			return string.Empty;
 		}
 
-		private int SkipToSection(string name) {
+		private int SkipToSection(string name)
+		{
 			if (name != null) {
 				string needle = "[" + name + "]";
 				for (int i = 0; i < Count; i++) {
@@ -147,21 +157,23 @@ namespace baimp
 		/// <summary>
 		/// Checks if the specified section exists.
 		/// </summary>
-		public virtual bool SectionExists(string name) {
+		public virtual bool SectionExists(string name)
+		{
 			return SkipToSection(name) != -1;
 		}
 
 		/// <summary>
 		/// Deletes Key <b>name</b> in section <b>section</b>.
 		/// </summary>
-		public virtual void DeleteKey(string section, string name) {
+		public virtual void DeleteKey(string section, string name)
+		{
 			int i = SkipToSection(section);
 			if (i != -1) {
 				for (; i < Count; i++) {
 					string line = this[i];
 					if (line.StartsWith(name + '=', StringComparison.Ordinal)
-						|| line.StartsWith(name + " =",
-							StringComparison.Ordinal)) {
+					    || line.StartsWith(name + " =",
+						    StringComparison.Ordinal)) {
 						RemoveLine(i);
 						return;
 					}
@@ -172,7 +184,8 @@ namespace baimp
 		/// <summary>
 		/// Completely removes the specified section
 		/// </summary>
-		public virtual void EraseSection(string section) {
+		public virtual void EraseSection(string section)
+		{
 			int i = SkipToSection(section);
 			if (i != -1) {
 				RemoveLine(i);
@@ -180,7 +193,7 @@ namespace baimp
 				for (; i < Count; i++) {
 					string line = StripComments(this[i]);
 					if (line.Length != 0 && line[0] == '['
-						&& line[line.Length - 1] == ']')
+					    && line[line.Length - 1] == ']')
 						return;
 
 					RemoveLine(i);
@@ -192,16 +205,18 @@ namespace baimp
 		/// Gets the contents at the specified key as a string.
 		/// If the key doesn't exist an empty string is returned.
 		/// </summary>
-		public virtual string ReadString(string section, string key) {
+		public virtual string ReadString(string section, string key)
+		{
 			return ReadString(section, key, String.Empty);
 		}
 
-		private int FindKey(string key, int i) {
+		private int FindKey(string key, int i)
+		{
 			if (key != null) {
 				for (; i < Count; i++) {
 					string line = StripComments(this[i]);
-					if (line.StartsWith (key + '=', StringComparison.Ordinal)
-					    || line.StartsWith (key + " =", StringComparison.Ordinal)) {
+					if (line.StartsWith(key + '=', StringComparison.Ordinal)
+					    || line.StartsWith(key + " =", StringComparison.Ordinal)) {
 						return i;
 					}
 				}
@@ -209,32 +224,32 @@ namespace baimp
 			return -1;
 		}
 
-
 		/// <summary>
 		/// Reads all keys of one section.
 		/// </summary>
 		/// <returns>List of keys.</returns>
 		/// <param name="section">Section.</param>
-		public virtual List<Tuple<string, string>> ReadAllStrings(string section) {
+		public virtual List<Tuple<string, string>> ReadAllStrings(string section)
+		{
 			int i = SkipToSection(section);
 			if (i != -1) {
 				i++;
 
-				List<Tuple<string, string>> ret = new List<Tuple<string, string>> ();
+				List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
 
 				for (; i < Count; i++) {
 					string line = StripComments(this[i]);
-					if (line.Length != 0 && line [0] != '['
-					    && line [line.Length - 1] != ']') {
+					if (line.Length != 0 && line[0] != '['
+					    && line[line.Length - 1] != ']') {
 
-						string[] split = line.Split ('=');
+						string[] split = line.Split('=');
 						if (split.Length >= 2) {
-							ret.Add ( new Tuple<string, string>(split[0], split[1]));
+							ret.Add(new Tuple<string, string>(split[0], split[1]));
 						}
 					}
 
 					if (line.Length != 0 && line[0] == '['
-						&& line[line.Length - 1] == ']')
+					    && line[line.Length - 1] == ']')
 						return ret;
 				}
 
@@ -251,7 +266,8 @@ namespace baimp
 		/// Is returned if the key doesn't exist
 		/// </param>
 		public virtual string ReadString(string section, string key,
-			string defaultvalue) {
+		                                 string defaultvalue)
+		{
 			int i = SkipToSection(section);
 			if (i != -1) {
 				i = FindKey(key, i);
@@ -270,7 +286,8 @@ namespace baimp
 		/// section doesn't exist.
 		/// </summary>
 		public virtual void WriteString(string section, string key,
-			string value) {
+		                                string value)
+		{
 			if (section == null || key == null || value == null)
 				return;
 			string newLine = key + '=' + value;
@@ -295,7 +312,8 @@ namespace baimp
 		/// Is returned if the key doesn't exist or couldn't be parsed
 		/// </param>
 		public virtual bool ReadBool(string section, string key,
-			bool defaultvalue) {
+		                             bool defaultvalue)
+		{
 			bool ret;
 			if (bool.TryParse(ReadString(section, key), out ret))
 				return ret;
@@ -306,7 +324,8 @@ namespace baimp
 		/// Writes <b>value</b> to the key <b>key</b> in the section
 		/// <b>section</b>.
 		/// </summary>
-		public virtual void WriteBool(string section, string key, bool value) {
+		public virtual void WriteBool(string section, string key, bool value)
+		{
 			WriteString(section, key, value.ToString());
 		}
 
@@ -317,10 +336,11 @@ namespace baimp
 		/// Is returned if the key doesn't exist or couldn't be parsed
 		/// </param>
 		public virtual int ReadInteger(string section, string key,
-			int defaultvalue) {
+		                               int defaultvalue)
+		{
 			int ret;
 			if (int.TryParse(ReadString(section, key), NumberStyles.Integer,
-				CultureInfo.InvariantCulture, out ret))
+				    CultureInfo.InvariantCulture, out ret))
 				return ret;
 			return defaultvalue;
 		}
@@ -330,7 +350,8 @@ namespace baimp
 		/// <b>section</b>.
 		/// </summary>
 		public virtual void WriteInteger(string section, string key,
-			int value) {
+		                                 int value)
+		{
 			WriteString(section, key,
 				value.ToString(CultureInfo.InvariantCulture));
 		}
@@ -343,11 +364,12 @@ namespace baimp
 		/// </param>
 		/// <param name="provider">A FormatProvider to read the data.</param>
 		public virtual double ReadDouble(string section, string key,
-			double defaultvalue,
-			IFormatProvider provider) {
+		                                 double defaultvalue,
+		                                 IFormatProvider provider)
+		{
 			double ret;
 			if (double.TryParse(ReadString(section, key), NumberStyles.Float,
-				provider, out ret))
+				    provider, out ret))
 				return ret;
 			return defaultvalue;
 		}
@@ -361,7 +383,8 @@ namespace baimp
 		/// Is returned if the key doesn't exist or couldn't be parsed
 		/// </param>
 		public virtual double ReadDoubleInvariant(string section, string key,
-			double defaultvalue) {
+		                                          double defaultvalue)
+		{
 			return ReadDouble(section, key, defaultvalue,
 				CultureInfo.InvariantCulture);
 		}
@@ -375,7 +398,8 @@ namespace baimp
 		/// Is returned if the key doesn't exist or couldn't be parsed
 		/// </param>
 		public virtual double ReadDouble(string section, string key,
-			double defaultvalue) {
+		                                 double defaultvalue)
+		{
 			return ReadDouble(section, key, defaultvalue,
 				CultureInfo.CurrentCulture);
 		}
@@ -386,8 +410,9 @@ namespace baimp
 		/// </summary>
 		/// <param name="provider">A FormatProvider to format the data.</param>
 		public virtual void WriteDouble(string section, string key,
-			double value,
-			IFormatProvider provider) {
+		                                double value,
+		                                IFormatProvider provider)
+		{
 			WriteString(section, key, value.ToString(provider));
 		}
 
@@ -397,7 +422,8 @@ namespace baimp
 		/// (i.e. decimal separator = '.')
 		/// </summary>
 		public virtual void WriteDoubleInvariant(string section, string key,
-			double value) {
+		                                         double value)
+		{
 			WriteDouble(section, key, value, CultureInfo.InvariantCulture);
 		}
 
@@ -407,7 +433,8 @@ namespace baimp
 		/// (e.g. decimal separator = ',' on german OS)
 		/// </summary>
 		public virtual void WriteDouble(string section, string key,
-			double value) {
+		                                double value)
+		{
 			WriteDouble(section, key, value, CultureInfo.CurrentCulture);
 		}
 
@@ -419,11 +446,12 @@ namespace baimp
 		/// </param>
 		/// <param name="provider">A FormatProvider to format the data.</param>
 		public DateTime ReadDateTime(string section, string key,
-			DateTime defaultvalue,
-			IFormatProvider provider) {
+		                             DateTime defaultvalue,
+		                             IFormatProvider provider)
+		{
 			DateTime ret;
 			if (DateTime.TryParse(ReadString(section, key), provider,
-				DateTimeStyles.None, out ret))
+				    DateTimeStyles.None, out ret))
 				return ret;
 			return defaultvalue;
 		}
@@ -437,11 +465,12 @@ namespace baimp
 		/// </param>
 		/// <param name="provider">A FormatProvider to format the data.</param>
 		public DateTime ReadDateTime(string section, string key, string format,
-			DateTime defaultvalue,
-			IFormatProvider provider) {
+		                             DateTime defaultvalue,
+		                             IFormatProvider provider)
+		{
 			DateTime ret;
 			if (DateTime.TryParseExact(ReadString(section, key), format,
-				provider, DateTimeStyles.None, out ret))
+				    provider, DateTimeStyles.None, out ret))
 				return ret;
 			return defaultvalue;
 		}
@@ -452,7 +481,8 @@ namespace baimp
 		/// </summary>
 		/// <param name="provider">A FormatProvider to format the data.</param>
 		public void WriteDateTime(string section, string key, DateTime value,
-			IFormatProvider provider) {
+		                          IFormatProvider provider)
+		{
 			WriteString(section, key, value.ToString(provider));
 		}
 
@@ -467,7 +497,8 @@ namespace baimp
 		/// A FormatProvider to format the data.
 		/// </param>
 		public void WriteDateTime(string section, string key, string format,
-			DateTime value, IFormatProvider provider) {
+		                          DateTime value, IFormatProvider provider)
+		{
 			WriteString(section, key, value.ToString(format, provider));
 		}
 	}

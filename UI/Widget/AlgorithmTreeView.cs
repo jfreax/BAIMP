@@ -11,36 +11,35 @@ namespace baimp
 	{
 		public DataField<object> nameCol;
 		public TreeStore store;
-
 		private Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.AlgorithmView"/> class.
 		/// </summary>
-		public AlgorithmTreeView ()
+		public AlgorithmTreeView()
 		{
-			nameCol = new DataField<object> ();
-			store = new TreeStore (nameCol);
+			nameCol = new DataField<object>();
+			store = new TreeStore(nameCol);
 
 			Type baseType = typeof(BaseAlgorithm);
-			IEnumerable<Type> algorithms = AppDomain.CurrentDomain.GetAssemblies ()
-				.SelectMany (s => s.GetTypes ())
+			IEnumerable<Type> algorithms = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
 				.Where(t => t.BaseType == baseType);
 
-			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>> ();
+			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>>();
 			foreach (Type algorithm in algorithms) {
 
-				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (PipelineNode)null) as BaseAlgorithm;
-				string algorithmType = instance.AlgorithmType.ToString ();
+				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (PipelineNode) null) as BaseAlgorithm;
+				string algorithmType = instance.AlgorithmType.ToString();
 
-				if (!algorithmCollection.ContainsKey (algorithmType)) {
-					algorithmCollection [algorithmType] = new List<BaseAlgorithm> ();
+				if (!algorithmCollection.ContainsKey(algorithmType)) {
+					algorithmCollection[algorithmType] = new List<BaseAlgorithm>();
 				}
 
-				algorithmCollection [algorithmType].Add (instance);
+				algorithmCollection[algorithmType].Add(instance);
 			}
 
-			InitializeUI ();
+			InitializeUI();
 		}
 
 		/// <summary>
@@ -48,21 +47,21 @@ namespace baimp
 		/// </summary>
 		private void InitializeUI()
 		{
-			this.Columns.Add ("Name", nameCol);
+			this.Columns.Add("Name", nameCol);
 
 			this.DataSource = store;
 
 			foreach (string key in algorithmCollection.Keys) {
-				var p = store.AddNode (null).SetValue (nameCol, key).CurrentPosition;
+				var p = store.AddNode(null).SetValue(nameCol, key).CurrentPosition;
 
 				foreach (BaseAlgorithm algo in algorithmCollection[key]) {
-					var v = store.AddNode (p)
-						.SetValue (nameCol, algo)
+					var v = store.AddNode(p)
+						.SetValue(nameCol, algo)
 						.CurrentPosition;
 				}
 			}
 
-			this.ExpandAll ();
+			this.ExpandAll();
 
 //			SetDragDropTarget (DragDropAction.All, TransferDataType.Text);
 //			SetDragSource (	DragDropAction.All, TransferDataType.Text);
@@ -80,31 +79,30 @@ namespace baimp
 			if (SelectedRow == null)
 				return;
 
-			object value = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
+			object value = store.GetNavigatorAt(SelectedRow).GetValue(nameCol);
 			if (value is BaseAlgorithm) {
 			
-				TextLayout text = new TextLayout ();
-				text.Text = value.ToString ();
+				TextLayout text = new TextLayout();
+				text.Text = value.ToString();
 
-				Size textSize = text.GetSize ();
-				var ib = new ImageBuilder (textSize.Width, textSize.Height);
-				ib.Context.DrawTextLayout (text, 0, 0);
+				Size textSize = text.GetSize();
+				var ib = new ImageBuilder(textSize.Width, textSize.Height);
+				ib.Context.DrawTextLayout(text, 0, 0);
 
-				var d = CreateDragOperation ();
-				d.Data.AddValue (value.GetType().AssemblyQualifiedName);
-				d.SetDragImage (ib.ToVectorImage (), -6, -4);
+				var d = CreateDragOperation();
+				d.Data.AddValue(value.GetType().AssemblyQualifiedName);
+				d.SetDragImage(ib.ToVectorImage(), -6, -4);
 				d.AllowedActions = DragDropAction.Link;
-				d.Start ();
+				d.Start();
 
 				d.Finished += delegate(object sender, DragFinishedEventArgs e2) {
-					this.UnselectAll ();
+					this.UnselectAll();
 				
 				};
 			} else {
-				this.UnselectRow (SelectedRow);
+				this.UnselectRow(SelectedRow);
 			}
 		}
-
 	}
 }
 

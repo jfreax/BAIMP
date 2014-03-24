@@ -7,12 +7,12 @@ namespace baimp
 		public string[] addedFiles;
 		public bool refresh = false;
 
-		public ProjectChangedEventArgs (string[] addedFiles)
+		public ProjectChangedEventArgs(string[] addedFiles)
 		{
 			this.addedFiles = addedFiles;
 		}
 
-		public ProjectChangedEventArgs (bool refresh)
+		public ProjectChangedEventArgs(bool refresh)
 		{
 			this.refresh = refresh;
 		}
