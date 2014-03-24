@@ -4,6 +4,7 @@ using Xwt.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
+using baimp.Properties;
 
 namespace baimp
 {
