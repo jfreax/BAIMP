@@ -82,9 +82,9 @@ namespace baimp
 		}
 
 		[XmlArray("edges")]
+        [XmlArrayItem(ElementName = "connect", Type = typeof(MarkerEdge))]
 		[XmlArrayItem(ElementName="edge", Type=typeof(Edge))]
-		[XmlArrayItem(ElementName="edge", Type=typeof(MarkerEdge))]
-		public List<Edge> Edges
+        public List<Edge> Edges
 		{
 			get {
 				return edges;
