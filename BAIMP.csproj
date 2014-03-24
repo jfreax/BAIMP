@@ -100,6 +100,9 @@
     <Compile Include="UI\Widget\Pipeline\MarkerEdge.cs" />
     <Compile Include="Event\SaveStateEventArgs.cs" />
     <Compile Include="Algorithm\Input\ProjectFiles.cs" />
+    <Compile Include="DataTypes\BaseType.cs" />
+    <Compile Include="DataTypes\TFilePath.cs" />
+    <Compile Include="DataTypes\TImage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -137,5 +140,6 @@
     <Folder Include="Algorithm\Filter\" />
     <Folder Include="Contraints\" />
     <Folder Include="Algorithm\Input\" />
+    <Folder Include="DataTypes\" />
   </ItemGroup>
 </Project>
