@@ -103,6 +103,7 @@
     <Compile Include="DataTypes\BaseType.cs" />
     <Compile Include="DataTypes\TFilePath.cs" />
     <Compile Include="DataTypes\TImage.cs" />
+    <Compile Include="DataTypes\IType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

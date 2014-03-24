@@ -13,7 +13,12 @@ namespace baimp
 			compatibleOutput.Add (new Compatible("out #1", typeof(int)));
 			compatibleOutput.Add (new Compatible("out #2", typeof(string)));
 		}
-
+			
+		public override IType[] Run (params IType[] inputArgs)
+		{
+			throw new NotImplementedException ();
+		}
+			
 		public override AlgorithmType AlgorithmType {
 			get {
 				return AlgorithmType.Extraction;

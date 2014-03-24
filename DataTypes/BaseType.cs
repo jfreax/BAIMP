@@ -2,9 +2,13 @@
 
 namespace baimp
 {
-	public class BaseType<T>
+	public class BaseType<T> : IType where T : class
 	{
 		protected T raw;
+
+		public BaseType ()
+		{
+		}
 
 		public BaseType (T raw)
 		{

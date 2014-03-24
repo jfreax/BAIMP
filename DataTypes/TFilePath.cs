@@ -2,7 +2,7 @@
 
 namespace baimp
 {
-	public class TFilePath : BaseType<string>
+	public class TFilePath : BaseType<String>
 	{
 		public TFilePath (string path) : base(path)
 		{

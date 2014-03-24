@@ -15,6 +15,11 @@ namespace baimp
 
 		#region BaseAlgorithm implementation
 
+		public override IType[] Run (params IType[] inputArgs)
+		{
+			throw new NotImplementedException ();
+		}
+
 		public override AlgorithmType AlgorithmType {
 			get {
 				return AlgorithmType.Input;

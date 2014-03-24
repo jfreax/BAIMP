@@ -25,6 +25,8 @@ namespace baimp
 			compatibleOutput = new List<Compatible> ();
 		}
 
+		abstract public IType[] Run (params IType[] inputArgs);
+
 		abstract public AlgorithmType AlgorithmType {
 			get;
 		}
