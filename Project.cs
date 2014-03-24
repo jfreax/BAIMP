@@ -42,27 +42,26 @@ namespace baimp
 		/// <param name="filePath">File path.</param>
 		public void Open(string filePath)
 		{
-			this.FilePath = Path.GetFullPath(filePath);
-
+			this.ProjectFile = Path.GetFullPath(filePath);
 
 			StringCollection last = Settings.Default.LastOpenedProjects;
 			if (last == null) { 
 				last = new StringCollection();
 				Settings.Default.LastOpenedProjects = last;
 			} else {
-				if (last.Contains(FilePath)) {
-					last.Remove(FilePath);
+				if (last.Contains(ProjectFile)) {
+					last.Remove(ProjectFile);
 				} else if (last.Count >= MaxLastOpenedProject) {
 					last.RemoveAt(0);
 				}
 			}
 
-			last.Add(FilePath);
+			last.Add(ProjectFile);
 			Settings.Default.LastOpenedProjects = last;
 			Settings.Default.Save();
 
-			if (File.Exists(FilePath)) {
-				using (XmlTextReader xmlReader = new XmlTextReader(FilePath)) {
+			if (File.Exists(ProjectFile)) {
+				using (XmlTextReader xmlReader = new XmlTextReader(ProjectFile)) {
 
 					XmlSerializer deserializer = new XmlSerializer(this.GetType());
 					Project p = (Project) deserializer.Deserialize(xmlReader);
@@ -117,14 +116,14 @@ namespace baimp
 		/// </summary>
 		public bool Save(PipelineView pipeline)
 		{
-			if (FilePath == null) {
+			if (ProjectFile == null) {
 				if (!NewDialog()) {
 					return false;
 				}
 			}
 
 			this.loadedNodes = pipeline.Nodes;
-			using (XmlTextWriter xmlWriter = new XmlTextWriter(FilePath, null)) {
+			using (XmlTextWriter xmlWriter = new XmlTextWriter(ProjectFile, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 
 				var extraTypes = new[] {
@@ -197,7 +196,14 @@ namespace baimp
 					filename = Path.GetDirectoryName(filename) + "/" + Path.GetFileNameWithoutExtension(filename) + ".baimp";
 				}
 
-				this.FilePath = filename;
+				this.ProjectFile = filename;
+				this.Files = new List<string>();
+				this.LoadedNodes = new List<PipelineNode>();
+
+				if (projectChanged != null) {
+					projectChanged(this, new ProjectChangedEventArgs(true));
+				}
+
 				return true;
 			}
 
@@ -227,7 +233,7 @@ namespace baimp
 		#region properties
 
 		[XmlIgnore]
-		public string FilePath {
+		public string ProjectFile {
 			get;
 			set;
 		}
