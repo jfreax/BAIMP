@@ -95,7 +95,7 @@ namespace baimp
 			}
 		}
 
-		[XmlElement("id")]
+		[XmlAttribute("id")]
 		public int ID {
 			get {
 				return id;
