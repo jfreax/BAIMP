@@ -84,8 +84,7 @@ namespace baimp
 			// set window preference
 			Title = "BAIMP";
 
-			// main menu
-			Menu menu = new Menu();
+			// file menu
 			var file = new MenuItem("_File");
 			file.SubMenu = new Menu();
 
@@ -138,7 +137,19 @@ namespace baimp
 			menuClose.Clicked += (object sender, EventArgs e) => this.Close();
 			file.SubMenu.Items.Add(menuClose);
 
+
+			// Pipeline menu
+			MenuItem pipelineMenu = new MenuItem("_Pipeline");
+			pipelineMenu.SubMenu = new Menu();
+
+			MenuItem menuExecute = new MenuItem("_Execute");
+			menuExecute.Clicked += (object sender, EventArgs e) => pipeline.Execute();
+			pipelineMenu.SubMenu.Items.Add(menuExecute);
+
+			// main menu
+			Menu menu = new Menu();
 			menu.Items.Add(file);
+			menu.Items.Add(pipelineMenu);
 			MainMenu = menu;
 
 			// initialize preview widget

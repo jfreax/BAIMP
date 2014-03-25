@@ -17,7 +17,7 @@ namespace baimp
 		/// <summary>
 		/// Start to evaluate the pipeline
 		/// </summary>
-		public void Start(IType[] input)
+		public void Start(params IType[] input)
 		{
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ThreadPool.QueueUserWorkItem(o => {

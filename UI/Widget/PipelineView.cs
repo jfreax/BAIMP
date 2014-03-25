@@ -178,6 +178,19 @@ namespace baimp
 
 		#endregion
 
+		#region start/stio
+		public void Execute()
+		{
+			foreach (PipelineNode pNode in nodes) {
+				if (pNode.IsReady()) {
+					Process process = new Process(pNode);
+					process.Start();
+				}
+			}
+		}
+
+		#endregion
+
 		#region drag and drop
 
 		protected override void OnDragOver(DragOverEventArgs e)
