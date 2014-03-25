@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace baimp
 {
@@ -34,7 +35,19 @@ namespace baimp
 		{
 			Compatible another = nodeTo.compatible;
 
-			if (!Type.Equals(another.Type)) {
+
+			Type typeFrom = Type;
+			Type typeTo = another.Type;
+
+			if (typeFrom.IsGenericType) {
+				typeFrom = typeFrom.GetGenericArguments()[0];
+			}
+
+			if (typeTo.IsGenericType) {
+				typeTo = typeTo.GetGenericArguments()[0];
+			}
+
+			if (!typeFrom.Equals(typeTo)) {
 				return false;
 			}
 				
