@@ -1,15 +1,29 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace baimp
 {
 	public class Option
 	{
-		public readonly string name;
-		public readonly IComparable minValue = null;
-		public readonly IComparable maxValue = null;
-		public readonly IComparable defaultValue;
+		[XmlAttribute]
+		public string name;
 
+		[XmlIgnore]
+		public readonly IComparable minValue = null;
+
+		[XmlIgnore]
+		public readonly IComparable maxValue = null;
+
+		[XmlIgnore]
+		public readonly IComparable defaultValue;
+	
+		[XmlIgnore]
 		private IComparable val;
+
+		/// <summary>
+		/// For xml serialization only. Do not use!
+		/// </summary>
+		public Option() {}
 
 		public Option(string name, IComparable defaultValue)
 		{
@@ -29,6 +43,7 @@ namespace baimp
 			this.val = defaultValue;
 		}
 
+		[XmlIgnore]
 		public IComparable Value
 		{
 			get {
@@ -42,6 +57,16 @@ namespace baimp
 				} else {
 					this.val = value;
 				}
+			}
+		}
+
+		[XmlAttribute("value")]
+		public object _intern_value {
+			get {
+				return Value;
+			}
+			set {
+				Value = value as IComparable;
 			}
 		}
 	}

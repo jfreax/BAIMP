@@ -73,6 +73,11 @@ namespace baimp
 					foreach (PipelineNode pNode in p.LoadedNodes) {
 						pNode.Initialize();
 
+						foreach (Option option in pNode._intern_Options) {
+							Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
+							targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
+						}
+
 						foreach (MarkerNode mNode in pNode.mNodes) {
 							allNodes.Add(mNode.ID, mNode);
 						}
@@ -143,9 +148,16 @@ namespace baimp
 				}
 			}
 
+			// save scan metadata
 			scanCollection.SaveAll();
 
+			// prepare data
 			this.loadedNodes = pipeline.Nodes;
+			foreach (PipelineNode pNode in loadedNodes) {
+				pNode._intern_Options = pNode.algorithm.Options;
+			}
+
+			// serialize!
 			using (XmlTextWriter xmlWriter = new XmlTextWriter(ProjectFile, null)) {
 				xmlWriter.Formatting = Formatting.Indented;
 

@@ -32,7 +32,6 @@ namespace baimp
 				                  bitmap.PixelFormat
 			                  );
 				
-			//TODO make this an option
 			int dx = (int) options[0].Value;
 			int dy = (int) options[1].Value;
 
@@ -85,7 +84,7 @@ namespace baimp
 						float v = (float) (0.2125 * src[0] + 0.7154 * src[1] + 0.0721 * src[2]);
 						int posWithOffset = ((y + dy) * stride * pixelSize) + (x + dx) * pixelSize;
 
-						matrix[(int) v, srcBegin[posWithOffset]]++;
+						//matrix[(int) v, srcBegin[posWithOffset]]++;
 					}
 
 					src += offset;

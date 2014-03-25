@@ -314,6 +314,27 @@ namespace baimp
 			}
 		}
 
+		/// <summary>
+		/// Internal use only! (xml serialization)
+		/// </summary>
+		[XmlIgnore]
+		List<Option> _intern_options = new List<Option>();
+
+		/// <summary>
+		/// Internal use only! (xml serialization)
+		/// </summary>
+		/// <value>The _intern_ options.</value>
+		[XmlArray("options")]
+		[XmlArrayItem(ElementName = "option")]
+		public List<Option> _intern_Options {
+			get {
+				return _intern_options;
+			}
+			set {
+				_intern_options = value;
+			}
+		}
+
 		#endregion
 	}
 }
