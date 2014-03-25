@@ -44,13 +44,13 @@ namespace baimp
 		/// <param name="output">Output of algorithm.</param>
 		private void OnFinish(IType[] output)
 		{
-			List<Compatible> compatibleOutput = startNode.algorithm.CompatibleOutput;
+			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 
 			if (output.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
 
-			int offsetIndex = startNode.algorithm.CompatibleInput.Count;
+			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < output.Length; i++) {
 				if (!compatibleOutput[i].Type.IsAssignableFrom(output[i].GetType())) {
 					throw new TypeAccessException(); // TODO throw a proper exception

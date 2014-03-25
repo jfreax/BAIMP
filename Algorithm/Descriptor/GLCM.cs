@@ -11,9 +11,9 @@ namespace baimp
 
 		public GLCM(PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add(new Compatible("Image", typeof(TBitmap[]), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TBitmap[]), new MaximumUses(1)));
 
-			compatibleOutput.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
+			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
 		}
 
 		#region implemented abstract members of BaseAlgorithm

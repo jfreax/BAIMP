@@ -43,12 +43,12 @@ namespace baimp
 			this.bound = bound;
 
 			int i = 0;
-			foreach (Compatible c in algorithm.CompatibleInput) {
+			foreach (Compatible c in algorithm.Input) {
 				this.Add(new MarkerNode(this, c, i, true));
 				i++;
 			}
 			i = 0;
-			foreach (Compatible c in algorithm.CompatibleOutput) {
+			foreach (Compatible c in algorithm.Output) {
 				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
@@ -62,9 +62,9 @@ namespace baimp
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
 				if (mNode.IsInput) {
-					mNode.compatible = algorithm.CompatibleInput[mNode.Position];
+					mNode.compatible = algorithm.Input[mNode.Position];
 				} else {
-					mNode.compatible = algorithm.CompatibleOutput[mNode.Position];
+					mNode.compatible = algorithm.Output[mNode.Position];
 				}
 			}
 		}
@@ -165,8 +165,8 @@ namespace baimp
 		/// <returns>The input.</returns>
 		public IType[] DequeueInput()
 		{
-			IType[] input = new IType[algorithm.CompatibleInput.Count];
-			for (int i = 0; i < algorithm.CompatibleInput.Count; i++) {
+			IType[] input = new IType[algorithm.Input.Count];
+			for (int i = 0; i < algorithm.Input.Count; i++) {
 				input[i] = mNodes[i].inputData.Dequeue();
 			}
 
@@ -251,9 +251,9 @@ namespace baimp
 				foreach (MarkerNode mNode in mNodes) {
 					mNode.parent = this;
 					if (mNode.IsInput) {
-						mNode.compatible = algorithm.CompatibleInput[mNode.Position];
+						mNode.compatible = algorithm.Input[mNode.Position];
 					} else {
-						mNode.compatible = algorithm.CompatibleOutput[mNode.Position];
+						mNode.compatible = algorithm.Output[mNode.Position];
 					}
 				}
 			}

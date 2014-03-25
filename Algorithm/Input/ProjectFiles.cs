@@ -8,9 +8,9 @@ namespace baimp
 	{
 		public ProjectFiles(PipelineNode parent) : base(parent)
 		{
-			compatibleOutput.Add(new Compatible("Intensity", typeof(TBitmap[])));
-			compatibleOutput.Add(new Compatible("Topography", typeof(TBitmap[]), new MaximumUses(2)));
-			compatibleOutput.Add(new Compatible("Color", typeof(TBitmap[])));
+			output.Add(new Compatible("Intensity", typeof(TBitmap[])));
+			output.Add(new Compatible("Topography", typeof(TBitmap[]), new MaximumUses(2)));
+			output.Add(new Compatible("Color", typeof(TBitmap[])));
 
 			request.Add(RequestType.Filenames);
 		}

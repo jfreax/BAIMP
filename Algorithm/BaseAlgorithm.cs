@@ -24,12 +24,12 @@ namespace baimp
 		/// <summary>
 		/// Input data types, their properties and contraints.
 		/// </summary>
-		protected List<Compatible> compatibleInput;
+		protected List<Compatible> input;
 
 		/// <summary>
 		/// Output data types, their properties and contraints.
 		/// </summary>
-		protected List<Compatible> compatibleOutput;
+		protected List<Compatible> output;
 
 		/// <summary>
 		/// List of data we want from the program
@@ -46,8 +46,8 @@ namespace baimp
 		{
 			this.parent = parent;
 
-			compatibleInput = new List<Compatible>();
-			compatibleOutput = new List<Compatible>();
+			input = new List<Compatible>();
+			output = new List<Compatible>();
 			request = new HashSet<RequestType>();
 			requestedData = new Dictionary<RequestType, object>();
 		}
@@ -62,15 +62,15 @@ namespace baimp
 			get;
 		}
 
-		public List<Compatible> CompatibleInput {
+		public List<Compatible> Input {
 			get {
-				return compatibleInput;
+				return input;
 			}
 		}
 
-		public List<Compatible> CompatibleOutput {
+		public List<Compatible> Output {
 			get {
-				return compatibleOutput;
+				return output;
 			}
 		}
 

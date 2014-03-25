@@ -8,10 +8,10 @@ namespace baimp
 	{
 		public TestExtraction(PipelineNode parent) : base(parent)
 		{
-			compatibleInput.Add(new Compatible("in #1", typeof(TBitmap[]), new MaximumUses(1)));
+			input.Add(new Compatible("in #1", typeof(TBitmap[]), new MaximumUses(1)));
 
-			compatibleOutput.Add(new Compatible("out #1", typeof(int)));
-			compatibleOutput.Add(new Compatible("out #2", typeof(string)));
+			output.Add(new Compatible("out #1", typeof(int)));
+			output.Add(new Compatible("out #2", typeof(string)));
 		}
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
