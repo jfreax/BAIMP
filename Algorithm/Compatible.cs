@@ -47,8 +47,18 @@ namespace baimp
 				typeTo = typeTo.GetGenericArguments()[0];
 			}
 
-			if (!typeFrom.Equals(typeTo)) {
-				return false;
+			if (typeTo.IsInterface) {
+				if (!typeFrom.GetInterfaces().Contains(typeTo)) {
+					return false;
+				}
+			} else if (typeFrom.IsInterface) {
+				if (!typeTo.GetInterfaces().Contains(typeFrom)) {
+					return false;
+				}
+			} else {
+				if (!typeFrom.Equals(typeTo)) {
+					return false;
+				}
 			}
 				
 			foreach (BaseConstraint constraint in constraints) {
