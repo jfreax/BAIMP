@@ -59,7 +59,8 @@ namespace baimp
 		/// <param name="requestedData">Requested data.</param>
 		/// <param name="inputArgs">Input arguments.</param>
 		/// <remarks>
-		/// Return null, when no more data is available (important for sequential data output)
+		/// Return null, when no more data is available (important for sequential data output).
+		/// Use Yield() function to return data when one output parameter is Parallel.
 		/// </remarks>
 		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs);
 
@@ -93,5 +94,47 @@ namespace baimp
 		{
 			return this.GetType().Name;
 		}
+
+		#region do not override
+
+		protected void Yield(IType[] data)
+		{
+			if (yielded != null) {
+				yielded(this, new AlgorithmDataArgs(data));
+			}
+		}
+
+		public bool OutputsSequentialData()
+		{
+			foreach (Compatible comp in output) {
+				if (comp.Type.IsGenericType &&
+				    comp.Type.GetGenericTypeDefinition().IsEquivalentTo(typeof(Sequential<>))) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		#endregion
+
+		#region events
+
+		EventHandler<AlgorithmDataArgs> yielded;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<AlgorithmDataArgs> Yielded {
+			add {
+				yielded += value;
+			}
+			remove {
+				yielded -= value;
+			}
+		}
+
+
+		#endregion
 	}
 }

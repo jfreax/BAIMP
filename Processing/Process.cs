@@ -36,9 +36,19 @@ namespace baimp
 		{
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ThreadPool.QueueUserWorkItem(o => {
+				bool isSeqData = startNode.algorithm.OutputsSequentialData();
+				if (isSeqData) {
+					startNode.algorithm.Yielded += GetSingleData;
+				}
+
 				IType[] output = startNode.algorithm.Run(startNode.algorithm.requestedData, input);
-				if( output != null) { // null means, there is no more data
-					callback(output);
+
+				if (isSeqData) {
+					startNode.algorithm.Yielded -= GetSingleData;
+				} else {
+					if (output != null) { // null means, there is no more data
+						callback(output);
+					}
 				}
 			});
 		}
@@ -54,19 +64,6 @@ namespace baimp
 			if (result.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
-
-			// is one of these outputs sequential, then start next run
-			foreach (Compatible comp in compatibleOutput) {
-				if (comp.Type.IsGenericType &&
-				    comp.Type.GetGenericTypeDefinition().IsEquivalentTo(typeof(Sequential<>))) {
-					if (startNode.IsReady()) {
-						Process newProcess = new Process(project, startNode);
-						newProcess.Start(startNode.DequeueInput());
-						break;
-					}
-				}
-			}
-
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
@@ -100,6 +97,11 @@ namespace baimp
 					}
 				}
 			}
+		}
+
+		private void GetSingleData(object sender, AlgorithmDataArgs e)
+		{
+			OnFinish(e.data);
 		}
 	}
 }

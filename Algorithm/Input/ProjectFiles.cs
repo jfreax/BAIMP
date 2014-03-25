@@ -6,8 +6,6 @@ namespace baimp
 {
 	public class ProjectFiles : BaseAlgorithm
 	{
-		int position = 0;
-
 		public ProjectFiles(PipelineNode parent) : base(parent)
 		{
 			output.Add(new Compatible(
@@ -33,20 +31,14 @@ namespace baimp
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
 
-			int i = 0;
 			foreach (string key in scans.Keys) {
 				foreach (Scan scan in scans[key]) {
-					if (i == position) {
-						Console.WriteLine(scan.Name + " for position " + position);
-						IType[] output = new IType[3];
-						output[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
-						output[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));
-						output[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
+					IType[] data = new IType[3];
+					data[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
+					data[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));
+					data[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
 
-						position++;
-						return output;
-					}
-					i++;
+					Yield(data);
 				}
 			}
 

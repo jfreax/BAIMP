@@ -120,6 +120,8 @@
     <Compile Include="Processing\Process.cs" />
     <Compile Include="DataTypes\Sequential.cs" />
     <Compile Include="DataTypes\Parallel.cs" />
+    <Compile Include="Algorithm\Misc\Writer.cs" />
+    <Compile Include="Event\AlgorithmDataArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -160,6 +162,7 @@
     <Folder Include="DataTypes\" />
     <Folder Include="Algorithm\Descriptor\" />
     <Folder Include="Processing\" />
+    <Folder Include="Algorithm\Misc\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
