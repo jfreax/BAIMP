@@ -28,6 +28,10 @@ namespace baimp
 		private MouseMover mouseMover;
 		CursorType oldCursor;
 
+		Window popupWindow = new Window ();
+		Size popupWindowSizeOld = Size.Zero;
+
+
 		#region initialize
 
 		/// <summary>
@@ -54,6 +58,17 @@ namespace baimp
 
 			mouseMover = new MouseMover(scrollview);
 			mouseMover.Timer = 20;
+
+			popupWindow.Decorated = false;
+			popupWindow.ShowInTaskbar = false;
+			popupWindow.Padding = 6;
+			popupWindow.BoundsChanged += delegate(object sender, EventArgs e) {
+				Size size = popupWindow.Size;
+				if (size != popupWindowSizeOld && size.Width > 5 && size.Height > 5) {
+					popupWindowSizeOld = size;
+					popupWindow.Location = popupWindow.Location.Offset(-size.Width / 2, -size.Height / 2);
+				}
+			};
 
 			InitializeContextMenus();
 		}
@@ -215,6 +230,10 @@ namespace baimp
 
 		#region methods
 
+		/// <summary>
+		/// Opens the option window.
+		/// </summary>
+		/// <param name="pNode">Pipeline node for which the option should be shown.</param>
 		private void OpenOptionWindow(PipelineNode pNode)
 		{
 			if (pNode.algorithm.Options.Count == 0) {
@@ -256,6 +275,30 @@ namespace baimp
 			}
 
 			d.Dispose ();
+		}
+
+		private void ShowResultPopover(MarkerNode mNode)
+		{
+			if (mNode.IsInput) {
+				return;
+			}
+
+			PipelineNode pNode = mNode.parent;
+			if (pNode.results == null || pNode.results.Count == 0) {
+				return;
+			}
+
+			if (pNode.results[0].Length-1 < mNode.Position) {
+				return;
+			}
+
+			IType result = pNode.results[0][mNode.Position];
+
+			popupWindow.Content = result.ToWidget();
+			popupWindow.Size = new Size(1, 1);
+			popupWindow.Location = Desktop.MouseLocation;
+			popupWindow.Show();
+
 		}
 
 		#endregion
@@ -427,6 +470,11 @@ namespace baimp
 					mouseAction ^= MouseAction.AddEdge;
 				}
 
+				// result popover
+				if (mNode != null) {
+					ShowResultPopover(mNode);
+				}
+
 				break;
 			case PointerButton.Middle:
 				if (mouseMover.Enabled) {
@@ -466,6 +514,8 @@ namespace baimp
 					TooltipText = string.Empty;
 				}
 			}
+
+			popupWindow.Hide();
 		}
 
 		protected override void OnMouseEntered(EventArgs e)

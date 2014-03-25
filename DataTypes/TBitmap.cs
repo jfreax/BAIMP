@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Xwt;
+using System.IO;
 
 namespace baimp
 {
@@ -18,7 +19,13 @@ namespace baimp
 
 		public override Xwt.Widget ToWidget()
 		{
-			return new ImageView();
+			MemoryStream mStream = new MemoryStream();
+			Data.Save(mStream, System.Drawing.Imaging.ImageFormat.Png);
+			mStream.Seek(0, SeekOrigin.Begin);
+			ImageView view = new ImageView(Xwt.Drawing.Image.FromStream(mStream).WithBoxSize(100));
+			mStream.Dispose();
+
+			return view;
 		}
 
 		#endregion

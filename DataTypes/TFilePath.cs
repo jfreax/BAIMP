@@ -1,4 +1,5 @@
 ﻿using System;
+using Xwt;
 
 namespace baimp
 {
@@ -12,7 +13,7 @@ namespace baimp
 
 		public override Xwt.Widget ToWidget()
 		{
-			throw new NotImplementedException();
+			return new Label(Data);
 		}
 
 		#endregion

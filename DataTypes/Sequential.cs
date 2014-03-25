@@ -13,6 +13,11 @@ namespace baimp
 		{
 			return typeof(T);
 		}
+
+		public override string ToString()
+		{
+			return string.Format("[Sequential] {0}", typeof(T));
+		}
 	}
 }
 

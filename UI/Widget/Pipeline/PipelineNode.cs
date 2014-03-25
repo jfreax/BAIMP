@@ -33,6 +33,10 @@ namespace baimp
 		[XmlIgnore]
 		private int progress = 0;
 
+		[XmlIgnore]
+		public List<IType[]> results = new List<IType[]>();
+
+
 		#region initialize
 
 		/// <summary>
