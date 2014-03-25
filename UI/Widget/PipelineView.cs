@@ -187,6 +187,7 @@ namespace baimp
 		public void Execute(Project project)
 		{
 			foreach (PipelineNode pNode in nodes) {
+				pNode.algorithm.SetProgress(0);
 				if (pNode.IsReady()) {
 					Process process = new Process(project, pNode);
 					process.Start();
