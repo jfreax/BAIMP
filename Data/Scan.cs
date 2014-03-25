@@ -148,7 +148,14 @@ namespace baimp
 				bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 			} else {
 				//bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
-				bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+				//bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
+				bitmap = new Bitmap(width, height, PixelFormat.Format8bppIndexed);
+
+				ColorPalette grayscalePalette = bitmap.Palette;
+				for(int i = 0; i < 256; i++) {
+					grayscalePalette.Entries[i] = Color.FromArgb(i, i, i);
+				}
+				bitmap.Palette = grayscalePalette;
 			}
 
 			//Create a BitmapData and Lock all pixels to be written 
@@ -174,10 +181,10 @@ namespace baimp
 				float max = this.max[(int) type];
                 
 				int len = width * height;
-				int* scan0 = (int*) bmpData.Scan0.ToPointer();
+				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				for (int i = 0; i < len; ++i) {
-					int color = (int) ((array[i] * 255) / max);
-					color |= (color << 24) | (color << 16) | (color << 8);
+					byte color = (byte) ((array[i] * 255) / max);
+					//color |= (color << 24) | (color << 16) | (color << 8);
 					*scan0 = color;
 					scan0++;
 				}
@@ -203,7 +210,7 @@ namespace baimp
 				return null;
 			}
 
-			bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+			bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
 			memoryStream.Position = 0;
 
 			return memoryStream;
@@ -217,16 +224,16 @@ namespace baimp
 		public XD.Image GetAsImage(ScanType type)
 		{
 			if (renderedImage[(int) type] == null) {
-				MemoryStream memoryStream = new MemoryStream();
-				System.Drawing.Bitmap bmp = GetAsBitmap(type);
-				if (bmp == null) {
-					// TODO raise error
-					return null;
-				}
-				bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
-				memoryStream.Position = 0;
+//				MemoryStream memoryStream = new MemoryStream();
+//				System.Drawing.Bitmap bmp = GetAsBitmap(type);
+//				if (bmp == null) {
+//					// TODO raise error
+//					return null;
+//				}
+//				bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
+//				memoryStream.Position = 0;
 
-				renderedImage[(int) type] = XD.Image.FromStream(memoryStream).WithSize(requestedBitmapSize);
+				renderedImage[(int) type] = XD.Image.FromStream(GetAsMemoryStream(type)).WithSize(requestedBitmapSize);
 			}
 				
 			return renderedImage[(int) type].WithSize(requestedBitmapSize);

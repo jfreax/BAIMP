@@ -184,6 +184,11 @@ namespace baimp
 		#endregion
 
 		#region start/stop
+
+		/// <summary>
+		/// Execute the pipeline of the specified project.
+		/// </summary>
+		/// <param name="project">Project.</param>
 		public void Execute(Project project)
 		{
 			foreach (PipelineNode pNode in nodes) {

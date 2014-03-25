@@ -69,9 +69,6 @@ namespace baimp
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
-//				if (!compatibleOutput[i].Type.IsAssignableFrom(output[i].GetType())) {
-//					throw new TypeAccessException(); // TODO throw a proper exception
-//				}
 
 				// enqueue new data
 				foreach (MarkerEdge edge in startNode.MNodes[offsetIndex+i].Edges) {
