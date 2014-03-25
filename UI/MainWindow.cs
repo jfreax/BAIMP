@@ -143,7 +143,7 @@ namespace baimp
 			pipelineMenu.SubMenu = new Menu();
 
 			MenuItem menuExecute = new MenuItem("_Execute");
-			menuExecute.Clicked += (object sender, EventArgs e) => pipeline.Execute();
+			menuExecute.Clicked += (object sender, EventArgs e) => pipeline.Execute(project);
 			pipelineMenu.SubMenu.Items.Add(menuExecute);
 
 			// main menu

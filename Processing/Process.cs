@@ -7,11 +7,22 @@ namespace baimp
 	public class Process
 	{
 		PipelineNode startNode;
+		Project project;
+
 		public delegate void OnTaskCompleteDelegate(IType[] result);
 
-		public Process(PipelineNode startNode)
+		public Process(Project project, PipelineNode startNode)
 		{
+			this.project = project;
 			this.startNode = startNode;
+
+			foreach (RequestType request in startNode.algorithm.Request) {
+				switch (request) {
+				case RequestType.Filenames:
+					startNode.algorithm.requestedData.Add(RequestType.Filenames, project.Files);
+					break;
+				}
+			}
 		}
 
 		/// <summary>
@@ -21,7 +32,7 @@ namespace baimp
 		{
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ThreadPool.QueueUserWorkItem(o => {
-				IType[] output = startNode.algorithm.Run(input);
+				IType[] output = startNode.algorithm.Run(startNode.algorithm.requestedData, input);
 
 				callback(output);
 			});
@@ -51,7 +62,7 @@ namespace baimp
 
 					if (targetNode.parent.IsReady()) {
 						// TODO queue the start
-						Process newProcess = new Process(targetNode.parent);
+						Process newProcess = new Process(project, targetNode.parent);
 						newProcess.Start(targetNode.parent.DequeueInput());
 					}
 				}

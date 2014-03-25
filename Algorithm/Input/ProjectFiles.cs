@@ -11,11 +11,13 @@ namespace baimp
 			compatibleOutput.Add(new Compatible("Intensity", typeof(TBitmap[])));
 			compatibleOutput.Add(new Compatible("Topography", typeof(TBitmap[]), new MaximumUses(2)));
 			compatibleOutput.Add(new Compatible("Color", typeof(TBitmap[])));
+
+			request.Add(RequestType.Filenames);
 		}
 
 		#region BaseAlgorithm implementation
 
-		public override IType[] Run(params IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
 		{
 			throw new NotImplementedException();
 		}

@@ -12,11 +12,35 @@ namespace baimp
 		Misc
 	}
 
+	public enum RequestType
+	{
+		Filenames
+	}
+
 	abstract public class BaseAlgorithm
 	{
 		public readonly PipelineNode parent;
+
+		/// <summary>
+		/// Input data types, their properties and contraints.
+		/// </summary>
 		protected List<Compatible> compatibleInput;
+
+		/// <summary>
+		/// Output data types, their properties and contraints.
+		/// </summary>
 		protected List<Compatible> compatibleOutput;
+
+		/// <summary>
+		/// List of data we want from the program
+		/// </summary>
+		protected HashSet<RequestType> request;
+
+		/// <summary>
+		/// The requested data.
+		/// </summary>
+		public Dictionary<RequestType, object> requestedData;
+
 
 		public BaseAlgorithm(PipelineNode parent)
 		{
@@ -24,9 +48,11 @@ namespace baimp
 
 			compatibleInput = new List<Compatible>();
 			compatibleOutput = new List<Compatible>();
+			request = new HashSet<RequestType>();
+			requestedData = new Dictionary<RequestType, object>();
 		}
 
-		abstract public IType[] Run(params IType[] inputArgs);
+		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs);
 
 		abstract public AlgorithmType AlgorithmType {
 			get;
@@ -45,6 +71,12 @@ namespace baimp
 		public List<Compatible> CompatibleOutput {
 			get {
 				return compatibleOutput;
+			}
+		}
+
+		public HashSet<RequestType> Request {
+			get {
+				return request;
 			}
 		}
 

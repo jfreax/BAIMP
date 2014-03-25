@@ -179,11 +179,11 @@ namespace baimp
 		#endregion
 
 		#region start/stio
-		public void Execute()
+		public void Execute(Project project)
 		{
 			foreach (PipelineNode pNode in nodes) {
 				if (pNode.IsReady()) {
-					Process process = new Process(pNode);
+					Process process = new Process(project, pNode);
 					process.Start();
 				}
 			}
