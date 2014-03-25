@@ -184,7 +184,6 @@ namespace baimp
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				for (int i = 0; i < len; ++i) {
 					byte color = (byte) ((array[i] * 255) / max);
-					//color |= (color << 24) | (color << 16) | (color << 8);
 					*scan0 = color;
 					scan0++;
 				}
@@ -224,16 +223,9 @@ namespace baimp
 		public XD.Image GetAsImage(ScanType type)
 		{
 			if (renderedImage[(int) type] == null) {
-//				MemoryStream memoryStream = new MemoryStream();
-//				System.Drawing.Bitmap bmp = GetAsBitmap(type);
-//				if (bmp == null) {
-//					// TODO raise error
-//					return null;
-//				}
-//				bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Tiff);
-//				memoryStream.Position = 0;
-
-				renderedImage[(int) type] = XD.Image.FromStream(GetAsMemoryStream(type)).WithSize(requestedBitmapSize);
+				MemoryStream mStream = GetAsMemoryStream(type);
+				renderedImage[(int) type] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
+				mStream.Dispose();
 			}
 				
 			return renderedImage[(int) type].WithSize(requestedBitmapSize);
@@ -248,18 +240,19 @@ namespace baimp
 		{
 			Thread imageLoaderThread = new Thread(delegate() {
 
-				MemoryStream i = null;
+				MemoryStream mStream = null;
 				if (renderedImage[(int) type] == null) {
 					lock (lock_image_loading) {
-						i = GetAsMemoryStream(type);
+						mStream = GetAsMemoryStream(type);
 					}
 				}
 
 				Xwt.Application.Invoke(delegate() {
 					if (renderedImage[(int) type] == null) {
-						renderedImage[(int) type] = XD.Image.FromStream(i).WithSize(requestedBitmapSize);
+						renderedImage[(int) type] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
 					}
 					callback(renderedImage[(int) type].WithSize(requestedBitmapSize));
+					mStream.Dispose();
 				});
 			});
 			imageLoaderThread.Start();
