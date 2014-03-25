@@ -11,7 +11,6 @@ namespace baimp
 	public class MainWindow : Window
 	{
 		Project project;
-		ScanCollection scanCollection;
 
 		// widgets
 		VPaned splitAlgorithmTree;
@@ -33,24 +32,6 @@ namespace baimp
 		{
 			this.project = project;
 
-			if (project.Files != null) {
-				scanCollection = new ScanCollection(project.Files.ToArray());
-			} else {
-				scanCollection = new ScanCollection();
-			}
-
-			Initialize();
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MainWindow"/> class.
-		/// </summary>
-		/// <param name="path">Path.</param>
-		public MainWindow(string path)
-		{
-			// load metadata
-			scanCollection = new ScanCollection(path);
-
 			Initialize();
 		}
 
@@ -62,7 +43,7 @@ namespace baimp
 			InitializeEvents();
 
 			fileTree.InitializeUI(); // call after initialize events!
-			fileTree.Reload();
+			fileTree.Reload(project.scanCollection);
 		}
 
 		/// <summary>
@@ -156,7 +137,7 @@ namespace baimp
 			preview = new Preview();
 
 			// load tree view with all available files
-			fileTree = new FileTreeView(scanCollection);
+			fileTree = new FileTreeView();
 
 			// load metadata viewer
 			metadata = new MetadataView();
@@ -215,30 +196,27 @@ namespace baimp
 				}
 			};
 
-			foreach (string key in scanCollection.Keys) {
-				foreach (ScanWrapper scan in scanCollection[key]) {
-					scan.ScanDataChanged += fileTree.OnScanDataChanged;
-					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-						if (e.Unsaved != null && e.Unsaved.Count > 0) {
-							if (!this.Title.EndsWith("*")) {
-								this.Title += "*";
-							}
-						}
-					};
-				}
-			}
+//			foreach (string key in project.scanCollection.Keys) {
+//				foreach (ScanWrapper scan in project.scanCollection[key]) {
+//					scan.ScanDataChanged += fileTree.OnScanDataChanged;
+//					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+//						if (e.Unsaved != null && e.Unsaved.Count > 0) {
+//							if (!this.Title.EndsWith("*")) {
+//								this.Title += "*";
+//							}
+//						}
+//					};
+//				}
+//			}
 
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
 				if (e != null) {
 					if (e.refresh) {
-						scanCollection.Clear();
-						scanCollection.AddFiles(project.Files.ToArray());
 						pipeline.Nodes = project.LoadedNodes;
 					} else if (e.addedFiles != null && e.addedFiles.Length > 0) {
-						scanCollection.AddFiles(e.addedFiles);
 					}
 
-					fileTree.Reload();
+					fileTree.Reload(project.scanCollection);
 				}
 			};
 
@@ -258,8 +236,6 @@ namespace baimp
 		private void SaveAll()
 		{
 			if (project.Save(pipeline)) {
-				scanCollection.SaveAll();
-
 				if (this.Title.EndsWith("*")) {
 					this.Title = this.Title.Remove(this.Title.Length - 1);
 				}

@@ -47,6 +47,8 @@ namespace baimp
 				}
 
 				this[scan.FiberType].Add(scan);
+
+				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
 			}
 		}
 

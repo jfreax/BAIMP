@@ -8,7 +8,6 @@ namespace baimp
 		public DataField<object> nameCol;
 		public DataField<object> saveStateCol;
 		public TreeStore store;
-		private ScanCollection scans;
 
 		#region initialize
 
@@ -17,10 +16,8 @@ namespace baimp
 		/// </summary>
 		/// <param name="scans">Collection of all open scans</param>
 		/// <param name="preview">Reference to preview widget</param>
-		public FileTreeView(ScanCollection scans)
+		public FileTreeView()
 		{
-			this.scans = scans;
-
 			nameCol = new DataField<object>();
 			saveStateCol = new DataField<object>();
 			store = new TreeStore(nameCol, saveStateCol);
@@ -47,9 +44,23 @@ namespace baimp
 		/// Reloads file tree information.
 		/// </summary>
 		/// <param name="currentScan">Current focused scan</param>
-		public void Reload(ScanWrapper currentScan = null)
+		public void Reload(ScanCollection scans, ScanWrapper currentScan = null)
 		{
 			store.Clear();
+
+//			foreach (string key in scans.Keys) {
+//				foreach (ScanWrapper scan in scans[key]) {
+//					scan.ScanDataChanged -= OnScanDataChanged;
+//					scan.ScanDataChanged -= OnScanDataChanged;
+//					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+//						if (e.Unsaved != null && e.Unsaved.Count > 0) {
+//							if (!this.Title.EndsWith("*")) {
+//								this.Title += "*";
+//							}
+//						}
+//					};
+//				}
+//			}
 
 			TreePosition pos = null;
 			foreach (string key in scans.Keys) {
@@ -89,16 +100,16 @@ namespace baimp
 		{
 			ScanWrapper scan = (ScanWrapper) sender;
 
-			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-				scans.Refresh(scan);
-				Reload(scan);
-			}
-
-			store.GetNavigatorAt(scan.position)
-				.SetValue(
-				saveStateCol, 
-				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
-			);
+//			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
+//				scans.Refresh(scan);
+//				Reload(scan);
+//			}
+//
+//			store.GetNavigatorAt(scan.position)
+//				.SetValue(
+//				saveStateCol, 
+//				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
+//			);
 		}
 
 		/// <summary>

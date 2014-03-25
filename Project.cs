@@ -14,8 +14,12 @@ namespace baimp
 	{
 		public readonly static int MaxLastOpenedProject = 5;
 
+		[XmlIgnore]
+		public ScanCollection scanCollection;
+
 		[XmlAttribute]
 		public int version = 1;
+
 		private List<string> files = new List<string>();
 		private List<PipelineNode> loadedNodes;
 
@@ -27,6 +31,8 @@ namespace baimp
 
 		public Project(string filePath)
 		{
+			scanCollection = new ScanCollection(Files.ToArray());
+
 			if (!string.IsNullOrEmpty(filePath)) {
 				Open(filePath);
 			}
@@ -79,6 +85,7 @@ namespace baimp
 						}
 					}
 
+					scanCollection.AddFiles(Files.ToArray());
 					if (projectChanged != null) {
 						projectChanged(this, new ProjectChangedEventArgs(true));
 					}
@@ -116,6 +123,7 @@ namespace baimp
 			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
 			files.AddRange(newFiles);
 
+			scanCollection.AddFiles(newFiles);
 			projectChanged(this, new ProjectChangedEventArgs(newFiles));
 		}
 
@@ -133,6 +141,8 @@ namespace baimp
 					return false;
 				}
 			}
+
+			scanCollection.SaveAll();
 
 			this.loadedNodes = pipeline.Nodes;
 			using (XmlTextWriter xmlWriter = new XmlTextWriter(ProjectFile, null)) {
@@ -187,10 +197,6 @@ namespace baimp
 					return false;
 				}
 
-				if (projectChanged != null) {
-					projectChanged(this, new ProjectChangedEventArgs(true));
-				}
-
 				return Files.Count > 0;
 			}
 
@@ -216,6 +222,7 @@ namespace baimp
 				this.Files = new List<string>();
 				this.LoadedNodes = new List<PipelineNode>();
 
+				scanCollection.Clear();
 				if (projectChanged != null) {
 					projectChanged(this, new ProjectChangedEventArgs(true));
 				}
