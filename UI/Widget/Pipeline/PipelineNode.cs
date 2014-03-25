@@ -160,6 +160,20 @@ namespace baimp
 		}
 
 		/// <summary>
+		/// Dequeues a set of input parameters and return them.
+		/// </summary>
+		/// <returns>The input.</returns>
+		public IType[] DequeueInput()
+		{
+			IType[] input = new IType[algorithm.CompatibleInput.Count];
+			for (int i = 0; i < algorithm.CompatibleInput.Count; i++) {
+				input[i] = mNodes[i].inputData.Dequeue();
+			}
+
+			return input;
+		}
+
+		/// <summary>
 		/// Gets the marker at position if there is one.
 		/// </summary>
 		/// <returns>The <see cref="baimp.MarkerNode"/>.</returns>

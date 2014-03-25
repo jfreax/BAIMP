@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace baimp
 {
 	public class Process
 	{
 		PipelineNode startNode;
+		public delegate void OnTaskCompleteDelegate(IType[] result);
 
 		public Process(PipelineNode startNode)
 		{
@@ -15,23 +17,30 @@ namespace baimp
 		/// <summary>
 		/// Start to evaluate the pipeline
 		/// </summary>
-		public void Start()
+		public void Start(IType[] input)
 		{
-			IType[] input = new IType[startNode.algorithm.CompatibleInput.Count];
-			for (int i = 0; i < startNode.algorithm.CompatibleInput.Count; i++) {
-				input[i] = startNode.MNodes[i].inputData.Dequeue();
-			}
+			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
+			ThreadPool.QueueUserWorkItem(o => {
+				IType[] output = startNode.algorithm.Run(input);
 
+				callback(output);
+			});
+		}
+
+		/// <summary>
+		/// Callback function called when algorithm finished
+		/// </summary>
+		/// <param name="output">Output of algorithm.</param>
+		private void OnFinish(IType[] output)
+		{
 			List<Compatible> compatibleOutput = startNode.algorithm.CompatibleOutput;
-			IType[] output = startNode.algorithm.Run(input); // TODO run in extra thread
 
-			// TODO run this in main thread up from here
 			if (output.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
 
 			int offsetIndex = startNode.algorithm.CompatibleInput.Count;
-			for(int i = 0; i < output.Length; i++) {
+			for (int i = 0; i < output.Length; i++) {
 				if (!compatibleOutput[i].Type.IsAssignableFrom(output[i].GetType())) {
 					throw new TypeAccessException(); // TODO throw a proper exception
 				}
@@ -43,12 +52,11 @@ namespace baimp
 					if (targetNode.parent.IsReady()) {
 						// TODO queue the start
 						Process newProcess = new Process(targetNode.parent);
-						newProcess.Start();
+						newProcess.Start(targetNode.parent.DequeueInput());
 					}
 				}
 			}
 		}
-
 	}
 }
 
