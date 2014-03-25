@@ -14,7 +14,7 @@ namespace baimp
 			output.Add(new Compatible("out #2", typeof(string)));
 		}
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			throw new NotImplementedException();
 		}

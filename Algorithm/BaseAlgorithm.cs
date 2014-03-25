@@ -43,6 +43,11 @@ namespace baimp
 		/// </summary>
 		public Dictionary<RequestType, object> requestedData;
 
+		/// <summary>
+		/// List of all options
+		/// </summary>
+		public List<Option> options;
+
 
 		public BaseAlgorithm(PipelineNode parent)
 		{
@@ -52,6 +57,7 @@ namespace baimp
 			output = new List<Compatible>();
 			request = new HashSet<RequestType>();
 			requestedData = new Dictionary<RequestType, object>();
+			options = new List<Option>();
 		}
 
 		/// <summary>
@@ -63,7 +69,7 @@ namespace baimp
 		/// Return null, when no more data is available (important for sequential data output).
 		/// Use Yield() function to return data when one output parameter is Parallel.
 		/// </remarks>
-		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs);
+		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs);
 
 		abstract public AlgorithmType AlgorithmType {
 			get;
@@ -71,24 +77,6 @@ namespace baimp
 
 		abstract public string HelpText {
 			get;
-		}
-
-		public List<Compatible> Input {
-			get {
-				return input;
-			}
-		}
-
-		public List<Compatible> Output {
-			get {
-				return output;
-			}
-		}
-
-		public HashSet<RequestType> Request {
-			get {
-				return request;
-			}
 		}
 
 		public override string ToString()
@@ -160,7 +148,34 @@ namespace baimp
 				progress -= value;
 			}
 		}
+			
+		#endregion
 
+		#region properties
+
+		public List<Compatible> Input {
+			get {
+				return input;
+			}
+		}
+
+		public List<Compatible> Output {
+			get {
+				return output;
+			}
+		}
+
+		public HashSet<RequestType> Request {
+			get {
+				return request;
+			}
+		}
+
+		public List<Option> Options {
+			get {
+				return options;
+			}
+		}
 
 		#endregion
 	}

@@ -27,7 +27,7 @@ namespace baimp
 
 		#region BaseAlgorithm implementation
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
 			int size = 0;

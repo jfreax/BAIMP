@@ -14,24 +14,27 @@ namespace baimp
 			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
 
 			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
+
+			options.Add(new Option("X Offest", 0, 10, 1));
+			options.Add(new Option("Y Offest", 0, 10, 1));
 		}
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
+		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			TBitmap tbitmap = inputArgs[0] as TBitmap;
 			Bitmap bitmap = tbitmap.Data;
 
 			BitmapData data = bitmap.LockBits(
-				new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				ImageLockMode.ReadWrite,
-				bitmap.PixelFormat
-			);
-
+				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+				                  ImageLockMode.ReadWrite,
+				                  bitmap.PixelFormat
+			                  );
+				
 			//TODO make this an option
-			int dx = 1;
-			int dy = 1;
+			int dx = (int) options[0].Value;
+			int dy = (int) options[1].Value;
 
 			int[,] matrix = new int[256, 256];
 			int height = data.Height;

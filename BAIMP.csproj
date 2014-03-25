@@ -123,6 +123,7 @@
     <Compile Include="Algorithm\Misc\Writer.cs" />
     <Compile Include="Event\AlgorithmDataArgs.cs" />
     <Compile Include="Event\ProgressEventArgs.cs" />
+    <Compile Include="Option\Option.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -164,6 +165,7 @@
     <Folder Include="Algorithm\Descriptor\" />
     <Folder Include="Processing\" />
     <Folder Include="Algorithm\Misc\" />
+    <Folder Include="Option\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
