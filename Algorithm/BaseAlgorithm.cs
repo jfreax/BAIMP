@@ -14,7 +14,8 @@ namespace baimp
 
 	public enum RequestType
 	{
-		Filenames
+		Filenames,
+		ScanCollection
 	}
 
 	abstract public class BaseAlgorithm
@@ -52,6 +53,14 @@ namespace baimp
 			requestedData = new Dictionary<RequestType, object>();
 		}
 
+		/// <summary>
+		/// Executes the algorithm.
+		/// </summary>
+		/// <param name="requestedData">Requested data.</param>
+		/// <param name="inputArgs">Input arguments.</param>
+		/// <remarks>
+		/// Return null, when no more data is available (important for sequential data output)
+		/// </remarks>
 		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs);
 
 		abstract public AlgorithmType AlgorithmType {

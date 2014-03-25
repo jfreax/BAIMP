@@ -11,7 +11,7 @@ namespace baimp
 
 		public GLCM(PipelineNode parent) : base(parent)
 		{
-			input.Add(new Compatible("Image", typeof(TBitmap[]), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
 
 			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
 		}

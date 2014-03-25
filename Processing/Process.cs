@@ -21,6 +21,9 @@ namespace baimp
 				case RequestType.Filenames:
 					startNode.algorithm.requestedData.Add(RequestType.Filenames, project.Files);
 					break;
+				case RequestType.ScanCollection:
+					startNode.algorithm.requestedData.Add(RequestType.ScanCollection, project.scanCollection);
+					break;
 				}
 			}
 		}

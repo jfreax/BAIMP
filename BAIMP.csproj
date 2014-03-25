@@ -118,6 +118,8 @@
     <Compile Include="DataTypes\TMatrix.cs" />
     <Compile Include="DataTypes\TBitmap.cs" />
     <Compile Include="Processing\Process.cs" />
+    <Compile Include="DataTypes\Sequential.cs" />
+    <Compile Include="DataTypes\Parallel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
