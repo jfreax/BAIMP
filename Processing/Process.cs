@@ -41,6 +41,7 @@ namespace baimp
 					startNode.algorithm.Yielded += GetSingleData;
 				}
 
+				startNode.algorithm.SetProgress(0);
 				IType[] output = startNode.algorithm.Run(startNode.algorithm.requestedData, input);
 				startNode.algorithm.SetProgress(100);
 

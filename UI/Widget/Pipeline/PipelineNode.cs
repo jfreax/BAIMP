@@ -16,6 +16,7 @@ namespace baimp
 		static public Color NodeColor = Color.FromBytes(252, 252, 252);
 		static public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
 		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
+		static public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
 
 		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
@@ -86,20 +87,35 @@ namespace baimp
 		{
 			bool ret = false;
 
-			// draw box
+			// draw shadow
 			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
 			ctx.SetColor(NodeColorShadow);
 			ctx.SetLineWidth(2);
 			ctx.Fill();
 
+			// border
 			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
 			ctx.SetColor(NodeColorBorder);
 			ctx.SetLineWidth(2);
-			ctx.Stroke();
+			ctx.StrokePreserve();
 
-			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
+			// background
 			ctx.SetColor(NodeColor);
 			ctx.Fill();
+
+			// progress
+			ctx.Save();
+
+			Rectangle clipBound = bound.Inflate(-1, -1);
+			clipBound.Width *= progress / 100.0;
+			clipBound.Bottom = clipBound.Top + contentOffset.Y;
+			ctx.Rectangle(clipBound);
+			ctx.Clip();
+			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
+			ctx.SetColor(NodeColorProgress);
+			ctx.Fill();
+
+			ctx.Restore();
 
 			// draw headline
 			TextLayout text = new TextLayout();
