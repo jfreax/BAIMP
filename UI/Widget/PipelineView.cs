@@ -195,6 +195,7 @@ namespace baimp
 				SetNodePosition(node);
 				nodes.Add(node);
 
+				EmitDataChanged();
 				this.QueueDraw();
 
 			} catch (Exception exception) {
