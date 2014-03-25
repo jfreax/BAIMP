@@ -202,6 +202,53 @@ namespace baimp
 
 		#endregion
 
+		#region methods
+
+		private void OpenOptionWindow(PipelineNode pNode)
+		{
+			if (pNode.algorithm.Options.Count == 0) {
+				return;
+			}
+
+			Dialog d = new Dialog ();
+			d.Title = String.Format("Option for \"{0}\"", pNode.algorithm);
+			Table t = new Table ();
+
+			int i = 0;
+			TextEntry[] entries = new TextEntry[pNode.algorithm.Options.Count];
+			foreach (Option option in pNode.algorithm.Options) {
+				t.Add (new Label (option.name), 0, i);
+				TextEntry entry = new TextEntry();
+				entry.Text = option.Value.ToString();
+				entries[i] = entry;
+				t.Add (entry, 1, i);
+				i++;
+			}
+			d.Content = t;
+
+			d.Buttons.Add (new DialogButton (Command.Cancel));
+			d.Buttons.Add (new DialogButton (Command.Apply));
+
+			var r = d.Run (this.ParentWindow);
+
+			if (r.Id == Command.Apply.Id) {
+				i = 0;
+				foreach (Option option in pNode.algorithm.Options) {
+					try {
+						option.Value = Convert.ChangeType( entries[i].Text, option.Value.GetType()) as IComparable;
+					} catch (System.FormatException e) {
+						// TODO show error
+						Console.WriteLine(e);
+					}
+					i++;
+				}
+			}
+
+			d.Dispose ();
+		}
+
+		#endregion
+
 		#region drag and drop
 
 		protected override void OnDragOver(DragOverEventArgs e)
@@ -245,7 +292,14 @@ namespace baimp
 			switch (e.Button) {
 			case PointerButton.Left:
 				PipelineNode node = GetNodeAt(e.Position, true);
+
 				if (node != null) { // clicked on node
+					if (e.MultiplePress >= 2) {
+						OpenOptionWindow(node);
+						mouseAction = MouseAction.None;
+						break;
+					}
+						
 					MarkerNode mNode = node.GetMarkerNodeAt(e.Position);
 					if (mNode != null) {
 						connectNodesStartMarker = mNode;
