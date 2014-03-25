@@ -5,37 +5,43 @@ namespace baimp
 	public class Option
 	{
 		public readonly string name;
-		public readonly object minValue;
-		public readonly object maxValue;
-		public readonly object defaultValue;
+		public readonly IComparable minValue = null;
+		public readonly IComparable maxValue = null;
+		public readonly IComparable defaultValue;
 
-		private object value;
+		private IComparable val;
 
-		public Option(string name, object defaultValue)
+		public Option(string name, IComparable defaultValue)
 		{
 			this.name = name;
 			this.defaultValue = defaultValue;
 
-			this.value = defaultValue;
+			this.val = defaultValue;
 		}
 
-		public Option(string name, object minValue, object maxValue, object defaultValue)
+		public Option(string name, IComparable minValue, IComparable maxValue, IComparable defaultValue)
 		{
 			this.name = name;
 			this.minValue = minValue;
 			this.maxValue = maxValue;
 			this.defaultValue = defaultValue;
 
-			this.value = defaultValue;
+			this.val = defaultValue;
 		}
 
-		public object Value
+		public IComparable Value
 		{
 			get {
-				return value;
+				return val;
 			}
 			set {
-				this.value = value;
+				if (maxValue != null && value.CompareTo(maxValue) > 0) {
+					this.val = maxValue;
+				} else if (minValue != null && value.CompareTo(minValue) < 0) {
+					this.val = minValue;
+				} else {
+					this.val = value;
+				}
 			}
 		}
 	}
