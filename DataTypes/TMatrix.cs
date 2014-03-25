@@ -25,6 +25,15 @@ namespace baimp
 
 			return String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
 		}
+
+		#region implemented abstract members of BaseType
+
+		public override Xwt.Widget ToWidget()
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }
 

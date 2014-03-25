@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Xwt;
 
 namespace baimp
 {
@@ -12,6 +13,15 @@ namespace baimp
 		public TBitmap(Bitmap bitmap) : base(bitmap)
 		{
 		}
+
+		#region implemented abstract members of BaseType
+
+		public override Xwt.Widget ToWidget()
+		{
+			return new ImageView();
+		}
+
+		#endregion
 	}
 }
 

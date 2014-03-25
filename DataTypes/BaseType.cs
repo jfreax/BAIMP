@@ -2,7 +2,7 @@
 
 namespace baimp
 {
-	public class BaseType<T> : IType where T : class
+	public abstract class BaseType<T> : IType where T : class
 	{
 		protected T raw;
 
@@ -20,6 +20,8 @@ namespace baimp
 				return raw;
 			}
 		}
+
+		abstract public Xwt.Widget ToWidget();
 	}
 }
 
