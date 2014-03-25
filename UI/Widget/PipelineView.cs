@@ -60,12 +60,14 @@ namespace baimp
 
 		private Menu contextMenuEdge;
 		private Menu contextMenuNode;
+		private MenuItem contextMenuNodeOptions;
 
 		/// <summary>
 		/// Initializes all context menus.
 		/// </summary>
 		private void InitializeContextMenus()
 		{
+			// edge context menu
 			contextMenuEdge = new Menu();
 			MenuItem contextMenuEdgeDelete = new MenuItem("Delete edge");
 			contextMenuEdgeDelete.Clicked += delegate(object sender, EventArgs e) {
@@ -77,6 +79,7 @@ namespace baimp
 			contextMenuEdge.Items.Add(contextMenuEdgeDelete);
 
 
+			// node context menu
 			contextMenuNode = new Menu();
 			MenuItem contextMenuNodeDelete = new MenuItem("Delete node");
 			contextMenuNodeDelete.Clicked += delegate(object sender, EventArgs e) {
@@ -86,6 +89,14 @@ namespace baimp
 				}
 			};
 			contextMenuNode.Items.Add(contextMenuNodeDelete);
+
+			contextMenuNodeOptions = new MenuItem("Options");
+			contextMenuNodeOptions.Clicked += delegate(object sender, EventArgs e) {
+				if (lastSelectedNode != null) {
+					OpenOptionWindow(lastSelectedNode);
+				}
+			};
+			contextMenuNode.Items.Add(contextMenuNodeOptions);
 		}
 
 		#endregion
@@ -339,6 +350,11 @@ namespace baimp
 					PipelineNode nodeRight = GetNodeAt(e.Position, true);
 					if (nodeRight != null) {
 						lastSelectedNode = nodeRight;
+						if (lastSelectedNode.algorithm.options.Count > 0) {
+							contextMenuNodeOptions.Show();
+						} else {
+							contextMenuNodeOptions.Hide();
+						}
 						contextMenuNode.Popup();
 					}
 				}
