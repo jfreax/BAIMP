@@ -151,7 +151,7 @@ namespace baimp
 		public bool IsReady()
 		{
 			foreach (MarkerNode mNode in MNodes) {
-				if (mNode.inputData.Count == 0) {
+				if (mNode.IsInput && mNode.inputData.Count == 0) {
 					return false;
 				}
 			}
