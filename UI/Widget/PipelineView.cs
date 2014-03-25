@@ -585,15 +585,16 @@ namespace baimp
 		/// <param name="node">Node to remove.</param>
 		private void RemoveNode(PipelineNode node)
 		{
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					for (int i = 0; i < mNode.Edges.Count; i++) {
-						mNode.RemoveEdge(mNode.Edges[i]);
-						//if (mNode.Edges [i].from == mNode) {
-						//	mNode.Edges[i].Remove ();
-						//}
-					}
+			foreach (MarkerNode mNode in node.mNodes) {
+				List<Edge> toRemove = new List<Edge>();
+				for (int i = 0; i < mNode.Edges.Count; i++) {
+					toRemove.Add(mNode.Edges[i]);
 				}
+
+				foreach (Edge edge in toRemove) {
+					mNode.RemoveEdge(edge);
+				}
+
 			}
 			nodes.Remove(node);
 		}

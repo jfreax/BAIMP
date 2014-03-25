@@ -74,6 +74,7 @@ namespace baimp
 			foreach (Edge edge in edges) {
 				if (edge.to.ID == otherNode.ID) {
 					RemoveEdge(edge, directed);
+					RemoveEdgeTo(otherNode, directed);
 					return;
 				}
 			}
