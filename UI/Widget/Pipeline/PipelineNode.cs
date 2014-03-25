@@ -29,11 +29,16 @@ namespace baimp
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
 
+		[XmlIgnore]
+		private int progress = 0;
+
 		#region initialize
 
-		public PipelineNode()
-		{
-
+		/// <summary>
+		/// Empty constructur for xml serialization.
+		/// Do not use!
+		/// </summary>
+		public PipelineNode() {
 		}
 
 		public PipelineNode(string algoType, Rectangle bound)
@@ -148,6 +153,10 @@ namespace baimp
 
 		#endregion
 
+		/// <summary>
+		/// Determines whether the algorithm of this node can be executed
+		/// </summary>
+		/// <returns><c>true</c> if ready; otherwise, <c>false</c>.</returns>
 		public bool IsReady()
 		{
 			foreach (MarkerNode mNode in MNodes) {
@@ -196,6 +205,24 @@ namespace baimp
 			}
 		}
 
+		#region custom events
+
+		EventHandler<EventArgs> queueRedraw;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<EventArgs> QueueRedraw {
+			add {
+				queueRedraw += value;
+			}
+			remove {
+				queueRedraw -= value;
+			}
+		}
+
+		#endregion
+
 		#region properties
 
 		public Rectangle BoundWithExtras {
@@ -206,6 +233,18 @@ namespace baimp
 						NodeMargin.VerticalSpacing
 					)
 				);
+			}
+		}
+
+		[XmlIgnore]
+		public int Progress {
+			get {
+				return progress;
+			} set {
+				progress = value;
+				if (queueRedraw != null) {
+					queueRedraw(this, null);
+				}
 			}
 		}
 

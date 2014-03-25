@@ -58,6 +58,7 @@ namespace baimp
 						XmlSerializer deserializer = new XmlSerializer(this.GetType());
 						p = (Project) deserializer.Deserialize(xmlReader);
 					} catch (Exception e) {
+						Console.WriteLine(e);
 						Console.WriteLine(e.Message);
 						Console.WriteLine(e.InnerException.Message);
 						this.ErrorMessage = e.Message + "\n" + e.InnerException.Message;

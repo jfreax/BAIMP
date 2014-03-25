@@ -42,6 +42,7 @@ namespace baimp
 				}
 
 				IType[] output = startNode.algorithm.Run(startNode.algorithm.requestedData, input);
+				startNode.algorithm.SetProgress(100);
 
 				if (isSeqData) {
 					startNode.algorithm.Yielded -= GetSingleData;

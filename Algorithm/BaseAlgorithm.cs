@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xwt;
 
 namespace baimp
 {
@@ -116,6 +117,18 @@ namespace baimp
 			return false;
 		}
 
+		/// <summary>
+		/// Sets the progress
+		/// </summary>
+		/// <param name="percent">Progress 0-100.</param>
+		public void SetProgress(int percent)
+		{
+			Application.Invoke( () => parent.Progress = percent);
+//			if (progress != null) {
+//				progress(this, new ProgressEventArgs(percent));
+//			}
+		}
+
 		#endregion
 
 		#region events
@@ -123,7 +136,7 @@ namespace baimp
 		EventHandler<AlgorithmDataArgs> yielded;
 
 		/// <summary>
-		/// Occurs when scan data changed
+		/// Yield sequential data
 		/// </summary>
 		public event EventHandler<AlgorithmDataArgs> Yielded {
 			add {
@@ -131,6 +144,20 @@ namespace baimp
 			}
 			remove {
 				yielded -= value;
+			}
+		}
+
+		EventHandler<EventArgs> progress;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<EventArgs> Progress {
+			add {
+				progress += value;
+			}
+			remove {
+				progress -= value;
 			}
 		}
 

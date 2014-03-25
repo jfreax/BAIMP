@@ -30,7 +30,13 @@ namespace baimp
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, IType[] inputArgs)
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
+			int size = 0;
 
+			foreach (string key in scans.Keys) {
+				size += scans[key].Count;
+			}
+
+			int i = 0;
 			foreach (string key in scans.Keys) {
 				foreach (Scan scan in scans[key]) {
 					IType[] data = new IType[3];
@@ -39,6 +45,9 @@ namespace baimp
 					data[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
 
 					Yield(data);
+					i++;
+
+					SetProgress((int)((i * 100) / size));
 				}
 			}
 

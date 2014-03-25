@@ -122,6 +122,7 @@
     <Compile Include="DataTypes\Parallel.cs" />
     <Compile Include="Algorithm\Misc\Writer.cs" />
     <Compile Include="Event\AlgorithmDataArgs.cs" />
+    <Compile Include="Event\ProgressEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

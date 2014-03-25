@@ -45,6 +45,11 @@ namespace baimp
 				nodes = new List<PipelineNode>();
 			} else {
 				nodes = loadedNodes;
+				foreach (PipelineNode pNode in nodes) {
+					pNode.QueueRedraw += delegate(object sender, EventArgs e) {
+						QueueDraw((sender as PipelineNode).bound);
+					};
+				}
 			}
 
 			mouseMover = new MouseMover(scrollview);
@@ -178,7 +183,7 @@ namespace baimp
 
 		#endregion
 
-		#region start/stio
+		#region start/stop
 		public void Execute(Project project)
 		{
 			foreach (PipelineNode pNode in nodes) {
@@ -205,6 +210,10 @@ namespace baimp
 				string algoType = e.Data.GetValue(TransferDataType.Text).ToString();
 
 				PipelineNode node = new PipelineNode(algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
+				node.QueueRedraw += delegate(object sender, EventArgs n) {
+					QueueDraw((sender as PipelineNode).bound);
+				};
+
 				SetNodePosition(node);
 				nodes.Add(node);
 
