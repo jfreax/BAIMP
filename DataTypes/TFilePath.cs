@@ -13,7 +13,11 @@ namespace baimp
 
 		public override Xwt.Widget ToWidget()
 		{
-			return new Label(Data);
+			if (widget == null) {
+				widget = new Label(Data);
+			}
+
+			return widget;
 		}
 
 		#endregion

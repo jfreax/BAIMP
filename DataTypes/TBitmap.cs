@@ -19,13 +19,15 @@ namespace baimp
 
 		public override Xwt.Widget ToWidget()
 		{
-			MemoryStream mStream = new MemoryStream();
-			Data.Save(mStream, System.Drawing.Imaging.ImageFormat.Png);
-			mStream.Seek(0, SeekOrigin.Begin);
-			ImageView view = new ImageView(Xwt.Drawing.Image.FromStream(mStream).WithBoxSize(MaxWidgetSize));
-			mStream.Dispose();
+			if (widget == null) {
+				MemoryStream mStream = new MemoryStream();
+				Data.Save(mStream, System.Drawing.Imaging.ImageFormat.Png);
+				mStream.Seek(0, SeekOrigin.Begin);
+				widget = new ImageView(Xwt.Drawing.Image.FromStream(mStream).WithBoxSize(MaxWidgetSize));
+				mStream.Dispose();
+			}
 
-			return view;
+			return widget;
 		}
 
 		#endregion
