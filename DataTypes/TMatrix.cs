@@ -36,8 +36,8 @@ namespace baimp
 			if (Data.GetLength(0) <= 16 && Data.GetLength(1) <= 16) {
 				Table t = new Table();
 
-				for(int x = 0; x < Data.GetLength(0); x++) {
-					for(int y = 0; y < Data.GetLength(1); y++) {
+				for (int x = 0; x < Data.GetLength(0); x++) {
+					for (int y = 0; y < Data.GetLength(1); y++) {
 						t.Add(new Label(Data[x, y].ToString()), x, y);
 					}
 				}
@@ -52,13 +52,13 @@ namespace baimp
 			int[,] copy = new int[Data.GetLength(0), Data.GetLength(1)];
 			for (int x = 0; x < Data.GetLength(0); x++) {
 				for (int y = 0; y < Data.GetLength(1); y++) {
-					copy[x,y] = Data[x, y];
+					copy[x, y] = Data[x, y];
 					if (copy[x, y] > 0) {
 						copy[x, y] = (int) Math.Log(copy[x, y], 2);
 					}
 
-					if (copy[x,y] > max) {
-						max = copy[x,y];
+					if (copy[x, y] > max) {
+						max = copy[x, y];
 					}
 				}
 			}
@@ -70,7 +70,8 @@ namespace baimp
 				}
 			}
 
-			return new ImageView(bi);
+			ib.Dispose();
+			return new ImageView(bi.WithBoxSize(MaxWidgetSize));
 		}
 
 		#endregion

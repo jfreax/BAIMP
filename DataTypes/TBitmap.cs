@@ -22,7 +22,7 @@ namespace baimp
 			MemoryStream mStream = new MemoryStream();
 			Data.Save(mStream, System.Drawing.Imaging.ImageFormat.Png);
 			mStream.Seek(0, SeekOrigin.Begin);
-			ImageView view = new ImageView(Xwt.Drawing.Image.FromStream(mStream).WithBoxSize(100));
+			ImageView view = new ImageView(Xwt.Drawing.Image.FromStream(mStream).WithBoxSize(MaxWidgetSize));
 			mStream.Dispose();
 
 			return view;
