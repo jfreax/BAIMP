@@ -250,9 +250,9 @@ namespace baimp
 				Xwt.Application.Invoke(delegate() {
 					if (renderedImage[(int) type] == null) {
 						renderedImage[(int) type] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
+						mStream.Dispose();
 					}
 					callback(renderedImage[(int) type].WithSize(requestedBitmapSize));
-					mStream.Dispose();
 				});
 			});
 			imageLoaderThread.Start();
