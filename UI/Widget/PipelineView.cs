@@ -271,6 +271,10 @@ namespace baimp
 			d.Dispose ();
 		}
 
+		/// <summary>
+		/// Shows popover window with results.
+		/// </summary>
+		/// <param name="mNode">M node.</param>
 		private void ShowResultPopover(MarkerNode mNode)
 		{
 			if (mNode.IsInput) {
@@ -287,6 +291,10 @@ namespace baimp
 			}
 
 			IType result = pNode.results[0][mNode.Position];
+
+			if (popupWindow.Content != null) {
+				popupWindow.Content.Dispose();
+			}
 
 			popupWindow.Content = result.ToWidget();
 			popupWindow.Size = new Size(1, 1);
@@ -411,6 +419,7 @@ namespace baimp
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
 			MarkerNode mNode = GetInOutMarkerAt(e.Position, PipelineNode.NodeInOutSpace);
+			bool actionedLeft = false;
 
 			switch (e.Button) {
 			case PointerButton.Left:
@@ -419,6 +428,7 @@ namespace baimp
 					SetNodePosition(lastSelectedNode);
 					mouseAction ^= MouseAction.MoveNode;
 					EmitDataChanged();
+					actionedLeft = true;
 				}
 
 				// Move edge
@@ -434,6 +444,7 @@ namespace baimp
 								lastSelectedEdge.Item1.AddEdge(lastSelectedEdge.Item2);
 							}
 						}
+						actionedLeft = true;
 						EmitDataChanged();
 					} else {
 						lastSelectedEdge.Item1.AddEdge(lastSelectedEdge.Item2);
@@ -455,17 +466,17 @@ namespace baimp
 							}
 
 							lastSelectedEdge = null;
+							actionedLeft = true;
 						}
-
 						EmitDataChanged();
 					} 
 
-					QueueDraw();
 					mouseAction ^= MouseAction.AddEdge;
+					QueueDraw();
 				}
 
 				// result popover
-				if (mNode != null) {
+				if (mNode != null && !actionedLeft) {
 					ShowResultPopover(mNode);
 					mouseAction = MouseAction.None;
 				}
