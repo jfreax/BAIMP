@@ -18,6 +18,9 @@ namespace baimp
 		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
 
+		private Image iconHide;
+		private Image iconView;
+
 		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
 
@@ -44,9 +47,11 @@ namespace baimp
 		/// Do not use!
 		/// </summary>
 		public PipelineNode() {
+			iconHide = Image.FromResource("baimp.Resources.hide.png");
+			iconView = Image.FromResource("baimp.Resources.view.png");
 		}
 
-		public PipelineNode(string algoType, Rectangle bound)
+		public PipelineNode(string algoType, Rectangle bound) : this()
 		{
 			this.mNodes = new List<MarkerNode>();
 			this.AlgorithmType = algoType;
@@ -88,9 +93,17 @@ namespace baimp
 		/// </summary>
 		/// <param name="ctx">Drawing context.</param>
 		public bool Draw(Context ctx)
-		{
-			bool ret = false;
+		{		
+			DrawBackground(ctx);
+			DrawProgress(ctx);
+			DrawHeader(ctx);
+			bool ret = DrawBody(ctx);
 
+			return ret;
+		}
+
+		private void DrawBackground(Context ctx)
+		{
 			// draw shadow
 			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
 			ctx.SetColor(NodeColorShadow);
@@ -106,8 +119,10 @@ namespace baimp
 			// background
 			ctx.SetColor(NodeColor);
 			ctx.Fill();
+		}
 
-			// progress
+		private void DrawProgress(Context ctx)
+		{
 			ctx.Save();
 
 			Rectangle clipBound = bound.Inflate(-1, -1);
@@ -120,8 +135,10 @@ namespace baimp
 			ctx.Fill();
 
 			ctx.Restore();
+		}
 
-			// draw headline
+		private void DrawHeader(Context ctx)
+		{
 			TextLayout text = new TextLayout();
 			Point textOffset = new Point(0, 4);
 
@@ -137,6 +154,19 @@ namespace baimp
 			ctx.SetColor(Colors.Black);
 			ctx.DrawTextLayout(text, textPosition);
 
+			// icons
+			if (SaveResult) {
+				ctx.DrawImage(
+					iconView.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
+					bound.Location.Offset(10, 3)
+				);
+			} else {
+				ctx.DrawImage(
+					iconHide.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
+					bound.Location.Offset(10, 3)
+				);
+			}
+
 			// stroke under headline
 			contentOffset.X = 6;
 			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
@@ -146,9 +176,14 @@ namespace baimp
 			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
 			ctx.SetLineWidth(1.0);
 			ctx.Stroke();
+		}
 
-			// in-/output text
+		private bool DrawBody(Context ctx)
+		{
+			bool ret = false;
+			TextLayout text = new TextLayout();
 			ctx.SetColor(Colors.Black);
+
 			foreach (MarkerNode mNode in mNodes) {
 				text.Text = mNode.compatible.ToString();
 				mNode.Height = text.GetSize().Height;
@@ -169,6 +204,15 @@ namespace baimp
 			}
 
 			return ret;
+		}
+
+		#endregion
+
+		#region events
+
+		public void OnButtonPressed(ButtonEventArgs e)
+		{
+
 		}
 
 		#endregion
@@ -316,6 +360,12 @@ namespace baimp
 					}
 				}
 			}
+		}
+
+		[XmlElement("save")]
+		public bool SaveResult {
+			get;
+			set;
 		}
 
 		/// <summary>

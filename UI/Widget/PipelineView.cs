@@ -344,10 +344,10 @@ namespace baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs e)
 		{
+			PipelineNode node = GetNodeAt(e.Position, true);
+
 			switch (e.Button) {
 			case PointerButton.Left:
-				PipelineNode node = GetNodeAt(e.Position, true);
-
 				if (node != null) { // clicked on node
 					if (e.MultiplePress >= 2) {
 						OpenOptionWindow(node);
