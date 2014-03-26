@@ -7,6 +7,7 @@ namespace baimp
 	public enum AlgorithmType
 	{
 		Input,
+		Output,
 		Filter,
 		Descriptor,
 		Extraction,

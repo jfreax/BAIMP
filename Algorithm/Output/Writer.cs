@@ -25,7 +25,7 @@ namespace baimp
 
 		public override AlgorithmType AlgorithmType {
 			get {
-				return AlgorithmType.Misc;
+				return AlgorithmType.Output;
 			}
 		}
 
