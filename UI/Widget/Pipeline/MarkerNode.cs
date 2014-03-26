@@ -70,14 +70,20 @@ namespace baimp
 		/// <param name="another">The other compatible instance.</param>
 		public bool Match(MarkerNode otherNode)
 		{
-			if (parent == otherNode.parent)
+			if (this == otherNode)
 				return false;
 
-			if (this == otherNode)
+			if (parent == otherNode.parent)
 				return false;
 
 			if (IsInput == otherNode.IsInput)
 				return false;
+
+			foreach (Edge edge in edges) {
+				if (edge.to.ID == otherNode.ID) {
+					return false;
+				}
+			}
 
 			if (IsInput) {
 				return otherNode.compatible.Match(otherNode, this);
