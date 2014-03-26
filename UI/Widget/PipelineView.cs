@@ -413,6 +413,8 @@ namespace baimp
 
 				break;
 			}
+
+			popupWindow.Hide();
 		}
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
@@ -519,8 +521,6 @@ namespace baimp
 					TooltipText = string.Empty;
 				}
 			}
-
-			popupWindow.Hide();
 		}
 
 		protected override void OnMouseEntered(EventArgs e)
