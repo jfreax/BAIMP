@@ -1,5 +1,7 @@
-﻿using System;
-using Xwt;
+﻿using Xwt;
+using Xwt.Drawing;
+using System.Linq;
+using System;
 
 namespace baimp
 {
@@ -24,7 +26,7 @@ namespace baimp
 //			}
 //			return ret;
 
-			return String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
+			return System.String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
 		}
 
 		#region implemented abstract members of BaseType
@@ -43,7 +45,32 @@ namespace baimp
 				return t;
 			}
 
-			return new Label("TODO");
+			ImageBuilder ib = new ImageBuilder(Data.GetLength(0), Data.GetLength(1));
+			BitmapImage bi = ib.ToBitmap();
+
+			int max = 0;
+			int[,] copy = new int[Data.GetLength(0), Data.GetLength(1)];
+			for (int x = 0; x < Data.GetLength(0); x++) {
+				for (int y = 0; y < Data.GetLength(1); y++) {
+					copy[x,y] = Data[x, y];
+					if (copy[x, y] > 0) {
+						copy[x, y] = (int) Math.Log(copy[x, y], 2);
+					}
+
+					if (copy[x,y] > max) {
+						max = copy[x,y];
+					}
+				}
+			}
+				
+			for (int x = 0; x < Data.GetLength(0); x++) {
+				for (int y = 0; y < Data.GetLength(1); y++) {
+					byte c = (byte) ((copy[x, y] * 255) / max);
+					bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+				}
+			}
+
+			return new ImageView(bi);
 		}
 
 		#endregion
