@@ -124,6 +124,7 @@
     <Compile Include="Event\AlgorithmDataArgs.cs" />
     <Compile Include="Event\ProgressEventArgs.cs" />
     <Compile Include="Option\Option.cs" />
+    <Compile Include="UI\Widget\ResultPopupView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -29,7 +29,6 @@ namespace baimp
 		CursorType oldCursor;
 
 		Window popupWindow = new Window ();
-		Size popupWindowSizeOld = Size.Zero;
 
 
 		#region initialize
@@ -290,13 +289,13 @@ namespace baimp
 				return;
 			}
 
-			IType result = pNode.results[0][mNode.Position];
-
 			if (popupWindow.Content != null) {
 				popupWindow.Content.Dispose();
 			}
 
-			popupWindow.Content = result.ToWidget();
+			ResultPopupView popupView = new ResultPopupView(pNode.results, mNode.Position);
+
+			popupWindow.Content = popupView;
 			popupWindow.Size = new Size(1, 1);
 			popupWindow.Location = Desktop.MouseLocation.Offset(-10, -10);
 			popupWindow.Show();
