@@ -61,14 +61,7 @@ namespace baimp
 
 			popupWindow.Decorated = false;
 			popupWindow.ShowInTaskbar = false;
-			popupWindow.Padding = 6;
-			popupWindow.BoundsChanged += delegate(object sender, EventArgs e) {
-				Size size = popupWindow.Size;
-				if (size != popupWindowSizeOld && size.Width > 5 && size.Height > 5) {
-					popupWindowSizeOld = size;
-					popupWindow.Location = popupWindow.Location.Offset(-size.Width / 2, -size.Height / 2);
-				}
-			};
+			popupWindow.Padding = 2;
 
 			InitializeContextMenus();
 		}
@@ -297,7 +290,7 @@ namespace baimp
 
 			popupWindow.Content = result.ToWidget();
 			popupWindow.Size = new Size(1, 1);
-			popupWindow.Location = Desktop.MouseLocation;
+			popupWindow.Location = Desktop.MouseLocation.Offset(-10, -10);
 			popupWindow.Show();
 
 		}
@@ -474,6 +467,7 @@ namespace baimp
 				// result popover
 				if (mNode != null) {
 					ShowResultPopover(mNode);
+					mouseAction = MouseAction.None;
 				}
 
 				break;
