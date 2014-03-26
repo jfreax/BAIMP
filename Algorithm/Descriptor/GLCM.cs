@@ -28,7 +28,7 @@ namespace baimp
 
 			BitmapData data = bitmap.LockBits(
 				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				                  ImageLockMode.ReadWrite,
+				                  ImageLockMode.ReadOnly,
 				                  bitmap.PixelFormat
 			                  );
 				
@@ -74,7 +74,6 @@ namespace baimp
 				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX * pixelSize;
 				byte* srcBegin = (byte*) (data.Scan0) + windowY * stride + windowX;
 
-
 				for (int j = windowY; j < windowHeight; j++) {
 					int y = j - windowY;
 
@@ -82,9 +81,9 @@ namespace baimp
 						int x = i - windowX;
 
 						float v = (float) (0.2125 * src[0] + 0.7154 * src[1] + 0.0721 * src[2]);
-						int posWithOffset = ((y + dy) * stride * pixelSize) + (x + dx) * pixelSize;
+						int posWithOffset = ((y + dy) * stride) + (x + dx) * pixelSize;
 
-						//matrix[(int) v, srcBegin[posWithOffset]]++;
+						matrix[(int) v, srcBegin[posWithOffset/2]]++;
 					}
 
 					src += offset;

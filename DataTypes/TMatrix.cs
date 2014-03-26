@@ -49,13 +49,13 @@ namespace baimp
 				ImageBuilder ib = new ImageBuilder(Data.GetLength(0), Data.GetLength(1));
 				BitmapImage bi = ib.ToBitmap();
 
-				int max = 0;
+				double max = 0.0;
 				int[,] copy = new int[Data.GetLength(0), Data.GetLength(1)];
 				for (int x = 0; x < Data.GetLength(0); x++) {
 					for (int y = 0; y < Data.GetLength(1); y++) {
 						copy[x, y] = Data[x, y];
 						if (copy[x, y] > 0) {
-							copy[x, y] = (int) (Math.Log(copy[x, y]) / Math.Log(1.1));
+							copy[x, y] = (int) (Math.Log(copy[x, y]) * 100.0);
 						}
 
 						if (copy[x, y] > max) {
@@ -63,7 +63,7 @@ namespace baimp
 						}
 					}
 				}
-							
+												
 				for (int x = 0; x < Data.GetLength(0); x++) {
 					for (int y = 0; y < Data.GetLength(1); y++) {
 						byte c = (byte) ((copy[x, y] * 255) / max);
