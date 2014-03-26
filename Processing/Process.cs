@@ -43,9 +43,10 @@ namespace baimp
 
 				startNode.algorithm.SetProgress(0);
 				IType[] output = startNode.algorithm.Run(
-					startNode.algorithm.requestedData,
-					startNode.algorithm.options.ToArray(),
-					input);
+					                 startNode.algorithm.requestedData,
+					                 startNode.algorithm.options.ToArray(),
+					                 input
+				                 );
 				startNode.algorithm.SetProgress(100);
 
 				if (isSeqData) {
