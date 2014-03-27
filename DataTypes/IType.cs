@@ -3,7 +3,7 @@ using Xwt;
 
 namespace baimp
 {
-	public interface IType
+	public interface IType : IDisposable
 	{
 		Widget ToWidget();
 		string ToString();

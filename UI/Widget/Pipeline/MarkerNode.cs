@@ -17,7 +17,7 @@ namespace baimp
 		private int positionNo;
 
 		[XmlIgnore]
-		public Queue<IType> inputData = new Queue<IType>();
+		public Queue<Result> inputData = new Queue<Result>();
 
 		public MarkerNode()
 		{

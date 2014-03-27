@@ -217,7 +217,8 @@ namespace baimp
 				pNode.results.Clear();
 				if (pNode.IsReady()) {
 					Process process = new Process(project, pNode);
-					process.Start();
+					Result[] zeroInput = new Result[0];
+					process.Start(zeroInput);
 				}
 			}
 		}

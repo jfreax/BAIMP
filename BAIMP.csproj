@@ -126,6 +126,7 @@
     <Compile Include="UI\Widget\ResultPopupView.cs" />
     <Compile Include="Algorithm\Output\Writer.cs" />
     <Compile Include="UI\Widget\LightImageWidget.cs" />
+    <Compile Include="Processing\Result.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

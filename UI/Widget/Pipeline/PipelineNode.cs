@@ -283,9 +283,9 @@ namespace baimp
 		/// Dequeues a set of input parameters and return them.
 		/// </summary>
 		/// <returns>The input.</returns>
-		public IType[] DequeueInput()
+		public Result[] DequeueInput()
 		{
-			IType[] input = new IType[algorithm.Input.Count];
+			Result[] input = new Result[algorithm.Input.Count];
 			for (int i = 0; i < algorithm.Input.Count; i++) {
 				input[i] = mNodes[i].inputData.Dequeue();
 			}

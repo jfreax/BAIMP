@@ -32,8 +32,17 @@ namespace baimp
 		/// <summary>
 		/// Start to evaluate the pipeline
 		/// </summary>
-		public void Start(params IType[] input)
+		public void Start(Result[] inputResult)
 		{
+			IType[] input = null;
+			if (inputResult != null) {
+				input = new IType[inputResult.Length];
+				int i = 0;
+				foreach (Result res in inputResult) {
+					input[i] = res.data;
+					i++;
+				}
+			}
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ThreadPool.QueueUserWorkItem(o => {
 				bool isSeqData = startNode.algorithm.OutputsSequentialData();
@@ -48,6 +57,10 @@ namespace baimp
 					                 input
 				                 );
 				startNode.algorithm.SetProgress(100);
+
+				for( int i = 0; i < inputResult.Length; i++) {
+					inputResult[i].Finish();
+				}
 
 				if (isSeqData) {
 					startNode.algorithm.Yielded -= GetSingleData;
@@ -71,14 +84,22 @@ namespace baimp
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
 
-			// TODO save only, if user marked as "save" in interface
 			if (startNode.SaveResult) {
 				startNode.results.Add(result);
 			}
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
+				Result resultWrapper = new Result(ref result[i], startNode.SaveResult);
 
+				Result[] resultWrapperList = null;
+				if (result[i].GetType().IsArray) {
+					resultWrapperList = new Result[(result[i] as IType[]).Length];
+					for (int k = 0; k < (result[i] as IType[]).Length; k++) {
+						resultWrapperList[k] = new Result(ref (result[i] as IType[])[k], startNode.SaveResult);
+					}
+				}
+					
 				// enqueue new data
 				foreach (MarkerEdge edge in startNode.MNodes[offsetIndex+i].Edges) {
 					MarkerNode targetNode = edge.to as MarkerNode;
@@ -91,11 +112,13 @@ namespace baimp
 					}
 
 					if (result[i].GetType().IsArray && !targetIsParallel) {
-						foreach (IType t in (result[i] as IType[])) {
-							targetNode.inputData.Enqueue(t);
+						for (int k = 0; k < (result[i] as IType[]).Length; k++) {
+							resultWrapperList[k].Use();
+							targetNode.inputData.Enqueue(resultWrapperList[k]);
 						}
 					} else {
-						targetNode.inputData.Enqueue(result[i]);
+						resultWrapper.Use();
+						targetNode.inputData.Enqueue(resultWrapper);
 					}
 
 					// start next node
