@@ -121,6 +121,8 @@ namespace baimp
 		{
 			if (Bounds.IsEmpty)
 				return;
+
+			base.OnDraw(ctx, dirtyRect);
 				
 			// draw all nodes
 			foreach (PipelineNode node in nodes) {
@@ -146,12 +148,6 @@ namespace baimp
 					QueueDraw();
 				}
 			}
-
-			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
-				if (lastSelectedNode.Draw(ctx)) {
-					QueueDraw(lastSelectedNode.bound);
-				}
-			}
 				
 			// draw alle edges
 			foreach (PipelineNode pNode in nodes) {
@@ -161,11 +157,17 @@ namespace baimp
 					}
 				}
 			}
-		
+				
 			// draw all markers
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
 					mNode.Draw(ctx);
+				}
+			}
+
+			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
+				if (lastSelectedNode.Draw(ctx)) {
+					QueueDraw(lastSelectedNode.bound);
 				}
 			}
 
@@ -353,6 +355,7 @@ namespace baimp
 					if (e.MultiplePress >= 2) {
 						OpenOptionWindow(node);
 						mouseAction = MouseAction.None;
+						e.Handled = true;
 						break;
 					}
 						
@@ -381,10 +384,10 @@ namespace baimp
 						edge.Item1.RemoveEdge(edge.Item2);
 						lastSelectedEdge = edge;
 						mouseAction |= MouseAction.MoveEdge;
+						e.Handled = true;
 					}
 				}
 
-				e.Handled = true;
 				break;
 
 			case PointerButton.Right:
@@ -416,6 +419,12 @@ namespace baimp
 			}
 
 			popupWindow.Hide();
+
+			if (!e.Handled && node != null) {
+				e.X -= node.bound.Location.X;
+				e.Y -= node.bound.Location.Y;
+				node.OnButtonPressed(e);
+			}
 		}
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
