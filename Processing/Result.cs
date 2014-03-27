@@ -1,4 +1,6 @@
 ﻿using System;
+using Xwt.Drawing;
+using System.IO;
 
 namespace baimp
 {
@@ -30,7 +32,6 @@ namespace baimp
 			inUse--;
 			if (inUse <= 0 && !preserve) {
 				data.Dispose();
-
 			}
 		}
 

@@ -23,6 +23,9 @@ namespace baimp
 			get {
 				return raw;
 			}
+			set {
+				raw = value;
+			}
 		}
 
 		abstract public Xwt.Widget ToWidget();
@@ -35,6 +38,11 @@ namespace baimp
 				widget.Dispose();
 				widget = null;
 			}
+
+			if (raw is IDisposable) {
+				(raw as IDisposable).Dispose();
+			}
+
 		}
 
 		#endregion
