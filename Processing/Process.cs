@@ -72,7 +72,9 @@ namespace baimp
 			}
 
 			// TODO save only, if user marked as "save" in interface
-			startNode.results.Add(result);
+			if (startNode.SaveResult) {
+				startNode.results.Add(result);
+			}
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
