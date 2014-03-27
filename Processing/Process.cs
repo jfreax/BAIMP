@@ -58,8 +58,8 @@ namespace baimp
 				                 );
 				startNode.algorithm.SetProgress(100);
 
-				for( int i = 0; i < inputResult.Length; i++) {
-					inputResult[i].Finish();
+				foreach (Result res in inputResult) {
+					res.Finish();
 				}
 
 				if (isSeqData) {
@@ -125,6 +125,19 @@ namespace baimp
 					if (targetNode.parent.IsReady()) {
 						Process newProcess = new Process(project, targetNode.parent);
 						newProcess.Start(targetNode.parent.DequeueInput());
+					}
+				}
+
+				// dispose data when no one uses them
+				if (resultWrapperList == null) {
+					if (resultWrapper.InUse <= 0) {
+						resultWrapper.Finish();
+					}
+				} else {
+					foreach (Result res in resultWrapperList) {
+						if (res.InUse <= 0) {
+							res.Finish();
+						}
 					}
 				}
 			}
