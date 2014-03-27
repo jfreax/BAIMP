@@ -19,48 +19,26 @@ namespace baimp
 		[XmlIgnore]
 		public Queue<IType> inputData = new Queue<IType>();
 
+		[XmlIgnore]
+		public MarkerNodeView view;
+
 		public MarkerNode()
 		{
+			view = new MarkerNodeView(this);
 		}
 
-		public MarkerNode(PipelineNode parent, Compatible compatible, int positionNo, bool isInput)
+		public MarkerNode(PipelineNode parent, Compatible compatible, int positionNo, bool isInput) : this()
 		{
 			this.parent = parent;
 			this.compatible = compatible;
 			this.IsInput = isInput;
 
 			this.positionNo = positionNo;
+
+			Height = 10;
+			Console.WriteLine("Add at: " + Bounds + " und right: " + parent.view.Bounds.Width);
+			parent.view.AddChild(view, Bounds);
 		}
-
-		#region drawing
-
-		/// <summary>
-		/// Draw the marker.
-		/// </summary>
-		/// <param name="ctx">Context.</param>
-		public override void Draw(Context ctx)
-		{
-			ctx.SetColor(PipelineNode.NodeColorBorder);
-
-			Rectangle bndTmp = Bounds;
-			ctx.SetLineWidth(1);
-			ctx.MoveTo(bndTmp.Left, bndTmp.Center.Y);
-			ctx.LineTo(bndTmp.Right, bndTmp.Center.Y);
-			ctx.Stroke();
-		}
-
-		/// <summary>
-		/// Draws the edges.
-		/// </summary>
-		/// <param name="ctx">Context.</param>
-		public void DrawEdges(Context ctx)
-		{
-			foreach (MarkerEdge edge in edges) {
-				edge.Draw(ctx, this);
-			}
-		}
-
-		#endregion
 
 		/// <summary>
 		/// Tests if another node is compatible with this one.
@@ -98,8 +76,8 @@ namespace baimp
 			get {
 				return new Rectangle(
 					new Point(
-						IsInput ? parent.bound.Left - NodeInOutMarkerSize : parent.bound.Right,
-						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
+						IsInput ? 0 : parent.view.BoundPosition.Width -NodeInOutMarkerSize,
+						parent.view.ContentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
 					), new Size(NodeInOutMarkerSize, Height)
 				);
 			}

@@ -78,13 +78,13 @@ namespace baimp
 							targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
 						}
 
-						foreach (MarkerNode mNode in pNode.mNodes) {
+						foreach (MarkerNode mNode in pNode.MNodes) {
 							allNodes.Add(mNode.ID, mNode);
 						}
 					}
 
 					foreach (PipelineNode pNode in p.LoadedNodes) {
-						foreach (MarkerNode mNode in pNode.mNodes) {
+						foreach (MarkerNode mNode in pNode.MNodes) {
 							foreach (Edge edge in mNode.Edges) {
 								edge.to = allNodes[edge.ToNodeID];
 							}

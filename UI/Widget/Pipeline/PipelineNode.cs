@@ -9,35 +9,26 @@ namespace baimp
 {
 	public class PipelineNode
 	{
-		static public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
-		static public Size NodeSize = new Size(200, 40);
-		static public Size NodeInOutSpace = new Size(8, 8);
-		static public int NodeRadius = 2;
-		static public Color NodeColor = Color.FromBytes(252, 252, 252);
-		static public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
-		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
-		static public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
-
-		private Image iconHide;
-		private Image iconView;
-
-		[XmlIgnore]
-		public Point contentOffset = Point.Zero;
-
 		[XmlIgnore]
 		public BaseAlgorithm algorithm;
 
-		[XmlIgnore]
-		public Rectangle bound = new Rectangle(Point.Zero, NodeSize);
+		//[XmlIgnore]
+		//public Rectangle bound = new Rectangle(Point.Zero, NodeSize);
 
 		[XmlIgnore]
-		public List<MarkerNode> mNodes;
+		private List<MarkerNode> mNodes;
 
 		[XmlIgnore]
-		private int progress = 0;
+		public int progress = 0;
 
 		[XmlIgnore]
 		public List<IType[]> results = new List<IType[]>();
+
+		[XmlIgnore]
+		public readonly PipelineNodeView view;
+
+		[XmlIgnore]
+		private PipelineView parent;
 
 
 		#region initialize
@@ -47,163 +38,52 @@ namespace baimp
 		/// Do not use!
 		/// </summary>
 		public PipelineNode() {
-			iconHide = Image.FromResource("baimp.Resources.hide.png");
-			iconView = Image.FromResource("baimp.Resources.view.png");
+			view = new PipelineNodeView(this);
 		}
 
-		public PipelineNode(string algoType, Rectangle bound) : this()
+		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
 		{
+			this.parent = parent;
 			this.mNodes = new List<MarkerNode>();
 			this.AlgorithmType = algoType;
-			this.bound = bound;
+
+			parent.AddChild(view, bound);
 
 			int i = 0;
 			foreach (Compatible c in algorithm.Input) {
+				Console.WriteLine("Add input marker");
 				this.Add(new MarkerNode(this, c, i, true));
 				i++;
 			}
 			i = 0;
 			foreach (Compatible c in algorithm.Output) {
+				Console.WriteLine("Add output marker");
 				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
 		}
 
 		/// <summary>
-		/// Call only, if mNodes are set from outside
+		/// Call only if mNodes are set from outside
 		/// </summary>
 		public void Initialize()
 		{
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
+//				view.AddChild(mNode.view,
+//					new Rectangle(
+//					new Point(
+//							mNode.IsInput ? view.BoundPosition.Left - MarkerNode.NodeInOutMarkerSize : view.BoundPosition.Right,
+//							view.BoundPosition.Y + view.ContentOffset.Y + (mNode.Position + 1) * MarkerNode.NodeInOutSpace + mNode.Position * 10 /* Height */
+//						), new Size(MarkerNode.NodeInOutMarkerSize, 10)
+//				));
+				Console.WriteLine("Add");
 				if (mNode.IsInput) {
 					mNode.compatible = algorithm.Input[mNode.Position];
 				} else {
 					mNode.compatible = algorithm.Output[mNode.Position];
 				}
 			}
-		}
-
-		#endregion
-
-		#region drawing
-
-		/// <summary>
-		/// Draw this node.
-		/// </summary>
-		/// <param name="ctx">Drawing context.</param>
-		public bool Draw(Context ctx)
-		{		
-			DrawBackground(ctx);
-			DrawProgress(ctx);
-			DrawHeader(ctx);
-			bool ret = DrawBody(ctx);
-
-			return ret;
-		}
-
-		private void DrawBackground(Context ctx)
-		{
-			// draw shadow
-			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
-			ctx.SetColor(NodeColorShadow);
-			ctx.SetLineWidth(2);
-			ctx.Fill();
-
-			// border
-			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
-			ctx.SetColor(NodeColorBorder);
-			ctx.SetLineWidth(2);
-			ctx.StrokePreserve();
-
-			// background
-			ctx.SetColor(NodeColor);
-			ctx.Fill();
-		}
-
-		private void DrawProgress(Context ctx)
-		{
-			ctx.Save();
-
-			Rectangle clipBound = bound.Inflate(-1, -1);
-			clipBound.Width *= progress / 100.0;
-			clipBound.Bottom = clipBound.Top + contentOffset.Y;
-			ctx.Rectangle(clipBound);
-			ctx.Clip();
-			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
-			ctx.SetColor(NodeColorProgress);
-			ctx.Fill();
-
-			ctx.Restore();
-		}
-
-		private void DrawHeader(Context ctx)
-		{
-			TextLayout text = new TextLayout();
-			Point textOffset = new Point(0, 4);
-
-			text.Text = algorithm.ToString();
-			if (text.GetSize().Width < NodeSize.Width) {
-				textOffset.X = (NodeSize.Width - text.GetSize().Width) * 0.5;
-			} else {
-				text.Width = NodeSize.Width;
-				text.Trimming = TextTrimming.WordElipsis;
-			}
-			Point textPosition = bound.Location.Offset(textOffset);
-
-			ctx.SetColor(Colors.Black);
-			ctx.DrawTextLayout(text, textPosition);
-
-			// icons
-			if (SaveResult) {
-				ctx.DrawImage(
-					iconView.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-					bound.Location.Offset(10, 3)
-				);
-			} else {
-				ctx.DrawImage(
-					iconHide.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-					bound.Location.Offset(10, 3)
-				);
-			}
-
-			// stroke under headline
-			contentOffset.X = 6;
-			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
-
-			ctx.SetColor(NodeColorBorder);
-			ctx.MoveTo(bound.Location.Offset(contentOffset));
-			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
-			ctx.SetLineWidth(1.0);
-			ctx.Stroke();
-		}
-
-		private bool DrawBody(Context ctx)
-		{
-			bool ret = false;
-			TextLayout text = new TextLayout();
-			ctx.SetColor(Colors.Black);
-
-			foreach (MarkerNode mNode in mNodes) {
-				text.Text = mNode.compatible.ToString();
-				mNode.Height = text.GetSize().Height;
-				Point pos = mNode.Bounds.Location;
-				if (mNode.IsInput) {
-					pos.X = mNode.Bounds.Right + contentOffset.X;
-				} else {
-					pos.X = bound.Right - contentOffset.X - text.GetSize().Width;
-				}
-				ctx.DrawTextLayout(text, pos);
-				ctx.Stroke();
-
-				// resize widget if necessary
-				if (pos.Y + mNode.Height + NodeInOutSpace.Height > bound.Bottom) {
-					bound.Bottom = pos.Y + mNode.Height + NodeInOutSpace.Height;
-					ret = true;
-				}
-			}
-
-			return ret;
 		}
 
 		#endregion
@@ -289,17 +169,6 @@ namespace baimp
 
 		#region properties
 
-		public Rectangle BoundWithExtras {
-			get {
-				return bound.Inflate(
-					new Size(
-						MarkerNode.NodeInOutMarkerSize + NodeMargin.HorizontalSpacing,
-						NodeMargin.VerticalSpacing
-					)
-				);
-			}
-		}
-
 		[XmlIgnore]
 		public int Progress {
 			get {
@@ -312,23 +181,39 @@ namespace baimp
 			}
 		}
 
+		private Rectangle tmpPos = Rectangle.Zero;
+
 		[XmlAttribute("y")]
 		public double X {
 			get {
-				return bound.X;
+				return view.Bounds.X;
 			}
 			set {
+				Rectangle bound = view.Bounds;
 				bound.X = value;
+				if (parent == null) {
+					tmpPos.X = bound.X;
+				} else {
+					Console.WriteLine("Bound #11: " + bound);
+					parent.SetChildBounds(view, bound);
+				}
 			}
 		}
 
 		[XmlAttribute("x")]
 		public double Y {
 			get {
-				return bound.Y;
+				return view.Bounds.Y;
 			}
 			set {
+				Rectangle bound = view.Bounds;
 				bound.Y = value;
+				if (parent == null) {
+					tmpPos.Y = bound.Y;
+				} else {
+					Console.WriteLine("Bound #12: " + bound);
+					parent.SetChildBounds(view, bound);
+				}
 			}
 		}
 
@@ -352,6 +237,7 @@ namespace baimp
 			set {
 				mNodes = value;
 				foreach (MarkerNode mNode in mNodes) {
+					view.AddChild(mNode.view);
 					mNode.parent = this;
 					if (mNode.IsInput) {
 						mNode.compatible = algorithm.Input[mNode.Position];
@@ -366,6 +252,34 @@ namespace baimp
 		public bool SaveResult {
 			get;
 			set;
+		}
+			
+		[XmlIgnore]
+		public PipelineView Parent {
+			get {
+				return parent;
+			}
+			set {
+				parent = value;
+				if (tmpPos != Rectangle.Zero) {
+					tmpPos.Width = PipelineNodeView.NodeSize.Width;
+					tmpPos.Height = PipelineNodeView.NodeSize.Height;
+
+					parent.SetChildBounds(view, tmpPos);
+					tmpPos = Rectangle.Zero;
+
+					foreach (MarkerNode mNode in mNodes) {
+						mNode.parent = this;
+						view.AddChild(mNode.view,
+							new Rectangle(
+								new Point(
+									mNode.IsInput ? view.BoundPosition.Left - MarkerNode.NodeInOutMarkerSize : view.BoundPosition.Right,
+									view.BoundPosition.Y + view.ContentOffset.Y + (mNode.Position + 1) * MarkerNode.NodeInOutSpace + mNode.Position * 10 /* Height */
+								), new Size(MarkerNode.NodeInOutMarkerSize, 10)
+							));
+					}
+				}
+			}
 		}
 
 		/// <summary>

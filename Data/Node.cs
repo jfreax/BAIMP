@@ -21,13 +21,7 @@ namespace baimp
 
 			edges = new List<Edge>();
 		}
-
-		/// <summary>
-		/// Draw this node.
-		/// </summary>
-		/// <param name="ctx">Context.</param>
-		abstract public void Draw(Context ctx);
-
+			
 		/// <summary>
 		/// Add an edge.
 		/// </summary>

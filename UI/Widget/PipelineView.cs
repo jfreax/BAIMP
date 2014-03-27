@@ -45,14 +45,9 @@ namespace baimp
 			this.CanGetFocus = true;
 
 			if (loadedNodes == null) {
-				nodes = new List<PipelineNode>();
+				Nodes = new List<PipelineNode>();
 			} else {
-				nodes = loadedNodes;
-				foreach (PipelineNode pNode in nodes) {
-					pNode.QueueRedraw += delegate(object sender, EventArgs e) {
-						QueueDraw((sender as PipelineNode).bound);
-					};
-				}
+				Nodes = loadedNodes;
 			}
 
 			mouseMover = new MouseMover(scrollview);
@@ -120,83 +115,85 @@ namespace baimp
 		{
 			if (Bounds.IsEmpty)
 				return;
+
+			base.OnDraw(ctx, dirtyRect);
 				
-			// draw all nodes
-			foreach (PipelineNode node in nodes) {
-				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
-					if (node.bound.IntersectsWith(dirtyRect)) {
-						if (node.Draw(ctx)) {
-							QueueDraw(node.bound);
-						}
-					}
-				}
-					
-				// set canvas min size
-				Rectangle boundwe = node.BoundWithExtras;
-				if (boundwe.Right > MinWidth) {
-					MinWidth = boundwe.Right + PipelineNode.NodeMargin.Right;
-				}
-				if (boundwe.Bottom > MinHeight) {
-					MinHeight = boundwe.Bottom + PipelineNode.NodeMargin.Bottom;
-				}
-				Point offset = new Point(Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
-				if (offset != Point.Zero) {
-					TranslateAllNodesBy(offset);
-					QueueDraw();
-				}
-			}
-
-			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
-				if (lastSelectedNode.Draw(ctx)) {
-					QueueDraw(lastSelectedNode.bound);
-				}
-			}
-				
-			// draw alle edges
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					if (!mNode.IsInput) {
-						mNode.DrawEdges(ctx);
-					}
-				}
-			}
-		
-			// draw all markers
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					mNode.Draw(ctx);
-				}
-			}
-
-			// update things
-			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
-
-				// move scrollbar
-				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
-				ScrollView sv = this.Parent as ScrollView;
-
-				double viewportRight = sv.HorizontalScrollControl.Value + sv.Size.Width;
-				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;
-				if (boundwe.Right - offsetH > viewportRight) {
-					sv.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
-				} else if (boundwe.Left + offsetH < sv.HorizontalScrollControl.Value) {
-					sv.HorizontalScrollControl.Value -= sv.HorizontalScrollControl.Value - offsetH - boundwe.Left;
-				}
-
-				double viewportBottom = sv.VerticalScrollControl.Value + sv.Size.Height;
-				double offsetV = (nodeToMoveOffset.Y + boundwe.Height) * 0.5;
-				if (boundwe.Bottom - offsetV > viewportBottom) {
-					sv.VerticalScrollControl.Value += boundwe.Bottom - offsetV - viewportBottom;
-				} else if (boundwe.Top + offsetV < sv.VerticalScrollControl.Value) {
-					sv.VerticalScrollControl.Value -= sv.VerticalScrollControl.Value - offsetV - boundwe.Top;
-				}
-			}
-
-			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
-				ctx.MoveTo(connectNodesStartMarker.Bounds.Center);
-				ctx.LineTo(connectNodesEnd);
-				ctx.Stroke();
-			}
+//			// draw all nodes
+//			foreach (PipelineNode node in nodes) {
+////				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
+////					if (node.bound.IntersectsWith(dirtyRect)) {
+////						if (node.Draw(ctx)) {
+////							QueueDraw(node.bound);
+////						}
+////					}
+////				}
+//					
+//				// set canvas min size
+//				Rectangle boundwe = node.view.BoundWithExtras;
+//				if (boundwe.Right > MinWidth) {
+//					MinWidth = boundwe.Right + PipelineNodeView.NodeMargin.Right;
+//				}
+//				if (boundwe.Bottom > MinHeight) {
+//					MinHeight = boundwe.Bottom + PipelineNodeView.NodeMargin.Bottom;
+//				}
+//				Point offset = new Point(Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
+//				if (offset != Point.Zero) {
+//					//TranslateAllNodesBy(offset);
+//					QueueDraw();
+//				}
+//			}
+//
+////			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
+////				if (lastSelectedNode.Draw(ctx)) {
+////					QueueDraw(lastSelectedNode.bound);
+////				}
+////			}
+//				
+//			// draw alle edges
+//			foreach (PipelineNode pNode in nodes) {
+//				foreach (MarkerNode mNode in pNode.mNodes) {
+//					if (!mNode.IsInput) {
+//						mNode.DrawEdges(ctx);
+//					}
+//				}
+//			}
+//		
+//			// draw all markers
+//			foreach (PipelineNode pNode in nodes) {
+//				foreach (MarkerNode mNode in pNode.mNodes) {
+//					mNode.Draw(ctx);
+//				}
+//			}
+//
+//			// update things
+//			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
+//
+//				// move scrollbar
+//				Rectangle boundwe = lastSelectedNode.view.BoundWithExtras;
+//				ScrollView sv = this.Parent as ScrollView;
+//
+//				double viewportRight = sv.HorizontalScrollControl.Value + sv.Size.Width;
+//				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;
+//				if (boundwe.Right - offsetH > viewportRight) {
+//					sv.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
+//				} else if (boundwe.Left + offsetH < sv.HorizontalScrollControl.Value) {
+//					sv.HorizontalScrollControl.Value -= sv.HorizontalScrollControl.Value - offsetH - boundwe.Left;
+//				}
+//
+//				double viewportBottom = sv.VerticalScrollControl.Value + sv.Size.Height;
+//				double offsetV = (nodeToMoveOffset.Y + boundwe.Height) * 0.5;
+//				if (boundwe.Bottom - offsetV > viewportBottom) {
+//					sv.VerticalScrollControl.Value += boundwe.Bottom - offsetV - viewportBottom;
+//				} else if (boundwe.Top + offsetV < sv.VerticalScrollControl.Value) {
+//					sv.VerticalScrollControl.Value -= sv.VerticalScrollControl.Value - offsetV - boundwe.Top;
+//				}
+//			}
+//
+//			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
+//				ctx.MoveTo(connectNodesStartMarker.Bounds.Center);
+//				ctx.LineTo(connectNodesEnd);
+//				ctx.Stroke();
+//			}
 		}
 
 		#endregion
@@ -317,16 +314,13 @@ namespace baimp
 			try {
 				string algoType = e.Data.GetValue(TransferDataType.Text).ToString();
 
-				PipelineNode node = new PipelineNode(algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
-				node.QueueRedraw += delegate(object sender, EventArgs n) {
-					QueueDraw((sender as PipelineNode).bound);
-				};
+				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(e.Position, PipelineNodeView.NodeSize));
 
-				SetNodePosition(node);
+				//SetNodePosition(node);
 				nodes.Add(node);
 
 				EmitDataChanged();
-				this.QueueDraw();
+				//this.QueueDraw();
 
 			} catch (Exception exception) {
 				Console.WriteLine(exception.Message);
@@ -360,10 +354,10 @@ namespace baimp
 						connectNodesStartMarker = mNode;
 						mouseAction |= MouseAction.AddEdge;
 					} else {
-						if (node.bound.Contains(e.Position)) {
+						if (node.view.BoundPosition.Contains(e.Position)) {
 							nodeToMoveOffset = new Point(
-								node.bound.Location.X - e.Position.X,
-								node.bound.Location.Y - e.Position.Y
+								node.view.BoundPosition.Location.X - e.Position.X,
+								node.view.BoundPosition.Location.Y - e.Position.Y
 							);
 							lastSelectedNode = node;
 							mouseAction |= MouseAction.MoveNode;
@@ -391,9 +385,8 @@ namespace baimp
 				if (lastSelectedEdge != null) {
 					contextMenuEdge.Popup();
 				} else {
-					PipelineNode nodeRight = GetNodeAt(e.Position, true);
-					if (nodeRight != null) {
-						lastSelectedNode = nodeRight;
+					if (node != null) {
+						lastSelectedNode = node;
 						if (lastSelectedNode.algorithm.options.Count > 0) {
 							contextMenuNodeOptions.Show();
 						} else {
@@ -415,11 +408,17 @@ namespace baimp
 			}
 
 			popupWindow.Hide();
+
+			if (!e.Handled && node != null) {
+				e.X -= node.X;
+				e.Y -= node.Y;
+				node.OnButtonPressed(e);
+			}
 		}
 
 		protected override void OnButtonReleased(ButtonEventArgs e)
 		{
-			MarkerNode mNode = GetInOutMarkerAt(e.Position, PipelineNode.NodeInOutSpace);
+			MarkerNode mNode = GetInOutMarkerAt(e.Position, PipelineNodeView.NodeInOutSpace);
 			bool actionedLeft = false;
 
 			switch (e.Button) {
@@ -498,12 +497,16 @@ namespace baimp
 
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode != null) {
-					lastSelectedNode.bound.Location = e.Position.Offset(nodeToMoveOffset);
+					Rectangle bounds = lastSelectedNode.view.BoundPosition;
+					bounds.Location = e.Position.Offset(nodeToMoveOffset);
+					Console.WriteLine("Bound #1: " + bounds);
+					SetChildBounds(lastSelectedNode.view, bounds);
+
 					QueueDraw();
 				}
 			}
 			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
-				MarkerNode mNode = GetInOutMarkerAt(e.Position, PipelineNode.NodeInOutSpace);
+				MarkerNode mNode = GetInOutMarkerAt(e.Position, PipelineNodeView.NodeInOutSpace);
 				if (mNode != null) {
 					connectNodesEnd = mNode.Bounds.Center;
 				} else {
@@ -571,7 +574,11 @@ namespace baimp
 		/// </remarks>
 		private void SetNodeAt(PipelineNode nodeToMove, Point position)
 		{
-			nodeToMove.bound.Location = position;
+			Rectangle bounds = nodeToMove.view.BoundPosition;
+			bounds.Location = position;
+			Console.WriteLine("Bound #2: " + bounds);
+			SetChildBounds(nodeToMove.view, bounds);
+
 			SetNodePosition(nodeToMove);
 			QueueDraw();
 		}
@@ -587,25 +594,33 @@ namespace baimp
 		/// </remarks>
 		private void SetNodePosition(PipelineNode nodeToMove, int iteration = 20)
 		{
+			if (iteration <= 0) {
+				return;
+			}
+
 			if (nodeToMove != null) {
-				PipelineNode intersectingNode = GetNodeAt(nodeToMove.BoundWithExtras, nodeToMove, true);
+				PipelineNode intersectingNode = GetNodeAt(nodeToMove.view.BoundWithExtras, nodeToMove, true);
 				if (intersectingNode != null) {
 					Rectangle intersect = 
-						nodeToMove.BoundWithExtras.Intersect(intersectingNode.BoundWithExtras);
+						nodeToMove.view.BoundWithExtras.Intersect(intersectingNode.view.BoundWithExtras);
+					Rectangle bounds = nodeToMove.view.BoundPosition;
 
 					if (iteration > 0 && intersect.Width < intersect.Height) {
-						if (nodeToMove.bound.Left < intersectingNode.bound.Left) {
-							nodeToMove.bound.Left -= intersect.Width;
+						if (nodeToMove.view.BoundPosition.Left < intersectingNode.view.BoundPosition.Left) {
+							bounds.Left -= intersect.Width;
 						} else {
-							nodeToMove.bound.Left += intersect.Width;
+							bounds.Left += intersect.Width;
 						}
 					} else {
-						if (iteration > 0 && nodeToMove.bound.Top < intersectingNode.bound.Top) {
-							nodeToMove.bound.Top -= intersect.Height;
+						if (iteration > 0 && nodeToMove.view.BoundPosition.Top < intersectingNode.view.BoundPosition.Top) {
+							bounds.Top -= intersect.Height;
 						} else {
-							nodeToMove.bound.Top += intersect.Height;
+							bounds.Top += intersect.Height;
 						}
 					}
+
+					Console.WriteLine("Bound #3: " + bounds);
+					SetChildBounds(nodeToMove.view, bounds);
 
 					SetNodePosition(nodeToMove, iteration - 1);
 					QueueDraw();
@@ -623,7 +638,7 @@ namespace baimp
 			double epsilon = 4.0;
 
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
+				foreach (MarkerNode mNode in pNode.MNodes) {
 					if (!mNode.IsInput) {
 						foreach (Edge e in mNode.Edges) {
 							MarkerEdge edge = (MarkerEdge) e;
@@ -657,7 +672,7 @@ namespace baimp
 		private PipelineNode GetNodeAt(Point position, bool withExtras = false)
 		{
 			foreach (PipelineNode node in nodes) {
-				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
+				Rectangle bound = withExtras ? node.view.BoundWithExtras : node.view.BoundPosition;
 				if (bound.Contains(position)) {
 					return node;
 				}
@@ -677,7 +692,7 @@ namespace baimp
 		{
 			foreach (PipelineNode node in nodes) {
 				if (node != ignoreNode &&
-				    node.BoundWithExtras.IntersectsWith(rectangle)) {
+					node.view.BoundWithExtras.IntersectsWith(rectangle)) {
 					return node;
 				}
 			}
@@ -694,7 +709,7 @@ namespace baimp
 		private MarkerNode GetInOutMarkerAt(Point position, Size? inflate = null)
 		{
 			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
+				foreach (MarkerNode mNode in pNode.MNodes) {
 					if (mNode.Bounds.Inflate(inflate ?? Size.Zero).Contains(position)) {
 						return mNode;
 					}
@@ -710,7 +725,7 @@ namespace baimp
 		/// <param name="node">Node to remove.</param>
 		private void RemoveNode(PipelineNode node)
 		{
-			foreach (MarkerNode mNode in node.mNodes) {
+			foreach (MarkerNode mNode in node.MNodes) {
 				List<Edge> toRemove = new List<Edge>();
 				for (int i = 0; i < mNode.Edges.Count; i++) {
 					toRemove.Add(mNode.Edges[i]);
@@ -734,6 +749,10 @@ namespace baimp
 			}
 			set {
 				nodes = value;
+				foreach (PipelineNode pNode in nodes) {
+					this.AddChild(pNode.view);
+					pNode.Parent = this;
+				}
 				QueueDraw();
 			}
 		}
@@ -767,7 +786,9 @@ namespace baimp
 		private void TranslateAllNodesBy(Point offset)
 		{
 			foreach (PipelineNode node in nodes) {
-				node.bound = node.bound.Offset(offset);
+				Rectangle bounds = node.view.BoundPosition.Offset(offset);
+				Console.WriteLine("Bound #4: " + bounds);
+				SetChildBounds(node.view, bounds);
 			}
 		}
 
