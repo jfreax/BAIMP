@@ -20,6 +20,10 @@ namespace baimp
 
 		private Image iconHide;
 		private Image iconView;
+		private ImageView iconHideView;
+
+		[XmlIgnore]
+		PipelineView parent;
 
 		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
@@ -49,10 +53,18 @@ namespace baimp
 		public PipelineNode() {
 			iconHide = Image.FromResource("baimp.Resources.hide.png");
 			iconView = Image.FromResource("baimp.Resources.view.png");
+
+			iconHideView = new ImageView(iconHide);
+
+			iconHideView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+
+				Console.WriteLine("I was clicked!");
+			};
 		}
 
-		public PipelineNode(string algoType, Rectangle bound) : this()
+		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
 		{
+			this.parent = parent;
 			this.mNodes = new List<MarkerNode>();
 			this.AlgorithmType = algoType;
 			this.bound = bound;
@@ -67,6 +79,8 @@ namespace baimp
 				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
+				
+			InitializeWidgets();
 		}
 
 		/// <summary>
@@ -82,6 +96,21 @@ namespace baimp
 					mNode.compatible = algorithm.Output[mNode.Position];
 				}
 			}
+		}
+
+		public void InitializeWidgets()
+		{
+			// calculate header height
+			TextLayout text = new TextLayout();
+			text.Text = "M";
+
+			// add widgets
+			iconHideView.Image = iconHideView.Image.WithBoxSize(text.GetSize().Height).WithAlpha(0.6);
+			parent.AddChild(iconHideView);
+
+
+			// set initial position
+			OnMove(null);
 		}
 
 		#endregion
@@ -155,17 +184,17 @@ namespace baimp
 			ctx.DrawTextLayout(text, textPosition);
 
 			// icons
-			if (SaveResult) {
-				ctx.DrawImage(
-					iconView.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-					bound.Location.Offset(10, 3)
-				);
-			} else {
-				ctx.DrawImage(
-					iconHide.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-					bound.Location.Offset(10, 3)
-				);
-			}
+//			if (SaveResult) {
+//				ctx.DrawImage(
+//					iconView.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
+//					bound.Location.Offset(10, 3)
+//				);
+//			} else {
+//				ctx.DrawImage(
+//					iconHide.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
+//					bound.Location.Offset(10, 3)
+//				);
+//			}
 
 			// stroke under headline
 			contentOffset.X = 6;
@@ -213,6 +242,17 @@ namespace baimp
 		public void OnButtonPressed(ButtonEventArgs e)
 		{
 
+		}
+
+		/// <summary>
+		/// Raises when this node was moved.
+		/// </summary>
+		/// <param name="e">Event args.</param>
+		public void OnMove(EventArgs e)
+		{
+			Rectangle tmpBound = parent.GetChildBounds(iconHideView);
+			tmpBound.Location = bound.Location.Offset(10, 3);
+			parent.SetChildBounds(iconHideView, tmpBound);
 		}
 
 		#endregion
@@ -389,6 +429,16 @@ namespace baimp
 			}
 		}
 
+		[XmlIgnore]
+		public PipelineView Parent {
+			get {
+				return parent;
+			}
+			set {
+				parent = value;
+				InitializeWidgets();
+			}
+		}
 		#endregion
 	}
 }

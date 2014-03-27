@@ -49,6 +49,7 @@ namespace baimp
 			} else {
 				nodes = loadedNodes;
 				foreach (PipelineNode pNode in nodes) {
+					pNode.Parent = this;
 					pNode.QueueRedraw += delegate(object sender, EventArgs e) {
 						QueueDraw((sender as PipelineNode).bound);
 					};
@@ -317,7 +318,7 @@ namespace baimp
 			try {
 				string algoType = e.Data.GetValue(TransferDataType.Text).ToString();
 
-				PipelineNode node = new PipelineNode(algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
+				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
 				node.QueueRedraw += delegate(object sender, EventArgs n) {
 					QueueDraw((sender as PipelineNode).bound);
 				};
@@ -499,6 +500,7 @@ namespace baimp
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode != null) {
 					lastSelectedNode.bound.Location = e.Position.Offset(nodeToMoveOffset);
+					lastSelectedNode.OnMove(null);
 					QueueDraw();
 				}
 			}
@@ -574,6 +576,8 @@ namespace baimp
 			nodeToMove.bound.Location = position;
 			SetNodePosition(nodeToMove);
 			QueueDraw();
+
+			nodeToMove.OnMove(null);
 		}
 
 		/// <summary>
@@ -606,6 +610,7 @@ namespace baimp
 							nodeToMove.bound.Top += intersect.Height;
 						}
 					}
+					nodeToMove.OnMove(null);
 
 					SetNodePosition(nodeToMove, iteration - 1);
 					QueueDraw();
@@ -768,6 +773,7 @@ namespace baimp
 		{
 			foreach (PipelineNode node in nodes) {
 				node.bound = node.bound.Offset(offset);
+				node.OnMove(null);
 			}
 		}
 
