@@ -1,6 +1,7 @@
 ﻿using System;
 using Xwt.Drawing;
 using System.IO;
+using System.Collections.Generic;
 
 namespace baimp
 {
@@ -8,6 +9,7 @@ namespace baimp
 	{
 		private int inUse = 0;
 		private bool preserve;
+		private HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
 		public readonly IType data;
 
 		public Result(ref IType data, bool preserve = false)
@@ -17,18 +19,20 @@ namespace baimp
 		}
 
 		/// <summary>
-		/// Call when you use this data
+		/// Call when you use this data.
 		/// </summary>
-		public void Use()
+		public void Used(PipelineNode by)
 		{
+			usedBy.Add(by);
 			inUse++;
 		}
 
 		/// <summary>
-		/// Call when finished using these data
+		/// Call when finished using these data.
 		/// </summary>
-		public void Finish()
+		public void Finish(PipelineNode by)
 		{
+			usedBy.Remove(by);
 			inUse--;
 			if (inUse <= 0 && !preserve) {
 				data.Dispose();
@@ -47,11 +51,24 @@ namespace baimp
 			data.Dispose();
 		}
 
+		#region helper functions
+
+		public bool IsUsed(PipelineNode by)
+		{
+			return usedBy.Contains(by);
+		}
+
+		#endregion
+
+		#region properties
+
 		public int InUse {
 			get {
 				return inUse;
 			}
 		}
+
+		#endregion
 	}
 }
 

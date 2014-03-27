@@ -17,7 +17,8 @@ namespace baimp
 		private int positionNo;
 
 		[XmlIgnore]
-		public Queue<Result> inputData = new Queue<Result>();
+		private Queue<Result> inputData = new Queue<Result>();
+		private List<Result> resultHistory = new List<Result>();
 
 		public MarkerNode()
 		{
@@ -47,6 +48,20 @@ namespace baimp
 			ctx.MoveTo(bndTmp.Left, bndTmp.Center.Y);
 			ctx.LineTo(bndTmp.Right, bndTmp.Center.Y);
 			ctx.Stroke();
+
+			if (IsInput) {
+				int inputBufferSize = inputData.Count;
+				foreach (Result res in resultHistory) {
+					if (res.IsUsed(parent)) {
+						inputBufferSize++;
+					}
+				}
+
+				TextLayout text = new TextLayout();
+				text.Text = inputBufferSize.ToString();
+
+				ctx.DrawTextLayout(text, Bounds.Location);
+			}
 		}
 
 		/// <summary>
@@ -90,6 +105,53 @@ namespace baimp
 			} else {
 				return compatible.Match(this, otherNode);
 			}
+		}
+
+		/// <summary>
+		/// Enqueues the a result object to the input buffer.
+		/// </summary>
+		/// <param name="result">Result.</param>
+		public void EnqueueInput(Result result) 
+		{
+			inputData.Enqueue(result);
+			resultHistory.Add(result);
+
+			if (parent.queueRedraw != null) {
+				parent.queueRedraw(this, null);
+			}
+		}
+
+		/// <summary>
+		/// Dequeues an input result.
+		/// </summary>
+		/// <returns>Result from queue.</returns>
+		public Result DequeueInput()
+		{
+			return inputData.Dequeue();
+		}
+
+		/// <summary>
+		/// Determines whether the input buffer is empty.
+		/// </summary>
+		/// <returns><c>true</c> if empty; otherwise, <c>false</c>.</returns>
+		public bool IsInputEmpty()
+		{
+			return inputData.Count == 0;
+		}
+
+		/// <summary>
+		/// Disposes all input buffer data.
+		/// </summary>
+		/// <remarks>
+		/// Delete input history too!
+		/// </remarks>
+		public void ClearInput()
+		{
+			foreach (Result res in inputData) {
+				res.Dispose();
+			}
+			inputData.Clear();
+			resultHistory.Clear();
 		}
 
 		#region properties

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xwt.Drawing;
+using System.Threading;
 
 namespace baimp
 {
@@ -8,7 +9,7 @@ namespace baimp
 	{
 		public TestExtraction(PipelineNode parent) : base(parent)
 		{
-			input.Add(new Compatible("in #1", typeof(IType), new MaximumUses(1)));
+			input.Add(new Compatible("in #1", typeof(IType)));
 
 			output.Add(new Compatible("out #1", typeof(int)));
 			output.Add(new Compatible("out #2", typeof(string)));
@@ -16,7 +17,11 @@ namespace baimp
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			throw new NotImplementedException();
+			Console.WriteLine("Start");
+			Thread.Sleep(6000);
+			Console.WriteLine("Stop");
+
+			return null;
 		}
 
 		public override AlgorithmType AlgorithmType {

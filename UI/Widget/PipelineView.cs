@@ -26,7 +26,10 @@ namespace baimp
 		private Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
 		private MouseAction mouseAction = MouseAction.None;
 		private MouseMover mouseMover;
+
 		CursorType oldCursor;
+
+		private bool redrawQueued;
 
 		Window popupWindow = new Window ();
 
@@ -50,9 +53,7 @@ namespace baimp
 				nodes = loadedNodes;
 				foreach (PipelineNode pNode in nodes) {
 					pNode.Parent = this;
-					pNode.QueueRedraw += delegate(object sender, EventArgs e) {
-						QueueDraw((sender as PipelineNode).bound);
-					};
+					pNode.QueueRedraw += QueueRedraw;
 				}
 			}
 
@@ -200,8 +201,21 @@ namespace baimp
 				ctx.LineTo(connectNodesEnd);
 				ctx.Stroke();
 			}
+
+			redrawQueued = false;
 		}
 
+
+		void QueueRedraw(object sender, EventArgs e)
+		{
+			if (!redrawQueued) {
+
+				Application.Invoke( delegate {
+					QueueDraw();
+					redrawQueued = true;
+				});
+			}
+		}
 		#endregion
 
 		#region start/stop
@@ -325,9 +339,7 @@ namespace baimp
 				string algoType = e.Data.GetValue(TransferDataType.Text).ToString();
 
 				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(e.Position, PipelineNode.NodeSize));
-				node.QueueRedraw += delegate(object sender, EventArgs n) {
-					QueueDraw((sender as PipelineNode).bound);
-				};
+				node.QueueRedraw += QueueRedraw;
 
 				SetNodePosition(node);
 				nodes.Add(node);

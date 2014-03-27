@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Xwt;
 
 namespace baimp
 {
@@ -48,6 +49,9 @@ namespace baimp
 				bool isSeqData = startNode.algorithm.OutputsSequentialData();
 				if (isSeqData) {
 					startNode.algorithm.Yielded += GetSingleData;
+//						delegate(object sender, AlgorithmDataArgs e) {
+//						Application.Invoke( () => GetSingleData(sender, e) );
+//					};
 				}
 
 				startNode.algorithm.SetProgress(0);
@@ -59,7 +63,7 @@ namespace baimp
 				startNode.algorithm.SetProgress(100);
 
 				foreach (Result res in inputResult) {
-					res.Finish();
+					res.Finish(startNode);
 				}
 
 				if (isSeqData) {
@@ -113,12 +117,12 @@ namespace baimp
 
 					if (result[i].GetType().IsArray && !targetIsParallel) {
 						for (int k = 0; k < (result[i] as IType[]).Length; k++) {
-							resultWrapperList[k].Use();
-							targetNode.inputData.Enqueue(resultWrapperList[k]);
+							resultWrapperList[k].Used(targetNode.parent);
+							targetNode.EnqueueInput(resultWrapperList[k]);
 						}
 					} else {
-						resultWrapper.Use();
-						targetNode.inputData.Enqueue(resultWrapper);
+						resultWrapper.Used(targetNode.parent);
+						targetNode.EnqueueInput(resultWrapper);
 					}
 
 					// start next node
@@ -130,13 +134,13 @@ namespace baimp
 
 				// dispose data when no one uses them
 				if (resultWrapperList == null) {
-					if (resultWrapper.InUse <= 0) {
-						resultWrapper.Finish();
+					if (resultWrapper.InUse <= 0 && !startNode.SaveResult) {
+						resultWrapper.Dispose();
 					}
 				} else {
 					foreach (Result res in resultWrapperList) {
-						if (res.InUse <= 0) {
-							res.Finish();
+						if (res.InUse <= 0 && !startNode.SaveResult) {
+							res.Dispose();
 						}
 					}
 				}

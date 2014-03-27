@@ -168,6 +168,9 @@ namespace baimp
 			ctx.Fill();
 
 			ctx.Restore();
+
+			// input / output buffer
+
 		}
 
 		private void DrawHeader(Context ctx)
@@ -271,7 +274,7 @@ namespace baimp
 		public bool IsReady()
 		{
 			foreach (MarkerNode mNode in MNodes) {
-				if (mNode.IsInput && mNode.inputData.Count == 0) {
+				if (mNode.IsInput && mNode.IsInputEmpty()) {
 					return false;
 				}
 			}
@@ -287,7 +290,7 @@ namespace baimp
 		{
 			Result[] input = new Result[algorithm.Input.Count];
 			for (int i = 0; i < algorithm.Input.Count; i++) {
-				input[i] = mNodes[i].inputData.Dequeue();
+				input[i] = mNodes[i].DequeueInput();
 			}
 
 			return input;
@@ -296,10 +299,7 @@ namespace baimp
 		public void ClearInputQueue()
 		{
 			for (int i = 0; i < algorithm.Input.Count; i++) {
-				foreach (Result res in mNodes[i].inputData) {
-					res.Dispose();
-				}
-				mNodes[i].inputData.Clear();
+				mNodes[i].ClearInput();
 			}
 		}
 
@@ -328,7 +328,8 @@ namespace baimp
 
 		#region custom events
 
-		EventHandler<EventArgs> queueRedraw;
+		[XmlIgnore]
+		public EventHandler<EventArgs> queueRedraw;
 
 		/// <summary>
 		/// Occurs when scan data changed
