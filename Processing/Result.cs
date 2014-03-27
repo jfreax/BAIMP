@@ -35,6 +35,18 @@ namespace baimp
 			}
 		}
 
+		/// <summary>
+		/// Releases all resource used by the <see cref="baimp.Result"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="baimp.Result"/>. The <see cref="Dispose"/>
+		/// method leaves the <see cref="baimp.Result"/> in an unusable state. After calling <see cref="Dispose"/>, you must
+		/// release all references to the <see cref="baimp.Result"/> so the garbage collector can reclaim the memory that the
+		/// <see cref="baimp.Result"/> was occupying.</remarks>
+		public void Dispose()
+		{
+			data.Dispose();
+		}
+
 		public int InUse {
 			get {
 				return inUse;

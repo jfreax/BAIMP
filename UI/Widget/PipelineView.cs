@@ -214,7 +214,10 @@ namespace baimp
 		{
 			foreach (PipelineNode pNode in nodes) {
 				pNode.algorithm.SetProgress(0);
+
 				pNode.results.Clear();
+				pNode.ClearInputQueue();
+
 				if (pNode.IsReady()) {
 					Process process = new Process(project, pNode);
 					Result[] zeroInput = new Result[0];

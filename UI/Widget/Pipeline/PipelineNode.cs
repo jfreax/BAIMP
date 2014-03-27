@@ -293,6 +293,16 @@ namespace baimp
 			return input;
 		}
 
+		public void ClearInputQueue()
+		{
+			for (int i = 0; i < algorithm.Input.Count; i++) {
+				foreach (Result res in mNodes[i].inputData) {
+					res.Dispose();
+				}
+				mNodes[i].inputData.Clear();
+			}
+		}
+
 		/// <summary>
 		/// Gets the marker at position if there is one.
 		/// </summary>
