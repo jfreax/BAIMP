@@ -56,11 +56,25 @@ namespace baimp
 						inputBufferSize++;
 					}
 				}
+				if (inputBufferSize > 0) {
+					TextLayout text = new TextLayout();
+					text.Text = inputBufferSize.ToString();
+					double textWidth = text.GetSize().Width;
+					double textHeight = text.GetSize().Height;
+					Point inputbufferSizeLocation = 
+						Bounds.Location.Offset(-(textWidth / 2), -(textHeight));
 
-				TextLayout text = new TextLayout();
-				text.Text = inputBufferSize.ToString();
+					ctx.Arc(
+						inputbufferSizeLocation.X + textWidth / 2,
+						inputbufferSizeLocation.Y + textHeight / 2,
+						Math.Max(textHeight, textWidth) / 2 + 1,
+						0, 360
+					);
+					ctx.Fill();
 
-				ctx.DrawTextLayout(text, Bounds.Location);
+					ctx.SetColor(PipelineNode.NodeColor);
+					ctx.DrawTextLayout(text, inputbufferSizeLocation);
+				}
 			}
 		}
 
