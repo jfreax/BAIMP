@@ -11,6 +11,7 @@ namespace baimp
 	public class DDPlusScan : BaseScan
 	{
 		private float zLengthPerDigitF;
+		List<Metadata> metadata = new List<Metadata>();
 
 		private Dictionary<string, string> filenames = new Dictionary<string, string>();
 		private Dictionary<string, float[]> arrayData = new Dictionary<string, float[]>();
@@ -37,6 +38,10 @@ namespace baimp
 			filenames["Intensity"] = String.Format("{0}/{1}", path, ini.ReadString("buffers", "intensity"));
 			filenames["Topography"] = String.Format("{0}/{1}", path, ini.ReadString("buffers", "topography"));
 			filenames["Color"] = String.Format("{0}/{1}", path, ini.ReadString("buffers", "color"));
+
+			foreach (Tuple<string, string > datum in ini.ReadAllStrings("general")) {
+				metadata.Add(new Metadata(datum.Item1, datum.Item2));
+			}
 		}
 
 		#region implemented abstract members of BaseScan
@@ -192,6 +197,17 @@ namespace baimp
 			}
 			set {
 
+			}
+		}
+			
+		[XmlArray("metadata")]
+		[XmlArrayItem("datum")]
+		public override List<Metadata> Metadata {
+			get {
+				return metadata;
+			}
+			set {
+				metadata = value;
 			}
 		}
 

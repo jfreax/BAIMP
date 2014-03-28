@@ -75,18 +75,18 @@ namespace baimp
 
 			int i = 1;
 			// TODO load and show metadata
-//			foreach (Tuple<string, string> d in scan.generalMetadata) {
-//				table.Add(new Label(d.Item1), 0, i);
-//
-//				TextEntry entry = new TextEntry();
-//				entry.Text = d.Item2;
-//				entry.ReadOnly = true;
-//				entry.ShowFrame = false;
-//				entry.BackgroundColor = Color.FromBytes(232, 232, 232);
-//				table.Add(entry, 1, i);
-//
-//				i++;
-//			}
+			foreach (Metadata d in scan.Metadata) {
+				table.Add(new Label(d.key), 0, i);
+
+				TextEntry entry = new TextEntry();
+				entry.Text = d.value;
+				entry.ReadOnly = true;
+				entry.ShowFrame = false;
+				entry.BackgroundColor = Color.FromBytes(232, 232, 232);
+				table.Add(entry, 1, i);
+
+				i++;
+			}
 				
 			entryFiberType.Text = scan.FiberType;
 			table.Add(new Label("FiberType"), 0, i);

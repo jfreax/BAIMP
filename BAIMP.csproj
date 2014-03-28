@@ -133,6 +133,7 @@
     <Compile Include="Data\Formats\VK4Scan.cs" />
     <Compile Include="Data\Formats\DDPlusScan.cs" />
     <Compile Include="Data\Formats\BaseScan.cs" />
+    <Compile Include="Data\Metadata.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

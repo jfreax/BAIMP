@@ -127,6 +127,11 @@ namespace baimp
 			set;
 		}
 
+		abstract public List<Metadata> Metadata {
+			get;
+			set;
+		}
+
 		#endregion
 
 		/// <summary>
