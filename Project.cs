@@ -142,14 +142,13 @@ namespace baimp
 				.SelectMany(s => s.GetTypes())
 				.Where(t => t.BaseType == baseType);
 
-			BaseScan usedImporter = null;
 			foreach (Type importer in importers) {
 				BaseScan instance = Activator.CreateInstance(importer) as BaseScan;
 
 				string fileExtension = instance.SupportedFileExtensions();
 				string[] newFiles = Directory.GetFiles(path, fileExtension, SearchOption.AllDirectories);
 
-				scanCollection.AddFiles(new List<string>(newFiles), importer);
+				scanCollection.AddFiles(new List<string>(newFiles), importer, true);
 				projectChanged(this, new ProjectChangedEventArgs(newFiles));
 			}
 		}

@@ -56,10 +56,11 @@ namespace baimp
 		/// Loading file from filePath and store all information.
 		/// </summary>
 		/// <param name="filePath">File path.</param>
+		/// <param name="newImport">True when data should be read again from original file</param>
 		/// <remarks>
 		/// Gets recalled on filePath change!
 		/// </remarks>
-		virtual public void Initialize(string filePath)
+		virtual public void Initialize(string filePath, bool newImport = true)
 		{
 			this.filePath = filePath;
 		}
@@ -213,12 +214,18 @@ namespace baimp
 				return filePath;
 			}
 			set {
-				Initialize(value);
+				Initialize(value, false);
 			}
 		}
 
+		[XmlElement("size")]
 		public Xwt.Size Size {
-			get { return size; }
+			get { 
+				return size;
+			}
+			set {
+				size = value;
+			}
 		}
 
 		public Xwt.Point GetScaleFactor()
@@ -236,10 +243,14 @@ namespace baimp
 			}
 		}
 			
-		[XmlIgnore]
+		[XmlElement("requestedSize")]
 		public Xwt.Size RequestedBitmapSize {
-			get { return requestedBitmapSize; }
-			set { requestedBitmapSize = value; }
+			get { 
+				return requestedBitmapSize;
+			}
+			set {
+				requestedBitmapSize = value;
+			}
 		}
 
 		/// <summary>

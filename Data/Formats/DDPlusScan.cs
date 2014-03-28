@@ -23,15 +23,17 @@ namespace baimp
 		{
 		}
 
-		public override void Initialize(string filePath)
+		/// <summary>
+		/// Loading file from filePath and store all information.
+		/// </summary>
+		/// <param name="filePath">File path.</param>
+		/// <param name="newImport">True when data should be read again from original file</param>
+		/// <remarks>Gets recalled on filePath change!</remarks>
+		public override void Initialize(string filePath, bool newImport = true)
 		{
-			base.Initialize(filePath);
+			base.Initialize(filePath, newImport);
 
 			IniFile ini = new IniFile(filePath);
-			size = new Xwt.Size(ini.ReadInteger("general", "Width", 0), ini.ReadInteger("general", "Height", 0));
-			requestedBitmapSize = new Xwt.Size(size.Width, size.Height);
-
-			zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
 
 			// set file pathes
 			string path = Path.GetDirectoryName(filePath);
@@ -39,8 +41,15 @@ namespace baimp
 			filenames["Topography"] = String.Format("{0}/{1}", path, ini.ReadString("buffers", "topography"));
 			filenames["Color"] = String.Format("{0}/{1}", path, ini.ReadString("buffers", "color"));
 
-			foreach (Tuple<string, string > datum in ini.ReadAllStrings("general")) {
-				metadata.Add(new Metadata(datum.Item1, datum.Item2));
+			if (newImport) {
+				size = new Xwt.Size(ini.ReadInteger("general", "Width", 0), ini.ReadInteger("general", "Height", 0));
+				requestedBitmapSize = new Xwt.Size(size.Width, size.Height);
+
+				zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
+
+				foreach (Tuple<string, string > datum in ini.ReadAllStrings("general")) {
+					metadata.Add(new Metadata(datum.Item1, datum.Item2));
+				}
 			}
 		}
 

@@ -17,12 +17,12 @@ namespace baimp
 
 		#endregion
 
-		public void AddFiles(List<string> files, Type importerType)
+		public void AddFiles(List<string> files, Type importerType, bool reimport = true)
 		{
 			foreach (String file in files) {
 				// parse scan metadata
 				BaseScan instance = Activator.CreateInstance(importerType) as BaseScan;
-				instance.Initialize(file);
+				instance.Initialize(file, reimport);
 				Add(instance);
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
