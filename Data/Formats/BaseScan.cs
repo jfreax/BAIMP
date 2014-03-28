@@ -57,6 +57,11 @@ namespace baimp
 		/// </summary>
 		private bool isInitialized = false;
 
+		/// <summary>
+		/// The masks.
+		/// </summary>
+		private Mask masks;
+
 		public BaseScan()
 		{
 		}
@@ -72,6 +77,7 @@ namespace baimp
 		virtual public void Initialize(string filePath, bool newImport = true)
 		{
 			this.filePath = filePath;
+			this.masks = new Mask(this);
 
 			if (newImport) {
 				isInitialized = true;
@@ -281,6 +287,13 @@ namespace baimp
 			}
 			set {
 				requestedBitmapSize = value;
+			}
+		}
+			
+		[XmlIgnore]
+		public Mask Masks {
+			get {
+				return masks;
 			}
 		}
 

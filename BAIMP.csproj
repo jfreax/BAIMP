@@ -133,6 +133,7 @@
     <Compile Include="Data\Metadata.cs" />
     <Compile Include="Data\Graph\Edge.cs" />
     <Compile Include="Data\Graph\Node.cs" />
+    <Compile Include="Data\Mask.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
