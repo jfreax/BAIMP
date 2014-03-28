@@ -201,12 +201,8 @@ namespace baimp
 
 		[XmlElement("fiberType")]
 		public override string FiberType {
-			get {
-				return "Unknown";
-			}
-			set {
-
-			}
+			get;
+			set;
 		}
 			
 		[XmlArray("metadata")]

@@ -74,7 +74,6 @@ namespace baimp
 			table.Add(name, 0, 0, colspan: 2);
 
 			int i = 1;
-			// TODO load and show metadata
 			foreach (Metadata d in scan.Metadata) {
 				table.Add(new Label(d.key), 0, i);
 
