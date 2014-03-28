@@ -98,15 +98,12 @@
     <Compile Include="Algorithm\Extraction\TestExtraction.cs" />
     <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
-    <Compile Include="Data\TreeNode.cs" />
     <Compile Include="UI\Controller\MouseMover.cs" />
     <Compile Include="UI\Extensions\BoxMouseMover.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
     <Compile Include="Contraints\BaseConstraint.cs" />
     <Compile Include="Contraints\MaximumUses.cs" />
     <Compile Include="UI\Widget\Pipeline\PipelineNode.cs" />
-    <Compile Include="Data\Node.cs" />
-    <Compile Include="Data\Edge.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
@@ -134,6 +131,8 @@
     <Compile Include="Data\Formats\DDPlusScan.cs" />
     <Compile Include="Data\Formats\BaseScan.cs" />
     <Compile Include="Data\Metadata.cs" />
+    <Compile Include="Data\Graph\Edge.cs" />
+    <Compile Include="Data\Graph\Node.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -178,6 +177,7 @@
     <Folder Include="Algorithm\Output\" />
     <Folder Include="Resources\" />
     <Folder Include="Data\Formats\" />
+    <Folder Include="Data\Graph\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

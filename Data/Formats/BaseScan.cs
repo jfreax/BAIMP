@@ -162,20 +162,6 @@ namespace baimp
 				Xwt.Application.Invoke(delegate() {
 					callback(image.WithSize(requestedBitmapSize));
 				});
-//				MemoryStream mStream = null;
-//				if (renderedImage[(int) type] == null) {
-//					lock (lock_image_loading) {
-//						mStream = GetAsMemoryStream(type);
-//					}
-//				}
-//
-//				Xwt.Application.Invoke(delegate() {
-//					if (renderedImage[(int) type] == null) {
-//						renderedImage[(int) type] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
-//						mStream.Dispose();
-//					}
-//					callback(renderedImage[(int) type].WithSize(requestedBitmapSize));
-//				});
 			});
 			imageLoaderThread.Start();
 		}
