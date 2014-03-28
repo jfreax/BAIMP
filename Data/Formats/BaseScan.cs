@@ -21,6 +21,11 @@ namespace baimp
 		private string filePath;
 
 		/// <summary>
+		/// The type of the fiber.
+		/// </summary>
+		private string fiberType;
+
+		/// <summary>
 		/// List of unsaved elements
 		/// </summary>
 		protected HashSet<string> unsaved = new HashSet<string>();
@@ -47,6 +52,10 @@ namespace baimp
 		[XmlIgnore]
 		public TreePosition parentPosition;
 
+		/// <summary>
+		/// True after call to "Initialize".
+		/// </summary>
+		private bool isInitialized = false;
 
 		public BaseScan()
 		{
@@ -63,6 +72,18 @@ namespace baimp
 		virtual public void Initialize(string filePath, bool newImport = true)
 		{
 			this.filePath = filePath;
+
+			if (newImport) {
+				isInitialized = true;
+			}
+		}
+
+		/// <summary>
+		/// Gets called, when xml deserializer finished
+		/// </summary>
+		public void OnXmlDeserializeFinish()
+		{
+			isInitialized = true;
 		}
 
 		#region abstract methods
@@ -118,16 +139,9 @@ namespace baimp
 		abstract public XD.Image GetAsImage(string scanType);
 
 		/// <summary>
-		/// Gets or sets the type of the fiber.
-		/// E.g. "acryl"
+		/// Gets or sets the metadata.
 		/// </summary>
-		/// <value>The type of the fiber.</value>
-		[XmlElement("fiberType")]
-		abstract public string FiberType {
-			get;
-			set;
-		}
-
+		/// <value>The metadata.</value>
 		abstract public List<Metadata> Metadata {
 			get;
 			set;
@@ -175,12 +189,25 @@ namespace baimp
 		/// </remarks>
 		public virtual void NotifyChange(string changeOf)
 		{
-			unsaved.Add(changeOf);
+			if (isInitialized) {
+				if (!string.IsNullOrEmpty(changeOf)) {
+					unsaved.Add(changeOf);
+				}
 
-			if (scanDataChanged != null) {
-				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs(changeOf, unsaved);
-				scanDataChanged(this, dataChangedEvent);
+				if (scanDataChanged != null) {
+					ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs(changeOf, unsaved);
+					scanDataChanged(this, dataChangedEvent);
+				}
 			}
+		}
+
+		/// <summary>
+		/// Marks this scan as saved.
+		/// </summary>
+		public void Save()
+		{
+			unsaved.Clear();
+			NotifyChange("");
 		}
 
 		/// <summary>
@@ -215,6 +242,24 @@ namespace baimp
 			}
 			set {
 				Initialize(value, false);
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the type of the fiber.
+		/// E.g. "acryl"
+		/// </summary>
+		/// <value>The type of the fiber.</value>
+		[XmlElement("fiberType")]
+		public string FiberType {
+			get {
+				return fiberType;
+			}
+			set {
+				if (fiberType != value) {
+					fiberType = value;
+					NotifyChange("FiberType");
+				}
 			}
 		}
 

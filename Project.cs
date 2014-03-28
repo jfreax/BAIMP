@@ -98,6 +98,9 @@ namespace baimp
 
 						if (p.scanCollection != null) {
 							this.scanCollection = p.scanCollection;
+							foreach (BaseScan scan in this.scanCollection) {
+								scan.OnXmlDeserializeFinish();
+							}
 						} else {
 							this.scanCollection = new ScanCollection();
 						}

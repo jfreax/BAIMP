@@ -35,7 +35,7 @@ namespace baimp
 		public void SaveAll()
 		{
 			foreach (BaseScan scan in this) {
-				//scan.Save();
+				scan.Save();
 			}
 		}
 

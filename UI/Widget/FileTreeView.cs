@@ -89,6 +89,18 @@ namespace baimp
 						pos = v;
 					}
 				}
+
+				scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
+					TreeNavigator changedElem = store.GetNavigatorAt(scan.position);
+					if (e.Unsaved != null) {
+						Console.WriteLine(e.Changed);
+						if (e.Unsaved.Count > 0) {
+							changedElem.SetValue(saveStateCol, "*");
+						} else {
+							changedElem.SetValue(saveStateCol, "");
+						}
+					}
+				};
 			}
 
 			this.ExpandAll();

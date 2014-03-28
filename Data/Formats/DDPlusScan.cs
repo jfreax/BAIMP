@@ -198,12 +198,6 @@ namespace baimp
 
 			return renderedImage[scanType].WithSize(requestedBitmapSize);
 		}
-
-		[XmlElement("fiberType")]
-		public override string FiberType {
-			get;
-			set;
-		}
 			
 		[XmlArray("metadata")]
 		[XmlArrayItem("datum")]
