@@ -180,6 +180,7 @@ namespace baimp
 				pNode._intern_Options = pNode.algorithm.Options;
 			}
 
+			// save metadata
 			ZipFile zipFile;
 			try {
 				if (File.Exists(ProjectFile)) {

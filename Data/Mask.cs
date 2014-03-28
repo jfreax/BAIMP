@@ -25,7 +25,7 @@ namespace baimp
 		{
 			XD.Image mask = null;
 			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
-				ZipEntry maskEntry = zipFile.GetEntry(String.Format("masks/%1_%2.png", scan.Name, scanType));
+				ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
 				if (maskEntry != null) {
 					Stream maskStream = zipFile.GetInputStream(maskEntry);
 
@@ -72,9 +72,28 @@ namespace baimp
 		/// Saves the mask.
 		/// </summary>
 		/// <param name="type">Type.</param>
-		public unsafe void SaveMask(string scanType)
+		public unsafe void Save(string scanType)
 		{
+			Console.WriteLine("Save mask " + scanType);
+			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
+				zipFile.BeginUpdate();
 
+				MemoryStream ms = new MemoryStream();
+				GetMaskBuilder(scanType).ToBitmap().WithSize(scan.Size).Save(ms, XD.ImageFileType.Png);
+				ms.Position = 0;
+
+				CustomStaticDataSource source = new CustomStaticDataSource(ms);
+
+				zipFile.Add(source, MaskFilename(scanType));
+
+				zipFile.IsStreamOwner = true;
+				zipFile.CommitUpdate();
+			}
+
+			maskBuilder[scanType].Dispose();
+			maskBuilder[scanType] = null;
+
+			scan.NotifySaved("mask_" + scanType);
 		}
 
 
@@ -88,6 +107,12 @@ namespace baimp
 			maskBuilder[scanType] = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
 			scan.NotifyChange("mask_" + scanType);
+		}
+
+
+		private string MaskFilename(string scanType)
+		{
+			return String.Format("masks/{0}_{1}.png", scan.Name, scanType);
 		}
 	}
 }

@@ -275,7 +275,7 @@ namespace baimp
 		/// </summary>
 		public void SaveMask()
 		{
-			scan.Masks.SaveMask(currentShownType);
+			scan.Masks.Save(currentShownType);
 			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 

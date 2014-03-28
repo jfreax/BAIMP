@@ -179,10 +179,10 @@ namespace baimp
 		/// <remarks>
 		/// We need to save this data somewhere!
 		/// </remarks>
-		public virtual void NotifyChange(string changeOf)
+		public virtual void NotifyChange(string changeOf, bool addToUnsaved = true)
 		{
 			if (isInitialized) {
-				if (!string.IsNullOrEmpty(changeOf)) {
+				if (!string.IsNullOrEmpty(changeOf) && addToUnsaved) {
 					unsaved.Add(changeOf);
 				}
 
@@ -194,10 +194,37 @@ namespace baimp
 		}
 
 		/// <summary>
-		/// Marks this scan as saved.
+		/// Notifies that an attribute was saved.
+		/// </summary>
+		/// <param name="changeOf">Type of change</param>
+		public void NotifySaved(string changeOf)
+		{
+			unsaved.Remove(changeOf);
+
+			if (scanDataChanged != null) {
+				ScanDataEventArgs dataChangedEvent = new ScanDataEventArgs(changeOf, unsaved);
+				scanDataChanged(this, dataChangedEvent);
+			}
+		}
+
+		/// <summary>
+		/// Save data and marka this scan as saved.
 		/// </summary>
 		public void Save()
 		{
+			foreach (string toSave in unsaved) {
+				if (toSave.StartsWith("mask_")) {
+					string[] splitted = toSave.Split('_');
+					if (splitted.Length >= 2) {
+						masks.Save(splitted[1]);
+					}
+				}
+			}
+
+//			foreach (string scanType in AvailableScanTypes()) {
+//				masks.Save(scanType);
+//			}
+
 			unsaved.Clear();
 			NotifyChange("");
 		}
