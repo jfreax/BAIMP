@@ -65,7 +65,7 @@ namespace baimp
 
 			TreePosition pos = null;
 			Dictionary<string, TreePosition> treeTmp = new Dictionary<string, TreePosition>();
-			foreach (ScanWrapper scan in scans.data) {
+			foreach (ScanWrapper scan in scans) {
 				TreePosition currentNode;
 				if(treeTmp.ContainsKey(scan.FiberType)) {
 					currentNode = treeTmp[scan.FiberType];
@@ -92,7 +92,7 @@ namespace baimp
 			}
 
 			this.ExpandAll();
-			if (scans.data.Count > 0) {
+			if (scans.Count > 0) {
 				this.SelectRow(pos);
 			}
 		}

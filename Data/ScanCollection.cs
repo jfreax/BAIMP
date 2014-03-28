@@ -5,10 +5,8 @@ using System.Xml.Serialization;
 
 namespace baimp
 {
-	public class ScanCollection
+	public class ScanCollection : List<ScanWrapper>
 	{
-		[XmlArrayItem("scan")]
-		public readonly List<ScanWrapper> data = new List<ScanWrapper>();
 
 		#region initialize
 
@@ -46,7 +44,7 @@ namespace baimp
 				// parse scan metadata
 				ScanWrapper scan = new ScanWrapper(file);
 
-				data.Add(scan);
+				Add(scan);
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
 			}
@@ -57,7 +55,7 @@ namespace baimp
 		/// </summary>
 		public void SaveAll()
 		{
-			foreach (ScanWrapper scan in data) {
+			foreach (ScanWrapper scan in this) {
 				scan.Save();
 			}
 		}

@@ -30,10 +30,10 @@ namespace baimp
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
-			int size = scans.data.Count;
+			int size = scans.Count;
 
 			int i = 0;
-			foreach (Scan scan in scans.data) {
+			foreach (Scan scan in scans) {
 				IType[] data = new IType[3];
 				data[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
 				data[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));

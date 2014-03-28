@@ -15,11 +15,12 @@ namespace baimp
 	{
 		public readonly static int MaxLastOpenedProject = 5;
 
-		[XmlElement("scans")]
+		[XmlArray("scans")]
+		[XmlArrayItem("scan")]
 		public ScanCollection scanCollection;
 
 		[XmlAttribute]
-		public int version = 1;
+		public int version = 2;
 
 		private List<PipelineNode> loadedNodes;
 
@@ -220,7 +221,7 @@ namespace baimp
 					return false;
 				}
 
-				return scanCollection != null && scanCollection.data.Count > 0;
+				return scanCollection != null && scanCollection.Count > 0;
 			}
 
 			return false;
@@ -245,7 +246,7 @@ namespace baimp
 				//this.Files = new List<string>();
 				this.LoadedNodes = new List<PipelineNode>();
 
-				scanCollection.data.Clear();
+				scanCollection.Clear();
 				if (projectChanged != null) {
 					projectChanged(this, new ProjectChangedEventArgs(true));
 				}
