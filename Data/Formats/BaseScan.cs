@@ -181,6 +181,7 @@ namespace baimp
 		/// </remarks>
 		public virtual void NotifyChange(string changeOf, bool addToUnsaved = true)
 		{
+			Console.WriteLine(isInitialized + " NotifyChange " + changeOf);
 			if (isInitialized) {
 				if (!string.IsNullOrEmpty(changeOf) && addToUnsaved) {
 					unsaved.Add(changeOf);
@@ -212,7 +213,8 @@ namespace baimp
 		/// </summary>
 		public void Save()
 		{
-			foreach (string toSave in unsaved) {
+			HashSet<string> unsavedCopy = new HashSet<string>(unsaved);
+			foreach (string toSave in unsavedCopy) {
 				if (toSave.StartsWith("mask_")) {
 					string[] splitted = toSave.Split('_');
 					if (splitted.Length >= 2) {
@@ -220,13 +222,10 @@ namespace baimp
 					}
 				}
 			}
-
-//			foreach (string scanType in AvailableScanTypes()) {
-//				masks.Save(scanType);
-//			}
-
-			unsaved.Clear();
-			NotifyChange("");
+			if (unsaved.Count > 0) {
+				unsaved.Clear();
+				NotifyChange("");
+			}
 		}
 
 		/// <summary>
