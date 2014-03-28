@@ -10,6 +10,8 @@ namespace baimp
 		public DataField<object> saveStateCol;
 		public TreeStore store;
 
+		private Dictionary<string, TreePosition> fiberTypeNodes;
+
 		#region initialize
 
 		/// <summary>
@@ -49,29 +51,15 @@ namespace baimp
 		{
 			store.Clear();
 
-//			foreach (string key in scans.Keys) {
-//				foreach (ScanWrapper scan in scans[key]) {
-//					scan.ScanDataChanged -= OnScanDataChanged;
-//					scan.ScanDataChanged -= OnScanDataChanged;
-//					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-//						if (e.Unsaved != null && e.Unsaved.Count > 0) {
-//							if (!this.Title.EndsWith("*")) {
-//								this.Title += "*";
-//							}
-//						}
-//					};
-//				}
-//			}
-
 			TreePosition pos = null;
-			Dictionary<string, TreePosition> treeTmp = new Dictionary<string, TreePosition>();
+			fiberTypeNodes = new Dictionary<string, TreePosition>();
 			foreach (BaseScan scan in scans) {
 				TreePosition currentNode;
-				if(treeTmp.ContainsKey(scan.FiberType)) {
-					currentNode = treeTmp[scan.FiberType];
+				if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
+					currentNode = fiberTypeNodes[scan.FiberType];
 				} else {
 					currentNode = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
-					treeTmp[scan.FiberType] = currentNode;
+					fiberTypeNodes[scan.FiberType] = currentNode;
 				}
 
 				var v = store.AddNode(currentNode)
@@ -90,17 +78,7 @@ namespace baimp
 					}
 				}
 
-				scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-					TreeNavigator changedElem = store.GetNavigatorAt(scan.position);
-					if (e.Unsaved != null) {
-						Console.WriteLine(e.Changed);
-						if (e.Unsaved.Count > 0) {
-							changedElem.SetValue(saveStateCol, "*");
-						} else {
-							changedElem.SetValue(saveStateCol, "");
-						}
-					}
-				};
+				scan.ScanDataChanged += OnScanDataChanged;
 			}
 
 			this.ExpandAll();
@@ -109,25 +87,47 @@ namespace baimp
 			}
 		}
 
+		private void Refresh(BaseScan scan)
+		{
+			store.GetNavigatorAt(scan.position).Remove();
+
+			TreePosition parentNodePosition = null;
+			if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
+				parentNodePosition = fiberTypeNodes[scan.FiberType]; 
+			} else {
+				parentNodePosition = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
+				fiberTypeNodes[scan.FiberType] = parentNodePosition;
+
+			}
+
+			scan.position = store.AddNode(parentNodePosition)
+				.SetValue(nameCol, scan)
+				.SetValue(saveStateCol, "*").CurrentPosition;
+
+			this.ExpandToRow(scan.position);
+
+			scan.parentPosition = parentNodePosition;
+		}
+
 		/// <summary>
 		/// Gets called when a scan has changed
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event arguments</param>
-		public void OnScanDataChanged(object sender, ScanDataEventArgs e)
+		private void OnScanDataChanged(object sender, ScanDataEventArgs e)
 		{
 			BaseScan scan = (BaseScan) sender;
 
-//			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-//				scans.Refresh(scan);
-//				Reload(scan);
-//			}
-//
-//			store.GetNavigatorAt(scan.position)
-//				.SetValue(
-//				saveStateCol, 
-//				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
-//			);
+			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
+				//scans.Refresh(scan);
+				Refresh(scan);
+			}
+
+			store.GetNavigatorAt(scan.position)
+				.SetValue(
+				saveStateCol, 
+				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
+			);
 		}
 
 		/// <summary>
