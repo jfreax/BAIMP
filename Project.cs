@@ -179,7 +179,7 @@ namespace baimp
 			}
 
 			ZipFile zipFile;
-			try {
+//			try {
 				if (File.Exists(ProjectFile)) {
 					zipFile = new ZipFile(ProjectFile);
 				} else {
@@ -195,9 +195,9 @@ namespace baimp
 					zipFile.CommitUpdate();
 
 				} // closes also memorystream
-			} catch (Exception e) {
-				Console.WriteLine(e.Message);
-			}
+//			} catch (Exception e) {
+//				Console.WriteLine(e.Message);
+//			}
 
 			return true;
 		}
@@ -284,7 +284,10 @@ namespace baimp
 				typeof(List<MarkerNode>),
 				typeof(MarkerEdge),
 				typeof(Edge),
-				typeof(Node)
+				typeof(Node),
+				typeof(ScanCollection),
+				typeof(List<BaseScan>),
+				typeof(BaseScan)
 			};
 
 			XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);

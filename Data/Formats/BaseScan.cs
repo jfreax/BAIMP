@@ -10,6 +10,7 @@ using Xwt;
 
 namespace baimp
 {
+	[XmlInclude(typeof(DDPlusScan))]
 	abstract public class BaseScan
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
@@ -120,6 +121,7 @@ namespace baimp
 		/// E.g. "acryl"
 		/// </summary>
 		/// <value>The type of the fiber.</value>
+		[XmlElement("fiberType")]
 		abstract public string FiberType {
 			get;
 			set;

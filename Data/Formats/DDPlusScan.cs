@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using XD = Xwt.Drawing;
 using System.Drawing;
+using System.Xml.Serialization;
 
 namespace baimp
 {
@@ -183,7 +184,8 @@ namespace baimp
 
 			return renderedImage[scanType].WithSize(requestedBitmapSize);
 		}
-			
+
+		[XmlElement("fiberType")]
 		public override string FiberType {
 			get {
 				return "Unknown";
