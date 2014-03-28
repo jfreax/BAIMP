@@ -20,9 +20,6 @@ namespace baimp
 			startNode.algorithm.requestedData.Clear();
 			foreach (RequestType request in startNode.algorithm.Request) {
 				switch (request) {
-				case RequestType.Filenames:
-					startNode.algorithm.requestedData.Add(RequestType.Filenames, project.Files);
-					break;
 				case RequestType.ScanCollection:
 					startNode.algorithm.requestedData.Add(RequestType.ScanCollection, project.scanCollection);
 					break;

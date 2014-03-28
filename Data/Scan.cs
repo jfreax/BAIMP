@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using XD = Xwt.Drawing;
 using System.Threading;
+using System.Xml.Serialization;
 
 namespace baimp
 {
@@ -22,6 +23,8 @@ namespace baimp
 	public class Scan
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
+		[XmlIgnore]
+		public List<Tuple<string, string>> generalMetadata;
 
 		private object lock_image_loading = new object();
 		private float zLengthPerDigitF;
@@ -31,7 +34,7 @@ namespace baimp
 		private string[] filenames;
 		private float[][] data;
 		private float[] max;
-		public List<Tuple<string, string>> generalMetadata;
+
 		private XD.Image[] renderedImage;
 		private XD.ImageBuilder[] maskBuilder;
 		/// <summary>
@@ -42,13 +45,22 @@ namespace baimp
 
 		#region initialize
 
+		public Scan()
+		{
+			filenames = new string[(int) ScanType.Metadata + 1];
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Scan"/> class.
 		/// </summary>
 		/// <param name="filePath">Path to dd+ file.</param>
-		public Scan(string filePath)
+		public Scan(string filePath) : this()
 		{
-			filenames = new string[(int) ScanType.Metadata + 1];
+			Initialize(filePath);
+		}
+
+		private void Initialize(string filePath)
+		{
 			filenames[(int) ScanType.Metadata] = filePath;
 
 			// parse dd+ file informations
@@ -531,10 +543,11 @@ namespace baimp
 
 		#region getter and setter
 
+		[XmlElement("type")]
 		public string FiberType {
 			get { return fiberType; }
 			set {
-				if (!fiberType.Equals(value)) {
+				if (!string.IsNullOrEmpty(fiberType) && !fiberType.Equals(value)) {
 					fiberType = value;
 					NotifyChange("FiberType");
 				}
@@ -544,6 +557,16 @@ namespace baimp
 		public string Name {
 			get {
 				return Path.GetFileNameWithoutExtension(filenames[(int) ScanType.Metadata]);
+			}
+		}
+
+		[XmlElement("filename")]
+		public string Filename {
+			get {
+				return filenames[(int) ScanType.Metadata];
+			}
+			set {
+				Initialize(value);
 			}
 		}
 
@@ -559,6 +582,7 @@ namespace baimp
 			);
 		}
 
+		[XmlIgnore]
 		public HashSet<string> Unsaved {
 			get {
 				return new HashSet<string>(unsaved);
@@ -567,6 +591,7 @@ namespace baimp
 
 		#endregion
 
+		[XmlIgnore]
 		public Xwt.Size RequestedBitmapSize {
 			get { return requestedBitmapSize; }
 			set { requestedBitmapSize = value; }

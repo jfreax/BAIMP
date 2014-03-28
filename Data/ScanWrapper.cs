@@ -1,5 +1,6 @@
 using System;
 using Xwt;
+using System.Xml.Serialization;
 
 namespace baimp
 {
@@ -11,12 +12,18 @@ namespace baimp
 		/// <summary>
 		/// Position in file tree view
 		/// </summary>
+		[XmlIgnore]
 		public TreePosition position;
 
 		/// <summary>
 		/// Position of category item in file tree view
 		/// </summary>
+		[XmlIgnore]
 		public TreePosition parentPosition;
+
+		public ScanWrapper()
+		{
+		}
 
 		public ScanWrapper(string filePath) : base(filePath)
 		{

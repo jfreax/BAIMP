@@ -1,20 +1,24 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace baimp
 {
-	public class ScanCollection : Dictionary<string, List<ScanWrapper> >
+	public class ScanCollection
 	{
+		[XmlArrayItem("scan")]
+		public readonly List<ScanWrapper> data = new List<ScanWrapper>();
+
 		#region initialize
 
 		public ScanCollection()
 		{
 		}
 
-		public ScanCollection(string[] files)
+		public ScanCollection(List<string> files)
 		{
-			if (files != null && files.Length > 0) {
+			if (files != null && files.Count > 0) {
 				AddFiles(files);
 			}
 		}
@@ -31,54 +35,21 @@ namespace baimp
 				throw new FileNotFoundException("No files found");
 			}
 
-			AddFiles(files);
+			AddFiles(new List<string>(files));
 		}
 
 		#endregion
 
-		public void AddFiles(string[] files)
+		public void AddFiles(List<string> files)
 		{
 			foreach (String file in files) {
 				// parse scan metadata
 				ScanWrapper scan = new ScanWrapper(file);
 
-				if (!this.ContainsKey(scan.FiberType)) {
-					this[scan.FiberType] = new List<ScanWrapper>();
-				}
-
-				this[scan.FiberType].Add(scan);
+				data.Add(scan);
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
 			}
-		}
-
-		/// <summary>
-		/// Refresh specified scan.
-		/// </summary>
-		/// <param name="scan">Scan.</param>
-		public void Refresh(ScanWrapper scan)
-		{
-			string oldKey = "";
-			foreach (string key in this.Keys) {
-				Scan s = this[key].Find(x => x == scan);
-				if (s != null) {
-					oldKey = key;
-					break;
-				}
-			}
-
-			if (!String.IsNullOrEmpty(oldKey)) {
-				this[oldKey].Remove(scan);
-				if (this[oldKey].Count == 0) {
-					this.Remove(oldKey);
-				}
-			}
-
-			if (!this.ContainsKey(scan.FiberType)) {
-				this[scan.FiberType] = new List<ScanWrapper>();
-			}
-
-			this[scan.FiberType].Add(scan);
 		}
 
 		/// <summary>
@@ -86,13 +57,14 @@ namespace baimp
 		/// </summary>
 		public void SaveAll()
 		{
-			foreach (string key in this.Keys) {
-				foreach (ScanWrapper scan in this[key]) {
-					scan.Save();
-				}
-				
+			foreach (ScanWrapper scan in data) {
+				scan.Save();
 			}
 		}
+
+		#region properties
+
+		#endregion
 	}
 }
 

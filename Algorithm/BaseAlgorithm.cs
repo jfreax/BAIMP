@@ -16,7 +16,6 @@ namespace baimp
 
 	public enum RequestType
 	{
-		Filenames,
 		ScanCollection
 	}
 

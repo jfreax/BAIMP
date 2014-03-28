@@ -30,25 +30,19 @@ namespace baimp
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
-			int size = 0;
-
-			foreach (string key in scans.Keys) {
-				size += scans[key].Count;
-			}
+			int size = scans.data.Count;
 
 			int i = 0;
-			foreach (string key in scans.Keys) {
-				foreach (Scan scan in scans[key]) {
-					IType[] data = new IType[3];
-					data[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
-					data[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));
-					data[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
+			foreach (Scan scan in scans.data) {
+				IType[] data = new IType[3];
+				data[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
+				data[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));
+				data[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
 
-					Yield(data);
-					i++;
+				Yield(data);
+				i++;
 
-					SetProgress((int)((i * 100) / size));
-				}
+				SetProgress((int)((i * 100) / size));
 			}
 
 			return null;

@@ -1,5 +1,6 @@
 using System;
 using Xwt;
+using System.Collections.Generic;
 
 namespace baimp
 {
@@ -63,30 +64,35 @@ namespace baimp
 //			}
 
 			TreePosition pos = null;
-			foreach (string key in scans.Keys) {
-				var p = store.AddNode(null).SetValue(nameCol, key).CurrentPosition;
+			Dictionary<string, TreePosition> treeTmp = new Dictionary<string, TreePosition>();
+			foreach (ScanWrapper scan in scans.data) {
+				TreePosition currentNode;
+				if(treeTmp.ContainsKey(scan.FiberType)) {
+					currentNode = treeTmp[scan.FiberType];
+				} else {
+					currentNode = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
+					treeTmp[scan.FiberType] = currentNode;
+				}
 
-				foreach (ScanWrapper scan in scans[key]) {
-					var v = store.AddNode(p)
-						.SetValue(nameCol, scan)
-						.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
-						.CurrentPosition;
-					scan.position = v;
-					scan.parentPosition = p;
-					if (currentScan != null) {
-						if (currentScan == scan) {
-							pos = v;
-						}
-					} else {
-						if (pos == null) {
-							pos = v;
-						}
+				var v = store.AddNode(currentNode)
+					.SetValue(nameCol, scan)
+					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
+					.CurrentPosition;
+				scan.position = v;
+				scan.parentPosition = currentNode;
+				if (currentScan != null) {
+					if (currentScan == scan) {
+						pos = v;
+					}
+				} else {
+					if (pos == null) {
+						pos = v;
 					}
 				}
 			}
 
 			this.ExpandAll();
-			if (scans.Count > 0) {
+			if (scans.data.Count > 0) {
 				this.SelectRow(pos);
 			}
 		}

@@ -14,11 +14,13 @@ namespace baimp
 	public class Project
 	{
 		public readonly static int MaxLastOpenedProject = 5;
-		[XmlIgnore]
+
+		[XmlElement("scans")]
 		public ScanCollection scanCollection;
+
 		[XmlAttribute]
 		public int version = 1;
-		private List<string> files = new List<string>();
+
 		private List<PipelineNode> loadedNodes;
 
 		#region initialize
@@ -29,7 +31,7 @@ namespace baimp
 
 		public Project(string filePath)
 		{
-			scanCollection = new ScanCollection(Files.ToArray());
+			scanCollection = new ScanCollection();
 
 			if (!string.IsNullOrEmpty(filePath)) {
 				Open(filePath);
@@ -67,7 +69,6 @@ namespace baimp
 							return false;
 						}
 
-						this.Files = p.Files;
 						this.version = p.version;
 						this.LoadedNodes = p.LoadedNodes;
 
@@ -93,7 +94,12 @@ namespace baimp
 							}
 						}
 
-						scanCollection.AddFiles(Files.ToArray());
+						if (p.scanCollection != null) {
+							this.scanCollection = p.scanCollection;
+						} else {
+							this.scanCollection = new ScanCollection();
+						}
+							
 						if (projectChanged != null) {
 							projectChanged(this, new ProjectChangedEventArgs(true));
 						}
@@ -130,9 +136,9 @@ namespace baimp
 		public void Import(string path)
 		{
 			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-			files.AddRange(newFiles);
+			//files.AddRange(newFiles);
 
-			scanCollection.AddFiles(newFiles);
+			scanCollection.AddFiles(new List<string>(newFiles));
 			projectChanged(this, new ProjectChangedEventArgs(newFiles));
 		}
 
@@ -214,7 +220,7 @@ namespace baimp
 					return false;
 				}
 
-				return Files.Count > 0;
+				return scanCollection != null && scanCollection.data.Count > 0;
 			}
 
 			return false;
@@ -236,10 +242,10 @@ namespace baimp
 				}
 
 				this.ProjectFile = filename;
-				this.Files = new List<string>();
+				//this.Files = new List<string>();
 				this.LoadedNodes = new List<PipelineNode>();
 
-				scanCollection.Clear();
+				scanCollection.data.Clear();
 				if (projectChanged != null) {
 					projectChanged(this, new ProjectChangedEventArgs(true));
 				}
@@ -312,16 +318,16 @@ namespace baimp
 			set;
 		}
 
-		[XmlArray("files")]
-		[XmlArrayItem("file")]
-		public List<string> Files {
-			get {
-				return files;
-			}
-			set {
-				files = value;
-			}
-		}
+//		[XmlArray("files")]
+//		[XmlArrayItem("file")]
+//		public List<string> Files {
+//			get {
+//				return files;
+//			}
+//			set {
+//				files = value;
+//			}
+//		}
 
 		[XmlArray("pipeline")]
 		[XmlArrayItem("node")]
