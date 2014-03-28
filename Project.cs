@@ -50,7 +50,7 @@ namespace baimp
 		/// <param name="filePath">File path.</param>
 		public bool Open(string filePath)
 		{
-			this.ProjectFile = Path.GetFullPath(filePath);
+			Project.ProjectFile = Path.GetFullPath(filePath);
 
 			if (File.Exists(ProjectFile)) {
 				using (ZipFile zipFile = new ZipFile(ProjectFile)) {
@@ -256,7 +256,7 @@ namespace baimp
 					filename = Path.GetDirectoryName(filename) + "/" + Path.GetFileNameWithoutExtension(filename) + ".baimp";
 				}
 
-				this.ProjectFile = filename;
+				Project.ProjectFile = filename;
 				//this.Files = new List<string>();
 				this.LoadedNodes = new List<PipelineNode>();
 
@@ -325,7 +325,7 @@ namespace baimp
 		#region properties
 
 		[XmlIgnore]
-		public string ProjectFile {
+		static public string ProjectFile {
 			get;
 			set;
 		}

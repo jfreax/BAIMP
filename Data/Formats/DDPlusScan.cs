@@ -87,7 +87,6 @@ namespace baimp
 				max[scanType] = 0.0f;
 			}
 
-			Console.WriteLine(filenames[scanType]);
 			Stream s = File.OpenRead(filenames[scanType]);
 			BinaryReader input = new BinaryReader(s);
 

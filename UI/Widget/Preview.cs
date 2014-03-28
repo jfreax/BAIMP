@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using Xwt;
 using System.IO;
 using Xwt.Drawing;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace baimp
 {
@@ -53,7 +55,7 @@ namespace baimp
 			}
 
 			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
-				string scanType = notebook.CurrentTab.Label;
+				string scanType = notebook.CurrentTab.Label.TrimEnd('*');
 				ShowPreview(scanType);
 			};
 
@@ -196,12 +198,10 @@ namespace baimp
 			if (e.Changed.StartsWith("mask_")) {
 				string[] splitted = e.Changed.Split('_');
 				if (splitted.Length >= 2) {
-					int index = Convert.ToInt32(splitted[1]);
-
-					if (notebook.Tabs.Count >= index) {
-						notebook.Tabs[index].Label =
-							Enum.GetName(typeof(ScanType), index) +
-						(e != null && e.Unsaved.Contains("mask_" + index) ? "*" : "");
+					IEnumerable<NotebookTab> changedTab = notebook.Tabs.Where(t => t.Label == splitted[1]);
+					if (changedTab != null && changedTab.Count() > 0) {
+						changedTab.First().Label =
+							splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
 					}
 				}
 			}

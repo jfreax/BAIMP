@@ -62,8 +62,7 @@ namespace baimp
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				if (e.Changed.Equals("mask_" + currentShownType)) {
-					// TODO load mask information
-					//mask.Image = scan.GetMaskAsImage(currentShownType);
+					mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 				}
 			};
 		}
@@ -90,8 +89,7 @@ namespace baimp
 			MenuItem contextResetMask = new MenuItem("Reset mask");
 			contextResetMask.UseMnemonic = true;
 			contextResetMask.Clicked += delegate(object sender, EventArgs e) {
-				// TODO reset mask
-				//scan.ResetMask(currentShownType);
+				scan.Masks.ResetMask(currentShownType);
 			};
 			contextMenu.Items.Add(contextResetMask);
 
@@ -117,8 +115,7 @@ namespace baimp
 
 			scan.GetAsImageAsync(scanType, new baimp.BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				image.Image = loadedImage;
-				// TODO load mask
-				//mask.Image = scan.GetMaskAsImage(currentShownType);
+				mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
 				}
@@ -148,21 +145,20 @@ namespace baimp
 			case PointerButton.Left:
 				pointer |= Pointer.Left;
 
-				// TODO mask editing
-//				if (isEditMode) {
-//					scan.NotifyChange("mask_" + currentShownType);
-//
-//					Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
-//					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-//					ib.Context.NewPath();
-//					ib.Context.MoveTo(positionInImage);
-//
-//					SetMask(
-//						positionInImage,
-//						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
-//						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
-//					);
-//				}
+				if (isEditMode) {
+					scan.NotifyChange("mask_" + currentShownType);
+
+					Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
+					ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+					ib.Context.NewPath();
+					ib.Context.MoveTo(positionInImage);
+
+					SetMask(
+						positionInImage,
+						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
+						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
+					);
+				}
 				break;
 			case PointerButton.Right:
 				pointer |= Pointer.Right;
@@ -177,11 +173,10 @@ namespace baimp
 			case PointerButton.Left:
 				pointer ^= Pointer.Left;
 
-				// TODO mask editing
-//				if (isEditMode) {
-//					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-//					ib.Context.ClosePath();
-//				}
+				if (isEditMode) {
+					ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+					ib.Context.ClosePath();
+				}
 				break;
 			case PointerButton.Right:
 				pointer ^= Pointer.Right;
@@ -209,11 +204,10 @@ namespace baimp
 		{
 			pointer = Pointer.None;
 
-			// TODO mask editing
-//			if (isEditMode) {
-//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-//				ib.Context.ClosePath();
-//			}
+			if (isEditMode) {
+				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+				ib.Context.ClosePath();
+			}
 		}
 
 		protected override void OnMouseEntered(EventArgs e)
@@ -231,8 +225,7 @@ namespace baimp
 		{
 			scan.ScaleImage(scale);
 			image.Image = scan.GetAsImage(currentShownType);
-			// TODO
-			//mask.Image = scan.GetMaskAsImage(currentShownType);
+			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -242,40 +235,39 @@ namespace baimp
 		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
 		private void SetMask(Point position, bool unset = false)
 		{
-//			if (unset) {
-//				// TODO
-//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-//
-//				ib.Context.Save();
-//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-//				ib.Context.Clip();
-//
-//				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
-//				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
-//
-//				Image i = image.Image.WithSize(scan.Size).ToBitmap().Crop(
-//					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
-//				          );
-//
-//				ib.Context.DrawImage(i, new Point(newX, newY));
-//				ib.Context.Fill();
-//				ib.Context.Restore();
-//
-//			} else {
-//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-//				ib.Context.SetLineWidth(pointerSize * 2);
-//
-//				ib.Context.SetColor(maskColor);
-//				ib.Context.LineTo(position);
-//				ib.Context.Stroke();
-//
-//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-//				ib.Context.Fill();
-//
-//				ib.Context.MoveTo(position);
-//			}
-//
-//			mask.Image = scan.GetMaskAsImage(currentShownType);
+			if (unset) {
+				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+
+				ib.Context.Save();
+				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+				ib.Context.Clip();
+
+				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
+				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
+
+				Image i = image.Image.WithSize(scan.Size).ToBitmap().Crop(
+					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
+				          );
+
+				ib.Context.DrawImage(i, new Point(newX, newY));
+				ib.Context.Fill();
+				ib.Context.Restore();
+
+			} else {
+				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+				ib.Context.SetLineWidth(pointerSize * 2);
+
+				ib.Context.SetColor(maskColor);
+				ib.Context.LineTo(position);
+				ib.Context.Stroke();
+
+				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+				ib.Context.Fill();
+
+				ib.Context.MoveTo(position);
+			}
+
+			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -283,9 +275,8 @@ namespace baimp
 		/// </summary>
 		public void SaveMask()
 		{
-			// TODO save mask
-//			scan.SaveMask(currentShownType);
-//			mask.Image = scan.GetMaskAsImage(currentShownType);
+			scan.Masks.SaveMask(currentShownType);
+			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>

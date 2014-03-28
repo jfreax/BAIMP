@@ -2,17 +2,37 @@
 using System.Collections.Generic;
 using XD = Xwt.Drawing;
 using System.IO;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace baimp
 {
 	public class Mask
 	{
 		private BaseScan scan;
-		private Dictionary<string, XD.ImageBuilder> maskBuilder;
+		private Dictionary<string, XD.ImageBuilder> maskBuilder = new Dictionary<string, XD.ImageBuilder>();
 
 		public Mask(BaseScan scan)
 		{
 			this.scan = scan;
+		}
+
+		/// <summary>
+		/// Loads mask data
+		/// </summary>
+		/// <returns>The mask as an image.</returns>
+		/// <param name="type">Type.</param>
+		private XD.Image LoadMask(string scanType)
+		{
+			XD.Image mask = null;
+			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
+				ZipEntry maskEntry = zipFile.GetEntry(String.Format("masks/%1_%2.png", scan.Name, scanType));
+				if (maskEntry != null) {
+					Stream maskStream = zipFile.GetInputStream(maskEntry);
+
+					mask = XD.Image.FromStream(maskStream);
+				}
+			}
+			return mask;
 		}
 
 		/// <summary>
@@ -46,20 +66,28 @@ namespace baimp
 		{
 			return GetMaskBuilder(scanType).ToVectorImage().WithSize(scan.RequestedBitmapSize);
 		}
+			
 
 		/// <summary>
-		/// Loads mask data
+		/// Saves the mask.
 		/// </summary>
-		/// <returns>The mask as an image.</returns>
 		/// <param name="type">Type.</param>
-		public XD.Image LoadMask(string scanType)
+		public unsafe void SaveMask(string scanType)
 		{
-			return null;
+
 		}
 
-		public unsafe void SaveMask(ScanType type)
-		{
 
+		/// <summary>
+		/// Resets mask data
+		/// </summary>
+		/// <param name="type">Scan type.</param>
+		public void ResetMask(string scanType)
+		{
+			maskBuilder[scanType].Dispose();
+			maskBuilder[scanType] = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
+
+			scan.NotifyChange("mask_" + scanType);
 		}
 	}
 }
