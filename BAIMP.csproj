@@ -72,8 +72,9 @@
     <Reference Include="Xwt">
       <HintPath>Libraries\Xwt.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Libraries\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Algorithm\Output\Writer.cs" />
     <Compile Include="UI\Widget\LightImageWidget.cs" />
     <Compile Include="Processing\Result.cs" />
+    <Compile Include="Data\CustomStaticDataSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -6,6 +6,7 @@ using Xwt;
 using System.Xml.Serialization;
 using baimp.Properties;
 using System.Collections.Specialized;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace baimp
 {
@@ -13,13 +14,10 @@ namespace baimp
 	public class Project
 	{
 		public readonly static int MaxLastOpenedProject = 5;
-
 		[XmlIgnore]
 		public ScanCollection scanCollection;
-
 		[XmlAttribute]
 		public int version = 1;
-
 		private List<string> files = new List<string>();
 		private List<PipelineNode> loadedNodes;
 
@@ -51,49 +49,54 @@ namespace baimp
 			this.ProjectFile = Path.GetFullPath(filePath);
 
 			if (File.Exists(ProjectFile)) {
-				using (XmlTextReader xmlReader = new XmlTextReader(ProjectFile)) {
-					Project p = null;
+				using (ZipFile zipFile = new ZipFile(ProjectFile)) {
+					ZipEntry metadata = zipFile.GetEntry("metadata.xml");
+					Stream metadataStream = zipFile.GetInputStream(metadata);
 
-					try {
-						XmlSerializer deserializer = new XmlSerializer(this.GetType());
-						p = (Project) deserializer.Deserialize(xmlReader);
-					} catch (Exception e) {
-						Console.WriteLine(e);
-						Console.WriteLine(e.Message);
-						Console.WriteLine(e.InnerException.Message);
-						this.ErrorMessage = e.Message + "\n" + e.InnerException.Message;
-						return false;
-					}
+					using (XmlTextReader xmlReader = new XmlTextReader(metadataStream)) {
+						Project p = null;
 
-					this.Files = p.Files;
-					this.version = p.version;
-					this.LoadedNodes = p.LoadedNodes;
-
-					Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						pNode.Initialize();
-
-						foreach (Option option in pNode._intern_Options) {
-							Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
-							targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
+						try {
+							XmlSerializer deserializer = new XmlSerializer(this.GetType());
+							p = (Project) deserializer.Deserialize(xmlReader);
+						} catch (Exception e) {
+							Console.WriteLine(e);
+							Console.WriteLine(e.Message);
+							Console.WriteLine(e.InnerException.Message);
+							this.ErrorMessage = e.Message + "\n" + e.InnerException.Message;
+							return false;
 						}
 
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							allNodes.Add(mNode.ID, mNode);
-						}
-					}
+						this.Files = p.Files;
+						this.version = p.version;
+						this.LoadedNodes = p.LoadedNodes;
 
-					foreach (PipelineNode pNode in p.LoadedNodes) {
-						foreach (MarkerNode mNode in pNode.mNodes) {
-							foreach (Edge edge in mNode.Edges) {
-								edge.to = allNodes[edge.ToNodeID];
+						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
+						foreach (PipelineNode pNode in p.LoadedNodes) {
+							pNode.Initialize();
+
+							foreach (Option option in pNode._intern_Options) {
+								Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
+								targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
+							}
+
+							foreach (MarkerNode mNode in pNode.mNodes) {
+								allNodes.Add(mNode.ID, mNode);
 							}
 						}
-					}
 
-					scanCollection.AddFiles(Files.ToArray());
-					if (projectChanged != null) {
-						projectChanged(this, new ProjectChangedEventArgs(true));
+						foreach (PipelineNode pNode in p.LoadedNodes) {
+							foreach (MarkerNode mNode in pNode.mNodes) {
+								foreach (Edge edge in mNode.Edges) {
+									edge.to = allNodes[edge.ToNodeID];
+								}
+							}
+						}
+
+						scanCollection.AddFiles(Files.ToArray());
+						if (projectChanged != null) {
+							projectChanged(this, new ProjectChangedEventArgs(true));
+						}
 					}
 				}
 			} else {
@@ -157,24 +160,25 @@ namespace baimp
 				pNode._intern_Options = pNode.algorithm.Options;
 			}
 
-			// serialize!
-			using (XmlTextWriter xmlWriter = new XmlTextWriter(ProjectFile, null)) {
-				xmlWriter.Formatting = Formatting.Indented;
+			ZipFile zipFile;
+			try {
+				if (File.Exists(ProjectFile)) {
+					zipFile = new ZipFile(ProjectFile);
+				} else {
+					zipFile = ZipFile.Create(ProjectFile);
+				}
 
-				var extraTypes = new[] {
-					typeof(PipelineNode),
-					typeof(MarkerNode),
-					typeof(List<MarkerNode>),
-					typeof(MarkerEdge),
-					typeof(Edge),
-					typeof(Node)
-				};
+				using (zipFile) {
+					zipFile.BeginUpdate();
 
-				XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);
-				serializer.Serialize(xmlWriter, this);
+					zipFile.Add(ProjectMetadata(), "metadata.xml");
 
-				xmlWriter.WriteEndDocument();
-				xmlWriter.Close();
+					zipFile.IsStreamOwner = true;
+					zipFile.CommitUpdate();
+
+				} // closes also memorystream
+			} catch (Exception e) {
+				Console.WriteLine(e.Message);
 			}
 
 			return true;
@@ -244,6 +248,34 @@ namespace baimp
 			}
 
 			return false;
+		}
+
+		#endregion
+
+		#region internal save/open methods
+
+		private CustomStaticDataSource ProjectMetadata()
+		{
+			MemoryStream ms = new MemoryStream();
+			XmlTextWriter xmlWriter = new XmlTextWriter(ms, null);
+			xmlWriter.Formatting = Formatting.Indented;
+
+			var extraTypes = new[] {
+				typeof(PipelineNode),
+				typeof(MarkerNode),
+				typeof(List<MarkerNode>),
+				typeof(MarkerEdge),
+				typeof(Edge),
+				typeof(Node)
+			};
+
+			XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);
+			serializer.Serialize(xmlWriter, this);
+
+			xmlWriter.WriteEndDocument();
+			ms.Position = 0;
+			
+			return new CustomStaticDataSource(ms);
 		}
 
 		#endregion
