@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace baimp
 {
-	public class ScanCollection : List<ScanWrapper>
+	public class ScanCollection : List<BaseScan>
 	{
 
 		#region initialize
@@ -14,37 +15,15 @@ namespace baimp
 		{
 		}
 
-		public ScanCollection(List<string> files)
-		{
-			if (files != null && files.Count > 0) {
-				AddFiles(files);
-			}
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanCollection"/> class.
-		/// </summary>
-		/// <param name="path">Path to load recursive.</param>
-		public ScanCollection(string path)
-		{
-			string[] files = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-
-			if (files.Length == 0) {
-				throw new FileNotFoundException("No files found");
-			}
-
-			AddFiles(new List<string>(files));
-		}
-
 		#endregion
 
-		public void AddFiles(List<string> files)
+		public void AddFiles(List<string> files, Type importerType)
 		{
 			foreach (String file in files) {
 				// parse scan metadata
-				ScanWrapper scan = new ScanWrapper(file);
-
-				Add(scan);
+				BaseScan instance = Activator.CreateInstance(importerType) as BaseScan;
+				instance.Initialize(file);
+				Add(instance);
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
 			}
@@ -55,8 +34,8 @@ namespace baimp
 		/// </summary>
 		public void SaveAll()
 		{
-			foreach (ScanWrapper scan in this) {
-				scan.Save();
+			foreach (BaseScan scan in this) {
+				//scan.Save();
 			}
 		}
 

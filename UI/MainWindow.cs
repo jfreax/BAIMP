@@ -188,8 +188,8 @@ namespace baimp
 							.GetNavigatorAt(fileTree.SelectedRow)
 							.GetValue(fileTree.nameCol);
 
-					if (value is ScanWrapper) {
-						ScanWrapper s = (ScanWrapper) value;
+					if (value is BaseScan) {
+						BaseScan s = value as BaseScan;
 						preview.ShowPreviewOf(s);
 						metadata.Load(s);
 					}

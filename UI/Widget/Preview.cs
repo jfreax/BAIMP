@@ -8,13 +8,13 @@ namespace baimp
 {
 	public class Preview : VBox
 	{
-		public delegate void MyCallBack(ScanType type);
+		public delegate void MyCallBack(string scanType);
 
 		ScrollView tab;
 		ScanView scanView;
 		Notebook notebook;
 		MouseMover mouseMover;
-		ScanWrapper currentScan;
+		BaseScan currentScan;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Preview"/> class.
@@ -25,18 +25,6 @@ namespace baimp
 			mouseMover = new MouseMover();
 			InitializeEvents(tab);
 
-			notebook = new Notebook();
-			for (int i = 0; i < (int) ScanType.Metadata; i++) {
-				notebook.Add(new FrameBox(), Enum.GetName(typeof(ScanType), i));
-			}
-
-			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
-				ScanType type = (ScanType) notebook.CurrentTabIndex;
-				ShowPreview(type);
-			};
-
-			this.PackStart(notebook, false, false);
-
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
 			this.PackEnd(tab, true, true);
@@ -46,11 +34,28 @@ namespace baimp
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		public void ShowPreviewOf(ScanWrapper scan)
+		public void ShowPreviewOf(BaseScan scan)
 		{
 			if (currentScan != null) {
 				currentScan.ScanDataChanged -= OnScanDataChanged;
 			}
+
+			if (notebook != null) {
+				this.Remove(notebook);
+				notebook.Dispose();
+			}
+
+			notebook = new Notebook();
+			this.PackStart(notebook, false, false);
+
+			foreach (string scanType in scan.AvailableScanTypes()) {
+				notebook.Add(new FrameBox(), scanType);
+			}
+
+			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
+				string scanType = notebook.CurrentTab.Label;
+				ShowPreview(scanType);
+			};
 
 			this.currentScan = scan;
 			scanView = new ScanView(scan);
@@ -63,19 +68,18 @@ namespace baimp
 				OnPreviewZoom(e);
 			};
 
-			ScanType type = (ScanType) notebook.CurrentTabIndex;
-			ShowPreview(type);
+			string currentScanType = notebook.CurrentTab.Label;
+			ShowPreview(currentScanType);
 		}
 
 		/// <summary>
 		/// Shows an specific preview into appropriate tab.
 		/// </summary>
 		/// <param name="type">Type.</param>
-		private void ShowPreview(ScanType type)
+		private void ShowPreview(string scanType)
 		{
-
 			if (scanView != null) {
-				scanView.ScanType = type;
+				scanView.ScanType = scanType;
 			}
 		}
 
@@ -85,7 +89,7 @@ namespace baimp
 		/// Gets called when image is ready to display.
 		/// </summary>
 		/// <param name="type">Scan type</param>
-		private void ImageLoadCallBack(ScanType type)
+		private void ImageLoadCallBack(string scanType)
 		{
 			if (!scanView.IsScaled()) {
 				if (tab.VisibleRect.Width < 10) {

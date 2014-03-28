@@ -33,11 +33,12 @@ namespace baimp
 			int size = scans.Count;
 
 			int i = 0;
-			foreach (Scan scan in scans) {
+			foreach (BaseScan scan in scans) {
 				IType[] data = new IType[3];
-				data[0] = new TBitmap(scan.GetAsBitmap(ScanType.Intensity));
-				data[1] = new TBitmap(scan.GetAsBitmap(ScanType.Topography));
-				data[2] = new TBitmap(scan.GetAsBitmap(ScanType.Color));
+				// TODO test available scan types
+				data[0] = new TBitmap(scan.GetAsBitmap("Intensity"));
+				data[1] = new TBitmap(scan.GetAsBitmap("Topography"));
+				data[2] = new TBitmap(scan.GetAsBitmap("Color"));
 
 				Yield(data);
 				i++;

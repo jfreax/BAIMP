@@ -87,7 +87,6 @@
     <Compile Include="Algorithm\BaseAlgorithm.cs" />
     <Compile Include="Data\Scan.cs" />
     <Compile Include="Data\ScanCollection.cs" />
-    <Compile Include="Data\ScanWrapper.cs" />
     <Compile Include="Event\ScanDataEventArgs.cs" />
     <Compile Include="Helper\Options.cs" />
     <Compile Include="Helper\IniFile.cs" />
@@ -131,6 +130,9 @@
     <Compile Include="UI\Widget\LightImageWidget.cs" />
     <Compile Include="Processing\Result.cs" />
     <Compile Include="Data\CustomStaticDataSource.cs" />
+    <Compile Include="Data\Formats\VK4Scan.cs" />
+    <Compile Include="Data\Formats\DDPlusScan.cs" />
+    <Compile Include="Data\Formats\BaseScan.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -174,6 +176,7 @@
     <Folder Include="Option\" />
     <Folder Include="Algorithm\Output\" />
     <Folder Include="Resources\" />
+    <Folder Include="Data\Formats\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

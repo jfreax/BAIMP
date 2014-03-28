@@ -30,8 +30,8 @@ namespace baimp
 		public Dictionary<string, object> Data = new Dictionary<string, object>();
 		private ImageView image;
 		private ImageView mask;
-		private ScanWrapper scan;
-		private ScanType currentShownType;
+		private BaseScan scan;
+		private string currentShownType;
 
 		// mouse actions
 		Pointer pointer;
@@ -42,7 +42,7 @@ namespace baimp
 		/// <summary>
 		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
 		/// </summary>
-		public ScanView(ScanWrapper scan)
+		public ScanView(BaseScan scan)
 		{
 			this.scan = scan;
 
@@ -61,8 +61,9 @@ namespace baimp
 
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-				if (e.Changed.Equals("mask_" + ((int) currentShownType))) {
-					mask.Image = scan.GetMaskAsImage(currentShownType);
+				if (e.Changed.Equals("mask_" + currentShownType)) {
+					// TODO load mask information
+					//mask.Image = scan.GetMaskAsImage(currentShownType);
 				}
 			};
 		}
@@ -89,7 +90,8 @@ namespace baimp
 			MenuItem contextResetMask = new MenuItem("Reset mask");
 			contextResetMask.UseMnemonic = true;
 			contextResetMask.Clicked += delegate(object sender, EventArgs e) {
-				scan.ResetMask(currentShownType);
+				// TODO reset mask
+				//scan.ResetMask(currentShownType);
 			};
 			contextMenu.Items.Add(contextResetMask);
 
@@ -108,16 +110,17 @@ namespace baimp
 		/// Display image of selected scan type
 		/// </summary>
 		/// <param name="type">Type.</param>
-		private void ShowType(ScanType type)
+		private void ShowType(string scanType)
 		{
-			currentShownType = type;
+			currentShownType = scanType;
 			EditMode = false;
 
-			scan.GetAsImageAsync(type, new baimp.Scan.ImageLoadedCallback(delegate(Image loadedImage) {
+			scan.GetAsImageAsync(scanType, new baimp.BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				image.Image = loadedImage;
-				mask.Image = scan.GetMaskAsImage(currentShownType);
+				// TODO load mask
+				//mask.Image = scan.GetMaskAsImage(currentShownType);
 				if (imageLoadedCallback != null) {
-					imageLoadedCallback(type);
+					imageLoadedCallback(scanType);
 				}
 			}));
 		}
@@ -145,20 +148,21 @@ namespace baimp
 			case PointerButton.Left:
 				pointer |= Pointer.Left;
 
-				if (isEditMode) {
-					scan.NotifyChange("mask_" + ((int) currentShownType));
-
-					Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
-					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-					ib.Context.NewPath();
-					ib.Context.MoveTo(positionInImage);
-
-					SetMask(
-						positionInImage,
-						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
-						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
-					);
-				}
+				// TODO mask editing
+//				if (isEditMode) {
+//					scan.NotifyChange("mask_" + currentShownType);
+//
+//					Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
+//					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
+//					ib.Context.NewPath();
+//					ib.Context.MoveTo(positionInImage);
+//
+//					SetMask(
+//						positionInImage,
+//						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
+//						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
+//					);
+//				}
 				break;
 			case PointerButton.Right:
 				pointer |= Pointer.Right;
@@ -173,10 +177,11 @@ namespace baimp
 			case PointerButton.Left:
 				pointer ^= Pointer.Left;
 
-				if (isEditMode) {
-					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-					ib.Context.ClosePath();
-				}
+				// TODO mask editing
+//				if (isEditMode) {
+//					ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
+//					ib.Context.ClosePath();
+//				}
 				break;
 			case PointerButton.Right:
 				pointer ^= Pointer.Right;
@@ -204,10 +209,11 @@ namespace baimp
 		{
 			pointer = Pointer.None;
 
-			if (isEditMode) {
-				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-				ib.Context.ClosePath();
-			}
+			// TODO mask editing
+//			if (isEditMode) {
+//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
+//				ib.Context.ClosePath();
+//			}
 		}
 
 		protected override void OnMouseEntered(EventArgs e)
@@ -225,7 +231,8 @@ namespace baimp
 		{
 			scan.ScaleImage(scale);
 			image.Image = scan.GetAsImage(currentShownType);
-			mask.Image = scan.GetMaskAsImage(currentShownType);
+			// TODO
+			//mask.Image = scan.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -235,39 +242,40 @@ namespace baimp
 		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
 		private void SetMask(Point position, bool unset = false)
 		{
-			if (unset) {
-				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-
-				ib.Context.Save();
-				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-				ib.Context.Clip();
-
-				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
-				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
-
-				Image i = image.Image.WithSize(scan.Size).ToBitmap().Crop(
-					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
-				          );
-
-				ib.Context.DrawImage(i, new Point(newX, newY));
-				ib.Context.Fill();
-				ib.Context.Restore();
-
-			} else {
-				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
-				ib.Context.SetLineWidth(pointerSize * 2);
-
-				ib.Context.SetColor(maskColor);
-				ib.Context.LineTo(position);
-				ib.Context.Stroke();
-
-				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-				ib.Context.Fill();
-
-				ib.Context.MoveTo(position);
-			}
-
-			mask.Image = scan.GetMaskAsImage(currentShownType);
+//			if (unset) {
+//				// TODO
+//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
+//
+//				ib.Context.Save();
+//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+//				ib.Context.Clip();
+//
+//				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
+//				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
+//
+//				Image i = image.Image.WithSize(scan.Size).ToBitmap().Crop(
+//					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
+//				          );
+//
+//				ib.Context.DrawImage(i, new Point(newX, newY));
+//				ib.Context.Fill();
+//				ib.Context.Restore();
+//
+//			} else {
+//				ImageBuilder ib = scan.GetMaskBuilder(currentShownType);
+//				ib.Context.SetLineWidth(pointerSize * 2);
+//
+//				ib.Context.SetColor(maskColor);
+//				ib.Context.LineTo(position);
+//				ib.Context.Stroke();
+//
+//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+//				ib.Context.Fill();
+//
+//				ib.Context.MoveTo(position);
+//			}
+//
+//			mask.Image = scan.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -275,8 +283,9 @@ namespace baimp
 		/// </summary>
 		public void SaveMask()
 		{
-			scan.SaveMask(currentShownType);
-			mask.Image = scan.GetMaskAsImage(currentShownType);
+			// TODO save mask
+//			scan.SaveMask(currentShownType);
+//			mask.Image = scan.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -337,7 +346,7 @@ namespace baimp
 		/// <remarks>
 		/// Reload shown bitmap automatically.
 		/// </remarks>
-		public ScanType ScanType {
+		public string ScanType {
 			get {
 				return currentShownType;
 			}

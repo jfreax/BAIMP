@@ -45,7 +45,7 @@ namespace baimp
 		/// Reloads file tree information.
 		/// </summary>
 		/// <param name="currentScan">Current focused scan</param>
-		public void Reload(ScanCollection scans, ScanWrapper currentScan = null)
+		public void Reload(ScanCollection scans, BaseScan currentScan = null)
 		{
 			store.Clear();
 
@@ -65,7 +65,7 @@ namespace baimp
 
 			TreePosition pos = null;
 			Dictionary<string, TreePosition> treeTmp = new Dictionary<string, TreePosition>();
-			foreach (ScanWrapper scan in scans) {
+			foreach (BaseScan scan in scans) {
 				TreePosition currentNode;
 				if(treeTmp.ContainsKey(scan.FiberType)) {
 					currentNode = treeTmp[scan.FiberType];
@@ -104,7 +104,7 @@ namespace baimp
 		/// <param name="e">Event arguments</param>
 		public void OnScanDataChanged(object sender, ScanDataEventArgs e)
 		{
-			ScanWrapper scan = (ScanWrapper) sender;
+			BaseScan scan = (BaseScan) sender;
 
 //			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
 //				scans.Refresh(scan);

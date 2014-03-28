@@ -9,7 +9,7 @@ namespace baimp
 	{
 		Label name;
 		Dictionary<int, Widget>[] widgets;
-		Scan currentScan;
+		BaseScan currentScan;
 		Table table;
 		TextEntry entryFiberType;
 
@@ -62,7 +62,7 @@ namespace baimp
 		/// Show metadata of specified scan.
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		public void Load(Scan scan)
+		public void Load(BaseScan scan)
 		{
 			this.currentScan = scan;
 
@@ -74,18 +74,19 @@ namespace baimp
 			table.Add(name, 0, 0, colspan: 2);
 
 			int i = 1;
-			foreach (Tuple<string, string> d in scan.generalMetadata) {
-				table.Add(new Label(d.Item1), 0, i);
-
-				TextEntry entry = new TextEntry();
-				entry.Text = d.Item2;
-				entry.ReadOnly = true;
-				entry.ShowFrame = false;
-				entry.BackgroundColor = Color.FromBytes(232, 232, 232);
-				table.Add(entry, 1, i);
-
-				i++;
-			}
+			// TODO load and show metadata
+//			foreach (Tuple<string, string> d in scan.generalMetadata) {
+//				table.Add(new Label(d.Item1), 0, i);
+//
+//				TextEntry entry = new TextEntry();
+//				entry.Text = d.Item2;
+//				entry.ReadOnly = true;
+//				entry.ShowFrame = false;
+//				entry.BackgroundColor = Color.FromBytes(232, 232, 232);
+//				table.Add(entry, 1, i);
+//
+//				i++;
+//			}
 				
 			entryFiberType.Text = scan.FiberType;
 			table.Add(new Label("FiberType"), 0, i);

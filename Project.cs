@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using baimp.Properties;
 using System.Collections.Specialized;
 using ICSharpCode.SharpZipLib.Zip;
+using System.Linq;
 
 namespace baimp
 {
@@ -136,11 +137,21 @@ namespace baimp
 		/// <param name="path">Path.</param>
 		public void Import(string path)
 		{
-			string[] newFiles = Directory.GetFiles(path, "*.dd+", SearchOption.AllDirectories);
-			//files.AddRange(newFiles);
+			Type baseType = typeof(BaseScan);
+			IEnumerable<Type> importers = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(t => t.BaseType == baseType);
 
-			scanCollection.AddFiles(new List<string>(newFiles));
-			projectChanged(this, new ProjectChangedEventArgs(newFiles));
+			BaseScan usedImporter = null;
+			foreach (Type importer in importers) {
+				BaseScan instance = Activator.CreateInstance(importer) as BaseScan;
+
+				string fileExtension = instance.SupportedFileExtensions();
+				string[] newFiles = Directory.GetFiles(path, fileExtension, SearchOption.AllDirectories);
+
+				scanCollection.AddFiles(new List<string>(newFiles), importer);
+				projectChanged(this, new ProjectChangedEventArgs(newFiles));
+			}
 		}
 
 		#endregion
