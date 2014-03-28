@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using XD = Xwt.Drawing;
@@ -10,7 +11,6 @@ namespace baimp
 {
 	public class DDPlusScan : BaseScan
 	{
-		private float zLengthPerDigitF;
 		List<Metadata> metadata = new List<Metadata>();
 
 		private Dictionary<string, string> filenames = new Dictionary<string, string>();
@@ -44,8 +44,6 @@ namespace baimp
 			if (newImport) {
 				size = new Xwt.Size(ini.ReadInteger("general", "Width", 0), ini.ReadInteger("general", "Height", 0));
 				requestedBitmapSize = new Xwt.Size(size.Width, size.Height);
-
-				zLengthPerDigitF = (float) ini.ReadDoubleInvariant("general", "ZLengthPerDigitF", 0.0);
 
 				foreach (Tuple<string, string > datum in ini.ReadAllStrings("general")) {
 					metadata.Add(new Metadata(datum.Item1, datum.Item2));
@@ -81,7 +79,7 @@ namespace baimp
 
 		public override float[] GetAsArray(string scanType)
 		{
-			if (arrayData.ContainsKey(scanType)) {
+			if (arrayData.ContainsKey(scanType) && arrayData[scanType] != null) {
 				return arrayData[scanType];
 			}
 
@@ -89,6 +87,7 @@ namespace baimp
 				max[scanType] = 0.0f;
 			}
 
+			Console.WriteLine(filenames[scanType]);
 			Stream s = File.OpenRead(filenames[scanType]);
 			BinaryReader input = new BinaryReader(s);
 
@@ -105,7 +104,10 @@ namespace baimp
 				offset += 4;
 
 				if (scanType == "Topography") {
-					arrayData[scanType][i] *= zLengthPerDigitF / 10000000.0f;
+					Metadata zLength = metadata.Find( m => m.key == "zLengthPerDigitF" );
+					if (zLength != null) {
+						arrayData[scanType][i] *= Convert.ToInt32(zLength.value) / 10000000.0f;
+					}
 				}
 
 				if (arrayData[scanType][i] > max[scanType]) {
@@ -156,12 +158,13 @@ namespace baimp
 				}
 			} else {
 				float[] array = GetAsArray(scanType);
+				//float max = (float) Math.Max(this.max[scanType], 1.0);
 				float max = this.max[scanType];
 
 				int len = width * height;
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				for (int i = 0; i < len; ++i) {
-					byte color = (byte) ((array[i] * 255) / max);
+					byte color = (byte) ((array[i] * 255.0) / max);
 					*scan0 = color;
 					scan0++;
 				}
