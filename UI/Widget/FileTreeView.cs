@@ -106,6 +106,9 @@ namespace baimp
 
 			this.ExpandToRow(scan.position);
 
+			if (this.DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
+				store.GetNavigatorAt(scan.parentPosition).Remove();
+			}
 			scan.parentPosition = parentNodePosition;
 		}
 
