@@ -11,6 +11,7 @@ using Xwt;
 namespace baimp
 {
 	[XmlInclude(typeof(DDPlusScan))]
+	[XmlInclude(typeof(VK4Scan))]
 	abstract public class BaseScan
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
