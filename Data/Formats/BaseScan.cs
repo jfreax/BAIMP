@@ -22,6 +22,11 @@ namespace baimp
 		private string filePath;
 
 		/// <summary>
+		/// Name of the scan
+		/// </summary>
+		private string name = string.Empty;
+
+		/// <summary>
 		/// The type of the fiber.
 		/// </summary>
 		private string fiberType = string.Empty;
@@ -63,6 +68,10 @@ namespace baimp
 		/// </summary>
 		private Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
 
+		/// <summary>
+		/// The metadata.
+		/// </summary>
+		private List<Metadata> metadata = new List<baimp.Metadata>();
 
 		/// <summary>
 		/// The masks.
@@ -174,11 +183,17 @@ namespace baimp
 		[XmlArray("metadata")]
 		[XmlArrayItem("datum")]
 		virtual public List<Metadata> Metadata {
-			get;
-			set;
+			get {
+				return metadata;
+			}
+			set {
+				metadata = value;
+			}
 		}
 
 		#endregion
+
+		private Object asyncImageLock = new Object();
 
 		/// <summary>
 		/// Gets as image (sync).
@@ -188,11 +203,13 @@ namespace baimp
 		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
 		{
 			Thread imageLoaderThread = new Thread(delegate() {
-				XD.Image image = GetAsImage(scanType);
+				lock (asyncImageLock) {
+					XD.Image image = GetAsImage(scanType);
 
-				Xwt.Application.Invoke(delegate() {
-					callback(image.WithSize(requestedBitmapSize));
-				});
+					Xwt.Application.Invoke(delegate() {
+						callback(image.WithSize(requestedBitmapSize));
+					});
+				}
 			});
 			imageLoaderThread.Start();
 		}
@@ -270,14 +287,21 @@ namespace baimp
 			return Name;
 		}
 
-		[XmlIgnore]
+		[XmlAttribute("name")]
 		public string Name {
 			get {
-				return Path.GetFileNameWithoutExtension(filePath);
+				if (string.IsNullOrEmpty(name)) {
+					return Path.GetFileNameWithoutExtension(filePath);
+				} else {
+					return name;
+				}
+			}
+			set {
+				name = value;
 			}
 		}
 
-		[XmlElement("filepath")]
+		[XmlAttribute("filepath")]
 		public string FilePath {
 			get {
 				return filePath;

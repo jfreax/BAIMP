@@ -46,6 +46,7 @@ namespace baimp
 		{
 			base.Initialize(filePath, newImport);
 
+			Console.WriteLine("open " + filePath);
 			using (FileStream fileStream = new FileStream(filePath, FileMode.Open)) {
 				using (BinaryReader fileReader = new BinaryReader(fileStream)) {
 					header = new byte[12];
@@ -65,6 +66,7 @@ namespace baimp
 					ReadMeasurementCondition(fileReader);
 				}
 			}
+			Console.WriteLine("close " + filePath);
 
 			if (newImport) {
 
@@ -241,6 +243,7 @@ namespace baimp
 
 		public override uint[] GetAsArray(string scanType)
 		{
+			Console.WriteLine("open2 " + FilePath);
 			using (FileStream fileStream = new FileStream(FilePath, FileMode.Open)) {
 				using (BinaryReader fileReader = new BinaryReader(fileStream)) {
 					int offset = 0;
@@ -298,6 +301,7 @@ namespace baimp
 					return null;
 				}
 			}
+			Console.WriteLine("close2 " + FilePath);
 		}
 
 		public override unsafe System.Drawing.Bitmap GetAsBitmap(string scanType)

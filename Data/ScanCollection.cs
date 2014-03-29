@@ -9,6 +9,8 @@ namespace baimp
 	public class ScanCollection : List<BaseScan>
 	{
 
+		Dictionary<string, int> allFileNames = new Dictionary<string, int>();
+
 		#region initialize
 
 		public ScanCollection()
@@ -23,6 +25,12 @@ namespace baimp
 				// parse scan metadata
 				BaseScan instance = Activator.CreateInstance(importerType) as BaseScan;
 				instance.Initialize(file, reimport);
+
+//				int i = 0;
+//				while (this.Find(f => f.Name == instance.Name) != null) {
+//					instance.Name = instance.Name + "_" + i;
+//					i++;
+//				}
 				Add(instance);
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
