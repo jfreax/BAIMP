@@ -42,7 +42,9 @@ namespace baimp
 				currentScan.ScanDataChanged -= OnScanDataChanged;
 			}
 
+			string currentTabLabel = string.Empty;
 			if (notebook != null) {
+				currentTabLabel = notebook.CurrentTab.Label.TrimEnd('*');
 				this.Remove(notebook);
 				notebook.Dispose();
 			}
@@ -50,14 +52,22 @@ namespace baimp
 			notebook = new Notebook();
 			this.PackStart(notebook, false, false);
 
+			int lastTab = 0;
+			int i = 0;
 			foreach (string scanType in scan.AvailableScanTypes()) {
+				if (!string.IsNullOrEmpty(currentTabLabel) && scanType == currentTabLabel) {
+					lastTab = i;
+				}
 				notebook.Add(new FrameBox(), scanType);
+				i++;
 			}
 
 			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
 				string scanType = notebook.CurrentTab.Label.TrimEnd('*');
 				ShowPreview(scanType);
 			};
+
+			notebook.CurrentTabIndex = lastTab;
 
 			this.currentScan = scan;
 			scanView = new ScanView(scan);
