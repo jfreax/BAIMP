@@ -7,7 +7,8 @@ namespace baimp
 {
 	public class Result
 	{
-		private int inUse = 0;
+		private object removeLock = new object();
+
 		private bool preserve;
 		private HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
 		public readonly IType data;
@@ -24,7 +25,6 @@ namespace baimp
 		public void Used(PipelineNode by)
 		{
 			usedBy.Add(by);
-			inUse++;
 		}
 
 		/// <summary>
@@ -32,10 +32,11 @@ namespace baimp
 		/// </summary>
 		public void Finish(PipelineNode by)
 		{
-			usedBy.Remove(by);
-			inUse--;
-			if (inUse <= 0 && !preserve) {
-				data.Dispose();
+			lock (removeLock) {
+				usedBy.Remove(by);
+				if (usedBy.Count <= 0 && !preserve) {
+					data.Dispose();
+				}
 			}
 		}
 
@@ -64,7 +65,7 @@ namespace baimp
 
 		public int InUse {
 			get {
-				return inUse;
+				return usedBy.Count;
 			}
 		}
 
