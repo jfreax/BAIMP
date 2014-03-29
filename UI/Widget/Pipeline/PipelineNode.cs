@@ -361,6 +361,9 @@ namespace baimp
 		public void SetProgress(int threadID, int progress)
 		{
 			this.progress[threadID] = progress;
+			if (queueRedraw != null) {
+				queueRedraw(this, null);
+			}
 		}
 
 		#region custom events
