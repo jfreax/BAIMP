@@ -114,9 +114,6 @@ namespace baimp
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			Application.Invoke( () => parent.SetProgress(threadID, percent));
-//			if (progress != null) {
-//				progress(this, new ProgressEventArgs(percent));
-//			}
 		}
 
 		#endregion

@@ -17,28 +17,12 @@ namespace baimp
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			Console.WriteLine("Start");
-			Thread.Sleep(400);
-			SetProgress(10);
-			Thread.Sleep(400);
-			SetProgress(20);
-			Thread.Sleep(400);
-			SetProgress(30);
-			Thread.Sleep(400);
-			SetProgress(40);
-			Thread.Sleep(400);
-			SetProgress(50);
-			Thread.Sleep(400);
-			SetProgress(60);
-			Thread.Sleep(400);
-			SetProgress(70);
-			Thread.Sleep(400);
-			SetProgress(80);
-			Thread.Sleep(400);
-			SetProgress(90);
-			Thread.Sleep(400);
-			Console.WriteLine("Stop");
-
+			for (int i = 0; i < 100; i++) {
+				for(int x = 0; x < 3000000; x++) {
+				}
+				SetProgress(i);
+			}
+				
 			return null;
 		}
 
