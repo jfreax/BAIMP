@@ -58,6 +58,12 @@ namespace baimp
 		private bool isInitialized = false;
 
 		/// <summary>
+		/// Buffer of rendered images
+		/// </summary>
+		private Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
+
+
+		/// <summary>
 		/// The masks.
 		/// </summary>
 		private Mask masks;
@@ -108,20 +114,12 @@ namespace baimp
 		/// <returns>The fiber types.</returns>
 		abstract public string[] AvailableScanTypes();
 
-
-		/// <summary>
-		/// Get specified scan as byte buffer.
-		/// </summary>
-		/// <returns>The byte buffer.</returns>
-		/// <param name="type">Type.</param>
-		abstract public byte[] GetByteBuffer(string scanType);
-
 		/// <summary>
 		/// Gets scan as array.
 		/// </summary>
 		/// <returns>The specified scan as a plan float array.</returns>
 		/// <param name="type">Type.</param>
-		abstract public float[] GetAsArray(string scanType);
+		abstract public UInt32[] GetAsArray(string scanType);
 
 		/// <summary>
 		/// Get scan as bitmap.
@@ -131,24 +129,50 @@ namespace baimp
 		abstract public unsafe Bitmap GetAsBitmap(string scanType);
 
 		/// <summary>
-		/// Gets image as memory stream in tiff format
-		/// </summary>
-		/// <returns>The memory stream.</returns>
-		/// <param name="type">Scan type.</param>
-		abstract public MemoryStream GetAsMemoryStream(string scanType);
-
-		/// <summary>
 		/// Get as image.
 		/// </summary>
 		/// <returns>The as image.</returns>
 		/// <param name="type">Type.</param>
-		abstract public XD.Image GetAsImage(string scanType);
+		/// <param name="scanType">Scan type.</param>
+		public Xwt.Drawing.Image GetAsImage(string scanType)
+		{
+			if (!renderedImage.ContainsKey(scanType) || renderedImage[scanType] == null) {
+				MemoryStream mStream = GetAsMemoryStream(scanType);
+				renderedImage[scanType] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
+				mStream.Dispose();
+			}
+
+			return renderedImage[scanType].WithSize(requestedBitmapSize);
+		}
+
+		/// <summary>
+		/// Gets image as memory stream in tiff format
+		/// </summary>
+		/// <returns>The memory stream.</returns>
+		/// <param name="type">Scan type.</param>
+		/// <param name="scanType">Scan type.</param>
+		public System.IO.MemoryStream GetAsMemoryStream(string scanType)
+		{
+			MemoryStream memoryStream = new MemoryStream();
+			System.Drawing.Bitmap bmp = GetAsBitmap(scanType);
+			if (bmp == null) {
+				// TODO raise error
+				return null;
+			}
+
+			bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+			memoryStream.Position = 0;
+
+			return memoryStream;
+		}
 
 		/// <summary>
 		/// Gets or sets the metadata.
 		/// </summary>
 		/// <value>The metadata.</value>
-		abstract public List<Metadata> Metadata {
+		[XmlArray("metadata")]
+		[XmlArrayItem("datum")]
+		virtual public List<Metadata> Metadata {
 			get;
 			set;
 		}
