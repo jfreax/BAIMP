@@ -181,7 +181,6 @@ namespace baimp
 		/// </remarks>
 		public virtual void NotifyChange(string changeOf, bool addToUnsaved = true)
 		{
-			Console.WriteLine(isInitialized + " NotifyChange " + changeOf);
 			if (isInitialized) {
 				if (!string.IsNullOrEmpty(changeOf) && addToUnsaved) {
 					unsaved.Add(changeOf);

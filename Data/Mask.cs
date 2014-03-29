@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xwt;
 using XD = Xwt.Drawing;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace baimp
 {
@@ -74,18 +78,74 @@ namespace baimp
 		/// <param name="type">Type.</param>
 		public unsafe void Save(string scanType)
 		{
-			Console.WriteLine("Save mask " + scanType);
+			MemoryStream outStream = new MemoryStream();
+
+			XD.BitmapImage mask = GetMaskBuilder(scanType).ToBitmap();
+			XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
+
+			if (MainClass.toolkitType == Xwt.ToolkitType.Gtk) {
+				Parallel.For(0, (int) mask.Height, new Action<int>(y => {
+					for (int x = 0; x < mask.Width; x++) {
+						XD.Color color = mask.GetPixel(x, y);
+						if (color.WithAlpha(1.0) == maskColor) {
+							mask.SetPixel(x, y, color.WithAlpha(0.6));
+						} else {
+							mask.SetPixel(x, y, XD.Colors.Transparent);
+						}
+					}
+				}));
+
+				mask.Save(outStream, XD.ImageFileType.Png);
+			} else {
+				using (MemoryStream ms = new MemoryStream()) {
+					mask.Save(ms, XD.ImageFileType.Png);
+					ms.Seek(0, SeekOrigin.Begin);
+
+					Bitmap maskBitmap = new Bitmap(ms);
+
+					BitmapData bmpData = maskBitmap.LockBits(
+						new System.Drawing.Rectangle(0, 0, (int) scan.Size.Width, (int) scan.Size.Height),
+						ImageLockMode.ReadWrite, maskBitmap.PixelFormat);
+
+					byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+					int len = (int) scan.Size.Width * (int) scan.Size.Height;
+					for (int i = 0; i < len; ++i) {
+						byte b = *scan0;
+						scan0++;
+						byte g = *scan0;
+						scan0++;
+						byte r = *scan0;
+						scan0++;
+						XD.Color color = XD.Color.FromBytes(r, g, b);
+
+						if ((int) (color.Red * 10) == (int) (maskColor.Red * 10) &&
+							(int) (color.Green * 10) == (int) (maskColor.Green * 10) &&
+							(int) (color.Blue * 10) == (int) (maskColor.Blue * 10)) {
+							*scan0 = 153; // 60% alpha
+						} else {
+							*(scan0 - 3) = 0;
+							*(scan0 - 2) = 0;
+							*(scan0 - 1) = 0;
+							*(scan0) = 0;
+						}
+
+						scan0++;
+					}
+
+					maskBitmap.UnlockBits(bmpData);
+					maskBitmap.Save(outStream, ImageFormat.Png);
+					maskBitmap.Dispose();
+				}
+			}
+
+			outStream.Position = 0;
+
 			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
 				zipFile.BeginUpdate();
 
-				MemoryStream ms = new MemoryStream();
-				GetMaskBuilder(scanType).ToBitmap().WithSize(scan.Size).Save(ms, XD.ImageFileType.Png);
-				ms.Position = 0;
-
-				CustomStaticDataSource source = new CustomStaticDataSource(ms);
+				CustomStaticDataSource source = new CustomStaticDataSource(outStream);
 
 				zipFile.Add(source, MaskFilename(scanType));
-
 				zipFile.IsStreamOwner = true;
 				zipFile.CommitUpdate();
 			}
