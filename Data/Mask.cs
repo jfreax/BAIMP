@@ -28,12 +28,14 @@ namespace baimp
 		private XD.Image LoadMask(string scanType)
 		{
 			XD.Image mask = null;
-			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
-				ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
-				if (maskEntry != null) {
-					Stream maskStream = zipFile.GetInputStream(maskEntry);
+			if (File.Exists(Project.ProjectFile)) {
+				using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
+					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
+					if (maskEntry != null) {
+						Stream maskStream = zipFile.GetInputStream(maskEntry);
 
-					mask = XD.Image.FromStream(maskStream);
+						mask = XD.Image.FromStream(maskStream);
+					}
 				}
 			}
 			return mask;
