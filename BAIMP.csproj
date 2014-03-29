@@ -85,7 +85,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Algorithm\BaseAlgorithm.cs" />
-    <Compile Include="Data\Scan.cs" />
     <Compile Include="Data\ScanCollection.cs" />
     <Compile Include="Event\ScanDataEventArgs.cs" />
     <Compile Include="Helper\Options.cs" />
