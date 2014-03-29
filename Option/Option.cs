@@ -60,7 +60,7 @@ namespace baimp
 			}
 		}
 
-		[XmlAttribute("value")]
+		[XmlElement("value")]
 		public object _intern_value {
 			get {
 				return Value;
