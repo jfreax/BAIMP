@@ -166,7 +166,7 @@ namespace baimp
 		public bool Save(PipelineView pipeline)
 		{
 			if (ProjectFile == null) {
-				if (!NewDialog()) {
+				if (!NewDialog(false)) {
 					return false;
 				}
 			}
@@ -242,7 +242,7 @@ namespace baimp
 			return false;
 		}
 
-		public bool NewDialog()
+		public bool NewDialog(bool reset = true)
 		{
 			SaveFileDialog saveDialog = new SaveFileDialog("New Project");
 			saveDialog.Filters.Add(new FileDialogFilter("BAIMP Project file", "*.baimp"));
@@ -258,13 +258,16 @@ namespace baimp
 				}
 
 				Project.ProjectFile = filename;
-				//this.Files = new List<string>();
-				this.LoadedNodes = new List<PipelineNode>();
 
-				scanCollection.Clear();
-				if (projectChanged != null) {
-					projectChanged(this, new ProjectChangedEventArgs(true));
-				}
+                if (reset) {
+                    this.LoadedNodes = new List<PipelineNode>();
+
+                    scanCollection.Clear();
+                    if (projectChanged != null)
+                    {
+                        projectChanged(this, new ProjectChangedEventArgs(true));
+                    }
+                }
 
 				return true;
 			}
