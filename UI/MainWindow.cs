@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using baimp.Properties;
+using System.Collections.Generic;
 
 namespace baimp
 {
@@ -22,7 +24,10 @@ namespace baimp
 		MetadataView metadata;
 
 		PipelineControllerView pipelineController;
-		PipelineView pipeline;
+		PipelineCollection pipelines = new PipelineCollection();
+		PipelineView currentPipeline;
+
+		ScrollView pipelineScroller;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.MainWindow"/> class.
@@ -124,7 +129,7 @@ namespace baimp
 			pipelineMenu.SubMenu = new Menu();
 
 			MenuItem menuExecute = new MenuItem("_Execute");
-			menuExecute.Clicked += (object sender, EventArgs e) => pipeline.Execute(project);
+			menuExecute.Clicked += (object sender, EventArgs e) => currentPipeline.Execute(project);
 			pipelineMenu.SubMenu.Items.Add(menuExecute);
 
 			// main menu
@@ -143,9 +148,21 @@ namespace baimp
 			metadata = new MetadataView();
 
 			// load algorithm tree viever
-			ScrollView pipelineScroller = new ScrollView();
-			pipeline = new PipelineView(pipelineScroller, project.LoadedNodes);
-			pipelineController = new PipelineControllerView(pipeline, project);
+			pipelineScroller = new ScrollView();
+			if (project.LoadedPipelines == null || project.LoadedPipelines.Count == 0) {
+				currentPipeline = new PipelineView();
+				currentPipeline.Initialize(pipelineScroller);
+				pipelines.Add(currentPipeline.PipelineName, currentPipeline);
+			} else {
+				foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
+
+					PipelineView newPipeline = new PipelineView();
+					newPipeline.Initialize(pipelineScroller, pNodes);
+					pipelines.Add(newPipeline.PipelineName, newPipeline);
+				}
+				currentPipeline = pipelines.Values.ToList()[0];
+			}
+			pipelineController = new PipelineControllerView(currentPipeline, project);
 
 			// set layout
 			splitPreview_Metadata = new HBox();
@@ -204,7 +221,15 @@ namespace baimp
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
 				if (e != null) {
 					if (e.refresh) {
-						pipeline.Nodes = project.LoadedNodes;
+						if (project.LoadedPipelines != null && project.LoadedPipelines.Count != 0) {
+
+							foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
+								PipelineView newPipeline = new PipelineView();
+								newPipeline.Initialize(pipelineScroller);
+								pipelines.Add(newPipeline.PipelineName, newPipeline);
+							}
+							currentPipeline = pipelines.Values.GetEnumerator().Current;
+						}
 					} else if (e.addedFiles != null && e.addedFiles.Length > 0) {
 					}
 
@@ -212,11 +237,13 @@ namespace baimp
 				}
 			};
 
-			pipeline.DataChanged += delegate(object sender, SaveStateEventArgs e) {
-				if (!this.Title.EndsWith("*")) {
-					this.Title += "*";
-				}
-			};
+			foreach (PipelineView pView in pipelines.Values) {
+				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
+					if (!this.Title.EndsWith("*")) {
+						this.Title += "*";
+					}
+				};
+			}
 
 
 			// global key events
@@ -227,7 +254,7 @@ namespace baimp
 
 		private void SaveAll()
 		{
-			if (project.Save(pipeline)) {
+			if (project.Save(pipelines)) {
 				if (this.Title.EndsWith("*")) {
 					this.Title = this.Title.Remove(this.Title.Length - 1);
 				}

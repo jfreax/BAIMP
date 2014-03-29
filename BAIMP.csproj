@@ -135,6 +135,7 @@
     <Compile Include="Data\Mask.cs" />
     <Compile Include="UI\Widget\PipelineControllerView.cs" />
     <Compile Include="UI\Widget\Pipeline\ControllButton.cs" />
+    <Compile Include="Data\PipelineCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

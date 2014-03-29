@@ -8,6 +8,7 @@ using System.Collections;
 
 namespace baimp
 {
+	[XmlRoot("node")]
 	public class PipelineNode
 	{
 		static public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);

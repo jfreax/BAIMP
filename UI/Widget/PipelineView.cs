@@ -14,9 +14,12 @@ namespace baimp
 		AddEdge = 4,
 		MoveEdge = 8
 	}
-
+			
 	public class PipelineView : Canvas
 	{
+		static private int globalId = 0;
+
+
 		private ScrollView scrollview;
 
 		private List<PipelineNode> nodes;
@@ -38,12 +41,18 @@ namespace baimp
 
 		#region initialize
 
+		public PipelineView() {
+			PipelineName = "Untitled " + globalId;
+			globalId++;
+		}
+
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
 		/// </summary>
 		/// <param name="scrollview">Parent scrollview</param>
 		/// <param name="loadedNodes">Add already loaded nodes to this new instance</param>
-		public PipelineView(ScrollView scrollview, List<PipelineNode> loadedNodes = null)
+		public void Initialize(ScrollView scrollview, List<PipelineNode> loadedNodes = null)
 		{
 			this.scrollview = scrollview;
 
@@ -775,6 +784,11 @@ namespace baimp
 			get {
 				return scrollview;
 			}
+		}
+
+		public string PipelineName {
+			get;
+			set;
 		}
 
 		#endregion

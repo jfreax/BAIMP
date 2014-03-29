@@ -72,29 +72,35 @@ namespace baimp
 						}
 
 						this.version = p.version;
-						this.LoadedNodes = p.LoadedNodes;
+						this.LoadedPipelines = p.LoadedPipelines;
 
 						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
-						foreach (PipelineNode pNode in p.LoadedNodes) {
-							pNode.Initialize();
+						foreach (List<PipelineNode> pNodes in LoadedPipelines) {
+							foreach (PipelineNode pNode in pNodes) {
+								pNode.Initialize();
 
-							foreach (Option option in pNode._intern_Options) {
-								Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
-								targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
-							}
+								foreach (Option option in pNode._intern_Options) {
+									Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
+									targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
+								}
 
-							foreach (MarkerNode mNode in pNode.mNodes) {
-								allNodes.Add(mNode.ID, mNode);
-							}
-						}
-
-						foreach (PipelineNode pNode in p.LoadedNodes) {
-							foreach (MarkerNode mNode in pNode.mNodes) {
-								foreach (Edge edge in mNode.Edges) {
-									edge.to = allNodes[edge.ToNodeID];
+								foreach (MarkerNode mNode in pNode.mNodes) {
+									allNodes.Add(mNode.ID, mNode);
 								}
 							}
 						}
+
+						foreach (List<PipelineNode> pNodes in LoadedPipelines) {
+							foreach (PipelineNode pNode in pNodes) {
+								foreach (MarkerNode mNode in pNode.mNodes) {
+									foreach (Edge edge in mNode.Edges) {
+										edge.to = allNodes[edge.ToNodeID];
+									}
+								}
+							}
+						}
+
+
 
 						if (p.scanCollection != null) {
 							this.scanCollection = p.scanCollection;
@@ -163,7 +169,7 @@ namespace baimp
 		/// <summary>
 		/// Save project file
 		/// </summary>
-		public bool Save(PipelineView pipeline)
+		public bool Save(PipelineCollection pipelines)
 		{
 			if (ProjectFile == null) {
 				if (!NewDialog(false)) {
@@ -175,9 +181,11 @@ namespace baimp
 			scanCollection.SaveAll();
 
 			// prepare data
-			this.loadedNodes = pipeline.Nodes;
-			foreach (PipelineNode pNode in loadedNodes) {
-				pNode._intern_Options = pNode.algorithm.Options;
+			foreach (PipelineView pipeline in pipelines.Values) {
+				LoadedPipelines.Add(pipeline.Nodes);
+				foreach (PipelineNode pNode in pipeline.Nodes) {
+					pNode._intern_Options = pNode.algorithm.Options;
+				}
 			}
 
 			// save metadata
@@ -260,7 +268,7 @@ namespace baimp
 				Project.ProjectFile = filename;
 
                 if (reset) {
-                    this.LoadedNodes = new List<PipelineNode>();
+					this.LoadedPipelines = new List<List<PipelineNode>>();
 
                     scanCollection.Clear();
                     if (projectChanged != null)
@@ -351,14 +359,16 @@ namespace baimp
 //			}
 //		}
 
-		[XmlArray("pipeline")]
-		[XmlArrayItem("node")]
-		public List<PipelineNode> LoadedNodes {
+		private List<List<PipelineNode>> loadedPipelines = new List<List<PipelineNode>>();
+
+		[XmlArray("maps")]
+		[XmlArrayItem("pipeline")]
+		public List<List<PipelineNode>> LoadedPipelines {
 			get {
-				return loadedNodes;
+				return loadedPipelines;
 			}
 			set {
-				loadedNodes = value;
+				loadedPipelines = value;
 			}
 		}
 
