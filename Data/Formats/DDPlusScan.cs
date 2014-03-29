@@ -140,8 +140,16 @@ namespace baimp
 
 			if (scanType == "Color") {
 				int len = width * height * 4;
-				byte[] buffer = GetByteBuffer(scanType);
-				Marshal.Copy(buffer, 0, bmpData.Scan0, len);
+				//byte[] buffer = GetByteBuffer(scanType);
+				//Marshal.Copy(buffer, 0, bmpData.Scan0, len);
+
+				UnmanagedMemoryStream ums = 
+					new UnmanagedMemoryStream((byte*)bmpData.Scan0.ToPointer(), 0, len, FileAccess.Write);
+
+				Stream s = File.OpenRead(filenames[scanType]);
+				s.Position = 8; // skip first two ints
+				s.CopyTo(ums, len);
+
 			} else {
 				float[] array = GetAsArray(scanType);
 				float max = this.max[scanType];
