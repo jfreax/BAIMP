@@ -194,11 +194,13 @@ namespace baimp
 			if (scanDataChanged != null) {
 				scanDataChanged(sender, e);
 			}
-				
+								
 			if (e.Changed.StartsWith("mask_")) {
 				string[] splitted = e.Changed.Split('_');
 				if (splitted.Length >= 2) {
-					IEnumerable<NotebookTab> changedTab = notebook.Tabs.Where(t => t.Label == splitted[1]);
+					IEnumerable<NotebookTab> changedTab = 
+						notebook.Tabs.Where(t => t.Label.TrimEnd('*') == splitted[1]);
+
 					if (changedTab != null && changedTab.Count() > 0) {
 						changedTab.First().Label =
 							splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
