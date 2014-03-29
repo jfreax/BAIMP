@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
@@ -18,7 +19,10 @@ namespace baimp
 		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
 
-		Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
+		Dictionary<int, int> progress = new Dictionary<int, int>();
+
+		[XmlIgnore]
+		private Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
 
 		[XmlIgnore]
 		PipelineView parent;
@@ -34,9 +38,6 @@ namespace baimp
 
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
-
-		[XmlIgnore]
-		private int progress = 0;
 
 		bool saveResult;
 
@@ -156,18 +157,40 @@ namespace baimp
 
 		private void DrawProgress(Context ctx)
 		{
-			ctx.Save();
+			int threadsRunning = progress.Keys.Count;
 
 			Rectangle clipBound = bound.Inflate(-1, -1);
-			clipBound.Width *= progress / 100.0;
 			clipBound.Bottom = clipBound.Top + contentOffset.Y;
-			ctx.Rectangle(clipBound);
-			ctx.Clip();
-			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
-			ctx.SetColor(NodeColorProgress);
-			ctx.Fill();
 
-			ctx.Restore();
+			double height = threadsRunning == 0 ? clipBound.Height : clipBound.Height / threadsRunning;
+			double width = clipBound.Width;
+			clipBound.Bottom = clipBound.Top + height;
+
+			List<int> toRemove = new List<int>();
+			foreach (var singleProgress in progress) {
+				int progressForThread = singleProgress.Value;
+				ctx.Save();
+
+				clipBound.Width = width * (progressForThread / 100.0);
+
+				ctx.Rectangle(clipBound);
+				ctx.Clip();
+				ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
+				ctx.SetColor(NodeColorProgress);
+				ctx.Fill();
+
+				ctx.Restore();
+
+				clipBound.Top += height;
+
+				if (progressForThread >= 100 && this.progress.ContainsKey(singleProgress.Key)) {
+					toRemove.Add(singleProgress.Key);
+				}
+			}
+
+			foreach (int removeID in toRemove) {
+				progress.Remove(removeID);
+			}
 
 			// input / output buffer
 
@@ -326,6 +349,20 @@ namespace baimp
 			}
 		}
 
+		public int GetProgress(int threadID)
+		{
+			if (progress.ContainsKey(threadID)) {
+				return progress[threadID];
+			} else {
+				return -1;
+			}
+		}
+
+		public void SetProgress(int threadID, int progress)
+		{
+			this.progress[threadID] = progress;
+		}
+
 		#region custom events
 
 		[XmlIgnore]
@@ -355,18 +392,6 @@ namespace baimp
 						NodeMargin.VerticalSpacing
 					)
 				);
-			}
-		}
-
-		[XmlIgnore]
-		public int Progress {
-			get {
-				return progress;
-			} set {
-				progress = value;
-				if (queueRedraw != null) {
-					queueRedraw(this, null);
-				}
 			}
 		}
 

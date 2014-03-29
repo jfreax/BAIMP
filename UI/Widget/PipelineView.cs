@@ -227,7 +227,7 @@ namespace baimp
 		public void Execute(Project project)
 		{
 			foreach (PipelineNode pNode in nodes) {
-				pNode.algorithm.SetProgress(0);
+				//pNode.algorithm.SetProgress(0);
 
 				pNode.results.Clear();
 				pNode.ClearInputQueue();

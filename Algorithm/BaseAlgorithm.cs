@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xwt;
+using System.Threading;
 
 namespace baimp
 {
@@ -111,7 +112,8 @@ namespace baimp
 		/// <param name="percent">Progress 0-100.</param>
 		public void SetProgress(int percent)
 		{
-			Application.Invoke( () => parent.Progress = percent);
+			int threadID = Thread.CurrentThread.ManagedThreadId;
+			Application.Invoke( () => parent.SetProgress(threadID, percent));
 //			if (progress != null) {
 //				progress(this, new ProgressEventArgs(percent));
 //			}

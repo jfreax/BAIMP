@@ -46,9 +46,6 @@ namespace baimp
 				bool isSeqData = startNode.algorithm.OutputsSequentialData();
 				if (isSeqData) {
 					startNode.algorithm.Yielded += GetSingleData;
-//						delegate(object sender, AlgorithmDataArgs e) {
-//						Application.Invoke( () => GetSingleData(sender, e) );
-//					};
 				}
 
 				startNode.algorithm.SetProgress(0);
