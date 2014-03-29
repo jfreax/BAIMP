@@ -278,9 +278,14 @@ namespace baimp
 						int len = width * height * 2;
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
 						return Array.ConvertAll(array, Convert.ToUInt32);
+
 					} else if (bitdepth == 24) {
-						// TODO
-					
+						byte[] array = new byte[width * height * 3];
+						int len = width * height * 3;
+
+						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
+						return Array.ConvertAll(array, Convert.ToUInt32);
+						//return array;
 					} else if (bitdepth == 32) {
 						fileStream.Seek(191 * 4, SeekOrigin.Current);
 						UInt32[] array = new UInt32[width * height];
@@ -318,11 +323,24 @@ namespace baimp
 				new Rectangle(0, 0, width, height),   
 				ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
-			UInt32 max = array.Max();
 
 			if (scanType == "Color") {
-
+				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+				int len = width * height; // color image are 24 bit
+				for (int i = 0; i < len * 3; i += 3) {
+				
+					*scan0 = (byte)array[i];
+					scan0++;
+					*scan0 = (byte)array[i+1];
+					scan0++;
+					*scan0 = (byte)array[i+2];
+					scan0++;
+					*scan0 = 255;
+					scan0++;
+				}
 			} else {
+				UInt32 max = array.Max();
+
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				int len = width * height;
 				for (int i = 0; i < len; ++i) {

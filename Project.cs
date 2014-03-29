@@ -182,7 +182,7 @@ namespace baimp
 
 			// save metadata
 			ZipFile zipFile;
-			try {
+			//try {
 				if (File.Exists(ProjectFile)) {
 					zipFile = new ZipFile(ProjectFile);
 				} else {
@@ -198,10 +198,10 @@ namespace baimp
 					zipFile.CommitUpdate();
 
 				} // closes also memorystream
-			} catch (Exception e) {
-				// TODO show error message
-				Console.WriteLine(e.Message);
-			}
+//			} catch (Exception e) {
+//				// TODO show error message
+//				Console.WriteLine(e.Message);
+//			}
 
 			return true;
 		}
