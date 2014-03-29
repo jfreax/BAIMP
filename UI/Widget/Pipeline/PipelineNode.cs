@@ -56,6 +56,8 @@ namespace baimp
 			icons.Add("view", new LightImageWidget(Image.FromResource("baimp.Resources.view.png")));
 
 			SaveResult = false;
+
+            InitializeWidgets();
 		}
 
 		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
@@ -75,8 +77,6 @@ namespace baimp
 				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
-				
-			InitializeWidgets();
 		}
 
 		/// <summary>
