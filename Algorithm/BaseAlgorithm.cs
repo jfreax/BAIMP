@@ -89,7 +89,7 @@ namespace baimp
 		protected void Yield(IType[] data)
 		{
 			if (yielded != null) {
-				yielded(this, new AlgorithmDataArgs(data));
+				Application.Invoke( () => yielded(this, new AlgorithmDataArgs(data)) );
 			}
 		}
 

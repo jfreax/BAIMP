@@ -67,7 +67,7 @@ namespace baimp
 					startNode.algorithm.Yielded -= GetSingleData;
 				} else {
 					if (output != null) { // null means, there is no more data
-						callback(output);
+						Application.Invoke( () => callback(output) );
 					}
 				}
 			});
