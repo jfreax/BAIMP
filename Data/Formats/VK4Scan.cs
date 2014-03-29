@@ -259,9 +259,14 @@ namespace baimp
 					fileStream.Seek(offset, SeekOrigin.Begin);
 					size.Width = fileReader.ReadInt32();
 					size.Height = fileReader.ReadInt32();
+
+					if (requestedBitmapSize == Xwt.Size.Zero) {
+						requestedBitmapSize = size;
+					}
+
 					int bitdepth = fileReader.ReadInt32();
 
-					fileStream.Seek(16, SeekOrigin.Current); // skip more useless data
+					fileStream.Seek(20, SeekOrigin.Current); // skip more useless data
 
 					int width = (int) size.Width;
 					int height = (int) size.Height;

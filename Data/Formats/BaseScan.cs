@@ -23,7 +23,7 @@ namespace baimp
 		/// <summary>
 		/// The type of the fiber.
 		/// </summary>
-		private string fiberType;
+		private string fiberType = string.Empty;
 
 		/// <summary>
 		/// List of unsaved elements
@@ -33,7 +33,7 @@ namespace baimp
 		/// <summary>
 		/// The size of the requested bitmap.
 		/// </summary>
-		protected Xwt.Size requestedBitmapSize;
+		protected Xwt.Size requestedBitmapSize = Xwt.Size.Zero;
 
 		/// <summary>
 		/// Size of scan.
@@ -294,7 +294,11 @@ namespace baimp
 		[XmlElement("fiberType")]
 		public string FiberType {
 			get {
-				return fiberType;
+				if (string.IsNullOrEmpty(fiberType)) {
+					return "Unknown";
+				} else {
+					return fiberType;
+				}
 			}
 			set {
 				if (fiberType != value) {
