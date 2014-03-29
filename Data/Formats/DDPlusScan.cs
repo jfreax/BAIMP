@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using XD = Xwt.Drawing;
 using System.Drawing;
 using System.Xml.Serialization;
+using System.Diagnostics;
 
 namespace baimp
 {
@@ -95,22 +96,16 @@ namespace baimp
 
 			int length = width * height;
 			arrayData[scanType] = new float[length];
-
 			byte[] buffer = input.ReadBytes(length * 4);
-			int offset = 0;
-			for (int i = 0; i < length; i++) {
-				arrayData[scanType][i] = BitConverter.ToSingle(buffer, offset);
-				offset += 4;
 
-				if (scanType == "Topography") {
-					Metadata zLength = metadata.Find( m => m.key == "zLengthPerDigitF" );
-					if (zLength != null) {
-						arrayData[scanType][i] *= Convert.ToInt32(zLength.value) / 10000000.0f;
-					}
-				}
+			Buffer.BlockCopy(buffer, 0, arrayData[scanType], 0, length * 4);
+			max[scanType] = arrayData[scanType].Max();
 
-				if (arrayData[scanType][i] > max[scanType]) {
-					max[scanType] = arrayData[scanType][i];
+			if (scanType == "Topography") {
+				Metadata zLength = metadata.Find( m => m.key == "zLengthPerDigitF" );
+				if (zLength != null) {
+					float zLengthValue = Convert.ToSingle(zLength.value) / 10000000.0f;
+					arrayData[scanType].Select( x => x * zLengthValue);
 				}
 			}
 
