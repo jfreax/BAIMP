@@ -67,6 +67,7 @@ namespace baimp
 
 					src += offset;
 
+					SetProgress((int) (j * 100.0) / windowHeight);
 				}
 			} else {
 				int pixelSize = Bitmap.GetPixelFormatSize(data.PixelFormat) / 8;
@@ -87,6 +88,8 @@ namespace baimp
 					}
 
 					src += offset;
+
+					SetProgress((int) (j * 100.0) / windowHeight);
 				}
 			}
 
