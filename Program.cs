@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xwt;
+using System.Threading;
 
 namespace baimp
 {
@@ -63,6 +64,7 @@ namespace baimp
 				toolkitType = ToolkitType.Wpf;
 			}
 
+			ThreadPool.SetMaxThreads(32, 16);
 			Application.Initialize(toolkitType);
 
 			Project project = new Project(filename);
