@@ -8,9 +8,6 @@ namespace baimp
 {
 	public class ScanCollection : List<BaseScan>
 	{
-
-		Dictionary<string, int> allFileNames = new Dictionary<string, int>();
-
 		#region initialize
 
 		public ScanCollection()
@@ -29,6 +26,19 @@ namespace baimp
 				if (otherInstance == null) {
 					instance.Initialize(file, reimport);
 					Add(instance);
+
+					int i = 1;
+					while (this.Find(f => f != instance && f.Name == instance.Name) != null) {
+						string[] splitted = instance.Name.Split('_');
+						string partname = instance.Name;
+						if (splitted.Length > 1) {
+							int index = instance.Name.LastIndexOf('_');
+							partname = instance.Name.Remove(index, partname.Length - index); 
+						}
+
+						instance.Name = partname + "_" + i;
+						i++;
+					}
 				}
 
 				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
