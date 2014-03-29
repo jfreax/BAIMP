@@ -771,6 +771,12 @@ namespace baimp
 			}
 		}
 
+		public ScrollView Scrollview {
+			get {
+				return scrollview;
+			}
+		}
+
 		#endregion
 
 		#region custom events

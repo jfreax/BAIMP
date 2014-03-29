@@ -14,14 +14,12 @@ namespace baimp
 
 		// widgets
 		VPaned splitAlgorithmTree;
-		HPaned splitFiletreeAlgo_Preview;
+		HPaned splitFiletree_Preview;
 		HBox splitPreview_Metadata;
-		VPaned splitFileTree_Algo;
 
 		Preview preview;
 		FileTreeView fileTree;
 		MetadataView metadata;
-		AlgorithmTreeView algorithm;
 
 		PipelineControllerView pipelineController;
 		PipelineView pipeline;
@@ -144,33 +142,24 @@ namespace baimp
 			// load metadata viewer
 			metadata = new MetadataView();
 
-			// load algorithm list viewer
-			algorithm = new AlgorithmTreeView();
-
 			// load algorithm tree viever
 			ScrollView pipelineScroller = new ScrollView();
 			pipeline = new PipelineView(pipelineScroller, project.LoadedNodes);
 			pipelineController = new PipelineControllerView(pipeline);
-			pipelineScroller.MinHeight = (PipelineNode.NodeSize.Height + PipelineNode.NodeMargin.VerticalSpacing) * 6;
-			pipelineScroller.Content = pipelineController;
 
 			// set layout
-			splitFileTree_Algo = new VPaned();
-			splitFileTree_Algo.Panel1.Content = fileTree;
-			splitFileTree_Algo.Panel2.Content = algorithm;
-
 			splitPreview_Metadata = new HBox();
 			splitPreview_Metadata.PackStart(preview, true, true);
 			splitPreview_Metadata.PackEnd(metadata, false, false);
 
-			splitFiletreeAlgo_Preview = new HPaned();
-			splitFiletreeAlgo_Preview.Panel1.Content = splitFileTree_Algo;
-			splitFiletreeAlgo_Preview.Panel2.Content = splitPreview_Metadata;
-			splitFiletreeAlgo_Preview.Panel2.Resize = true;
+			splitFiletree_Preview = new HPaned();
+			splitFiletree_Preview.Panel1.Content = fileTree;
+			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
+			splitFiletree_Preview.Panel2.Resize = true;
 
 			splitAlgorithmTree = new VPaned();
-			splitAlgorithmTree.Panel1.Content = splitFiletreeAlgo_Preview;
-			splitAlgorithmTree.Panel2.Content = pipelineScroller;
+			splitAlgorithmTree.Panel1.Content = splitFiletree_Preview;
+			splitAlgorithmTree.Panel2.Content = pipelineController;
 
 			Content = splitAlgorithmTree;
 		}
