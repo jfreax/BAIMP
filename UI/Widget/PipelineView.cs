@@ -17,6 +17,8 @@ namespace baimp
 
 	public class PipelineView : Canvas
 	{
+		private ScrollView scrollview;
+
 		private List<PipelineNode> nodes;
 		private Point nodeToMoveOffset = Point.Zero;
 		private MarkerNode connectNodesStartMarker;
@@ -43,6 +45,8 @@ namespace baimp
 		/// <param name="loadedNodes">Add already loaded nodes to this new instance</param>
 		public PipelineView(ScrollView scrollview, List<PipelineNode> loadedNodes = null)
 		{
+			this.scrollview = scrollview;
+
 			this.SetDragDropTarget(TransferDataType.Text);
 			this.BackgroundColor = Colors.WhiteSmoke;
 			this.CanGetFocus = true;
@@ -177,22 +181,21 @@ namespace baimp
 
 				// move scrollbar
 				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
-				ScrollView sv = this.Parent as ScrollView;
 
-				double viewportRight = sv.HorizontalScrollControl.Value + sv.Size.Width;
+				double viewportRight = scrollview.HorizontalScrollControl.Value + scrollview.Size.Width;
 				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;
 				if (boundwe.Right - offsetH > viewportRight) {
-					sv.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
-				} else if (boundwe.Left + offsetH < sv.HorizontalScrollControl.Value) {
-					sv.HorizontalScrollControl.Value -= sv.HorizontalScrollControl.Value - offsetH - boundwe.Left;
+					scrollview.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
+				} else if (boundwe.Left + offsetH < scrollview.HorizontalScrollControl.Value) {
+					scrollview.HorizontalScrollControl.Value -= scrollview.HorizontalScrollControl.Value - offsetH - boundwe.Left;
 				}
 
-				double viewportBottom = sv.VerticalScrollControl.Value + sv.Size.Height;
+				double viewportBottom = scrollview.VerticalScrollControl.Value + scrollview.Size.Height;
 				double offsetV = (nodeToMoveOffset.Y + boundwe.Height) * 0.5;
 				if (boundwe.Bottom - offsetV > viewportBottom) {
-					sv.VerticalScrollControl.Value += boundwe.Bottom - offsetV - viewportBottom;
-				} else if (boundwe.Top + offsetV < sv.VerticalScrollControl.Value) {
-					sv.VerticalScrollControl.Value -= sv.VerticalScrollControl.Value - offsetV - boundwe.Top;
+					scrollview.VerticalScrollControl.Value += boundwe.Bottom - offsetV - viewportBottom;
+				} else if (boundwe.Top + offsetV < scrollview.VerticalScrollControl.Value) {
+					scrollview.VerticalScrollControl.Value -= scrollview.VerticalScrollControl.Value - offsetV - boundwe.Top;
 				}
 			}
 

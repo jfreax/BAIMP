@@ -64,6 +64,7 @@ namespace baimp
 				toolkitType = ToolkitType.Wpf;
 			}
 
+			ThreadPool.SetMinThreads(2, 2);
 			ThreadPool.SetMaxThreads(32, 16);
 			Application.Initialize(toolkitType);
 

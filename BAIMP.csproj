@@ -133,6 +133,7 @@
     <Compile Include="Data\Graph\Edge.cs" />
     <Compile Include="Data\Graph\Node.cs" />
     <Compile Include="Data\Mask.cs" />
+    <Compile Include="UI\Widget\PipelineControllerView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

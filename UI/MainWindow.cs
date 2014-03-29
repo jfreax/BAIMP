@@ -22,6 +22,8 @@ namespace baimp
 		FileTreeView fileTree;
 		MetadataView metadata;
 		AlgorithmTreeView algorithm;
+
+		PipelineControllerView pipelineController;
 		PipelineView pipeline;
 
 		/// <summary>
@@ -148,8 +150,9 @@ namespace baimp
 			// load algorithm tree viever
 			ScrollView pipelineScroller = new ScrollView();
 			pipeline = new PipelineView(pipelineScroller, project.LoadedNodes);
+			pipelineController = new PipelineControllerView(pipeline);
 			pipelineScroller.MinHeight = (PipelineNode.NodeSize.Height + PipelineNode.NodeMargin.VerticalSpacing) * 6;
-			pipelineScroller.Content = pipeline;
+			pipelineScroller.Content = pipelineController;
 
 			// set layout
 			splitFileTree_Algo = new VPaned();

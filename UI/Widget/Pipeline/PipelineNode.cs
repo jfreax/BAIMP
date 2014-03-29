@@ -319,6 +319,9 @@ namespace baimp
 			return input;
 		}
 
+		/// <summary>
+		/// Clears the input queue.
+		/// </summary>
 		public void ClearInputQueue()
 		{
 			for (int i = 0; i < algorithm.Input.Count; i++) {
@@ -342,6 +345,10 @@ namespace baimp
 			return null;
 		}
 
+		/// <summary>
+		/// Add a new node
+		/// </summary>
+		/// <param name="o">O.</param>
 		public void Add(object o)
 		{
 			if (o is MarkerNode) {
@@ -349,6 +356,11 @@ namespace baimp
 			}
 		}
 
+		/// <summary>
+		/// Get progress (0-100 in percent) for specific working thread id
+		/// </summary>
+		/// <returns>The progress.</returns>
+		/// <param name="threadID">Thread I.</param>
 		public int GetProgress(int threadID)
 		{
 			if (progress.ContainsKey(threadID)) {
@@ -358,6 +370,11 @@ namespace baimp
 			}
 		}
 
+		/// <summary>
+		/// Set progress (between 0 and 100) for specific thread id.
+		/// </summary>
+		/// <param name="threadID">Thread I.</param>
+		/// <param name="progress">Progress.</param>
 		public void SetProgress(int threadID, int progress)
 		{
 			this.progress[threadID] = progress;
@@ -387,6 +404,10 @@ namespace baimp
 
 		#region properties
 
+		/// <summary>
+		/// Bounds of this node inclusive marker.
+		/// </summary>
+		/// <value>The bound with extras.</value>
 		public Rectangle BoundWithExtras {
 			get {
 				return bound.Inflate(
