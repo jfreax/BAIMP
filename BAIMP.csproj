@@ -134,6 +134,7 @@
     <Compile Include="Data\Graph\Node.cs" />
     <Compile Include="Data\Mask.cs" />
     <Compile Include="UI\Widget\PipelineControllerView.cs" />
+    <Compile Include="UI\Widget\Pipeline\ControllButton.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -198,5 +199,14 @@
     <EmbeddedResource Include="Resources\hide%404x.png" />
     <EmbeddedResource Include="Resources\view%402x.png" />
     <EmbeddedResource Include="Resources\view%404x.png" />
+    <EmbeddedResource Include="Resources\pause.png" />
+    <EmbeddedResource Include="Resources\pause%402x.png" />
+    <EmbeddedResource Include="Resources\pause%404x.png" />
+    <EmbeddedResource Include="Resources\play.png" />
+    <EmbeddedResource Include="Resources\play%402x.png" />
+    <EmbeddedResource Include="Resources\play%404x.png" />
+    <EmbeddedResource Include="Resources\stop.png" />
+    <EmbeddedResource Include="Resources\stop%402x.png" />
+    <EmbeddedResource Include="Resources\stop%404x.png" />
   </ItemGroup>
 </Project>

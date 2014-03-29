@@ -145,7 +145,7 @@ namespace baimp
 			// load algorithm tree viever
 			ScrollView pipelineScroller = new ScrollView();
 			pipeline = new PipelineView(pipelineScroller, project.LoadedNodes);
-			pipelineController = new PipelineControllerView(pipeline);
+			pipelineController = new PipelineControllerView(pipeline, project);
 
 			// set layout
 			splitPreview_Metadata = new HBox();
