@@ -29,6 +29,7 @@ namespace baimp
 
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
+			this.MinHeight = 320;
 			this.PackEnd(tab, true, true);
 		}
 

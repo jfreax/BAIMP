@@ -232,7 +232,7 @@ namespace baimp
 				pNode.results.Clear();
 				pNode.ClearInputQueue();
 
-				if (pNode.IsReady()) {
+				if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
 					Process process = new Process(project, pNode);
 					Result[] zeroInput = new Result[0];
 					process.Start(zeroInput);
