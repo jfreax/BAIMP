@@ -7,6 +7,8 @@ using XD = Xwt.Drawing;
 using System.Drawing;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace baimp
 {
@@ -105,7 +107,7 @@ namespace baimp
 				Metadata zLength = metadata.Find( m => m.key == "zLengthPerDigitF" );
 				if (zLength != null) {
 					float zLengthValue = Convert.ToSingle(zLength.value) / 10000000.0f;
-					arrayData[scanType].Select( x => x * zLengthValue);
+					arrayData[scanType] = arrayData[scanType].Select( x => x * zLengthValue).ToArray();
 				}
 			}
 
@@ -121,8 +123,6 @@ namespace baimp
 			if (scanType == "Color") {
 				bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 			} else {
-				//bitmap = new Bitmap (width, height, PixelFormat.Format16bppRgb555);
-				//bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb);
 				bitmap = new Bitmap(width, height, PixelFormat.Format8bppIndexed);
 
 				ColorPalette grayscalePalette = bitmap.Palette;
@@ -136,27 +136,18 @@ namespace baimp
 			BitmapData bmpData = bitmap.LockBits(
 				new Rectangle(0, 0, width, height),   
 				ImageLockMode.WriteOnly, bitmap.PixelFormat);
-
-			Stream s = File.OpenRead(filenames[scanType]);
-			BinaryReader input = new BinaryReader(s);
-			input.ReadInt64();
+				
 
 			if (scanType == "Color") {
-				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
-
 				int len = width * height * 4;
-				byte[] buffer = input.ReadBytes(len);
-				for (int i = 0; i < len; ++i) {
-					*scan0 = buffer[i];
-					scan0++;
-				}
+				byte[] buffer = GetByteBuffer(scanType);
+				Marshal.Copy(buffer, 0, bmpData.Scan0, len);
 			} else {
 				float[] array = GetAsArray(scanType);
-				//float max = (float) Math.Max(this.max[scanType], 1.0);
 				float max = this.max[scanType];
 
-				int len = width * height;
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+				int len = width * height;
 				for (int i = 0; i < len; ++i) {
 					byte color = (byte) ((array[i] * 255.0) / max);
 					*scan0 = color;
