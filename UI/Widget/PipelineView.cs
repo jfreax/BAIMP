@@ -54,11 +54,7 @@ namespace baimp
 			if (loadedNodes == null) {
 				nodes = new List<PipelineNode>();
 			} else {
-				nodes = loadedNodes;
-				foreach (PipelineNode pNode in nodes) {
-					pNode.Parent = this;
-					pNode.QueueRedraw += QueueRedraw;
-				}
+				Nodes = loadedNodes;
 			}
 
 			mouseMover = new MouseMover(scrollview);
@@ -767,6 +763,10 @@ namespace baimp
 			}
 			set {
 				nodes = value;
+                foreach (PipelineNode pNode in nodes) {
+                    pNode.Parent = this;
+                    pNode.QueueRedraw += QueueRedraw;
+                }
 				QueueDraw();
 			}
 		}

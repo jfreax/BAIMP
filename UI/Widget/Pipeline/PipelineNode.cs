@@ -272,6 +272,9 @@ namespace baimp
 			foreach (var x in icons) {
 				if (x.Value.Visible && x.Value.Bounds.Contains(e.Position)) {
 					x.Value.OnButtonPressed(this, e);
+                    if (queueRedraw != null) {
+                        queueRedraw(this, null);
+                    }
 					ret = true;
 					break;
 				}
