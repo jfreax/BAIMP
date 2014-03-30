@@ -23,8 +23,6 @@ namespace baimp
 		[XmlAttribute]
 		public int version = 2;
 
-		private List<PipelineNode> loadedNodes;
-
 		#region initialize
 
 		public Project()
@@ -71,8 +69,9 @@ namespace baimp
 							return false;
 						}
 
-						this.version = p.version;
-						this.LoadedPipelines = p.LoadedPipelines;
+						version = p.version;
+						LoadedPipelines.Clear();
+						LoadedPipelines = p.LoadedPipelines;
 
 						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
 						foreach (List<PipelineNode> pNodes in LoadedPipelines) {
@@ -169,13 +168,15 @@ namespace baimp
 		/// <summary>
 		/// Save project file
 		/// </summary>
-		public bool Save(PipelineCollection pipelines)
+		public bool Save(PipelineController pipelineController)
 		{
 			if (ProjectFile == null) {
 				if (!NewDialog(false)) {
 					return false;
 				}
 			}
+
+			PipelineCollection pipelines = pipelineController.Pipelines;
 
 			// save scan metadata
 			scanCollection.SaveAll();

@@ -127,6 +127,7 @@ namespace baimp
 		/// <param name='ctx'>
 		/// Drawing context
 		/// </param>
+		/// <param name="dirtyRect"></param>
 		protected override void OnDraw(Xwt.Drawing.Context ctx, Rectangle dirtyRect)
 		{
 			if (Bounds.IsEmpty)

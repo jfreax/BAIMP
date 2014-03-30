@@ -23,9 +23,8 @@ namespace baimp
 		FileTreeView fileTree;
 		MetadataView metadata;
 
-		PipelineControllerView pipelineController;
-		PipelineCollection pipelines = new PipelineCollection();
-		PipelineView currentPipeline;
+		PipelineController pipelineController;
+
 
 		ScrollView pipelineScroller;
 
@@ -129,7 +128,7 @@ namespace baimp
 			pipelineMenu.SubMenu = new Menu();
 
 			MenuItem menuExecute = new MenuItem("_Execute");
-			menuExecute.Clicked += (object sender, EventArgs e) => currentPipeline.Execute(project);
+			menuExecute.Clicked += (object sender, EventArgs e) => pipelineController.CurrentPipeline.Execute(project);
 			pipelineMenu.SubMenu.Items.Add(menuExecute);
 
 			// main menu
@@ -147,22 +146,8 @@ namespace baimp
 			// load metadata viewer
 			metadata = new MetadataView();
 
-			// load algorithm tree viever
-			pipelineScroller = new ScrollView();
-			if (project.LoadedPipelines == null || project.LoadedPipelines.Count == 0) {
-				currentPipeline = new PipelineView();
-				currentPipeline.Initialize(pipelineScroller);
-				pipelines.Add(currentPipeline.PipelineName, currentPipeline);
-			} else {
-				foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
-
-					PipelineView newPipeline = new PipelineView();
-					newPipeline.Initialize(pipelineScroller, pNodes);
-					pipelines.Add(newPipeline.PipelineName, newPipeline);
-				}
-				currentPipeline = pipelines.Values.ToList()[0];
-			}
-			pipelineController = new PipelineControllerView(currentPipeline, project);
+			// load pipeline controller
+			pipelineController = new PipelineController(project);
 
 			// set layout
 			splitPreview_Metadata = new HBox();
@@ -205,46 +190,11 @@ namespace baimp
 				}
 			};
 
-//			foreach (string key in project.scanCollection.Keys) {
-//				foreach (ScanWrapper scan in project.scanCollection[key]) {
-//					scan.ScanDataChanged += fileTree.OnScanDataChanged;
-//					scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-//						if (e.Unsaved != null && e.Unsaved.Count > 0) {
-//							if (!this.Title.EndsWith("*")) {
-//								this.Title += "*";
-//							}
-//						}
-//					};
-//				}
-//			}
-
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
 				if (e != null) {
-					if (e.refresh) {
-						if (project.LoadedPipelines != null && project.LoadedPipelines.Count != 0) {
-
-							foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
-								PipelineView newPipeline = new PipelineView();
-								newPipeline.Initialize(pipelineScroller);
-								pipelines.Add(newPipeline.PipelineName, newPipeline);
-							}
-							currentPipeline = pipelines.Values.GetEnumerator().Current;
-						}
-					} else if (e.addedFiles != null && e.addedFiles.Length > 0) {
-					}
-
 					fileTree.Reload(project.scanCollection);
 				}
 			};
-
-			foreach (PipelineView pView in pipelines.Values) {
-				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
-					if (!this.Title.EndsWith("*")) {
-						this.Title += "*";
-					}
-				};
-			}
-
 
 			// global key events
 			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
@@ -254,7 +204,7 @@ namespace baimp
 
 		private void SaveAll()
 		{
-			if (project.Save(pipelines)) {
+			if (project.Save(pipelineController)) {
 				if (this.Title.EndsWith("*")) {
 					this.Title = this.Title.Remove(this.Title.Length - 1);
 				}
