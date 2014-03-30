@@ -14,7 +14,7 @@ namespace Baimp
 		private Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Baimp.AlgorithmView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.AlgorithmTreeView"/> class.
 		/// </summary>
 		public AlgorithmTreeView()
 		{
@@ -55,23 +55,11 @@ namespace Baimp
 				var p = store.AddNode(null).SetValue(nameCol, key).CurrentPosition;
 
 				foreach (BaseAlgorithm algo in algorithmCollection[key]) {
-					var v = store.AddNode(p)
-						.SetValue(nameCol, algo)
-						.CurrentPosition;
+					store.AddNode(p).SetValue(nameCol, algo);
 				}
 			}
 
 			this.ExpandAll();
-
-//			SetDragDropTarget (DragDropAction.All, TransferDataType.Text);
-//			SetDragSource (	DragDropAction.All, TransferDataType.Text);
-//			DragStarted += delegate(object sender, DragStartedEventArgs e) {
-//				var val = store.GetNavigatorAt (SelectedRow).GetValue (nameCol);
-//				e.DragOperation.Data.AddValue (val);
-//				e.DragOperation.Finished += delegate(object s, DragFinishedEventArgs args) {
-//					Console.WriteLine ("D:" + args.DeleteSource);
-//				};
-//			};
 		}
 
 		protected override void OnSelectionChanged(EventArgs e)
@@ -95,10 +83,7 @@ namespace Baimp
 				d.AllowedActions = DragDropAction.Link;
 				d.Start();
 
-				d.Finished += delegate(object sender, DragFinishedEventArgs e2) {
-					this.UnselectAll();
-				
-				};
+				d.Finished += (object sender, DragFinishedEventArgs e2) => this.UnselectAll();
 			} else {
 				this.UnselectRow(SelectedRow);
 			}

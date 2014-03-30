@@ -5,17 +5,17 @@ using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class Result
+	public class Result : IDisposable
 	{
 		private object removeLock = new object();
 
 		private bool preserve;
-		private HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
-		public readonly IType data;
+		private readonly HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
+		public readonly IType Data;
 
 		public Result(ref IType data, bool preserve = false)
 		{
-			this.data = data;
+			this.Data = data;
 			this.preserve = preserve;
 		}
 
@@ -35,7 +35,7 @@ namespace Baimp
 			lock (removeLock) {
 				usedBy.Remove(by);
 				if (usedBy.Count <= 0 && !preserve) {
-					data.Dispose();
+					Data.Dispose();
 				}
 			}
 		}
@@ -49,7 +49,7 @@ namespace Baimp
 		/// <see cref="Baimp.Result"/> was occupying.</remarks>
 		public void Dispose()
 		{
-			data.Dispose();
+			Data.Dispose();
 		}
 
 		#region helper functions

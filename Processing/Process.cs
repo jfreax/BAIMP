@@ -37,7 +37,7 @@ namespace Baimp
 				input = new IType[inputResult.Length];
 				int i = 0;
 				foreach (Result res in inputResult) {
-					input[i] = res.data;
+					input[i] = res.Data;
 					i++;
 				}
 			}
@@ -91,33 +91,36 @@ namespace Baimp
 				Result resultWrapper = new Result(ref result[i], startNode.SaveResult);
 
 				Result[] resultWrapperList = null;
-				if (result[i].GetType().IsArray) {
-					resultWrapperList = new Result[(result[i] as IType[]).Length];
-					for (int k = 0; k < (result[i] as IType[]).Length; k++) {
-						resultWrapperList[k] = new Result(ref (result[i] as IType[])[k], startNode.SaveResult);
-					}
-				}
+//				if (result[i].GetType().IsArray) {
+//					resultWrapperList = new Result[(result[i] as IType[]).Length];
+//					for (int k = 0; k < (result[i] as IType[]).Length; k++) {
+//						resultWrapperList[k] = new Result(ref (result[i] as IType[])[k], startNode.SaveResult);
+//					}
+//				}
 					
 				// enqueue new data
-				foreach (MarkerEdge edge in startNode.MNodes[offsetIndex+i].Edges) {
+				foreach (Edge edge in startNode.MNodes[offsetIndex+i].Edges) {
 					MarkerNode targetNode = edge.to as MarkerNode;
-
-					bool targetIsParallel = false;
-					Type tmpType = startNode.MNodes[offsetIndex + i].compatible.Type;
-					if (tmpType.IsGenericType &&
-					    tmpType.GetGenericTypeDefinition().IsEquivalentTo(typeof(Parallel<>))) {
-						targetIsParallel = true;
+					if (targetNode == null) {
+						break;
 					}
 
-					if (result[i].GetType().IsArray && !targetIsParallel) {
-						for (int k = 0; k < (result[i] as IType[]).Length; k++) {
-							resultWrapperList[k].Used(targetNode.parent);
-							targetNode.EnqueueInput(resultWrapperList[k]);
-						}
-					} else {
+//					bool targetIsParallel = false;
+//					Type tmpType = startNode.MNodes[offsetIndex + i].compatible.Type;
+//					if (tmpType.IsGenericType &&
+//					    tmpType.GetGenericTypeDefinition().IsEquivalentTo(typeof(Parallel<>))) {
+//						targetIsParallel = true;
+//					}
+//
+//					if (result[i].GetType().IsArray && !targetIsParallel) {
+//						for (int k = 0; k < (result[i] as IType[]).Length; k++) {
+//							resultWrapperList[k].Used(targetNode.parent);
+//							targetNode.EnqueueInput(resultWrapperList[k]);
+//						}
+//					} else {
 						resultWrapper.Used(targetNode.parent);
 						targetNode.EnqueueInput(resultWrapper);
-					}
+//					}
 
 					// start next node
 					if (targetNode.parent.IsReady()) {

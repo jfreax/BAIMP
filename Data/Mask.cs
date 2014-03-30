@@ -12,7 +12,7 @@ namespace Baimp
 {
 	public class Mask
 	{
-		private BaseScan scan;
+		private readonly BaseScan scan;
 		private Dictionary<string, XD.ImageBuilder> maskBuilder = new Dictionary<string, XD.ImageBuilder>();
 
 		public Mask(BaseScan scan)
@@ -24,7 +24,7 @@ namespace Baimp
 		/// Loads mask data
 		/// </summary>
 		/// <returns>The mask as an image.</returns>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		private XD.Image LoadMask(string scanType)
 		{
 			XD.Image mask = null;
@@ -45,7 +45,7 @@ namespace Baimp
 		/// Gets the mask builder to draw on it.
 		/// </summary>
 		/// <returns>The mask builder.</returns>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		/// <remarks>
 		/// Set the status of this scan to "unsaved"
 		/// </remarks>
@@ -67,7 +67,7 @@ namespace Baimp
 		/// Gets the mask as image.
 		/// </summary>
 		/// <returns>The mask as image.</returns>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		public XD.Image GetMaskAsImage(string scanType)
 		{
 			return GetMaskBuilder(scanType).ToVectorImage().WithSize(scan.RequestedBitmapSize);
@@ -77,7 +77,7 @@ namespace Baimp
 		/// <summary>
 		/// Saves the mask.
 		/// </summary>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		public unsafe void Save(string scanType)
 		{
 			MemoryStream outStream = new MemoryStream();
@@ -85,7 +85,7 @@ namespace Baimp
 			XD.BitmapImage mask = GetMaskBuilder(scanType).ToBitmap();
 			XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
 
-			if (MainClass.toolkitType == Xwt.ToolkitType.Gtk) {
+			if (MainClass.toolkitType == ToolkitType.Gtk) {
 				Parallel.For(0, (int) mask.Height, new Action<int>(y => {
 					for (int x = 0; x < mask.Width; x++) {
 						XD.Color color = mask.GetPixel(x, y);
@@ -162,7 +162,7 @@ namespace Baimp
 		/// <summary>
 		/// Resets mask data
 		/// </summary>
-		/// <param name="type">Scan type.</param>
+		/// <param name="scanType">Scan type.</param>
 		public void ResetMask(string scanType)
 		{
 			maskBuilder[scanType].Dispose();

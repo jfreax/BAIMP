@@ -7,16 +7,16 @@ namespace Baimp
 	/// </summary>
 	public class MaximumUses : BaseConstraint
 	{
-		public readonly int max;
+		public readonly int Max;
 
 		public MaximumUses(int max)
 		{
-			this.max = max;
+			this.Max = max;
 		}
 
 		public bool FulFills(MarkerNode me, MarkerNode other)
 		{
-			if (me.Edges.Count > max - 1) {
+			if (me.Edges.Count > Max - 1) {
 				return false;
 			}
 

@@ -71,14 +71,14 @@ namespace Baimp
 		/// <summary>
 		/// The metadata.
 		/// </summary>
-		private List<Metadata> metadata = new List<Baimp.Metadata>();
+		private List<Metadata> metadata = new List<Metadata>();
 
 		/// <summary>
 		/// The masks.
 		/// </summary>
 		private Mask masks;
 
-		public BaseScan()
+		protected BaseScan()
 		{
 		}
 
@@ -128,21 +128,21 @@ namespace Baimp
 		/// Gets scan as array.
 		/// </summary>
 		/// <returns>The specified scan as a plan float array.</returns>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		abstract public UInt32[] GetAsArray(string scanType);
 
 		/// <summary>
 		/// Get scan as bitmap.
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
-		/// <param name="type">Scantile</param>
+		/// <param name="scanType">Scantile</param>
 		abstract public unsafe Bitmap GetAsBitmap(string scanType);
 
 		/// <summary>
 		/// Get as image.
 		/// </summary>
 		/// <returns>The as image.</returns>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Type.</param>
 		/// <param name="scanType">Scan type.</param>
 		public Xwt.Drawing.Image GetAsImage(string scanType)
 		{
@@ -159,12 +159,11 @@ namespace Baimp
 		/// Gets image as memory stream in tiff format
 		/// </summary>
 		/// <returns>The memory stream.</returns>
-		/// <param name="type">Scan type.</param>
 		/// <param name="scanType">Scan type.</param>
-		public System.IO.MemoryStream GetAsMemoryStream(string scanType)
+		public MemoryStream GetAsMemoryStream(string scanType)
 		{
 			MemoryStream memoryStream = new MemoryStream();
-			System.Drawing.Bitmap bmp = GetAsBitmap(scanType);
+			Bitmap bmp = GetAsBitmap(scanType);
 			if (bmp == null) {
 				// TODO raise error
 				return null;
@@ -198,7 +197,7 @@ namespace Baimp
 		/// <summary>
 		/// Gets as image (sync).
 		/// </summary>
-		/// <param name="type">Scan type.</param>
+		/// <param name="scanType">Scan type.</param>
 		/// <param name="callback">Function to call on finish.</param>
 		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
 		{
@@ -206,9 +205,7 @@ namespace Baimp
 				lock (asyncImageLock) {
 					XD.Image image = GetAsImage(scanType);
 
-					Xwt.Application.Invoke(delegate() {
-						callback(image.WithSize(requestedBitmapSize));
-					});
+					Application.Invoke(() => callback(image.WithSize(requestedBitmapSize)));
 				}
 			});
 			imageLoaderThread.Start();
@@ -218,6 +215,7 @@ namespace Baimp
 		/// Notifies that something for this scan has changed.
 		/// </summary>
 		/// <param name="changeOf">Type of change</param>
+		/// <param name="addToUnsaved">Add change to list of unsaved elements</param>
 		/// <remarks>
 		/// We need to save this data somewhere!
 		/// </remarks>
@@ -256,7 +254,7 @@ namespace Baimp
 		{
 			HashSet<string> unsavedCopy = new HashSet<string>(unsaved);
 			foreach (string toSave in unsavedCopy) {
-				if (toSave.StartsWith("mask_")) {
+				if (toSave.StartsWith("mask_", StringComparison.Ordinal)) {
 					string[] splitted = toSave.Split('_');
 					if (splitted.Length >= 2) {
 						masks.Save(splitted[1]);
@@ -292,9 +290,8 @@ namespace Baimp
 			get {
 				if (string.IsNullOrEmpty(name)) {
 					return Path.GetFileNameWithoutExtension(filePath);
-				} else {
-					return name;
 				}
+				return name;
 			}
 			set {
 				name = value;
@@ -319,11 +316,7 @@ namespace Baimp
 		[XmlElement("fiberType")]
 		public string FiberType {
 			get {
-				if (string.IsNullOrEmpty(fiberType)) {
-					return "Unknown";
-				} else {
-					return fiberType;
-				}
+				return string.IsNullOrEmpty(fiberType) ? "Unknown" : fiberType;
 			}
 			set {
 				if (fiberType != value) {
@@ -381,12 +374,12 @@ namespace Baimp
 		/// <returns><c>true</c> if this instance is scaled; otherwise, <c>false</c>.</returns>
 		public bool IsScaled()
 		{
-			if (requestedBitmapSize.Height != size.Height ||
-				requestedBitmapSize.Width != size.Width) {
+			const double EPSILON = 0.01;
+			if (Math.Abs(requestedBitmapSize.Height - size.Height) > EPSILON ||
+			    Math.Abs(requestedBitmapSize.Width - size.Width) > EPSILON) {
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
 
 		public bool HasUnsaved()

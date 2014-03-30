@@ -26,7 +26,7 @@ namespace Baimp
 		private Dictionary<string, float> max = new Dictionary<string, float>();
 
 
-		public DDPlusScan()
+		internal DDPlusScan()
 		{
 		}
 
@@ -74,7 +74,6 @@ namespace Baimp
 		/// Get specified scan as byte buffer.
 		/// </summary>
 		/// <returns>The byte buffer.</returns>
-		/// <param name="type">Type.</param>
 		/// <param name="scanType">Scan type.</param>
 		private byte[] GetByteBuffer(string scanType)
 		{
@@ -90,7 +89,6 @@ namespace Baimp
 		/// Gets scan as array.
 		/// </summary>
 		/// <returns>The specified scan as a plan float array.</returns>
-		/// <param name="type">Type.</param>
 		/// <param name="scanType">Scan type.</param>
 		private float[] GetAsArrayFloat(string scanType)
 		{
@@ -130,14 +128,13 @@ namespace Baimp
 		/// Get scan as bitmap.
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
-		/// <param name="type">Scantile</param>
 		/// <param name="scanType">Scan type.</param>
-		public override unsafe System.Drawing.Bitmap GetAsBitmap(string scanType)
+		public override unsafe Bitmap GetAsBitmap(string scanType)
 		{
 			int width = (int) Size.Width;
 			int height = (int) Size.Height;
 
-			Bitmap bitmap = null;
+			Bitmap bitmap;
 			if (scanType == "Color") {
 				bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 			} else {
@@ -170,12 +167,12 @@ namespace Baimp
 
 			} else {
 				float[] array = GetAsArrayFloat(scanType);
-				float max = this.max[scanType];
+				float maxForType = this.max[scanType];
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				int len = width * height;
 				for (int i = 0; i < len; ++i) {
-					byte color = (byte) ((array[i] * 255.0) / max);
+					byte color = (byte) ((array[i] * 255.0) / maxForType);
 					*scan0 = color;
 					scan0++;
 				}

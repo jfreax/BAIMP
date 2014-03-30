@@ -14,10 +14,10 @@ namespace Baimp
 		TextEntry entryFiberType;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.MetadataView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.MetadataView"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Call <see cref="bachelorarbeit_implementierung.MetadataView.Load" to actual see the metadata information/> 
+		/// Call <see cref="Baimp.MetadataView.Load"></see> to actual see the metadata information/> 
 		/// </remarks>
 		public MetadataView()
 		{

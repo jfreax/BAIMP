@@ -19,7 +19,7 @@ namespace Baimp
 		BaseScan currentScan;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.Preview"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
 		/// </summary>
 		public Preview()
 		{
@@ -77,9 +77,7 @@ namespace Baimp
 			currentScan.ScanDataChanged += OnScanDataChanged;
 				
 			scanView.RegisterImageLoadedCallback(new MyCallBack(ImageLoadCallBack));
-			scanView.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-				OnPreviewZoom(e);
-			};
+			scanView.MouseScrolled += (object sender, MouseScrolledEventArgs e) => OnPreviewZoom(e);
 
 			string currentScanType = notebook.CurrentTab.Label;
 			ShowPreview(currentScanType);
@@ -88,7 +86,7 @@ namespace Baimp
 		/// <summary>
 		/// Shows an specific preview into appropriate tab.
 		/// </summary>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Scan type</param>
 		private void ShowPreview(string scanType)
 		{
 			if (scanView != null) {
@@ -101,7 +99,7 @@ namespace Baimp
 		/// <summary>
 		/// Gets called when image is ready to display.
 		/// </summary>
-		/// <param name="type">Scan type</param>
+		/// <param name="scanType">Scan type</param>
 		private void ImageLoadCallBack(string scanType)
 		{
 			if (!scanView.IsScaled()) {
@@ -140,7 +138,7 @@ namespace Baimp
 						mouseMover.EnableMouseMover(e.Position);
 
 						if (scanView.Cursor != CursorType.Move) {
-							scanView.Data["oldMouseButton"] = scanView.Cursor;
+							scanView.data["oldMouseButton"] = scanView.Cursor;
 							scanView.Cursor = CursorType.Move;
 						}
 					}
@@ -155,7 +153,7 @@ namespace Baimp
 						mouseMover.DisableMouseMover();
 
 						if (scanView != null) {
-							scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+							scanView.Cursor = (CursorType) scanView.data["oldMouseButton"];
 						}
 					}
 					break;
@@ -166,20 +164,17 @@ namespace Baimp
 				if (mouseMover.Enabled) {
 					mouseMover.DisableMouseMover();
 					if (scanView != null) {
-						scanView.Cursor = (CursorType) scanView.Data["oldMouseButton"];
+						scanView.Cursor = (CursorType) scanView.data["oldMouseButton"];
 					}
 				}
 			};
 
-			view.MouseScrolled += delegate(object sender, MouseScrolledEventArgs e) {
-				OnPreviewZoom(e);
-			};
+			view.MouseScrolled += (object sender, MouseScrolledEventArgs e) => OnPreviewZoom(e);
 		}
 
 		/// <summary>
 		/// Resize preview image on scrolling
 		/// </summary>
-		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event args</param>
 		private void OnPreviewZoom(MouseScrolledEventArgs e)
 		{
@@ -206,15 +201,15 @@ namespace Baimp
 				scanDataChanged(sender, e);
 			}
 								
-			if (e.Changed.StartsWith("mask_")) {
+			if (e.Changed.StartsWith("mask_", StringComparison.Ordinal)) {
 				string[] splitted = e.Changed.Split('_');
 				if (splitted.Length >= 2) {
 					IEnumerable<NotebookTab> changedTab = 
 						notebook.Tabs.Where(t => t.Label.TrimEnd('*') == splitted[1]);
 
-					if (changedTab != null && changedTab.Count() > 0) {
-						changedTab.First().Label =
-							splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
+					var first = changedTab.First();
+					if (first != null) {
+						first.Label = splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
 					}
 				}
 			}

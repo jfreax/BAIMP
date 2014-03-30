@@ -33,7 +33,6 @@ namespace Baimp
 		/// </summary>
 		/// <param name="ctx">Context.</param>
 		/// <param name="from">From.</param>
-		/// <param name="to">To.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
 			ctx.SetColor(color);

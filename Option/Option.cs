@@ -9,13 +9,13 @@ namespace Baimp
 		public string name;
 
 		[XmlIgnore]
-		public readonly IComparable minValue = null;
+		public readonly IComparable MinValue = null;
 
 		[XmlIgnore]
-		public readonly IComparable maxValue = null;
+		public readonly IComparable MaxValue = null;
 
 		[XmlIgnore]
-		public readonly IComparable defaultValue;
+		public readonly IComparable DefaultValue;
 	
 		[XmlIgnore]
 		private IComparable val;
@@ -28,7 +28,7 @@ namespace Baimp
 		public Option(string name, IComparable defaultValue)
 		{
 			this.name = name;
-			this.defaultValue = defaultValue;
+			this.DefaultValue = defaultValue;
 
 			this.val = defaultValue;
 		}
@@ -36,9 +36,9 @@ namespace Baimp
 		public Option(string name, IComparable minValue, IComparable maxValue, IComparable defaultValue)
 		{
 			this.name = name;
-			this.minValue = minValue;
-			this.maxValue = maxValue;
-			this.defaultValue = defaultValue;
+			this.MinValue = minValue;
+			this.MaxValue = maxValue;
+			this.DefaultValue = defaultValue;
 
 			this.val = defaultValue;
 		}
@@ -50,18 +50,21 @@ namespace Baimp
 				return val;
 			}
 			set {
-				if (maxValue != null && value.CompareTo(maxValue) > 0) {
-					this.val = maxValue;
-				} else if (minValue != null && value.CompareTo(minValue) < 0) {
-					this.val = minValue;
-				} else {
-					this.val = value;
+				if (value != null) {
+
+					if (MaxValue != null && value.CompareTo(MaxValue) > 0) {
+						this.val = MaxValue;
+					} else if (MinValue != null && value.CompareTo(MinValue) < 0) {
+						this.val = MinValue;
+					} else {
+						this.val = value;
+					}
 				}
 			}
 		}
 
 		[XmlElement("value")]
-		public object _intern_value {
+		public object InternValue {
 			get {
 				return Value;
 			}

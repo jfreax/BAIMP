@@ -27,7 +27,7 @@ namespace Baimp
 		#endregion
 
 		Preview.MyCallBack imageLoadedCallback = null;
-		public Dictionary<string, object> Data = new Dictionary<string, object>();
+		public Dictionary<string, object> data = new Dictionary<string, object>();
 		private ImageView image;
 		private ImageView mask;
 		private BaseScan scan;
@@ -35,12 +35,12 @@ namespace Baimp
 
 		// mouse actions
 		Pointer pointer;
-		int pointerSize = 16;
+		const int pointerSize = 16;
 		// state
 		bool isEditMode = false;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.ScanView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
 		/// </summary>
 		public ScanView(BaseScan scan)
 		{
@@ -81,23 +81,17 @@ namespace Baimp
 
 			contextEditMask = new MenuItem("Edit mask");
 			contextEditMask.UseMnemonic = true;
-			contextEditMask.Clicked += delegate(object sender, EventArgs e) {
-				EditMode ^= true;
-			};
+			contextEditMask.Clicked += (object sender, EventArgs e) => EditMode ^= true;
 			contextMenu.Items.Add(contextEditMask);
 
 			MenuItem contextResetMask = new MenuItem("Reset mask");
 			contextResetMask.UseMnemonic = true;
-			contextResetMask.Clicked += delegate(object sender, EventArgs e) {
-				scan.Masks.ResetMask(currentShownType);
-			};
+			contextResetMask.Clicked += (object sender, EventArgs e) => scan.Masks.ResetMask(currentShownType);
 			contextMenu.Items.Add(contextResetMask);
 
 			MenuItem contextSaveMask = new MenuItem("Save changes");
 			contextSaveMask.UseMnemonic = true;
-			contextSaveMask.Clicked += delegate(object sender, EventArgs e) {
-				SaveMask();
-			};
+			contextSaveMask.Clicked += (object sender, EventArgs e) => SaveMask();
 			contextMenu.Items.Add(contextSaveMask);
 
 		}
@@ -107,13 +101,13 @@ namespace Baimp
 		/// <summary>
 		/// Display image of selected scan type
 		/// </summary>
-		/// <param name="type">Type.</param>
+		/// <param name="scanType">Scan type.</param>
 		private void ShowType(string scanType)
 		{
 			currentShownType = scanType;
 			EditMode = false;
 
-			scan.GetAsImageAsync(scanType, new Baimp.BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
+			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				image.Image = loadedImage;
 				mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 				if (imageLoadedCallback != null) {
@@ -128,7 +122,7 @@ namespace Baimp
 		/// Registers the image loaded callback.
 		/// </summary>
 		/// <param name="cb">Callback function.</param>
-		public void RegisterImageLoadedCallback(Baimp.Preview.MyCallBack cb)
+		public void RegisterImageLoadedCallback(Preview.MyCallBack cb)
 		{
 			this.imageLoadedCallback = cb;
 		}
@@ -137,18 +131,18 @@ namespace Baimp
 
 		#region events
 
-		protected override void OnButtonPressed(ButtonEventArgs e)
+		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
 			Point scaleFactor = scan.GetScaleFactor();
 
-			switch (e.Button) {
+			switch (args.Button) {
 			case PointerButton.Left:
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
 					scan.NotifyChange("mask_" + currentShownType);
 
-					Point positionInImage = new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y);
+					Point positionInImage = new Point(args.X * scaleFactor.X, args.Y * scaleFactor.Y);
 					ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
 					ib.Context.NewPath();
 					ib.Context.MoveTo(positionInImage);
@@ -167,9 +161,9 @@ namespace Baimp
 			}
 		}
 
-		protected override void OnButtonReleased(ButtonEventArgs e)
+		protected override void OnButtonReleased(ButtonEventArgs args)
 		{
-			switch (e.Button) {
+			switch (args.Button) {
 			case PointerButton.Left:
 				pointer ^= Pointer.Left;
 
@@ -184,7 +178,7 @@ namespace Baimp
 			}
 		}
 
-		protected override void OnMouseMoved(MouseMovedEventArgs e)
+		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
 
 			if (isEditMode) {
@@ -192,7 +186,7 @@ namespace Baimp
 
 				if (pointer.HasFlag(Pointer.Left)) {
 					SetMask(
-						new Point(e.X * scaleFactor.X, e.Y * scaleFactor.Y),
+						new Point(args.X * scaleFactor.X, args.Y * scaleFactor.Y),
 						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
 						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
 					);
@@ -200,7 +194,7 @@ namespace Baimp
 			}
 		}
 
-		protected override void OnMouseExited(EventArgs e)
+		protected override void OnMouseExited(EventArgs args)
 		{
 			pointer = Pointer.None;
 
@@ -210,7 +204,7 @@ namespace Baimp
 			}
 		}
 
-		protected override void OnMouseEntered(EventArgs e)
+		protected override void OnMouseEntered(EventArgs args)
 		{
 			this.SetFocus();
 		}
@@ -282,7 +276,7 @@ namespace Baimp
 		/// <summary>
 		/// Change the shown image to a size that fits in the provided size limits
 		/// </summary>
-		/// <param name="size">Max width and height</param>
+		/// <param name="s">Max width and height</param>
 		public void WithBoxSize(Size s)
 		{
 			if (image.Image != null) {

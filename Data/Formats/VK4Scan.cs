@@ -38,7 +38,7 @@ namespace Baimp
 		[XmlIgnore]
 		public double zscaleF;
 
-		public VK4Scan()
+		internal VK4Scan()
 		{
 		}
 
@@ -279,14 +279,16 @@ namespace Baimp
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
 						return Array.ConvertAll(array, Convert.ToUInt32);
 
-					} else if (bitdepth == 24) {
+					} 
+					if (bitdepth == 24) {
 						byte[] array = new byte[width * height * 3];
 						int len = width * height * 3;
 
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
 						return Array.ConvertAll(array, Convert.ToUInt32);
 						//return array;
-					} else if (bitdepth == 32) {
+					} 
+					if (bitdepth == 32) {
 						fileStream.Seek(191 * 4, SeekOrigin.Current);
 						UInt32[] array = new UInt32[width * height];
 						int len = width * height * 4;
@@ -300,13 +302,13 @@ namespace Baimp
 			}
 		}
 
-		public override unsafe System.Drawing.Bitmap GetAsBitmap(string scanType)
+		public override unsafe Bitmap GetAsBitmap(string scanType)
 		{
 			UInt32[] array = GetAsArray(scanType);
 			int width = (int) size.Width;
 			int height = (int) size.Height;
 
-			Bitmap bitmap = null;
+			Bitmap bitmap;
 			if (scanType == "Color") {
 				bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 			} else {

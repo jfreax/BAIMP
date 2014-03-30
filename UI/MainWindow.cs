@@ -178,10 +178,10 @@ namespace Baimp
 							.GetNavigatorAt(fileTree.SelectedRow)
 							.GetValue(fileTree.nameCol);
 
-					if (value is BaseScan) {
-						BaseScan s = value as BaseScan;
-						preview.ShowPreviewOf(s);
-						metadata.Load(s);
+					var baseScan = value as BaseScan;
+					if (baseScan != null) {
+						preview.ShowPreviewOf(baseScan);
+						metadata.Load(baseScan);
 					}
 				}
 			};
@@ -201,11 +201,9 @@ namespace Baimp
 		private void SaveAll()
 		{
 			if (project.Save(pipelineController)) {
-				if (this.Title.EndsWith("*")) {
+				if (this.Title.EndsWith("*", StringComparison.Ordinal)) {
 					this.Title = this.Title.Remove(this.Title.Length - 1);
 				}
-			} else {
-				// TODO show error "cannot save"
 			}
 		}
 

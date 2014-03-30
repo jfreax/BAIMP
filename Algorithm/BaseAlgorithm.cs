@@ -22,7 +22,7 @@ namespace Baimp
 
 	abstract public class BaseAlgorithm
 	{
-		public readonly PipelineNode parent;
+		public readonly PipelineNode Parent;
 
 		/// <summary>
 		/// Input data types, their properties and contraints.
@@ -50,9 +50,9 @@ namespace Baimp
 		public List<Option> options;
 
 
-		public BaseAlgorithm(PipelineNode parent)
+		internal BaseAlgorithm(PipelineNode parent)
 		{
-			this.parent = parent;
+			this.Parent = parent;
 
 			input = new List<Compatible>();
 			output = new List<Compatible>();
@@ -65,6 +65,7 @@ namespace Baimp
 		/// Executes the algorithm.
 		/// </summary>
 		/// <param name="requestedData">Requested data.</param>
+		/// <param name="options">User setted options</param>
 		/// <param name="inputArgs">Input arguments.</param>
 		/// <remarks>
 		/// Return null, when no more data is available (important for sequential data output).
@@ -113,7 +114,7 @@ namespace Baimp
 		public void SetProgress(int percent)
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;
-			Application.Invoke( () => parent.SetProgress(threadID, percent));
+			Application.Invoke( () => Parent.SetProgress(threadID, percent));
 		}
 
 		#endregion

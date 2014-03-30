@@ -5,9 +5,9 @@ namespace Baimp
 {
 	public class Compatible
 	{
-		private string name;
+		private readonly string name;
 		private Type type;
-		public readonly BaseConstraint[] constraints;
+		public readonly BaseConstraint[] Constraints;
 
 		public Compatible()
 		{
@@ -23,14 +23,15 @@ namespace Baimp
 		{
 			this.name = name;
 			this.type = type;
-			this.constraints = constraints;
+			this.Constraints = constraints;
 		}
 
 		/// <summary>
 		/// Tests if another instance is compatible with this one
 		/// </summary>
 		/// <returns><c>true</c>, if compatible, <c>false</c> otherwise.</returns>
-		/// <param name="another">The other compatible instance.</param>
+		/// <param name="nodeFrom"></param>
+		/// <param name="nodeTo"></param>
 		public bool Match(MarkerNode nodeFrom, MarkerNode nodeTo)
 		{
 			Compatible another = nodeTo.compatible;
@@ -61,13 +62,13 @@ namespace Baimp
 				}
 			}
 				
-			foreach (BaseConstraint constraint in constraints) {
+			foreach (BaseConstraint constraint in Constraints) {
 				if (!constraint.FulFills(nodeFrom, nodeTo)) {
 					return false;
 				}
 			}
 
-			foreach (BaseConstraint constraint in another.constraints) {
+			foreach (BaseConstraint constraint in another.Constraints) {
 				if (!constraint.FulFills(nodeTo, nodeFrom)) {
 					return false;
 				}

@@ -55,7 +55,7 @@ namespace Baimp
 					Stream metadataStream = zipFile.GetInputStream(metadata);
 
 					using (XmlTextReader xmlReader = new XmlTextReader(metadataStream)) {
-						Project p = null;
+						Project p;
 
 						try {
 							XmlSerializer deserializer = new XmlSerializer(this.GetType());
@@ -77,8 +77,9 @@ namespace Baimp
 							foreach (PipelineNode pNode in pNodes) {
 								pNode.Initialize();
 
-								foreach (Option option in pNode._intern_Options) {
-									Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == option.name);
+								foreach (Option option in pNode.InternOptions) {
+									var localOption = option;
+									Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == localOption.name);
 									targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
 								}
 
@@ -152,11 +153,15 @@ namespace Baimp
 			foreach (Type importer in importers) {
 				BaseScan instance = Activator.CreateInstance(importer) as BaseScan;
 
-				string fileExtension = instance.SupportedFileExtensions();
-				string[] newFiles = Directory.GetFiles(path, fileExtension, SearchOption.AllDirectories);
+				if (instance == null) {
+					// TODO error handling
+				} else {
+					string fileExtension = instance.SupportedFileExtensions();
+					string[] newFiles = Directory.GetFiles(path, fileExtension, SearchOption.AllDirectories);
 
-				scanCollection.AddFiles(new List<string>(newFiles), importer, true);
-				projectChanged(this, new ProjectChangedEventArgs(newFiles));
+					scanCollection.AddFiles(new List<string>(newFiles), importer);
+					projectChanged(this, new ProjectChangedEventArgs(newFiles));
+				}
 			}
 		}
 
@@ -185,7 +190,7 @@ namespace Baimp
 			foreach (PipelineView pipeline in pipelines.Values) {
 				LoadedPipelines.Add(pipeline.Nodes);
 				foreach (PipelineNode pNode in pipeline.Nodes) {
-					pNode._intern_Options = pNode.algorithm.Options;
+					pNode.InternOptions = pNode.algorithm.Options;
 				}
 			}
 

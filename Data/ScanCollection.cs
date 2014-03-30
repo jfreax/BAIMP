@@ -8,13 +8,6 @@ namespace Baimp
 {
 	public class ScanCollection : List<BaseScan>
 	{
-		#region initialize
-
-		public ScanCollection()
-		{
-		}
-
-		#endregion
 
 		public void AddFiles(List<string> files, Type importerType, bool reimport = true)
 		{
@@ -22,7 +15,13 @@ namespace Baimp
 				// parse scan metadata
 				BaseScan instance = Activator.CreateInstance(importerType) as BaseScan;
 
-				BaseScan otherInstance = this.Find(f => f.FilePath == file);
+				if(instance == null) {
+					// TODO error handling
+					break;
+				}
+
+				var localFile = file;
+				BaseScan otherInstance = this.Find(f => f.FilePath == localFile);
 				if (otherInstance == null) {
 					instance.Initialize(file, reimport);
 					Add(instance);

@@ -8,8 +8,8 @@ namespace Baimp
 {
 	public class MarkerNode : Node
 	{
-		static public int NodeInOutMarkerSize = 10;
-		static public int NodeInOutSpace = 18;
+		static readonly public int NodeInOutMarkerSize = 10;
+		static readonly public int NodeInOutSpace = 18;
 		[XmlIgnore]
 		public Compatible compatible;
 		[XmlIgnore]
@@ -84,8 +84,11 @@ namespace Baimp
 		/// <param name="ctx">Context.</param>
 		public void DrawEdges(Context ctx)
 		{
-			foreach (MarkerEdge edge in edges) {
-				edge.Draw(ctx, this);
+			foreach (Edge edge in edges) {
+				MarkerEdge mEdge = edge as MarkerEdge;
+				if (mEdge != null) {
+					mEdge.Draw(ctx, this);
+				}
 			}
 		}
 
@@ -96,7 +99,7 @@ namespace Baimp
 		/// Compatible == there can be a edge between this nodes.
 		/// </summary>
 		/// <returns><c>true</c>, if compatible, <c>false</c> otherwise.</returns>
-		/// <param name="another">The other compatible instance.</param>
+		/// <param name="otherNode">The other compatible instance.</param>
 		public bool Match(MarkerNode otherNode)
 		{
 			if (this == otherNode)
@@ -116,9 +119,9 @@ namespace Baimp
 
 			if (IsInput) {
 				return otherNode.compatible.Match(otherNode, this);
-			} else {
-				return compatible.Match(this, otherNode);
 			}
+
+			return compatible.Match(this, otherNode);
 		}
 
 		/// <summary>

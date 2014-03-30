@@ -15,10 +15,8 @@ namespace Baimp
 		#region initialize
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="bachelorarbeit_implementierung.FileTreeView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.FileTreeView"/> class.
 		/// </summary>
-		/// <param name="scans">Collection of all open scans</param>
-		/// <param name="preview">Reference to preview widget</param>
 		public FileTreeView()
 		{
 			nameCol = new DataField<object>();
@@ -46,6 +44,7 @@ namespace Baimp
 		/// <summary>
 		/// Reloads file tree information.
 		/// </summary>
+		/// <param name="scans">Collection of loaded scans</param>
 		/// <param name="currentScan">Current focused scan</param>
 		public void Reload(ScanCollection scans, BaseScan currentScan = null)
 		{
@@ -91,7 +90,7 @@ namespace Baimp
 		{
 			store.GetNavigatorAt(scan.position).Remove();
 
-			TreePosition parentNodePosition = null;
+			TreePosition parentNodePosition;
 			if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
 				parentNodePosition = fiberTypeNodes[scan.FiberType]; 
 			} else {

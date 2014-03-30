@@ -11,14 +11,14 @@ namespace Baimp
 	[XmlRoot("node")]
 	public class PipelineNode
 	{
-		static public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
-		static public Size NodeSize = new Size(200, 40);
-		static public Size NodeInOutSpace = new Size(8, 8);
-		static public int NodeRadius = 2;
-		static public Color NodeColor = Color.FromBytes(252, 252, 252);
-		static public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
-		static public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
-		static public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
+		static readonly public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
+		static readonly public Size NodeSize = new Size(200, 40);
+		static readonly public Size NodeInOutSpace = new Size(8, 8);
+		static readonly public int NodeRadius = 2;
+		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252);
+		static readonly public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
+		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
+		static readonly public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
 
 		Dictionary<int, int> progress = new Dictionary<int, int>();
 
@@ -64,8 +64,8 @@ namespace Baimp
 		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
 		{
 			this.parent = parent;
-			this.mNodes = new List<MarkerNode>();
-			this.AlgorithmType = algoType;
+			mNodes = new List<MarkerNode>();
+			AlgorithmType = algoType;
 			this.bound = bound;
 
 			int i = 0;
@@ -107,13 +107,8 @@ namespace Baimp
 			icons["hide"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
 			icons["view"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
 
-			icons["view"].ButtonPressed += delegate(object sender, ButtonEventArgs e) {
-				SaveResult = false;
-			};
-
-			icons["hide"].ButtonPressed += delegate(object sender, ButtonEventArgs e) {
-				SaveResult = true;
-			};
+			icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
+			icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
 
 			// set initial position
 			OnMove(null);
@@ -184,7 +179,7 @@ namespace Baimp
 
 				clipBound.Top += height;
 
-				if (progressForThread >= 100 && this.progress.ContainsKey(singleProgress.Key)) {
+				if (progressForThread >= 100 && progress.ContainsKey(singleProgress.Key)) {
 					toRemove.Add(singleProgress.Key);
 				}
 			}
@@ -290,6 +285,9 @@ namespace Baimp
 		/// <param name="e">Event args.</param>
 		public void OnMove(EventArgs e)
 		{
+			if (e == null)
+				return;
+			return;
 		}
 
 		#endregion
@@ -355,8 +353,9 @@ namespace Baimp
 		/// <param name="o">O.</param>
 		public void Add(object o)
 		{
-			if (o is MarkerNode) {
-				mNodes.Add(o as MarkerNode);
+			var markerNode = o as MarkerNode;
+			if (markerNode != null) {
+				mNodes.Add(markerNode);
 			}
 		}
 
@@ -369,9 +368,9 @@ namespace Baimp
 		{
 			if (progress.ContainsKey(threadID)) {
 				return progress[threadID];
-			} else {
-				return -1;
 			}
+
+			return -1;
 		}
 
 		/// <summary>
@@ -506,7 +505,7 @@ namespace Baimp
 		/// <value>The _intern_ options.</value>
 		[XmlArray("options")]
 		[XmlArrayItem(ElementName = "option")]
-		public List<Option> _intern_Options {
+		public List<Option> InternOptions {
 			get {
 				return _intern_options;
 			}
