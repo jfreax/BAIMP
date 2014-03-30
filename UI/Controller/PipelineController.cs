@@ -4,7 +4,7 @@ using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class PipelineController : VBox
 	{
@@ -60,9 +60,9 @@ namespace baimp
 		private void InitializeControllerbar()
 		{
 			controllbar = new HBox();
-			ControllButton playButton = new ControllButton(Image.FromResource("baimp.Resources.play.png"));
-			ControllButton pauseButton = new ControllButton(Image.FromResource("baimp.Resources.pause.png"));
-			ControllButton stopButton = new ControllButton(Image.FromResource("baimp.Resources.stop.png"));
+			ControllButton playButton = new ControllButton(Image.FromResource("Baimp.Resources.play.png"));
+			ControllButton pauseButton = new ControllButton(Image.FromResource("Baimp.Resources.pause.png"));
+			ControllButton stopButton = new ControllButton(Image.FromResource("Baimp.Resources.stop.png"));
 
 			playButton.ButtonPressed += (object sender, ButtonEventArgs e) => currentPipeline.Execute(project);
 

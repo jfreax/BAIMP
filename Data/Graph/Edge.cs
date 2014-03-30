@@ -2,7 +2,7 @@
 using Xwt.Drawing;
 using System.Xml.Serialization;
 
-namespace baimp
+namespace Baimp
 {
 	public class Edge
 	{

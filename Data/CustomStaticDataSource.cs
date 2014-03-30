@@ -1,7 +1,7 @@
 ﻿using System;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace baimp
+namespace Baimp
 {
 	public class CustomStaticDataSource : IStaticDataSource
 	{

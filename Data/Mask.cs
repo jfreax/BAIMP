@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 
-namespace baimp
+namespace Baimp
 {
 	public class Mask
 	{

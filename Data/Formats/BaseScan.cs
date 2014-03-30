@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Xwt;
 
-namespace baimp
+namespace Baimp
 {
 	[XmlInclude(typeof(DDPlusScan))]
 	[XmlInclude(typeof(VK4Scan))]
@@ -71,7 +71,7 @@ namespace baimp
 		/// <summary>
 		/// The metadata.
 		/// </summary>
-		private List<Metadata> metadata = new List<baimp.Metadata>();
+		private List<Metadata> metadata = new List<Baimp.Metadata>();
 
 		/// <summary>
 		/// The masks.

@@ -4,12 +4,11 @@ using System.IO;
 using System.Collections.Generic;
 using Xwt;
 using System.Xml.Serialization;
-using baimp.Properties;
 using System.Collections.Specialized;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
 
-namespace baimp
+namespace Baimp
 {
 	[XmlRoot("project")]
 	public class Project

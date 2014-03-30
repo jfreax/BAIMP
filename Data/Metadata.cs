@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace baimp
+namespace Baimp
 {
 	public class Metadata
 	{

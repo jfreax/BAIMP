@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace baimp
+namespace Baimp
 {
 	public class Parallel<T>
 		where T : IType

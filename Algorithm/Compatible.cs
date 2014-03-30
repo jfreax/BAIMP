@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace baimp
+namespace Baimp
 {
 	public class Compatible
 	{
@@ -14,7 +14,7 @@ namespace baimp
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="baimp.Compatible"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.Compatible"/> class.
 		/// </summary>
 		/// <param name="name">Name of this compatible.</param>
 		/// <param name="type">In- or output type.</param>

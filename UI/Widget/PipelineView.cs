@@ -4,7 +4,7 @@ using Xwt.Drawing;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace baimp
+namespace Baimp
 {
 	[Flags]
 	enum MouseAction {
@@ -48,7 +48,7 @@ namespace baimp
 
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="baimp.PipelineView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.PipelineView"/> class.
 		/// </summary>
 		/// <param name="scrollview">Parent scrollview</param>
 		/// <param name="loadedNodes">Add already loaded nodes to this new instance</param>
@@ -655,7 +655,7 @@ namespace baimp
 		/// <summary>
 		/// Gets the edge at position.
 		/// </summary>
-		/// <returns>The <see cref="System.Tuple`2[[baimp.MarkerNode],[baimp.PipelineEdge]]"/>.</returns>
+		/// <returns>The <see cref="System.Tuple`2[[Baimp.MarkerNode],[Baimp.PipelineEdge]]"/>.</returns>
 		/// <param name="position">Position.</param>
 		private Tuple<MarkerNode, MarkerEdge> GetEdgeAt(Point position)
 		{

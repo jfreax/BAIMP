@@ -1,7 +1,7 @@
 ﻿using System;
 using Xwt;
 
-namespace baimp
+namespace Baimp
 {
 	public class TFilePath : BaseType<String>
 	{

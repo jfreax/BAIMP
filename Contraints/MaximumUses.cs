@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace baimp
+namespace Baimp
 {
 	/// <summary>
 	/// Specifies, how often a node can be used.

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class AlgorithmTreeView : TreeView
 	{
@@ -14,7 +14,7 @@ namespace baimp
 		private Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="baimp.AlgorithmView"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.AlgorithmView"/> class.
 		/// </summary>
 		public AlgorithmTreeView()
 		{

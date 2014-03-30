@@ -1,7 +1,7 @@
 ﻿using System;
 using Xwt;
 
-namespace baimp
+namespace Baimp
 {
 	public class MouseMover
 	{
@@ -65,7 +65,7 @@ namespace baimp
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="baimp.MouseMover"/> is enabled or not
+		/// Gets a value indicating whether this <see cref="Baimp.MouseMover"/> is enabled or not
 		/// </summary>
 		/// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
 		public bool Enabled {

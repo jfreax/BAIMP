@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Xml.Serialization;
 
-namespace baimp
+namespace Baimp
 {
 	abstract public class Node
 	{

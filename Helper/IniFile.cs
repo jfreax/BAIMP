@@ -25,7 +25,7 @@
  *
  */
 
-namespace baimp
+namespace Baimp
 {
 	using System;
 	using System.Collections.Generic;

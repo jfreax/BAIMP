@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace baimp.Properties {
+namespace Baimp {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

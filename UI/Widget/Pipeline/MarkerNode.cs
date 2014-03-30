@@ -4,7 +4,7 @@ using Xwt;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class MarkerNode : Node
 	{

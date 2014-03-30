@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class GLCM : BaseAlgorithm
 	{

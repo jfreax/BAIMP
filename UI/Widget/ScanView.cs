@@ -5,7 +5,7 @@ using Xwt.Drawing;
 using System.Threading;
 using System.IO;
 
-namespace baimp
+namespace Baimp
 {
 	[Flags]
 	public enum Pointer
@@ -113,7 +113,7 @@ namespace baimp
 			currentShownType = scanType;
 			EditMode = false;
 
-			scan.GetAsImageAsync(scanType, new baimp.BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
+			scan.GetAsImageAsync(scanType, new Baimp.BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				image.Image = loadedImage;
 				mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
 				if (imageLoadedCallback != null) {
@@ -128,7 +128,7 @@ namespace baimp
 		/// Registers the image loaded callback.
 		/// </summary>
 		/// <param name="cb">Callback function.</param>
-		public void RegisterImageLoadedCallback(baimp.Preview.MyCallBack cb)
+		public void RegisterImageLoadedCallback(Baimp.Preview.MyCallBack cb)
 		{
 			this.imageLoadedCallback = cb;
 		}

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Collections;
 
-namespace baimp
+namespace Baimp
 {
 	[XmlRoot("node")]
 	public class PipelineNode
@@ -53,8 +53,8 @@ namespace baimp
 		/// Do not use!
 		/// </summary>
 		public PipelineNode() {
-			icons.Add("hide", new LightImageWidget(Image.FromResource("baimp.Resources.hide.png")));
-			icons.Add("view", new LightImageWidget(Image.FromResource("baimp.Resources.view.png")));
+			icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.hide.png")));
+			icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.view.png")));
 
 			SaveResult = false;
 
@@ -336,7 +336,7 @@ namespace baimp
 		/// <summary>
 		/// Gets the marker at position if there is one.
 		/// </summary>
-		/// <returns>The <see cref="baimp.MarkerNode"/>.</returns>
+		/// <returns>The <see cref="Baimp.MarkerNode"/>.</returns>
 		/// <param name="position">Position.</param>
 		public MarkerNode GetMarkerNodeAt(Point position)
 		{

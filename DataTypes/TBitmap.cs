@@ -3,7 +3,7 @@ using System.Drawing;
 using Xwt;
 using System.IO;
 
-namespace baimp
+namespace Baimp
 {
 	public class TBitmap : BaseType<Bitmap>
 	{

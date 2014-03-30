@@ -2,7 +2,7 @@ using System;
 using Xwt;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{

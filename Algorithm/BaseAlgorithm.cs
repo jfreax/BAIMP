@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xwt;
 using System.Threading;
 
-namespace baimp
+namespace Baimp
 {
 	public enum AlgorithmType
 	{

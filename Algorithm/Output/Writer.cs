@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class Writer : BaseAlgorithm
 	{

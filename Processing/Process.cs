@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Xwt;
 
-namespace baimp
+namespace Baimp
 {
 	public class Process
 	{

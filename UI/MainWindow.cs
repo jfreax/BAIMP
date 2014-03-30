@@ -5,10 +5,9 @@ using Xwt.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
-using baimp.Properties;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class MainWindow : Window
 	{
@@ -25,11 +24,8 @@ namespace baimp
 
 		PipelineController pipelineController;
 
-
-		ScrollView pipelineScroller;
-
 		/// <summary>
-		/// Initializes a new instance of the <see cref="baimp.MainWindow"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.MainWindow"/> class.
 		/// </summary>
 		/// <param name="project">Project.</param>
 		public MainWindow(Project project)

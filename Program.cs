@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using Xwt;
 using System.Threading;
 
-namespace baimp
+namespace Baimp
 {
 	public enum OSType {
 		Unix,

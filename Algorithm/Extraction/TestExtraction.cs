@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xwt.Drawing;
 using System.Threading;
 
-namespace baimp
+namespace Baimp
 {
 	public class TestExtraction : BaseAlgorithm
 	{

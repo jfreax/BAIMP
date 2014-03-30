@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
 
-namespace baimp
+namespace Baimp
 {
 	public class ScanCollection : List<BaseScan>
 	{

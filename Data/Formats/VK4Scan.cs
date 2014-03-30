@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace baimp
+namespace Baimp
 {
 	public class VK4Scan : BaseScan
 	{

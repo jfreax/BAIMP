@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xwt.Drawing;
 
-namespace baimp
+namespace Baimp
 {
 	public class ProjectFiles : BaseAlgorithm
 	{

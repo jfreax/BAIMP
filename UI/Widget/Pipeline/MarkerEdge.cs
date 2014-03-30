@@ -3,7 +3,7 @@ using Xwt.Drawing;
 using Xwt;
 using System.Xml.Serialization;
 
-namespace baimp
+namespace Baimp
 {
 	[Serializable]
 	public class MarkerEdge : Edge

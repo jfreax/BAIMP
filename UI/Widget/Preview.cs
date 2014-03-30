@@ -6,7 +6,7 @@ using Xwt.Drawing;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace baimp
+namespace Baimp
 {
 	public class Preview : VBox
 	{

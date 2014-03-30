@@ -1,7 +1,7 @@
 ﻿using System;
 using Xwt;
 
-namespace baimp
+namespace Baimp
 {
 	public abstract class BaseType<T> : IType where T : class
 	{

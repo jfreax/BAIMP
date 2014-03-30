@@ -3,7 +3,7 @@ using Xwt.Drawing;
 using System.Linq;
 using System;
 
-namespace baimp
+namespace Baimp
 {
 	public class TMatrix : BaseType<int[,]>
 	{

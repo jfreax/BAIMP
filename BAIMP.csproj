@@ -7,9 +7,9 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BD05E3C4-A23D-492D-9CB8-653D8F293D08}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>baimp</RootNamespace>
+    <RootNamespace>Baimp</RootNamespace>
     <AssemblyName>baimp</AssemblyName>
-    <StartupObject>baimp.MainClass</StartupObject>
+    <StartupObject>Baimp.MainClass</StartupObject>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -139,12 +139,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
@@ -209,5 +203,9 @@
     <EmbeddedResource Include="Resources\stop.png" />
     <EmbeddedResource Include="Resources\stop%402x.png" />
     <EmbeddedResource Include="Resources\stop%404x.png" />
+    <EmbeddedResource Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
