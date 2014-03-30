@@ -181,6 +181,7 @@ namespace baimp
 			scanCollection.SaveAll();
 
 			// prepare data
+			LoadedPipelines.Clear();
 			foreach (PipelineView pipeline in pipelines.Values) {
 				LoadedPipelines.Add(pipeline.Nodes);
 				foreach (PipelineNode pNode in pipeline.Nodes) {
