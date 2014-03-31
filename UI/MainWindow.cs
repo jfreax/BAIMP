@@ -161,6 +161,8 @@ namespace Baimp
 
 			splitFiletree_Preview = new HPaned();
 			splitFiletree_Preview.Panel1.Content = fileTree;
+			splitFiletree_Preview.Panel1.Shrink = true;
+			fileTree.HorizontalScrollPolicy = ScrollPolicy.Never;
 			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
 			splitFiletree_Preview.Panel2.Resize = true;
 

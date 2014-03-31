@@ -28,6 +28,15 @@ namespace Baimp
 			store = new TreeStore(thumbnailCol, nameCol, saveStateCol);
 
 			this.SelectionMode = SelectionMode.Multiple;
+
+			this.BoundsChanged += InitializeSize;
+		}
+
+		private void InitializeSize(object sender, EventArgs e)
+		{
+			this.MinWidth = this.ScreenBounds.Width;
+			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
+			this.BoundsChanged -= InitializeSize;
 		}
 
 		/// <summary>
@@ -44,10 +53,9 @@ namespace Baimp
 
 			this.DataSource = store;
 
-
-			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				this.MinWidth = this.ParentWindow.Width;
-			}
+//			if (MainClass.toolkitType == ToolkitType.Gtk) {
+//				this.MinWidth = this.ParentWindow.Width;
+//			}
 		}
 
 		#endregion
@@ -102,6 +110,9 @@ namespace Baimp
 			}
 
 			LoadPreviewsAsync(scans);
+
+			//			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
+
 		}
 
 		/// <summary>
@@ -167,9 +178,6 @@ namespace Baimp
 							return newRenderedImage;
 						}
 					})) as Image;
-					if (image == null) {
-
-					}
 
 					Application.Invoke(
 						() => store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, image)
