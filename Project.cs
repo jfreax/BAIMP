@@ -13,7 +13,7 @@ namespace Baimp
 	[XmlRoot("project")]
 	public class Project
 	{
-		public delegate bool ZipUsageCallback(ZipFile zipFile);
+		public delegate object ZipUsageCallback(ZipFile zipFile);
 		private static Object zipFileAccess = new Object();
 
 		public readonly static int MaxLastOpenedProject = 5;
@@ -49,9 +49,9 @@ namespace Baimp
 		/// This is the only thread safe method!
 		/// </summary>
 		/// <param name="callback">Function to run.</param>
-		public static bool RequestZipAccess(ZipUsageCallback callback)
+		public static object RequestZipAccess(ZipUsageCallback callback)
 		{
-			bool ret = true;
+			object ret = true;
 			if (File.Exists(ProjectFile)) {
 				lock (zipFileAccess) {
 					using (ZipFile zipFile = new ZipFile(ProjectFile)) {
@@ -76,7 +76,7 @@ namespace Baimp
 			Project.ProjectFile = Path.GetFullPath(filePath);
 
 			if (File.Exists(ProjectFile)) {
-				bool ret = RequestZipAccess(new ZipUsageCallback(delegate(ZipFile zipFile) {
+				bool ret = (bool) RequestZipAccess(new ZipUsageCallback(delegate(ZipFile zipFile) {
 					ZipEntry metadata = zipFile.GetEntry("metadata.xml");
 					Stream metadataStream = zipFile.GetInputStream(metadata);
 

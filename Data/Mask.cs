@@ -32,7 +32,6 @@ namespace Baimp
 				ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
 				if (maskEntry != null) {
 					Stream maskStream = zipFile.GetInputStream(maskEntry);
-
 					mask = XD.Image.FromStream(maskStream);
 				}
 
@@ -143,7 +142,7 @@ namespace Baimp
 
 			outStream.Position = 0;
 
-			using (ZipFile zipFile = new ZipFile(Project.ProjectFile)) {
+			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 				zipFile.BeginUpdate();
 
 				CustomStaticDataSource source = new CustomStaticDataSource(outStream);
@@ -151,7 +150,9 @@ namespace Baimp
 				zipFile.Add(source, MaskFilename(scanType));
 				zipFile.IsStreamOwner = true;
 				zipFile.CommitUpdate();
-			}
+
+				return null;
+			}));
 
 			maskBuilder[scanType].Dispose();
 			maskBuilder[scanType] = null;

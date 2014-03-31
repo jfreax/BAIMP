@@ -3,6 +3,8 @@ using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
 using System.Threading;
+using ICSharpCode.SharpZipLib.Zip;
+using System.IO;
 
 namespace Baimp
 {
@@ -140,14 +142,38 @@ namespace Baimp
 		{
 			Thread imageLoaderThread = new Thread(delegate() {
 				foreach (BaseScan scan in scans) {
-					Image image = scan.GetAsImage(scan.AvailableScanTypes()[0], false);
+					var lScan = scan;
+					Image image = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+						ZipEntry maskEntry = zipFile.GetEntry(String.Format("previews/{0}.png", lScan.Name));
+						if(maskEntry != null) {
+							Stream previewStream = zipFile.GetInputStream(maskEntry);
+							return Image.FromStream(previewStream);
+						} else {
+							Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
 
-					BitmapImage img2 = image.WithSize(48, 48).ToBitmap();
-					image.Dispose();
+							BitmapImage newRenderedImage = newImage.WithSize(48, 48).ToBitmap();
+							newImage.Dispose();
 
-					var scan1 = scan;
+
+							MemoryStream mStream = new MemoryStream();
+							newRenderedImage.Save(mStream, ImageFileType.Png);
+							mStream.Position = 0;
+							CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+
+							zipFile.BeginUpdate();
+							zipFile.Add(source, String.Format("previews/{0}.png", lScan.Name));
+							zipFile.IsStreamOwner = true;
+							zipFile.CommitUpdate();
+
+							return newRenderedImage;
+						}
+					})) as Image;
+					if (image == null) {
+
+					}
+
 					Application.Invoke(
-						() => store.GetNavigatorAt(scan1.position).SetValue(previewCol, img2)
+						() => store.GetNavigatorAt(lScan.position).SetValue(previewCol, image)
 					);
 				}
 			});
