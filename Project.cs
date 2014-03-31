@@ -20,7 +20,7 @@ namespace Baimp
 		public ScanCollection scanCollection;
 
 		[XmlAttribute]
-		public int version = 2;
+		public int version = 3;
 
 		#region initialize
 
@@ -73,8 +73,8 @@ namespace Baimp
 						LoadedPipelines = p.LoadedPipelines;
 
 						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
-						foreach (List<PipelineNode> pNodes in LoadedPipelines) {
-							foreach (PipelineNode pNode in pNodes) {
+						foreach (PipelineNodeWrapper wrapper in LoadedPipelines) {
+							foreach (PipelineNode pNode in wrapper.pNodes) {
 								pNode.Initialize();
 
 								foreach (Option option in pNode.InternOptions) {
@@ -89,8 +89,8 @@ namespace Baimp
 							}
 						}
 
-						foreach (List<PipelineNode> pNodes in LoadedPipelines) {
-							foreach (PipelineNode pNode in pNodes) {
+						foreach (PipelineNodeWrapper wrapper in LoadedPipelines) {
+							foreach (PipelineNode pNode in wrapper.pNodes) {
 								foreach (MarkerNode mNode in pNode.mNodes) {
 									foreach (Edge edge in mNode.Edges) {
 										edge.to = allNodes[edge.ToNodeID];
@@ -188,7 +188,8 @@ namespace Baimp
 			// prepare data
 			LoadedPipelines.Clear();
 			foreach (PipelineView pipeline in pipelines.Values) {
-				LoadedPipelines.Add(pipeline.Nodes);
+				PipelineNodeWrapper wrapper = new PipelineNodeWrapper(pipeline.PipelineName, pipeline.Nodes);
+				LoadedPipelines.Add(wrapper);
 				foreach (PipelineNode pNode in pipeline.Nodes) {
 					pNode.InternOptions = pNode.algorithm.Options;
 				}
@@ -274,7 +275,7 @@ namespace Baimp
 				Project.ProjectFile = filename;
 
                 if (reset) {
-					this.LoadedPipelines = new List<List<PipelineNode>>();
+					this.LoadedPipelines = new List<PipelineNodeWrapper>();
 
                     scanCollection.Clear();
                     if (projectChanged != null)
@@ -365,11 +366,11 @@ namespace Baimp
 //			}
 //		}
 
-		private List<List<PipelineNode>> loadedPipelines = new List<List<PipelineNode>>();
+		private List<PipelineNodeWrapper> loadedPipelines = new List<PipelineNodeWrapper>();
 
-		[XmlArray("maps")]
-		[XmlArrayItem("pipeline")]
-		public List<List<PipelineNode>> LoadedPipelines {
+		[XmlArray("worksheets")]
+		[XmlArrayItem("worksheet")]
+		public List<PipelineNodeWrapper> LoadedPipelines {
 			get {
 				return loadedPipelines;
 			}
@@ -379,6 +380,24 @@ namespace Baimp
 		}
 
 		#endregion
+	}
+
+	public class PipelineNodeWrapper
+	{
+		[XmlArray("pipeline")]
+		[XmlArrayItem("node")]
+		public List<PipelineNode> pNodes;
+
+		[XmlAttribute("name")]
+		public string name;
+
+		public PipelineNodeWrapper() {}
+
+		public PipelineNodeWrapper(string pipelineName, List<PipelineNode> nodes)
+		{
+			name = pipelineName;
+			pNodes = nodes;
+		}
 	}
 }
 

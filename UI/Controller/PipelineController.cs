@@ -41,10 +41,9 @@ namespace Baimp
 				CurrentPipeline.Initialize(pipelineScroller);
 				pipelines.Add(currentPipeline.PipelineName, currentPipeline);
 			} else {
-				foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
-
+				foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 					PipelineView newPipeline = new PipelineView();
-					newPipeline.Initialize(pipelineScroller, pNodes);
+					newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
 					pipelines.Add(newPipeline.PipelineName, newPipeline);
 				}
 				CurrentPipeline = pipelines.Values.ToList()[0];
@@ -157,9 +156,9 @@ namespace Baimp
 					pipelines.Clear();
 					if (project.LoadedPipelines != null && project.LoadedPipelines.Count != 0) {
 
-						foreach (List<PipelineNode> pNodes in project.LoadedPipelines) {
+						foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 							PipelineView newPipeline = new PipelineView();
-							newPipeline.Initialize(pipelineScroller, pNodes);
+							newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
 							pipelines.Add(newPipeline.PipelineName, newPipeline);
 						}
 
