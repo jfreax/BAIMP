@@ -26,7 +26,10 @@ namespace Baimp
 		private Dictionary<string, float> max = new Dictionary<string, float>();
 
 
-		internal DDPlusScan()
+		/// <summary>
+		/// Needed for xml serializer
+		/// </summary>
+		public DDPlusScan()
 		{
 		}
 

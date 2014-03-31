@@ -78,6 +78,9 @@ namespace Baimp
 		/// </summary>
 		private Mask masks;
 
+		/// <summary>
+		/// Needed for xml serializer
+		/// </summary>
 		protected BaseScan()
 		{
 		}

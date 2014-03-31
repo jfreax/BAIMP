@@ -38,7 +38,10 @@ namespace Baimp
 		[XmlIgnore]
 		public double zscaleF;
 
-		internal VK4Scan()
+		/// <summary>
+		/// Needed for xml serializer
+		/// </summary>
+		public VK4Scan()
 		{
 		}
 
