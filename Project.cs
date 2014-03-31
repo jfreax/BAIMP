@@ -13,6 +13,9 @@ namespace Baimp
 	[XmlRoot("project")]
 	public class Project
 	{
+		public delegate bool ZipUsageCallback(ZipFile zipFile);
+		private static Object zipFileAccess = new Object();
+
 		public readonly static int MaxLastOpenedProject = 5;
 
 		[XmlArray("scans")]
@@ -39,6 +42,29 @@ namespace Baimp
 
 		#endregion
 
+		#region global methos
+
+		/// <summary>
+		/// Use this method to access the savegame.
+		/// This is the only thread safe method!
+		/// </summary>
+		/// <param name="callback">Function to run.</param>
+		public static bool RequestZipAccess(ZipUsageCallback callback)
+		{
+			bool ret = true;
+			if (File.Exists(ProjectFile)) {
+				lock (zipFileAccess) {
+					using (ZipFile zipFile = new ZipFile(ProjectFile)) {
+						ret = callback(zipFile);
+					}
+				}
+			}
+
+			return ret;
+		}
+
+		#endregion
+
 		#region opening
 
 		/// <summary>
@@ -50,7 +76,7 @@ namespace Baimp
 			Project.ProjectFile = Path.GetFullPath(filePath);
 
 			if (File.Exists(ProjectFile)) {
-				using (ZipFile zipFile = new ZipFile(ProjectFile)) {
+				bool ret = RequestZipAccess(new ZipUsageCallback(delegate(ZipFile zipFile) {
 					ZipEntry metadata = zipFile.GetEntry("metadata.xml");
 					Stream metadataStream = zipFile.GetInputStream(metadata);
 
@@ -99,8 +125,6 @@ namespace Baimp
 							}
 						}
 
-
-
 						if (p.scanCollection != null) {
 							this.scanCollection = p.scanCollection;
 							foreach (BaseScan scan in this.scanCollection) {
@@ -109,11 +133,17 @@ namespace Baimp
 						} else {
 							this.scanCollection = new ScanCollection();
 						}
-							
+
 						if (projectChanged != null) {
 							projectChanged(this, new ProjectChangedEventArgs(true));
 						}
+
+						return true;
 					}
+				}));
+
+				if(!ret) {
+					return false;
 				}
 			} else {
 				ErrorMessage = "File not found";

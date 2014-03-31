@@ -15,6 +15,7 @@ namespace Baimp
 	abstract public class BaseScan
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
+		private Object asyncImageLock = new Object();
 
 		/// <summary>
 		/// The file path.
@@ -202,8 +203,6 @@ namespace Baimp
 		}
 
 		#endregion
-
-		private Object asyncImageLock = new Object();
 
 		/// <summary>
 		/// Gets as image (sync).
