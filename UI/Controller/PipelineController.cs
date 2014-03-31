@@ -16,10 +16,17 @@ namespace Baimp
 		private ScrollView pipelineScroller;
 		private AlgorithmTreeView algorithm;
 
+		private ComboBox projectMap;
+
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.PipelineController"/> class.
+		/// </summary>
+		/// <param name="project">Project.</param>
+		/// <param name="controllbarShelf">Frame where the controllbar should be.</param>
+		/// <param name="pipelineShelf">Frame where the pipeline should be.</param>
 		public PipelineController(Project project, FrameBox controllbarShelf, FrameBox pipelineShelf)
 		{
 			this.controllbarShelf = controllbarShelf;
@@ -63,6 +70,9 @@ namespace Baimp
 			InitializeEvents();
 		}
 
+		/// <summary>
+		/// Initializes the controllerbar.
+		/// </summary>
 		private void InitializeControllerbar()
 		{
 			controllbar = new HBox();
@@ -72,9 +82,11 @@ namespace Baimp
 
 			playButton.ButtonPressed += (object sender, ButtonEventArgs e) => currentPipeline.Execute(project);
 
-			ComboBox projectMap = new ComboBox();
-			projectMap.Items.Add("Untitled");
-			projectMap.Items.Add("Add new pipeline map...");
+			projectMap = new ComboBox();
+			foreach (PipelineView pView in pipelines.Values) {
+				projectMap.Items.Add(pView.PipelineName);
+			}
+			projectMap.Items.Add("Add new worksheet...");
 			projectMap.SelectedIndex = 0;
 			projectMap.MinWidth = 100;
 
@@ -87,6 +99,9 @@ namespace Baimp
 			controllbarShelf.Content = controllbar;
 		}
 
+		/// <summary>
+		/// Initializes the events.
+		/// </summary>
 		private void InitializeEvents()
 		{
 			project.ProjectChanged += (object sender, ProjectChangedEventArgs e) => OnProjectDataChangged(e);
@@ -98,6 +113,37 @@ namespace Baimp
 					}
 				};
 			}
+
+			projectMap.SelectionChanged += delegate(object sender, EventArgs e) {
+				if (projectMap.SelectedIndex == projectMap.Items.Count-1) {
+					Dialog d = new Dialog ();
+					d.Title = "Choose name";
+					TextEntry nameEntry = new TextEntry();
+					nameEntry.PlaceholderText = "Name";
+					d.Content = nameEntry;
+					d.Buttons.Add (new DialogButton ("Create Worksheet", Command.Ok));
+					d.Buttons.Add (new DialogButton (Command.Cancel));
+
+					Command r;
+					while((r = d.Run()) != null && r.Id != Command.Cancel.Id && nameEntry.Text.Length < 3) {
+						MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
+					}
+					if(r != null && r.Id == Command.Ok.Id) {
+						PipelineView newPipeline = new PipelineView();
+						newPipeline.Initialize(pipelineScroller);
+						newPipeline.PipelineName = nameEntry.Text;
+						pipelines.Add(newPipeline.PipelineName, newPipeline);
+						CurrentPipeline = newPipeline;
+
+						projectMap.Items.Insert(projectMap.Items.Count-1, newPipeline.PipelineName);
+						projectMap.SelectedIndex = projectMap.Items.Count-2;
+					} else {
+						int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
+						projectMap.SelectedIndex = idx;
+					}
+					d.Dispose();
+				}
+			};
 		}
 
 		#region events
