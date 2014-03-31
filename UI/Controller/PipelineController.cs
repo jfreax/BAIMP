@@ -142,6 +142,8 @@ namespace Baimp
 						projectMap.SelectedIndex = idx;
 					}
 					d.Dispose();
+				} else {
+					CurrentPipeline = pipelines[projectMap.SelectedItem as string];
 				}
 			};
 		}
