@@ -1,13 +1,16 @@
 using System;
 using Xwt;
 using System.Collections.Generic;
+using Xwt.Drawing;
+using System.Threading;
 
 namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
+		public DataField<Image> previewCol = new DataField<Image>();
+
 		public DataField<string> nameCol = new DataField<string>();
-		public DataField<string> typeCol = new DataField<string>();
 		public DataField<string> saveStateCol = new DataField<string>();
 		public TreeStore store;
 
@@ -20,7 +23,7 @@ namespace Baimp
 		/// </summary>
 		public FileTreeView()
 		{
-			store = new TreeStore(nameCol, typeCol, saveStateCol);
+			store = new TreeStore(previewCol, nameCol, saveStateCol);
 
 //			this.SelectionMode = SelectionMode.Multiple;
 		}
@@ -30,12 +33,11 @@ namespace Baimp
 		/// </summary>
 		public void InitializeUI()
 		{
+			this.Columns.Add("", previewCol).CanResize = false;
 			this.Columns.Add("Name", nameCol).CanResize = true;
-			this.Columns.Add("Fiber Type", typeCol).CanResize = true;
 			this.Columns.Add("*", saveStateCol).CanResize = true;
 
 			this.Columns[0].SortDataField = nameCol;
-			this.Columns[1].SortDataField = typeCol;
 			this.Columns[2].SortDataField = saveStateCol;
 
 			this.DataSource = store;
@@ -64,13 +66,18 @@ namespace Baimp
 				if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
 					currentNode = fiberTypeNodes[scan.FiberType];
 				} else {
-					currentNode = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
+					TextLayout text = new TextLayout();
+					text.Text = scan.FiberType;
+					ImageBuilder ib = new ImageBuilder(text.GetSize().Width, text.GetSize().Height);
+					ib.Context.DrawTextLayout(text, Point.Zero);
+
+					currentNode = store.AddNode(null).SetValue(previewCol, ib.ToVectorImage()).CurrentPosition;
 					fiberTypeNodes[scan.FiberType] = currentNode;
 				}
 
 				var v = store.AddNode(currentNode)
+					.SetValue(previewCol, Image.FromResource("Baimp.Resources.hide.png"))
 					.SetValue(nameCol, scan.ToString())
-					.SetValue(typeCol, scan.FiberType)
 					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 					.CurrentPosition;
 				scan.position = v;
@@ -92,9 +99,14 @@ namespace Baimp
 			if (scans.Count > 0) {
 				this.SelectRow(pos);
 			}
-				
+
+			LoadPreviewsAsync(scans);
 		}
 
+		/// <summary>
+		/// Refresh the specified scan.
+		/// </summary>
+		/// <param name="scan">Scan.</param>
 		private void Refresh(BaseScan scan)
 		{
 			store.GetNavigatorAt(scan.position).Remove();
@@ -105,12 +117,10 @@ namespace Baimp
 			} else {
 				parentNodePosition = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
 				fiberTypeNodes[scan.FiberType] = parentNodePosition;
-
 			}
 
 			scan.position = store.AddNode(parentNodePosition)
 				.SetValue(nameCol, scan.ToString())
-				.SetValue(typeCol, scan.FiberType)
 				.SetValue(saveStateCol, "*").CurrentPosition;
 
 			this.ExpandToRow(scan.position);
@@ -120,6 +130,31 @@ namespace Baimp
 			}
 			scan.parentPosition = parentNodePosition;
 		}
+			
+		/// <summary>
+		/// Loads previews of all loaded file async.
+		/// Show them in tree view.
+		/// </summary>
+		/// <param name="scans">Scans.</param>
+		private void LoadPreviewsAsync(ScanCollection scans)
+		{
+			Thread imageLoaderThread = new Thread(delegate() {
+				foreach (BaseScan scan in scans) {
+					Image image = scan.GetAsImage(scan.AvailableScanTypes()[0], false);
+
+					BitmapImage img2 = image.WithSize(48, 48).ToBitmap();
+					image.Dispose();
+
+					var scan1 = scan;
+					Application.Invoke(
+						() => store.GetNavigatorAt(scan1.position).SetValue(previewCol, img2)
+					);
+				}
+			});
+			imageLoaderThread.Start();
+		}
+
+		#region events
 
 		/// <summary>
 		/// Gets called when a scan has changed
@@ -148,6 +183,8 @@ namespace Baimp
 				store.GetNavigatorAt(this.SelectedRow).SetValue(saveStateCol, "*");
 			}
 		}
+
+		#endregion
 	}
 }
 
