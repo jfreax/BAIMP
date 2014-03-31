@@ -44,6 +44,7 @@ namespace Baimp
 				foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 					PipelineView newPipeline = new PipelineView();
 					newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
+					newPipeline.PipelineName = wrapper.name;
 					pipelines.Add(newPipeline.PipelineName, newPipeline);
 				}
 				CurrentPipeline = pipelines.Values.ToList()[0];
@@ -132,7 +133,6 @@ namespace Baimp
 						projectMap.SelectedIndex = idx;
 					}
 				} else if(projectMap.SelectedItem != null) {
-					Console.WriteLine("Selected " + projectMap.SelectedItem);
 					CurrentPipeline = pipelines[projectMap.SelectedItem as string];
 				}
 			};
@@ -150,6 +150,7 @@ namespace Baimp
 						foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 							PipelineView newPipeline = new PipelineView();
 							newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
+							newPipeline.PipelineName = wrapper.name;
 							pipelines.Add(newPipeline.PipelineName, newPipeline);
 						}
 
