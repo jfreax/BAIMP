@@ -146,15 +146,22 @@ namespace Baimp
 		/// </summary>
 		/// <returns>The as image.</returns>
 		/// <param name="scanType">Type.</param>
-		/// <param name="scanType">Scan type.</param>
-		public Xwt.Drawing.Image GetAsImage(string scanType)
+		/// <param name="saveImage">Save the result?</param>
+		public Xwt.Drawing.Image GetAsImage(string scanType, bool saveImage = true)
 		{
-			if (!renderedImage.ContainsKey(scanType) || renderedImage[scanType] == null) {
-				MemoryStream mStream = GetAsMemoryStream(scanType);
-				renderedImage[scanType] = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
-				mStream.Dispose();
-			}
+			lock (asyncImageLock) {
+				if (!renderedImage.ContainsKey(scanType) || renderedImage[scanType] == null) {
+					MemoryStream mStream = GetAsMemoryStream(scanType);
+					XD.Image img = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
+					mStream.Dispose();
 
+					if(!saveImage) {
+						return img;
+					}
+
+					renderedImage[scanType] = img;
+				}
+			}
 			return renderedImage[scanType].WithSize(requestedBitmapSize);
 		}
 
@@ -171,8 +178,9 @@ namespace Baimp
 				// TODO raise error
 				return null;
 			}
-
+				
 			bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+			bmp.Dispose();
 			memoryStream.Position = 0;
 
 			return memoryStream;
@@ -205,11 +213,9 @@ namespace Baimp
 		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
 		{
 			Thread imageLoaderThread = new Thread(delegate() {
-				lock (asyncImageLock) {
-					XD.Image image = GetAsImage(scanType);
+				XD.Image image = GetAsImage(scanType);
 
-					Application.Invoke(() => callback(image.WithSize(requestedBitmapSize)));
-				}
+				Application.Invoke(() => callback(image.WithSize(requestedBitmapSize)));
 			});
 			imageLoaderThread.Start();
 		}
