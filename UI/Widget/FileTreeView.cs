@@ -10,7 +10,7 @@ namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
-		public DataField<Image> previewCol = new DataField<Image>();
+		public DataField<Image> thumbnailCol = new DataField<Image>();
 
 		public DataField<string> nameCol = new DataField<string>();
 		public DataField<string> saveStateCol = new DataField<string>();
@@ -25,9 +25,9 @@ namespace Baimp
 		/// </summary>
 		public FileTreeView()
 		{
-			store = new TreeStore(previewCol, nameCol, saveStateCol);
+			store = new TreeStore(thumbnailCol, nameCol, saveStateCol);
 
-//			this.SelectionMode = SelectionMode.Multiple;
+			this.SelectionMode = SelectionMode.Multiple;
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace Baimp
 		/// </summary>
 		public void InitializeUI()
 		{
-			this.Columns.Add("", previewCol).CanResize = false;
+			this.Columns.Add("", thumbnailCol).CanResize = false;
 			this.Columns.Add("Name", nameCol).CanResize = true;
 			this.Columns.Add("*", saveStateCol).CanResize = true;
 
@@ -73,12 +73,11 @@ namespace Baimp
 					ImageBuilder ib = new ImageBuilder(text.GetSize().Width, text.GetSize().Height);
 					ib.Context.DrawTextLayout(text, Point.Zero);
 
-					currentNode = store.AddNode(null).SetValue(previewCol, ib.ToVectorImage()).CurrentPosition;
+					currentNode = store.AddNode(null).SetValue(thumbnailCol, ib.ToVectorImage()).CurrentPosition;
 					fiberTypeNodes[scan.FiberType] = currentNode;
 				}
 
 				var v = store.AddNode(currentNode)
-					.SetValue(previewCol, Image.FromResource("Baimp.Resources.hide.png"))
 					.SetValue(nameCol, scan.ToString())
 					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 					.CurrentPosition;
@@ -144,7 +143,7 @@ namespace Baimp
 				foreach (BaseScan scan in scans) {
 					var lScan = scan;
 					Image image = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-						ZipEntry maskEntry = zipFile.GetEntry(String.Format("previews/{0}.png", lScan.Name));
+						ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}.png", lScan.Name));
 						if(maskEntry != null) {
 							Stream previewStream = zipFile.GetInputStream(maskEntry);
 							return Image.FromStream(previewStream);
@@ -161,7 +160,7 @@ namespace Baimp
 							CustomStaticDataSource source = new CustomStaticDataSource(mStream);
 
 							zipFile.BeginUpdate();
-							zipFile.Add(source, String.Format("previews/{0}.png", lScan.Name));
+							zipFile.Add(source, String.Format("thumbnails/{0}.png", lScan.Name));
 							zipFile.IsStreamOwner = true;
 							zipFile.CommitUpdate();
 
@@ -173,7 +172,7 @@ namespace Baimp
 					}
 
 					Application.Invoke(
-						() => store.GetNavigatorAt(lScan.position).SetValue(previewCol, image)
+						() => store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, image)
 					);
 				}
 			});

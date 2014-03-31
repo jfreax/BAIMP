@@ -308,6 +308,9 @@ namespace Baimp
 			get {
 				return image.Image;
 			}
+			set {
+				image.Image = value;
+			}
 		}
 
 		/// <summary>
@@ -336,8 +339,6 @@ namespace Baimp
 				return currentShownType;
 			}
 			set {
-				//Thread imageLoaderThread = new Thread (() => ShowType (value));
-				//imageLoaderThread.Start ();
 				ShowType(value);
 			}
 		}

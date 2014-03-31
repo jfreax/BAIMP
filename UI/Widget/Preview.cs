@@ -37,7 +37,8 @@ namespace Baimp
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		public void ShowPreviewOf(BaseScan scan)
+		/// <param name="thumbnail">Optional thumbnail image to show before scan image is ready</param>
+		public void ShowPreviewOf(BaseScan scan, Image thumbnail = null)
 		{
 			if (currentScan != null) {
 				currentScan.ScanDataChanged -= OnScanDataChanged;
@@ -81,6 +82,12 @@ namespace Baimp
 
 			string currentScanType = notebook.CurrentTab.Label;
 			ShowPreview(currentScanType);
+
+			// show thumbnail
+			if (thumbnail != null) {
+				scanView.Image = thumbnail.WithSize(scan.RequestedBitmapSize);
+				ImageLoadCallBack(currentScanType); // sets the correct image size
+			}
 		}
 
 		/// <summary>

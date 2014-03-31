@@ -186,14 +186,18 @@ namespace Baimp
 
 			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
 				if (fileTree.SelectedRow != null) {
-					string value = 
+					string fiberName = 
 						fileTree.store
 							.GetNavigatorAt(fileTree.SelectedRow)
 							.GetValue(fileTree.nameCol);
+					Image previewImage = 
+						fileTree.store
+							.GetNavigatorAt(fileTree.SelectedRow)
+							.GetValue(fileTree.thumbnailCol);
 
-					var baseScan = project.scanCollection.Find(s => s.Name == value);
+					var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 					if (baseScan != null) {
-						preview.ShowPreviewOf(baseScan);
+						preview.ShowPreviewOf(baseScan, previewImage);
 						metadata.Load(baseScan);
 					}
 				}
