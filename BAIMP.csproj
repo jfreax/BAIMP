@@ -98,10 +98,7 @@
     <Compile Include="UI\Widget\PipelineView.cs" />
     <Compile Include="UI\Widget\AlgorithmTreeView.cs" />
     <Compile Include="UI\Controller\MouseMover.cs" />
-    <Compile Include="UI\Extensions\BoxMouseMover.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
-    <Compile Include="Contraints\BaseConstraint.cs" />
-    <Compile Include="Contraints\MaximumUses.cs" />
     <Compile Include="UI\Widget\Pipeline\PipelineNode.cs" />
     <Compile Include="UI\Widget\Pipeline\MarkerNode.cs" />
     <Compile Include="Project.cs" />
@@ -109,15 +106,8 @@
     <Compile Include="UI\Widget\Pipeline\MarkerEdge.cs" />
     <Compile Include="Event\SaveStateEventArgs.cs" />
     <Compile Include="Algorithm\Input\ProjectFiles.cs" />
-    <Compile Include="DataTypes\BaseType.cs" />
-    <Compile Include="DataTypes\TFilePath.cs" />
-    <Compile Include="DataTypes\IType.cs" />
     <Compile Include="Algorithm\Descriptor\GLCM.cs" />
-    <Compile Include="DataTypes\TMatrix.cs" />
-    <Compile Include="DataTypes\TBitmap.cs" />
     <Compile Include="Processing\Process.cs" />
-    <Compile Include="DataTypes\Sequential.cs" />
-    <Compile Include="DataTypes\Parallel.cs" />
     <Compile Include="Event\AlgorithmDataArgs.cs" />
     <Compile Include="Event\ProgressEventArgs.cs" />
     <Compile Include="Option\Option.cs" />
@@ -136,6 +126,16 @@
     <Compile Include="UI\Widget\Pipeline\ControllButton.cs" />
     <Compile Include="Data\PipelineCollection.cs" />
     <Compile Include="UI\Controller\PipelineController.cs" />
+    <Compile Include="UI\Extension\BoxMouseMover.cs" />
+    <Compile Include="DataType\BaseType.cs" />
+    <Compile Include="DataType\TFilePath.cs" />
+    <Compile Include="DataType\IType.cs" />
+    <Compile Include="DataType\TMatrix.cs" />
+    <Compile Include="DataType\TBitmap.cs" />
+    <Compile Include="DataType\Sequential.cs" />
+    <Compile Include="DataType\Parallel.cs" />
+    <Compile Include="Contraint\BaseConstraint.cs" />
+    <Compile Include="Contraint\MaximumUses.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -162,12 +162,9 @@
     <Folder Include="Algorithm\Extraction\" />
     <Folder Include="UI\Widget\Pipeline\" />
     <Folder Include="UI\Controller\" />
-    <Folder Include="UI\Extensions\" />
     <Folder Include="Algorithm\Segmentation\" />
     <Folder Include="Algorithm\Filter\" />
-    <Folder Include="Contraints\" />
     <Folder Include="Algorithm\Input\" />
-    <Folder Include="DataTypes\" />
     <Folder Include="Algorithm\Descriptor\" />
     <Folder Include="Processing\" />
     <Folder Include="Option\" />
@@ -175,6 +172,9 @@
     <Folder Include="Resources\" />
     <Folder Include="Data\Formats\" />
     <Folder Include="Data\Graph\" />
+    <Folder Include="UI\Extension\" />
+    <Folder Include="DataType\" />
+    <Folder Include="Contraint\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

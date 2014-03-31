@@ -143,7 +143,9 @@ namespace Baimp
 			metadata = new MetadataView();
 
 			// load pipeline controller
-			pipelineController = new PipelineController(project);
+			FrameBox controllbarShelf = new FrameBox();
+			FrameBox pipelineShelf = new FrameBox();
+			pipelineController = new PipelineController(project, controllbarShelf, pipelineShelf);
 
 			// set layout
 			splitPreview_Metadata = new HBox();
@@ -155,9 +157,13 @@ namespace Baimp
 			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
 			splitFiletree_Preview.Panel2.Resize = true;
 
+			VBox splitController_Preview = new VBox();
+			splitController_Preview.PackStart(controllbarShelf, false, false);
+			splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
+
 			splitAlgorithmTree = new VPaned();
-			splitAlgorithmTree.Panel1.Content = splitFiletree_Preview;
-			splitAlgorithmTree.Panel2.Content = pipelineController;
+			splitAlgorithmTree.Panel1.Content = splitController_Preview;
+			splitAlgorithmTree.Panel2.Content = pipelineShelf;
 
 			Content = splitAlgorithmTree;
 		}

@@ -6,8 +6,11 @@ using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class PipelineController : VBox
+	public class PipelineController
 	{
+		private FrameBox controllbarShelf;
+		private FrameBox pipelineShelf;
+
 		private HBox controllbar;
 		private Project project;
 		private ScrollView pipelineScroller;
@@ -17,8 +20,11 @@ namespace Baimp
 		PipelineView currentPipeline;
 
 
-		public PipelineController(Project project)
+		public PipelineController(Project project, FrameBox controllbarShelf, FrameBox pipelineShelf)
 		{
+			this.controllbarShelf = controllbarShelf;
+			this.pipelineShelf = pipelineShelf;
+
 			pipelineScroller = new ScrollView();
 			pipelineScroller.MinHeight = (PipelineNode.NodeSize.Height + PipelineNode.NodeMargin.VerticalSpacing) * 6;
 			pipelineScroller.Content = currentPipeline;
@@ -51,7 +57,7 @@ namespace Baimp
 			splitPipeline_Algorithm.Panel1.Shrink = false;
 
 
-			PackEnd(splitPipeline_Algorithm, true, true);
+			pipelineShelf.Content = splitPipeline_Algorithm;
 
 			InitializeControllerbar();
 			InitializeEvents();
@@ -78,7 +84,7 @@ namespace Baimp
 			controllbar.PackStart(stopButton, false, true);
 
 			controllbar.PackStart(projectMap, false, false);
-			this.PackStart(controllbar);
+			controllbarShelf.Content = controllbar;
 		}
 
 		private void InitializeEvents()
@@ -87,8 +93,8 @@ namespace Baimp
 
 			foreach (PipelineView pView in pipelines.Values) {
 				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
-					if (!ParentWindow.Title.EndsWith("*", StringComparison.Ordinal)) {
-						ParentWindow.Title += "*";
+					if (!controllbarShelf.ParentWindow.Title.EndsWith("*", StringComparison.Ordinal)) {
+						controllbarShelf.ParentWindow.Title += "*";
 					}
 				};
 			}
