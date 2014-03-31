@@ -191,8 +191,15 @@ namespace Baimp
 			d.Buttons.Add (new DialogButton (Command.Cancel));
 
 			Command r;
-			while((r = d.Run()) != null && r.Id != Command.Cancel.Id && nameEntry.Text.Length < 3) {
-				MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
+			while((r = d.Run()) != null &&
+				r.Id != Command.Cancel.Id &&
+				(nameEntry.Text.Length < 3 || pipelines.ContainsKey(nameEntry.Text))) {
+
+				if (nameEntry.Text.Length < 3) {
+					MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
+				} else if(pipelines.ContainsKey(nameEntry.Text)) {
+					MessageDialog.ShowMessage ("Worksheet name already taken.");
+				}
 			}
 
 			string text = nameEntry.Text;
