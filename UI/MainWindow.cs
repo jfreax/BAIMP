@@ -66,12 +66,12 @@ namespace Baimp
 			Title = "BAIMP";
 
 			// file menu
-			var file = new MenuItem("_File");
-			file.SubMenu = new Menu();
+			var fileMenu = new MenuItem("_File");
+			fileMenu.SubMenu = new Menu();
 
 			MenuItem menuNew = new MenuItem("_New...");
 			menuNew.Clicked += (object sender, EventArgs e) => project.NewDialog();
-			file.SubMenu.Items.Add(menuNew);
+			fileMenu.SubMenu.Items.Add(menuNew);
 
 			MenuItem menuOpen = new MenuItem("_Open...");
 			menuOpen.Clicked += delegate {
@@ -80,12 +80,12 @@ namespace Baimp
 					project.ErrorMessage = null;
 				}
 			};
-			file.SubMenu.Items.Add(menuOpen);
+			fileMenu.SubMenu.Items.Add(menuOpen);
 
 			if (Settings.Default.LastOpenedProjects != null) {
 				MenuItem menuLastOpened = new MenuItem("Recently opened");
 				menuLastOpened.SubMenu = new Menu();
-				file.SubMenu.Items.Add(menuLastOpened);
+				fileMenu.SubMenu.Items.Add(menuLastOpened);
 
 				for (int i = Settings.Default.LastOpenedProjects.Count-1; i >= 0; i--) {
 					string path = Settings.Default.LastOpenedProjects[i];
@@ -102,22 +102,30 @@ namespace Baimp
 				}
 			}
 
-			file.SubMenu.Items.Add(new SeparatorMenuItem());
+			fileMenu.SubMenu.Items.Add(new SeparatorMenuItem());
 
 			MenuItem menuImport = new MenuItem("_Import...");
 			menuImport.Clicked += (object sender, EventArgs e) => project.ImportDialog();
-			file.SubMenu.Items.Add(menuImport);
+			fileMenu.SubMenu.Items.Add(menuImport);
 
 			MenuItem menuSave = new MenuItem("_Save");
 			menuSave.Clicked += (object sender, EventArgs e) => SaveAll();
-			file.SubMenu.Items.Add(menuSave);
+			fileMenu.SubMenu.Items.Add(menuSave);
 
-			file.SubMenu.Items.Add(new SeparatorMenuItem());
+			fileMenu.SubMenu.Items.Add(new SeparatorMenuItem());
 
 			MenuItem menuClose = new MenuItem("_Exit");
 			menuClose.Clicked += (object sender, EventArgs e) => this.Close();
-			file.SubMenu.Items.Add(menuClose);
+			fileMenu.SubMenu.Items.Add(menuClose);
 
+			// Edit menu
+			MenuItem editMenu = new MenuItem("_Edit");
+			editMenu.SubMenu = new Menu();
+			MenuItem menuWorksheetRename = new MenuItem("_Rename worksheet...");
+			editMenu.SubMenu.Items.Add(menuWorksheetRename);
+			menuWorksheetRename.Clicked += delegate(object sender, EventArgs e) {
+				pipelineController.RenameCurrentWorksheetDialog();
+			};
 
 			// Pipeline menu
 			MenuItem pipelineMenu = new MenuItem("_Pipeline");
@@ -129,7 +137,8 @@ namespace Baimp
 
 			// main menu
 			Menu menu = new Menu();
-			menu.Items.Add(file);
+			menu.Items.Add(fileMenu);
+			menu.Items.Add(editMenu);
 			menu.Items.Add(pipelineMenu);
 			MainMenu = menu;
 

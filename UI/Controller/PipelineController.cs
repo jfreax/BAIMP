@@ -115,22 +115,13 @@ namespace Baimp
 
 			projectMap.SelectionChanged += delegate(object sender, EventArgs e) {
 				if (projectMap.SelectedIndex == projectMap.Items.Count-1) {
-					Dialog d = new Dialog ();
-					d.Title = "Choose name";
-					TextEntry nameEntry = new TextEntry();
-					nameEntry.PlaceholderText = "Name";
-					d.Content = nameEntry;
-					d.Buttons.Add (new DialogButton ("Create Worksheet", Command.Ok));
-					d.Buttons.Add (new DialogButton (Command.Cancel));
-
-					Command r;
-					while((r = d.Run()) != null && r.Id != Command.Cancel.Id && nameEntry.Text.Length < 3) {
-						MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
-					}
+					Tuple<Command, string> ret = WorksheetNameDialog();
+					Command r = ret.Item1;
 					if(r != null && r.Id == Command.Ok.Id) {
+						Console.WriteLine(ret.Item2);
 						PipelineView newPipeline = new PipelineView();
 						newPipeline.Initialize(pipelineScroller);
-						newPipeline.PipelineName = nameEntry.Text;
+						newPipeline.PipelineName = ret.Item2;
 						pipelines.Add(newPipeline.PipelineName, newPipeline);
 						CurrentPipeline = newPipeline;
 
@@ -140,8 +131,8 @@ namespace Baimp
 						int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
 						projectMap.SelectedIndex = idx;
 					}
-					d.Dispose();
-				} else {
+				} else if(projectMap.SelectedItem != null) {
+					Console.WriteLine("Selected " + projectMap.SelectedItem);
 					CurrentPipeline = pipelines[projectMap.SelectedItem as string];
 				}
 			};
@@ -173,6 +164,58 @@ namespace Baimp
 		}
 
 		#endregion
+
+		#region dialogs
+
+		/// <summary>
+		/// Dialog to choose name for a worksheet
+		/// </summary>
+		/// <returns>The user chosed name of the worksheet.</returns>
+		/// <param name="oldName">Optional old name of an existing worksheet</param>
+		public Tuple<Command, string> WorksheetNameDialog(string oldName = "")
+		{
+			Dialog d = new Dialog ();
+			d.Title = "Choose name";
+			TextEntry nameEntry = new TextEntry();
+			nameEntry.PlaceholderText = "Name";
+
+			bool createNew = true;
+			if(!string.IsNullOrEmpty(oldName)) {
+				nameEntry.Text = oldName;
+				createNew = false;
+			}
+
+			d.Content = nameEntry;
+			d.Buttons.Add (new DialogButton (createNew ? "Create Worksheet" : "Rename Worksheet", Command.Ok));
+			d.Buttons.Add (new DialogButton (Command.Cancel));
+
+			Command r;
+			while((r = d.Run()) != null && r.Id != Command.Cancel.Id && nameEntry.Text.Length < 3) {
+				MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
+			}
+
+			string text = nameEntry.Text;
+			d.Dispose();
+
+			return new Tuple<Command, string>(r, text);
+		}
+
+		#endregion
+
+		public void RenameCurrentWorksheetDialog()
+		{
+			Tuple<Command, string> ret = WorksheetNameDialog(CurrentPipeline.PipelineName);
+			if (ret.Item1 != null && ret.Item1.Id == Command.Ok.Id) {
+				pipelines.Remove(CurrentPipeline.PipelineName);
+				pipelines.Add(ret.Item2, CurrentPipeline);
+				CurrentPipeline.PipelineName = ret.Item2;
+
+				int idx = projectMap.SelectedIndex;
+				projectMap.Items.RemoveAt(projectMap.SelectedIndex);
+				projectMap.Items.Insert(idx, ret.Item2);
+				projectMap.SelectedIndex = idx;
+			}
+		}
 
 		#region properties
 
