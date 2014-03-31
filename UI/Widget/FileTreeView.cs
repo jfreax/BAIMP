@@ -6,8 +6,9 @@ namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
-		public DataField<object> nameCol;
-		public DataField<object> saveStateCol;
+		public DataField<string> nameCol = new DataField<string>();
+		public DataField<string> typeCol = new DataField<string>();
+		public DataField<string> saveStateCol = new DataField<string>();
 		public TreeStore store;
 
 		private Dictionary<string, TreePosition> fiberTypeNodes;
@@ -19,9 +20,9 @@ namespace Baimp
 		/// </summary>
 		public FileTreeView()
 		{
-			nameCol = new DataField<object>();
-			saveStateCol = new DataField<object>();
-			store = new TreeStore(nameCol, saveStateCol);
+			store = new TreeStore(nameCol, typeCol, saveStateCol);
+
+//			this.SelectionMode = SelectionMode.Multiple;
 		}
 
 		/// <summary>
@@ -30,9 +31,15 @@ namespace Baimp
 		public void InitializeUI()
 		{
 			this.Columns.Add("Name", nameCol).CanResize = true;
+			this.Columns.Add("Fiber Type", typeCol).CanResize = true;
 			this.Columns.Add("*", saveStateCol).CanResize = true;
 
+			this.Columns[0].SortDataField = nameCol;
+			this.Columns[1].SortDataField = typeCol;
+			this.Columns[2].SortDataField = saveStateCol;
+
 			this.DataSource = store;
+
 
 			if (MainClass.toolkitType == ToolkitType.Gtk) {
 				this.MinWidth = this.ParentWindow.Width;
@@ -62,7 +69,8 @@ namespace Baimp
 				}
 
 				var v = store.AddNode(currentNode)
-					.SetValue(nameCol, scan)
+					.SetValue(nameCol, scan.ToString())
+					.SetValue(typeCol, scan.FiberType)
 					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 					.CurrentPosition;
 				scan.position = v;
@@ -84,6 +92,7 @@ namespace Baimp
 			if (scans.Count > 0) {
 				this.SelectRow(pos);
 			}
+				
 		}
 
 		private void Refresh(BaseScan scan)
@@ -100,7 +109,8 @@ namespace Baimp
 			}
 
 			scan.position = store.AddNode(parentNodePosition)
-				.SetValue(nameCol, scan)
+				.SetValue(nameCol, scan.ToString())
+				.SetValue(typeCol, scan.FiberType)
 				.SetValue(saveStateCol, "*").CurrentPosition;
 
 			this.ExpandToRow(scan.position);
@@ -121,19 +131,12 @@ namespace Baimp
 			BaseScan scan = (BaseScan) sender;
 
 			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-				//scans.Refresh(scan);
 				Refresh(scan);
 			}
-
-			store.GetNavigatorAt(scan.position)
-				.SetValue(
-				saveStateCol, 
-				e.Unsaved == null || e.Unsaved.Count == 0 ? "" : "*"
-			);
 		}
 
 		/// <summary>
-		/// Raised when current data changed
+		/// Raised when data changed
 		/// </summary>
 		/// <param name="sender">Sender.</param>
 		/// <param name="e">Event argument.</param>

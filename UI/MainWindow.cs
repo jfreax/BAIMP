@@ -123,9 +123,7 @@ namespace Baimp
 			editMenu.SubMenu = new Menu();
 			MenuItem menuWorksheetRename = new MenuItem("_Rename worksheet...");
 			editMenu.SubMenu.Items.Add(menuWorksheetRename);
-			menuWorksheetRename.Clicked += delegate(object sender, EventArgs e) {
-				pipelineController.RenameCurrentWorksheetDialog();
-			};
+			menuWorksheetRename.Clicked += (object sender, EventArgs e) => pipelineController.RenameCurrentWorksheetDialog();
 
 			// Pipeline menu
 			MenuItem pipelineMenu = new MenuItem("_Pipeline");
@@ -188,12 +186,12 @@ namespace Baimp
 
 			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
 				if (fileTree.SelectedRow != null) {
-					object value = 
+					string value = 
 						fileTree.store
 							.GetNavigatorAt(fileTree.SelectedRow)
 							.GetValue(fileTree.nameCol);
 
-					var baseScan = value as BaseScan;
+					var baseScan = project.scanCollection.Find(s => s.Name == value);
 					if (baseScan != null) {
 						preview.ShowPreviewOf(baseScan);
 						metadata.Load(baseScan);
