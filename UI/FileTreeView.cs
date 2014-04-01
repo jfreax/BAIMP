@@ -151,32 +151,37 @@ namespace Baimp
 		private void LoadPreviewsAsync(ScanCollection scans)
 		{
 			Thread imageLoaderThread = new Thread(delegate() {
-				foreach (BaseScan scan in scans) {
+				List<BaseScan> scansCopy = new List<BaseScan>(scans);
+				foreach (BaseScan scan in scansCopy) {
 					var lScan = scan;
 					Image image = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-						ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}.png", lScan.Name));
-						if(maskEntry != null) {
-							Stream previewStream = zipFile.GetInputStream(maskEntry);
-							return Image.FromStream(previewStream);
-						} else {
-							Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
+						if(zipFile != null) {
+							ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}.png", lScan.Name));
+							if(maskEntry != null) {
+								Stream previewStream = zipFile.GetInputStream(maskEntry);
+								return Image.FromStream(previewStream);
+							}
+						}
 
-							BitmapImage newRenderedImage = newImage.WithSize(48, 48).ToBitmap();
-							newImage.Dispose();
+						Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
 
+						BitmapImage newRenderedImage = newImage.WithSize(48, 48).ToBitmap();
+						newImage.Dispose();
 
-							MemoryStream mStream = new MemoryStream();
-							newRenderedImage.Save(mStream, ImageFileType.Png);
-							mStream.Position = 0;
-							CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+						MemoryStream mStream = new MemoryStream();
+						newRenderedImage.Save(mStream, ImageFileType.Png);
+						mStream.Position = 0;
+						CustomStaticDataSource source = new CustomStaticDataSource(mStream);
 
+						if(zipFile != null) {
 							zipFile.BeginUpdate();
 							zipFile.Add(source, String.Format("thumbnails/{0}.png", lScan.Name));
 							zipFile.IsStreamOwner = true;
 							zipFile.CommitUpdate();
-
-							return newRenderedImage;
 						}
+
+						return newRenderedImage;
+
 					})) as Image;
 
 					Application.Invoke(

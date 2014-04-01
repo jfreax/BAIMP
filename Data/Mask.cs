@@ -29,13 +29,17 @@ namespace Baimp
 		{
 			XD.Image mask = null;
 			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-				ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
-				if (maskEntry != null) {
-					Stream maskStream = zipFile.GetInputStream(maskEntry);
-					mask = XD.Image.FromStream(maskStream);
-				}
+				if (zipFile != null) {
+					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
+					if (maskEntry != null) {
+						Stream maskStream = zipFile.GetInputStream(maskEntry);
+						mask = XD.Image.FromStream(maskStream);
+					}
 
-				return true;
+					return true;
+				} else {
+					return false;
+				}
 			}));
 
 			return mask;

@@ -58,6 +58,8 @@ namespace Baimp
 						ret = callback(zipFile);
 					}
 				}
+			} else {
+				ret = callback(null);
 			}
 
 			return ret;

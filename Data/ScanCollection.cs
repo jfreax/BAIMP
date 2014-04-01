@@ -9,8 +9,17 @@ namespace Baimp
 	public class ScanCollection : List<BaseScan>
 	{
 
+		#region initialize
+
+		public ScanCollection() : base()
+		{
+		}
+
+		#endregion
+
 		public void AddFiles(List<string> files, Type importerType, bool reimport = true)
 		{
+			List<Tuple<BaseScan, string>> toInitialize = new List<Tuple<BaseScan, string>>();
 			foreach (String file in files) {
 				// parse scan metadata
 				BaseScan instance = Activator.CreateInstance(importerType) as BaseScan;
@@ -23,24 +32,28 @@ namespace Baimp
 				var localFile = file;
 				BaseScan otherInstance = this.Find(f => f.FilePath == localFile);
 				if (otherInstance == null) {
-					instance.Initialize(file, reimport);
 					Add(instance);
-
-					int i = 1;
-					while (this.Find(f => f != instance && f.Name == instance.Name) != null) {
-						string[] splitted = instance.Name.Split('_');
-						string partname = instance.Name;
-						if (splitted.Length > 1) {
-							int index = instance.Name.LastIndexOf('_');
-							partname = instance.Name.Remove(index, partname.Length - index); 
-						}
-
-						instance.Name = partname + "_" + i;
-						i++;
-					}
+					toInitialize.Add(new Tuple<BaseScan, string>(instance, file));
 				}
+			}
 
-				//scan.ScanDataChanged += fileTree.OnScanDataChanged;
+			foreach (var scanTuple in toInitialize) {
+				BaseScan scan = scanTuple.Item1;
+				string file = scanTuple.Item2;
+				scan.Initialize(file, reimport);
+
+				int i = 1;
+				while (this.Find(f => f != scan && f.Name == scan.Name) != null) {
+					string[] splitted = scan.Name.Split('_');
+					string partname = scan.Name;
+					if (splitted.Length > 1) {
+						int index = scan.Name.LastIndexOf('_');
+						partname = scan.Name.Remove(index, partname.Length - index); 
+					}
+
+					scan.Name = partname + "_" + i;
+					i++;
+				}
 			}
 		}
 
