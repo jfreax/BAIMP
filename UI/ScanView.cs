@@ -62,6 +62,8 @@ namespace Baimp
 					mask = scan.Masks.GetMaskAsImage(currentShownType);
 				}
 			};
+
+			IsThumbnail = false;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -127,17 +129,9 @@ namespace Baimp
 					this.WidthRequest = image.Width;
 					this.HeightRequest = image.Height;
 				}
-				QueueDraw();
-//
-//				Console.WriteLine(this.Bounds + " und " + this.ScreenBounds);
-				//image = image.WithBoxSize(this.ScreenBounds.Size);
-				//this.WithBoxSize(this.ScreenBounds.Size);
 
-//				this.WidthRequest = image.Width;
-//				this.HeightRequest = image.Height;
-//				foreach (Widget child in Children) {
-//					SetChildBounds(child, new Rectangle(Point.Zero, this.Size));
-//				}
+				QueueDraw();
+
 
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
@@ -345,7 +339,10 @@ namespace Baimp
 		{
 			if (image != null) {
 				image = image.WithBoxSize(s);
-				scan.RequestedBitmapSize = image.Size;
+
+				if (!IsThumbnail) {
+					scan.RequestedBitmapSize = image.Size;
+				}
 
 				if (mask != null) {
 					mask = mask.WithBoxSize(s);
@@ -439,6 +436,11 @@ namespace Baimp
 			set {
 				requestedImageSize = value;
 			}
+		}
+
+		public bool IsThumbnail {
+			get;
+			set;
 		}
 		#endregion
 	}

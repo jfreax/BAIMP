@@ -84,7 +84,6 @@ namespace Baimp
 
 			// show thumbnail
 			if (thumbnail != null) {
-				Console.WriteLine(scan.RequestedBitmapSize);
 				scanView.Image = thumbnail.WithSize(scan.RequestedBitmapSize);
 				ImageLoadCallBack(currentScanType); // sets the correct image size
 			}
@@ -104,6 +103,7 @@ namespace Baimp
 			List<Widget> widgets = new List<Widget>();
 			foreach (BaseScan scan in scans) {
 				ScanView lScanView = new ScanView(scan);
+				lScanView.IsThumbnail = true;
 				lScanView.ScanType = scan.AvailableScanTypes()[0];
 				widgets.Add(lScanView);
 			}
