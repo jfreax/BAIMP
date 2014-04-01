@@ -206,7 +206,6 @@ namespace Baimp
 
 		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
-
 			if (isEditMode) {
 				Point scaleFactor = scan.GetScaleFactor();
 
@@ -320,6 +319,7 @@ namespace Baimp
 			}
 
 			mask = scan.Masks.GetMaskAsImage(currentShownType);
+			QueueDraw();
 		}
 
 		/// <summary>
