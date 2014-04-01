@@ -18,7 +18,7 @@ namespace Baimp
 		ExtendedButton2 = 16
 	}
 
-	public class ScanView : Table
+	public class ScanView : Canvas
 	{
 		#region static member
 
@@ -28,10 +28,13 @@ namespace Baimp
 
 		Preview.MyCallBack imageLoadedCallback = null;
 		public Dictionary<string, object> data = new Dictionary<string, object>();
-		private ImageView image;
-		private ImageView mask;
+
+		private Image image;
+		private Image mask;
 		private BaseScan scan;
 		private string currentShownType;
+
+		private double requestedImageSize = double.NaN;
 
 		// mouse actions
 		Pointer pointer;
@@ -46,25 +49,32 @@ namespace Baimp
 		{
 			this.scan = scan;
 
-			image = new ImageView();
-			mask = new ImageView();
-
 			this.HorizontalPlacement = WidgetPlacement.Center;
 			this.VerticalPlacement = WidgetPlacement.Center;
 			this.CanGetFocus = true;
 
-			this.Add(image, 0, 0);
-			this.Add(mask, 0, 0);
-		
 			// build context menu
 			InitializeContextMenu();
 
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				if (e.Changed.Equals("mask_" + currentShownType)) {
-					mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
+					mask = scan.Masks.GetMaskAsImage(currentShownType);
 				}
 			};
+		}
+
+		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+		{
+			base.OnDraw(ctx, dirtyRect);
+
+			if (image != null) {
+				ctx.DrawImage(image, Point.Zero);
+			}
+
+			if (mask != null) {
+				ctx.DrawImage(mask, Point.Zero);
+			}
 		}
 
 		#region contextmenu
@@ -108,10 +118,32 @@ namespace Baimp
 			EditMode = false;
 
 			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
-				image.Image = loadedImage;
-				mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
+				image = loadedImage;
+				mask = scan.Masks.GetMaskAsImage(currentShownType);
+
+				if (ScreenBounds.Width > 10) {
+					OnBoundsChanged();
+				} else {
+					this.WidthRequest = image.Width;
+					this.HeightRequest = image.Height;
+				}
+				QueueDraw();
+//
+//				Console.WriteLine(this.Bounds + " und " + this.ScreenBounds);
+				//image = image.WithBoxSize(this.ScreenBounds.Size);
+				//this.WithBoxSize(this.ScreenBounds.Size);
+
+//				this.WidthRequest = image.Width;
+//				this.HeightRequest = image.Height;
+//				foreach (Widget child in Children) {
+//					SetChildBounds(child, new Rectangle(Point.Zero, this.Size));
+//				}
+
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
+				}
+				if (imageLoaded != null) {
+					imageLoaded(this, new EventArgs());
 				}
 			}));
 		}
@@ -209,6 +241,33 @@ namespace Baimp
 			this.SetFocus();
 		}
 
+		protected override void OnBoundsChanged()
+		{
+			base.OnBoundsChanged();
+
+			if (ScreenBounds.Width > 10) {
+				this.WithBoxSize(ScreenBounds.Size);
+			}
+		}
+
+		#endregion
+
+		#region events to emit
+
+		EventHandler<EventArgs> imageLoaded;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<EventArgs> ImageLoaded {
+			add {
+				imageLoaded += value;
+			}
+			remove {
+				imageLoaded -= value;
+			}
+		}
+
 		#endregion
 
 		/// <summary>
@@ -218,8 +277,13 @@ namespace Baimp
 		public void Scale(double scale)
 		{
 			scan.ScaleImage(scale);
-			image.Image = scan.GetAsImage(currentShownType);
-			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
+			image = scan.GetAsImage(currentShownType);
+			mask = scan.Masks.GetMaskAsImage(currentShownType);
+
+			this.WidthRequest = image.Width;
+			this.HeightRequest = image.Height;
+
+			QueueDraw();
 		}
 
 		/// <summary>
@@ -239,7 +303,7 @@ namespace Baimp
 				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
 				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
 
-				Image i = image.Image.WithSize(scan.Size).ToBitmap().Crop(
+				Image i = image.WithSize(scan.Size).ToBitmap().Crop(
 					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
 				          );
 
@@ -261,7 +325,7 @@ namespace Baimp
 				ib.Context.MoveTo(position);
 			}
 
-			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
+			mask = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -270,7 +334,7 @@ namespace Baimp
 		public void SaveMask()
 		{
 			scan.Masks.Save(currentShownType);
-			mask.Image = scan.Masks.GetMaskAsImage(currentShownType);
+			mask = scan.Masks.GetMaskAsImage(currentShownType);
 		}
 
 		/// <summary>
@@ -279,13 +343,15 @@ namespace Baimp
 		/// <param name="s">Max width and height</param>
 		public void WithBoxSize(Size s)
 		{
-			if (image.Image != null) {
-				image.Image = image.Image.WithBoxSize(s);
-				scan.RequestedBitmapSize = image.Image.Size;
+			if (image != null) {
+				image = image.WithBoxSize(s);
+				scan.RequestedBitmapSize = image.Size;
 
-				if (mask.Image != null) {
-					mask.Image = mask.Image.WithBoxSize(s);
+				if (mask != null) {
+					mask = mask.WithBoxSize(s);
 				}
+
+				QueueDraw();
 			}
 		}
 
@@ -306,10 +372,10 @@ namespace Baimp
 		/// <value>The image.</value>
 		public Image Image {
 			get {
-				return image.Image;
+				return image;
 			}
 			set {
-				image.Image = value;
+				image = value;
 			}
 		}
 
@@ -319,11 +385,11 @@ namespace Baimp
 		/// <value>The mask.</value>
 		public Image Mask {
 			get {
-				return mask.Image;
+				return mask;
 			}
 
 			set {
-				mask.Image = value;
+				mask = value;
 			}
 		}
 
@@ -362,6 +428,18 @@ namespace Baimp
 			}
 		}
 
+		#endregion
+
+		#region properties
+
+		public double RequestedImageSize {
+			get {
+				return requestedImageSize;
+			}
+			set {
+				requestedImageSize = value;
+			}
+		}
 		#endregion
 	}
 }

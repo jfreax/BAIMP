@@ -187,7 +187,7 @@ namespace Baimp
 			Closed += OnClosing;
 
 			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
-				if (fileTree.SelectedRow != null) {
+				if (fileTree.SelectedRow != null && fileTree.SelectedRows.Length == 1) {
 					string fiberName = 
 						fileTree.store
 							.GetNavigatorAt(fileTree.SelectedRow)
@@ -202,9 +202,24 @@ namespace Baimp
 						preview.ShowPreviewOf(baseScan, previewImage);
 						metadata.Load(baseScan);
 					}
+
+				} else if(fileTree.SelectedRows != null) {
+					List<BaseScan> scans = new List<BaseScan>();
+					foreach (TreePosition pos in fileTree.SelectedRows) {
+						string fiberName = 
+							fileTree.store
+								.GetNavigatorAt(pos)
+								.GetValue(fileTree.nameCol);
+						var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
+						if(baseScan != null) {
+							scans.Add(baseScan);
+						}
+					}
+
+					preview.ShowPreviewOf(scans);
 				}
 			};
-
+				
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
 				if (e != null) {
 					fileTree.Reload(project.scanCollection);

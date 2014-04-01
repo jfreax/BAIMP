@@ -12,19 +12,18 @@ namespace Baimp
 	{
 		public delegate void MyCallBack(string scanType);
 
-		ScrollView tab;
+		ScrollView tab = new ScrollView();
 		ScanView scanView;
 		Notebook notebook;
-		MouseMover mouseMover;
 		BaseScan currentScan;
+		MouseMover mouseMover = new MouseMover();
+		GridView gridView = new GridView(96.0);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
 		/// </summary>
 		public Preview()
 		{
-			tab = new ScrollView();
-			mouseMover = new MouseMover();
 			InitializeEvents(tab);
 
 			this.Spacing = 0.0;
@@ -85,9 +84,31 @@ namespace Baimp
 
 			// show thumbnail
 			if (thumbnail != null) {
+				Console.WriteLine(scan.RequestedBitmapSize);
 				scanView.Image = thumbnail.WithSize(scan.RequestedBitmapSize);
 				ImageLoadCallBack(currentScanType); // sets the correct image size
 			}
+		}
+
+		public void ShowPreviewOf(List<BaseScan> scans)
+		{
+			if (currentScan != null) {
+				currentScan.ScanDataChanged -= OnScanDataChanged;
+			}
+
+			currentScan = null;
+
+			gridView.Clear();
+			tab.Content = gridView;
+
+			List<Widget> widgets = new List<Widget>();
+			foreach (BaseScan scan in scans) {
+				ScanView lScanView = new ScanView(scan);
+				lScanView.ScanType = scan.AvailableScanTypes()[0];
+				widgets.Add(lScanView);
+			}
+			gridView.AddRange(widgets);
+
 		}
 
 		/// <summary>
