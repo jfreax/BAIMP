@@ -2,9 +2,6 @@ using System;
 using System.Linq;
 using Xwt;
 using Xwt.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Collections.Generic;
 
 namespace Baimp
@@ -52,12 +49,12 @@ namespace Baimp
 		private void InitializeUI()
 		{
 			// restore last window size and location
-			this.Location = new Point(
+			Location = new Point(
 				Settings.Default.WindowLocationX, 
 				Settings.Default.WindowLocationY
 			);
 
-			this.Size = new Size(
+			Size = new Size(
 				Settings.Default.WindowSizeWidth,
 				Settings.Default.WindowSizeHeight
 			);
@@ -115,7 +112,7 @@ namespace Baimp
 			fileMenu.SubMenu.Items.Add(new SeparatorMenuItem());
 
 			MenuItem menuClose = new MenuItem("_Exit");
-			menuClose.Clicked += (object sender, EventArgs e) => this.Close();
+			menuClose.Clicked += (object sender, EventArgs e) => Close();
 			fileMenu.SubMenu.Items.Add(menuClose);
 
 			// Edit menu
@@ -235,8 +232,8 @@ namespace Baimp
 		private void SaveAll()
 		{
 			if (project.Save(pipelineController)) {
-				if (this.Title.EndsWith("*", StringComparison.Ordinal)) {
-					this.Title = this.Title.Remove(this.Title.Length - 1);
+				if (Title.EndsWith("*", StringComparison.Ordinal)) {
+					Title = Title.Remove(Title.Length - 1);
 				}
 			}
 		}
@@ -277,12 +274,12 @@ namespace Baimp
 		private void OnClosing(object sender, EventArgs e)
 		{
 			// Copy window location to app settings
-			Settings.Default.WindowLocationX = this.Location.X;
-			Settings.Default.WindowLocationY = this.Location.Y;
+			Settings.Default.WindowLocationX = Location.X;
+			Settings.Default.WindowLocationY = Location.Y;
 
 			// Copy window size to app settings
-			Settings.Default.WindowSizeWidth = this.Size.Width;
-			Settings.Default.WindowSizeHeight = this.Size.Height;
+			Settings.Default.WindowSizeWidth = Size.Width;
+			Settings.Default.WindowSizeHeight = Size.Height;
 
 			// Save settings
 			Settings.Default.Save();

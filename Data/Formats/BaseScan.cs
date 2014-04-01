@@ -382,7 +382,7 @@ namespace Baimp
 		/// <returns><c>true</c> if this instance is scaled; otherwise, <c>false</c>.</returns>
 		public bool IsScaled()
 		{
-			const double EPSILON = 0.01;
+			const double EPSILON = 0.1;
 			if (Math.Abs(requestedBitmapSize.Height - size.Height) > EPSILON ||
 			    Math.Abs(requestedBitmapSize.Width - size.Width) > EPSILON) {
 				return true;

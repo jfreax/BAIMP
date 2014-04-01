@@ -52,10 +52,6 @@ namespace Baimp
 			this.Columns[2].SortDataField = saveStateCol;
 
 			this.DataSource = store;
-
-//			if (MainClass.toolkitType == ToolkitType.Gtk) {
-//				this.MinWidth = this.ParentWindow.Width;
-//			}
 		}
 
 		#endregion
@@ -110,9 +106,6 @@ namespace Baimp
 			}
 
 			LoadPreviewsAsync(scans);
-
-			//			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
-
 		}
 
 		/// <summary>
@@ -165,7 +158,7 @@ namespace Baimp
 
 						Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
 
-						BitmapImage newRenderedImage = newImage.WithSize(48, 48).ToBitmap();
+						BitmapImage newRenderedImage = newImage.WithBoxSize(48).ToBitmap();
 						newImage.Dispose();
 
 						MemoryStream mStream = new MemoryStream();

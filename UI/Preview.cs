@@ -84,8 +84,9 @@ namespace Baimp
 
 			// show thumbnail
 			if (thumbnail != null) {
-				scanView.Image = thumbnail.WithSize(scan.RequestedBitmapSize);
-				ImageLoadCallBack(currentScanType); // sets the correct image size
+				Console.WriteLine("box size: " + tab.Size);
+				scanView.Image = thumbnail.WithBoxSize(tab.Size);
+				//ImageLoadCallBack(currentScanType); // sets the correct image size
 			}
 		}
 

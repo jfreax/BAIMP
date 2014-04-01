@@ -228,6 +228,8 @@ namespace Baimp
 			measurementCondition["activeNumericalAperture"] = fileReader.ReadInt32();
 			measurementCondition["blackLevel"] = fileReader.ReadInt32();
 
+			Metadata.Add(new Baimp.Metadata("lensMagnification", measurementCondition["lensMagnification"].ToString()));
+
 		}
 
 		#region implemented abstract members of BaseScan

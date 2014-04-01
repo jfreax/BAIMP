@@ -361,7 +361,7 @@ namespace Baimp
 			return scan.IsScaled();
 		}
 
-		#region getter/setter
+		#region properties
 
 		/// <summary>
 		/// Gets or sets the scan image to show.
@@ -373,6 +373,13 @@ namespace Baimp
 			}
 			set {
 				image = value;
+				if (image.Height > Bounds.Height) {
+					this.HeightRequest = image.Height;
+				}
+				if (image.Width > Bounds.Width) {
+					this.WidthRequest = image.Width;
+				}
+				QueueDraw();
 			}
 		}
 
@@ -424,11 +431,7 @@ namespace Baimp
 				}
 			}
 		}
-
-		#endregion
-
-		#region properties
-
+			
 		public double RequestedImageSize {
 			get {
 				return requestedImageSize;
