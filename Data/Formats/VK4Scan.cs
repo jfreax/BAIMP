@@ -65,12 +65,10 @@ namespace Baimp
 					height1ImageOffset = fileReader.ReadInt32();
 					height2ImageOffset = fileReader.ReadInt32();
 
-					ReadMeasurementCondition(fileReader);
+					if (newImport) {
+						ReadMeasurementCondition(fileReader);
+					}
 				}
-			}
-
-			if (newImport) {
-
 			}
 		}
 
@@ -228,7 +226,7 @@ namespace Baimp
 			measurementCondition["activeNumericalAperture"] = fileReader.ReadInt32();
 			measurementCondition["blackLevel"] = fileReader.ReadInt32();
 
-			Metadata.Add(new Baimp.Metadata("lensMagnification", measurementCondition["lensMagnification"].ToString()));
+			Metadata.Add(new Metadata("lensMagnification", measurementCondition["lensMagnification"].ToString()));
 
 		}
 
