@@ -21,8 +21,8 @@ namespace Baimp
 			this.canvas = new Canvas();
 			this.Content = canvas;
 
-			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
-			this.VerticalScrollPolicy = ScrollPolicy.Automatic;
+			this.HorizontalScrollPolicy = ScrollPolicy.Always;
+			this.VerticalScrollPolicy = ScrollPolicy.Always;
 
 //			this.HorizontalPlacement = WidgetPlacement.Center;
 //			this.VerticalPlacement = WidgetPlacement.Center;
@@ -102,7 +102,7 @@ namespace Baimp
 				canvas.SetChildBounds(child, newbound);
 			}
 
-			canvas.HeightRequest = rowHeight;
+			canvas.HeightRequest = rowHeight * row + margin;
 
 			canvas.QueueDraw();
 			ignoreSizeChange = false;

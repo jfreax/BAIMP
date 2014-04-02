@@ -45,7 +45,7 @@ namespace Baimp
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
 		/// </summary>
-		public ScanView(BaseScan scan)
+		public ScanView(BaseScan scan, Image thumbnail = null)
 		{
 			this.scan = scan;
 
@@ -62,6 +62,10 @@ namespace Baimp
 					mask = scan.Masks.GetMaskAsImage(currentShownType);
 				}
 			};
+
+			if (thumbnail != null) {
+				this.Image = thumbnail;
+			}
 
 			IsThumbnail = false;
 		}
@@ -236,11 +240,12 @@ namespace Baimp
 
 		protected override void OnBoundsChanged()
 		{
-			Console.WriteLine("Bound changed " + ScreenBounds.Size);
 			base.OnBoundsChanged();
 
 			if (ScreenBounds.Width > 10) {
-				this.WithBoxSize(ScreenBounds.Size);
+				WithBoxSize(ScreenBounds.Size);
+				Parent.WidthRequest = ScreenBounds.Width;
+				Parent.HeightRequest = ScreenBounds.Height;
 			}
 		}
 

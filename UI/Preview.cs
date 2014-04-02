@@ -47,12 +47,13 @@ namespace Baimp
 		/// <param name="thumbnail">Optional thumbnail image to show before scan image is ready</param>
 		public void ShowPreviewOf(BaseScan scan, Image thumbnail = null)
 		{
-			List<BaseScan> list = new List<BaseScan>();
-			list.Add(scan);
-			ShowPreviewOf(list);
+			Dictionary<BaseScan, Image> dic = new Dictionary<BaseScan, Image>();
+			dic[scan] = thumbnail;
+
+			ShowPreviewOf(dic);
 		}
 
-		public void ShowPreviewOf(List<BaseScan> scans)
+		public void ShowPreviewOf(Dictionary<BaseScan, Image> scans)
 		{
 			// deregister old events
 			if (currentScans != null) {
@@ -62,7 +63,7 @@ namespace Baimp
 			}
 
 			// set new list of scans
-			currentScans = scans;
+			currentScans = scans.Keys.ToList();
 
 			// register new ones
 			foreach (BaseScan cScan in currentScans) {
@@ -73,12 +74,14 @@ namespace Baimp
 
 			gridView.Clear();
 			List<Widget> widgets = new List<Widget>();
-			foreach (BaseScan scan in scans) {
-				ScanView lScanView = new ScanView(scan);
+			int i = 0;
+			foreach (var scan in scans) {
+				ScanView lScanView = new ScanView(scan.Key, scan.Value);
 				lScanView.IsThumbnail = !isOnlyOne;
-				lScanView.ScanType = scan.AvailableScanTypes()[0];
+				lScanView.ScanType = scan.Key.AvailableScanTypes()[0]; // TODO
 
 				widgets.Add(lScanView);
+				i++;
 			}
 			gridView.AddRange(widgets);
 

@@ -201,15 +201,21 @@ namespace Baimp
 					}
 
 				} else if(fileTree.SelectedRows != null) {
-					List<BaseScan> scans = new List<BaseScan>();
+					Dictionary<BaseScan, Image> scans = new Dictionary<BaseScan, Image>();
 					foreach (TreePosition pos in fileTree.SelectedRows) {
 						string fiberName = 
 							fileTree.store
 								.GetNavigatorAt(pos)
 								.GetValue(fileTree.nameCol);
+
+						Image previewImage = 
+							fileTree.store
+								.GetNavigatorAt(pos)
+								.GetValue(fileTree.thumbnailCol);
+
 						var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 						if(baseScan != null) {
-							scans.Add(baseScan);
+							scans[baseScan] = previewImage;
 						}
 					}
 
