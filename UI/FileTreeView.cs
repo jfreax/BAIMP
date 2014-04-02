@@ -143,7 +143,7 @@ namespace Baimp
 		/// <param name="scans">Scans.</param>
 		private void LoadPreviewsAsync(ScanCollection scans)
 		{
-			Thread imageLoaderThread = new Thread(delegate() {
+			ManagedThreadPool.QueueUserWorkItem(o => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				foreach (BaseScan scan in scansCopy) {
 					var lScan = scan;
@@ -182,7 +182,6 @@ namespace Baimp
 					);
 				}
 			});
-			imageLoaderThread.Start();
 		}
 
 		#region events

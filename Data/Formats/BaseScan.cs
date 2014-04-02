@@ -211,12 +211,11 @@ namespace Baimp
 		/// <param name="callback">Function to call on finish.</param>
 		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
 		{
-			Thread imageLoaderThread = new Thread(delegate() {
+			ManagedThreadPool.QueueUserWorkItem(o => {
 				XD.Image image = GetAsImage(scanType);
 
 				Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));
 			});
-			imageLoaderThread.Start();
 		}
 
 		/// <summary>

@@ -1,12 +1,6 @@
 using System;
-using System.Linq;
-using System.IO;
 using Mono.Options;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
 using Xwt;
-using System.Threading;
 
 namespace Baimp
 {
@@ -64,7 +58,6 @@ namespace Baimp
 				toolkitType = ToolkitType.Wpf;
 			}
 
-			ManagedThreadPool.MaxThreads = 16;
 			Application.Initialize(toolkitType);
 
 			Project project = new Project(filename);

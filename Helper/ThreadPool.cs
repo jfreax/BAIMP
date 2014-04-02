@@ -89,7 +89,7 @@ namespace Baimp
 	{
 		#region Constants
 		/// <summary>Maximum number of threads the thread pool has at its disposal.</summary>
-		private const int _maxWorkerThreads = 25;
+		private const int _maxWorkerThreads = 16;
 		#endregion
 
 		#region Member Variables
