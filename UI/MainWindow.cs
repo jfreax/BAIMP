@@ -226,6 +226,8 @@ namespace Baimp
 			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
 				if (e != null) {
 					fileTree.Reload(project.scanCollection);
+
+					MarkAsUnsaved();
 				}
 			};
 
@@ -238,10 +240,31 @@ namespace Baimp
 		private void SaveAll()
 		{
 			if (project.Save(pipelineController)) {
-				if (Title.EndsWith("*", StringComparison.Ordinal)) {
-					Title = Title.Remove(Title.Length - 1);
-				}
+				MarkAsSaved();
 			}
+		}
+
+		public void MarkAsUnsaved()
+		{
+			if (!Title.EndsWith("*", StringComparison.Ordinal)) {
+				Title += "*";
+			}
+		}
+
+		public void MarkAsSaved()
+		{
+			if (Title.EndsWith("*", StringComparison.Ordinal)) {
+				Title = Title.Remove(Title.Length - 1);
+			}
+		}
+
+		public bool IsSaved()
+		{
+			if (Title.EndsWith("*", StringComparison.Ordinal)) {
+				return false;
+			}
+
+			return true;
 		}
 
 		#region events

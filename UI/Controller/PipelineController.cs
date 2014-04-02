@@ -107,11 +107,8 @@ namespace Baimp
 			project.ProjectChanged += (object sender, ProjectChangedEventArgs e) => OnProjectDataChangged(e);
 
 			foreach (PipelineView pView in pipelines.Values) {
-				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
-					if (!controllbarShelf.ParentWindow.Title.EndsWith("*", StringComparison.Ordinal)) {
-						controllbarShelf.ParentWindow.Title += "*";
-					}
-				};
+				pView.DataChanged += (object sender, SaveStateEventArgs e) => 
+					(controllbarShelf.ParentWindow as MainWindow).MarkAsUnsaved();
 			}
 
 			projectMap.SelectionChanged += delegate(object sender, EventArgs e) {
