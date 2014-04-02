@@ -82,20 +82,12 @@ namespace Baimp
 			ignoreSizeChange = true;
 
 
-			Size parentSize = Size;
-//			ScrollView parentScroller = Parent as ScrollView;
-//			if (parentScroller != null) {
-//				if (parentScroller.VisibleRect.Width > 10) {
-//					parentSize = parentScroller.VisibleRect.Size;
-//				}
-//			}
-
 			double w = minWidthPerChild;
 
-			if (parentSize.Width > 10) {
-				int childPerRow = (int) Math.Min(parentSize.Width / (minWidthPerChild + margin), childCount);
-				if (childPerRow * (minWidthPerChild + margin) < parentSize.Width) {
-					w = (parentSize.Width - (childPerRow + 1) * margin) / childPerRow;
+			if ( VisibleRect.Size.Width > 10) {
+				int childPerRow = (int) Math.Min( VisibleRect.Size.Width / (minWidthPerChild + margin), childCount);
+				if (childPerRow * (minWidthPerChild + margin) <  VisibleRect.Size.Width) {
+					w = ( VisibleRect.Size.Width - (childPerRow + 1) * margin) / childPerRow;
 				}
 			}
 
@@ -107,7 +99,7 @@ namespace Baimp
 				Rectangle newbound = new Rectangle(colRight, rowHeight * row + margin, w, w);
 				colRight += w + margin;
 
-				if (colRight + w > parentSize.Width) {
+				if (colRight + w >  VisibleRect.Size.Width) {
 					colRight = margin;
 					row++;
 				}
@@ -115,7 +107,7 @@ namespace Baimp
 				canvas.SetChildBounds(child, newbound);
 			}
 
-			canvas.HeightRequest = rowHeight * row + margin;
+			canvas.HeightRequest = rowHeight * (row+1) + margin;
 
 			canvas.QueueDraw();
 			ignoreSizeChange = false;
