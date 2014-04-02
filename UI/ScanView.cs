@@ -34,13 +34,13 @@ namespace Baimp
 		private BaseScan scan;
 		private string currentShownType;
 
-		private double requestedImageSize = double.NaN;
-
 		// mouse actions
 		Pointer pointer;
 		const int pointerSize = 16;
 		// state
 		bool isEditMode = false;
+
+		bool loadingComplete = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
@@ -49,8 +49,6 @@ namespace Baimp
 		{
 			this.scan = scan;
 
-			this.HorizontalPlacement = WidgetPlacement.Center;
-			this.VerticalPlacement = WidgetPlacement.Center;
 			this.CanGetFocus = true;
 
 			// build context menu
@@ -124,18 +122,10 @@ namespace Baimp
 			EditMode = false;
 
 			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
-				image = loadedImage;
-				mask = scan.Masks.GetMaskAsImage(currentShownType);
-
-				if (ScreenBounds.Width > 10) {
-					OnBoundsChanged();
-				} else {
-					this.WidthRequest = image.Width;
-					this.HeightRequest = image.Height;
-				}
+				Image = loadedImage;
+				Mask = scan.Masks.GetMaskAsImage(currentShownType);
 
 				QueueDraw();
-
 
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
@@ -143,6 +133,8 @@ namespace Baimp
 				if (imageLoaded != null) {
 					imageLoaded(this, new EventArgs());
 				}
+
+				loadingComplete = true;
 			}));
 		}
 
@@ -242,10 +234,8 @@ namespace Baimp
 		{
 			base.OnBoundsChanged();
 
-			if (ScreenBounds.Width > 10) {
-				WithBoxSize(ScreenBounds.Size);
-				Parent.WidthRequest = ScreenBounds.Width;
-				Parent.HeightRequest = ScreenBounds.Height;
+			if (Bounds.Width > 10 && IsThumbnail) {
+				WithBoxSize(Bounds.Size);
 			}
 		}
 
@@ -275,16 +265,24 @@ namespace Baimp
 		/// <param name="scale">Scale factor.</param>
 		public void Scale(double scale)
 		{
-			scan.ScaleImage(scale);
-			image = scan.GetAsImage(currentShownType);
-			mask = scan.Masks.GetMaskAsImage(currentShownType);
+			if (image != null) {
+				scan.ScaleImage(scale);
 
-			this.WidthRequest = image.Width;
-			this.HeightRequest = image.Height;
+				if (loadingComplete) {
+					image = scan.GetAsImage(currentShownType);
+					mask = scan.Masks.GetMaskAsImage(currentShownType);
+				}
 
-			Console.WriteLine("Scale " + this.WidthRequest);
-
-			QueueDraw();
+				if (Parent != null && Parent.Parent != null) {
+					if (image.Width > Parent.Parent.WidthRequest) {
+						Parent.WidthRequest = image.Width;
+					}
+					if (image.Height > Parent.Parent.HeightRequest) {
+						Parent.HeightRequest = image.Height;
+					}
+				}
+				QueueDraw();
+			}
 		}
 
 		/// <summary>
@@ -304,7 +302,7 @@ namespace Baimp
 				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
 				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
 
-				Image i = image.WithSize(scan.Size).ToBitmap().Crop(
+				Image i = image.WithBoxSize(scan.Size).ToBitmap().Crop(
 					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
 				          );
 
@@ -345,6 +343,7 @@ namespace Baimp
 		/// <param name="s">Max width and height</param>
 		public void WithBoxSize(Size s)
 		{
+			Console.WriteLine("WithBoxSize");
 			if (image != null) {
 				image = image.WithBoxSize(s);
 
@@ -381,12 +380,17 @@ namespace Baimp
 			}
 			set {
 				image = value;
-				if (image.Height > Bounds.Height) {
-					this.HeightRequest = image.Height;
+				if(!scan.IsScaled() && Parent != null && Parent.Parent != null) {
+					WithBoxSize(Parent.Parent.Size);
+				} else {
+					image = image.WithBoxSize(scan.RequestedBitmapSize);
 				}
-				if (image.Width > Bounds.Width) {
-					this.WidthRequest = image.Width;
+
+				if (IsThumbnail) {
+					image = image.WithBoxSize(Size);
 				}
+
+				Scale(1.0);
 				QueueDraw();
 			}
 		}
@@ -440,15 +444,6 @@ namespace Baimp
 			}
 		}
 			
-		public double RequestedImageSize {
-			get {
-				return requestedImageSize;
-			}
-			set {
-				requestedImageSize = value;
-			}
-		}
-
 		public bool IsThumbnail {
 			get;
 			set;

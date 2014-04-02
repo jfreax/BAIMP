@@ -37,7 +37,7 @@ namespace Baimp
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
 			this.MinHeight = 320;
-			this.PackEnd(gridView, true, true);
+			this.PackEnd(gridView, true);
 		}
 
 		/// <summary>
@@ -76,6 +76,10 @@ namespace Baimp
 			List<Widget> widgets = new List<Widget>();
 			int i = 0;
 			foreach (var scan in scans) {
+				if (!scan.Key.IsScaled() && this.Size.Width > 10) {
+					scan.Key.RequestedBitmapSize = this.Size;
+				}
+
 				ScanView lScanView = new ScanView(scan.Key, scan.Value);
 				lScanView.IsThumbnail = !isOnlyOne;
 				lScanView.ScanType = scan.Key.AvailableScanTypes()[0]; // TODO
@@ -155,7 +159,6 @@ namespace Baimp
 		private void OnPreviewZoom(MouseScrolledEventArgs e)
 		{
 			if (scanView != null) {
-				Console.WriteLine("okop");
 				if (e.Direction == ScrollDirection.Down) {
 					scanView.Scale(0.9);
 				} else {

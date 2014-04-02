@@ -21,11 +21,10 @@ namespace Baimp
 			this.canvas = new Canvas();
 			this.Content = canvas;
 
-			this.HorizontalScrollPolicy = ScrollPolicy.Always;
-			this.VerticalScrollPolicy = ScrollPolicy.Always;
+			canvas.HorizontalPlacement = WidgetPlacement.Center;
+			canvas.VerticalPlacement = WidgetPlacement.Center;
 
-//			this.HorizontalPlacement = WidgetPlacement.Center;
-//			this.VerticalPlacement = WidgetPlacement.Center;
+			canvas.BoundsChanged += (object sender, EventArgs e) => RecalculatePosition();
 		}
 			
 
@@ -66,8 +65,22 @@ namespace Baimp
 		/// </summary>
 		private void RecalculatePosition()
 		{
-			ignoreSizeChange = true;
 			int childCount = canvas.Children.Count();
+
+			if (childCount == 1) {
+				Widget child = canvas.Children.First();
+				canvas.SetChildBounds(child, new Rectangle(0, 0, 10000, 10000));
+
+				canvas.HorizontalPlacement = WidgetPlacement.Center;
+				canvas.VerticalPlacement = WidgetPlacement.Center;
+				return;
+			}
+
+			canvas.HorizontalPlacement = WidgetPlacement.Start;
+			canvas.VerticalPlacement = WidgetPlacement.Start;
+
+			ignoreSizeChange = true;
+
 
 			Size parentSize = Size;
 //			ScrollView parentScroller = Parent as ScrollView;

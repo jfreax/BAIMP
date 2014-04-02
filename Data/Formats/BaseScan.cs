@@ -153,7 +153,7 @@ namespace Baimp
 			lock (asyncImageLock) {
 				if (!renderedImage.ContainsKey(scanType) || renderedImage[scanType] == null) {
 					MemoryStream mStream = GetAsMemoryStream(scanType);
-					XD.Image img = XD.Image.FromStream(mStream).WithSize(requestedBitmapSize);
+					XD.Image img = XD.Image.FromStream(mStream).WithBoxSize(requestedBitmapSize);
 					mStream.Dispose();
 
 					if(!saveImage) {
@@ -163,7 +163,7 @@ namespace Baimp
 					renderedImage[scanType] = img;
 				}
 			}
-			return renderedImage[scanType].WithSize(requestedBitmapSize);
+			return renderedImage[scanType].WithBoxSize(requestedBitmapSize);
 		}
 
 		/// <summary>
@@ -214,7 +214,7 @@ namespace Baimp
 			Thread imageLoaderThread = new Thread(delegate() {
 				XD.Image image = GetAsImage(scanType);
 
-				Application.Invoke(() => callback(image.WithSize(requestedBitmapSize)));
+				Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));
 			});
 			imageLoaderThread.Start();
 		}

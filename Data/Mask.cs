@@ -60,7 +60,7 @@ namespace Baimp
 
 				XD.Image mask = LoadMask(scanType);
 				if (mask != null) {
-					maskBuilder[scanType].Context.DrawImage(mask.WithSize(scan.Size), Xwt.Point.Zero, 0.6);
+					maskBuilder[scanType].Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
 				}
 			}
 
@@ -74,7 +74,7 @@ namespace Baimp
 		/// <param name="scanType">Type.</param>
 		public XD.Image GetMaskAsImage(string scanType)
 		{
-			return GetMaskBuilder(scanType).ToVectorImage().WithSize(scan.RequestedBitmapSize);
+			return GetMaskBuilder(scanType).ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
 		}
 			
 
