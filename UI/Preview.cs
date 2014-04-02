@@ -12,10 +12,18 @@ namespace Baimp
 	{
 		public delegate void MyCallBack(string scanType);
 
-		ScrollView tab = new ScrollView();
-		ScanView scanView;
 		Notebook notebook;
-		BaseScan currentScan;
+
+		/// <summary>
+		/// Reference to scanview if only one scan if currently shown.
+		/// </summary>
+		ScanView scanView;
+
+		/// <summary>
+		/// List of all currently shown scan algorithms.
+		/// </summary>
+		List<BaseScan> currentScans;
+
 		MouseMover mouseMover = new MouseMover();
 		GridView gridView = new GridView(96.0);
 
@@ -24,12 +32,12 @@ namespace Baimp
 		/// </summary>
 		public Preview()
 		{
-			InitializeEvents(tab);
+			InitializeEvents();
 
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
 			this.MinHeight = 320;
-			this.PackEnd(tab, true, true);
+			this.PackEnd(gridView, true, true);
 		}
 
 		/// <summary>
@@ -39,106 +47,48 @@ namespace Baimp
 		/// <param name="thumbnail">Optional thumbnail image to show before scan image is ready</param>
 		public void ShowPreviewOf(BaseScan scan, Image thumbnail = null)
 		{
-			if (currentScan != null) {
-				currentScan.ScanDataChanged -= OnScanDataChanged;
-			}
-
-			string currentTabLabel = string.Empty;
-			if (notebook != null) {
-				currentTabLabel = notebook.CurrentTab.Label.TrimEnd('*');
-				this.Remove(notebook);
-				notebook.Dispose();
-			}
-
-			notebook = new Notebook();
-			this.PackStart(notebook, false, false);
-
-			int lastTab = 0;
-			int i = 0;
-			foreach (string scanType in scan.AvailableScanTypes()) {
-				if (!string.IsNullOrEmpty(currentTabLabel) && scanType == currentTabLabel) {
-					lastTab = i;
-				}
-				notebook.Add(new FrameBox(), scanType);
-				i++;
-			}
-
-			notebook.CurrentTabChanged += delegate(object sender, EventArgs e) {
-				string scanType = notebook.CurrentTab.Label.TrimEnd('*');
-				ShowPreview(scanType);
-			};
-
-			notebook.CurrentTabIndex = lastTab;
-
-			this.currentScan = scan;
-			scanView = new ScanView(scan);
-			tab.Content = scanView;
-
-			currentScan.ScanDataChanged += OnScanDataChanged;
-				
-			scanView.RegisterImageLoadedCallback(new MyCallBack(ImageLoadCallBack));
-			scanView.MouseScrolled += (object sender, MouseScrolledEventArgs e) => OnPreviewZoom(e);
-
-			string currentScanType = notebook.CurrentTab.Label;
-			ShowPreview(currentScanType);
-
-			// show thumbnail
-			if (thumbnail != null) {
-				Console.WriteLine("box size: " + tab.Size);
-				scanView.Image = thumbnail.WithBoxSize(tab.Size);
-				//ImageLoadCallBack(currentScanType); // sets the correct image size
-			}
+			List<BaseScan> list = new List<BaseScan>();
+			list.Add(scan);
+			ShowPreviewOf(list);
 		}
 
 		public void ShowPreviewOf(List<BaseScan> scans)
 		{
-			if (currentScan != null) {
-				currentScan.ScanDataChanged -= OnScanDataChanged;
+			// deregister old events
+			if (currentScans != null) {
+				foreach (BaseScan cScan in currentScans) {
+					cScan.ScanDataChanged -= OnScanDataChanged;
+				}
 			}
 
-			currentScan = null;
+			// set new list of scans
+			currentScans = scans;
+
+			// register new ones
+			foreach (BaseScan cScan in currentScans) {
+				cScan.ScanDataChanged += OnScanDataChanged;
+			}
+
+			bool isOnlyOne = currentScans.Count == 1;
 
 			gridView.Clear();
-			tab.Content = gridView;
-
 			List<Widget> widgets = new List<Widget>();
 			foreach (BaseScan scan in scans) {
 				ScanView lScanView = new ScanView(scan);
-				lScanView.IsThumbnail = true;
+				lScanView.IsThumbnail = !isOnlyOne;
 				lScanView.ScanType = scan.AvailableScanTypes()[0];
+
 				widgets.Add(lScanView);
 			}
 			gridView.AddRange(widgets);
 
-		}
-
-		/// <summary>
-		/// Shows an specific preview into appropriate tab.
-		/// </summary>
-		/// <param name="scanType">Scan type</param>
-		private void ShowPreview(string scanType)
-		{
-			if (scanView != null) {
-				scanView.ScanType = scanType;
+			if (isOnlyOne) {
+				scanView = widgets[0] as ScanView;
 			}
 		}
 
 		#region callbacks
-
-		/// <summary>
-		/// Gets called when image is ready to display.
-		/// </summary>
-		/// <param name="scanType">Scan type</param>
-		private void ImageLoadCallBack(string scanType)
-		{
-			if (!scanView.IsScaled()) {
-				if (tab.VisibleRect.Width < 10) {
-					scanView.WithBoxSize(tab.Size);
-				} else {
-					scanView.WithBoxSize(tab.VisibleRect.Size);
-				}
-			}
-		}
+	
 
 		#endregion
 
@@ -147,17 +97,11 @@ namespace Baimp
 		/// <summary>
 		/// Initializes all events.
 		/// </summary>
-		/// <param name="view">View.</param>
-		private void InitializeEvents(ScrollView view)
+		private void InitializeEvents()
 		{
-			mouseMover.RegisterMouseMover(tab);
+			mouseMover.RegisterMouseMover(gridView);
 
-			view.BoundsChanged += delegate(object sender, EventArgs e) {
-				if (scanView != null)
-					scanView.WithBoxSize(tab.VisibleRect.Size);
-			};
-
-			view.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+			gridView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
 				switch (e.Button) {
 				case PointerButton.Left:
 
@@ -175,7 +119,7 @@ namespace Baimp
 				}
 			};
 
-			view.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
+			gridView.ButtonReleased += delegate(object sender, ButtonEventArgs e) {
 				switch (e.Button) {
 				case PointerButton.Middle:
 					if (mouseMover.Enabled) {
@@ -189,7 +133,7 @@ namespace Baimp
 				}
 			};
 
-			view.MouseExited += delegate(object sender, EventArgs e) {
+			gridView.MouseExited += delegate(object sender, EventArgs e) {
 				if (mouseMover.Enabled) {
 					mouseMover.DisableMouseMover();
 					if (scanView != null) {
@@ -198,7 +142,7 @@ namespace Baimp
 				}
 			};
 
-			view.MouseScrolled += (object sender, MouseScrolledEventArgs e) => OnPreviewZoom(e);
+			gridView.MouseScrolled += (object sender, MouseScrolledEventArgs e) => OnPreviewZoom(e);
 		}
 
 		/// <summary>
@@ -208,6 +152,7 @@ namespace Baimp
 		private void OnPreviewZoom(MouseScrolledEventArgs e)
 		{
 			if (scanView != null) {
+				Console.WriteLine("okop");
 				if (e.Direction == ScrollDirection.Down) {
 					scanView.Scale(0.9);
 				} else {

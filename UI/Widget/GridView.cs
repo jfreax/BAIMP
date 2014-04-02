@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class GridView : Canvas
+	public class GridView : ScrollView
 	{
+		Canvas canvas;
+
 		double minWidthPerChild;
 		double margin = 12.0;
 
@@ -15,52 +17,79 @@ namespace Baimp
 		public GridView(double minWidthPerChild)
 		{
 			this.minWidthPerChild = minWidthPerChild;
-		}
 
-		protected override void OnDraw(Xwt.Drawing.Context ctx, Rectangle dirtyRect)
-		{
-			base.OnDraw(ctx, dirtyRect);
-		}
+			this.canvas = new Canvas();
+			this.Content = canvas;
 
+			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
+			this.VerticalScrollPolicy = ScrollPolicy.Automatic;
+
+//			this.HorizontalPlacement = WidgetPlacement.Center;
+//			this.VerticalPlacement = WidgetPlacement.Center;
+		}
+			
+
+		/// <summary>
+		/// Add a specified widget.
+		/// </summary>
+		/// <param name="widget">Widget.</param>
 		public void Add(Widget widget)
 		{
-			AddChild(widget);
+			canvas.AddChild(widget);
 
 			RecalculatePosition();
 		}
 
+		/// <summary>
+		/// Add a list of widgets.
+		/// </summary>
+		/// <param name="widgets">Widgets.</param>
 		public void AddRange(List<Widget> widgets)
 		{
 			foreach (Widget widget in widgets) {
-				AddChild(widget);
+				canvas.AddChild(widget);
 			}
 
 			RecalculatePosition();
 		}
 
+		/// <summary>
+		/// Remove all children
+		/// </summary>
+		public void Clear()
+		{
+			canvas.Clear();
+		}
+
+		/// <summary>
+		/// Recalculates the position of all childs.
+		/// </summary>
 		private void RecalculatePosition()
 		{
 			ignoreSizeChange = true;
-			int childCount = Children.Count();
+			int childCount = canvas.Children.Count();
 
-			Size parentSize = Parent.Size;
-			ScrollView parentScroller = Parent as ScrollView;
-			if (parentScroller != null) {
-				if (parentScroller.VisibleRect.Width > 10) {
-					parentSize = parentScroller.VisibleRect.Size;
-				}
-			}
+			Size parentSize = Size;
+//			ScrollView parentScroller = Parent as ScrollView;
+//			if (parentScroller != null) {
+//				if (parentScroller.VisibleRect.Width > 10) {
+//					parentSize = parentScroller.VisibleRect.Size;
+//				}
+//			}
 
 			double w = minWidthPerChild;
-			int childPerRow = (int) Math.Min(parentSize.Width / (minWidthPerChild + margin), childCount);
-			if (childPerRow * (minWidthPerChild+margin) < parentSize.Width) {
-				w = (parentSize.Width - (childPerRow+1) * margin) / childPerRow;
+
+			if (parentSize.Width > 10) {
+				int childPerRow = (int) Math.Min(parentSize.Width / (minWidthPerChild + margin), childCount);
+				if (childPerRow * (minWidthPerChild + margin) < parentSize.Width) {
+					w = (parentSize.Width - (childPerRow + 1) * margin) / childPerRow;
+				}
 			}
 
 			double colRight = margin;
 			double rowHeight = w + margin;
 			int row = 0;
-			foreach(Widget child in Children) {
+			foreach(Widget child in canvas.Children) {
 
 				Rectangle newbound = new Rectangle(colRight, rowHeight * row + margin, w, w);
 				colRight += w + margin;
@@ -70,12 +99,12 @@ namespace Baimp
 					row++;
 				}
 
-				this.SetChildBounds(child, newbound);
+				canvas.SetChildBounds(child, newbound);
 			}
 
-			this.HeightRequest = rowHeight * row + margin;
+			canvas.HeightRequest = rowHeight;
 
-			QueueDraw();
+			canvas.QueueDraw();
 			ignoreSizeChange = false;
 		}
 

@@ -137,7 +137,6 @@
     <Compile Include="UI\Preview.cs" />
     <Compile Include="UI\ScanView.cs" />
     <Compile Include="UI\Widget\GridView.cs" />
-    <Compile Include="UI\Preview2.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

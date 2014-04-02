@@ -236,6 +236,7 @@ namespace Baimp
 
 		protected override void OnBoundsChanged()
 		{
+			Console.WriteLine("Bound changed " + ScreenBounds.Size);
 			base.OnBoundsChanged();
 
 			if (ScreenBounds.Width > 10) {
@@ -275,6 +276,8 @@ namespace Baimp
 
 			this.WidthRequest = image.Width;
 			this.HeightRequest = image.Height;
+
+			Console.WriteLine("Scale " + this.WidthRequest);
 
 			QueueDraw();
 		}
