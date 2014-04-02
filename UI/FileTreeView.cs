@@ -158,7 +158,7 @@ namespace Baimp
 
 						Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
 
-						BitmapImage newRenderedImage = newImage.WithBoxSize(48).ToBitmap();
+						BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
 						newImage.Dispose();
 
 						MemoryStream mStream = new MemoryStream();
@@ -178,7 +178,7 @@ namespace Baimp
 					})) as Image;
 
 					Application.Invoke(
-						() => store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, image)
+						() => store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, image.WithBoxSize(48))
 					);
 				}
 			});

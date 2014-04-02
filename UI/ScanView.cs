@@ -343,7 +343,6 @@ namespace Baimp
 		/// <param name="s">Max width and height</param>
 		public void WithBoxSize(Size s)
 		{
-			Console.WriteLine("WithBoxSize");
 			if (image != null) {
 				image = image.WithBoxSize(s);
 
