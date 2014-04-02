@@ -42,7 +42,7 @@ namespace Baimp
 				}
 			}
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
-			ThreadPool.QueueUserWorkItem(o => {
+			ManagedThreadPool.QueueUserWorkItem(o => {
 				bool isSeqData = startNode.algorithm.OutputsSequentialData();
 				if (isSeqData) {
 					startNode.algorithm.Yielded += GetSingleData;

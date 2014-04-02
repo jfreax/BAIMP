@@ -64,8 +64,7 @@ namespace Baimp
 				toolkitType = ToolkitType.Wpf;
 			}
 
-			ThreadPool.SetMinThreads(2, 2);
-			ThreadPool.SetMaxThreads(32, 16);
+			ManagedThreadPool.MaxThreads = 16;
 			Application.Initialize(toolkitType);
 
 			Project project = new Project(filename);
