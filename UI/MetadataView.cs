@@ -7,7 +7,6 @@ namespace Baimp
 {
 	public class MetadataView : VBox
 	{
-		Label name;
 		Dictionary<int, Widget>[] widgets;
 		BaseScan currentScan;
 		Table table;
@@ -22,18 +21,11 @@ namespace Baimp
 		public MetadataView()
 		{
 			table = new Table();
-			Expander expander = new Expander();
-			expander.Expanded = true;
-			expander.Content = table;
-			this.PackStart(expander, true);
+			this.PackStart(table, true);
 
 			widgets = new Dictionary<int, Widget>[2];
 			widgets[0] = new Dictionary<int, Widget>();
 			widgets[1] = new Dictionary<int, Widget>();
-
-			name = new Label("Name");
-			name.TextAlignment = Alignment.Center;
-			table.Add(name, 0, 0, colspan: 2);
 
 			InitializeUI();
 		}
@@ -67,11 +59,6 @@ namespace Baimp
 			this.currentScan = scan;
 
 			table.Clear();
-			//table.Remove (name);
-			name = new Label("Name");
-			name.TextAlignment = Alignment.Center;
-			name.Text = scan.ToString();
-			table.Add(name, 0, 0, colspan: 2);
 
 			int i = 1;
 			foreach (Metadata d in scan.Metadata) {
