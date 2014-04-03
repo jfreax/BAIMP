@@ -57,7 +57,7 @@ namespace Baimp
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				if (e.Changed.Equals("mask_" + currentShownType)) {
-					mask = scan.Masks.GetMaskAsImage(currentShownType);
+					Mask = scan.Masks.GetMaskAsImage(currentShownType);
 				}
 			};
 
@@ -155,7 +155,9 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
-			Point scaleFactor = scan.GetScaleFactor();
+			Point scaleFactor = new Point(
+				scan.Size.Width / image.Size.Width, 
+				scan.Size.Height / image.Size.Height);
 
 			switch (args.Button) {
 			case PointerButton.Left:
@@ -203,7 +205,9 @@ namespace Baimp
 		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
 			if (isEditMode) {
-				Point scaleFactor = scan.GetScaleFactor();
+				Point scaleFactor = new Point(
+					scan.Size.Width / image.Size.Width, 
+					scan.Size.Height / image.Size.Height);
 
 				if (pointer.HasFlag(Pointer.Left)) {
 					SetMask(
@@ -292,9 +296,13 @@ namespace Baimp
 		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
 		private void SetMask(Point position, bool unset = false)
 		{
-			if (unset) {
-				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+			ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+			if (position.X > ib.Width || position.Y > ib.Height) {
+				return;
+			}
 
+
+			if (unset) {
 				ib.Context.Save();
 				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
 				ib.Context.Clip();
@@ -311,7 +319,6 @@ namespace Baimp
 				ib.Context.Restore();
 
 			} else {
-				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
 				ib.Context.SetLineWidth(pointerSize * 2);
 
 				ib.Context.SetColor(maskColor);
@@ -324,7 +331,7 @@ namespace Baimp
 				ib.Context.MoveTo(position);
 			}
 
-			mask = scan.Masks.GetMaskAsImage(currentShownType);
+			Mask = scan.Masks.GetMaskAsImage(currentShownType);
 			QueueDraw();
 		}
 
@@ -383,10 +390,16 @@ namespace Baimp
 					WithBoxSize(Parent.Parent.Size);
 				} else {
 					image = image.WithBoxSize(scan.RequestedBitmapSize);
+					if (mask != null) {
+						mask = mask.WithBoxSize(scan.RequestedBitmapSize);
+					}
 				}
 
 				if (IsThumbnail) {
 					image = image.WithBoxSize(Size);
+					if (mask != null) {
+						mask = mask.WithBoxSize(Size);
+					}
 				}
 
 				Scale(1.0);
@@ -405,6 +418,9 @@ namespace Baimp
 
 			set {
 				mask = value;
+				if (image != null) {
+					mask = mask.WithSize(image.Size);
+				}
 			}
 		}
 

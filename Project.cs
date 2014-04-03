@@ -52,14 +52,21 @@ namespace Baimp
 		public static object RequestZipAccess(ZipUsageCallback callback)
 		{
 			object ret = true;
-			if (File.Exists(ProjectFile)) {
-				lock (zipFileAccess) {
-					using (ZipFile zipFile = new ZipFile(ProjectFile)) {
+			lock (zipFileAccess) {
+				if (!string.IsNullOrEmpty(ProjectFile)) {
+					ZipFile zipFile;
+					if (File.Exists(ProjectFile)) {
+						zipFile = new ZipFile(ProjectFile);
+					} else {
+						zipFile = ZipFile.Create(ProjectFile);
+					}
+					using (zipFile) {
 						ret = callback(zipFile);
 					}
+
+				} else {
+					ret = callback(null);
 				}
-			} else {
-				ret = callback(null);
 			}
 
 			return ret;
@@ -228,27 +235,16 @@ namespace Baimp
 			}
 
 			// save metadata
-			ZipFile zipFile;
-			//try {
-				if (File.Exists(ProjectFile)) {
-					zipFile = new ZipFile(ProjectFile);
-				} else {
-					zipFile = ZipFile.Create(ProjectFile);
-				}
+			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+				zipFile.BeginUpdate();
 
-				using (zipFile) {
-					zipFile.BeginUpdate();
+				zipFile.Add(ProjectMetadata(), "metadata.xml");
 
-					zipFile.Add(ProjectMetadata(), "metadata.xml");
+				zipFile.IsStreamOwner = true;
+				zipFile.CommitUpdate();
 
-					zipFile.IsStreamOwner = true;
-					zipFile.CommitUpdate();
-
-				} // closes also memorystream
-//			} catch (Exception e) {
-//				// TODO show error message
-//				Console.WriteLine(e.Message);
-//			}
+				return null;
+			}));
 
 			return true;
 		}

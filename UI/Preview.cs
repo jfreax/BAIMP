@@ -184,13 +184,13 @@ namespace Baimp
 			if (e.Changed.StartsWith("mask_", StringComparison.Ordinal)) {
 				string[] splitted = e.Changed.Split('_');
 				if (splitted.Length >= 2) {
-					IEnumerable<NotebookTab> changedTab = 
-						notebook.Tabs.Where(t => t.Label.TrimEnd('*') == splitted[1]);
-
-					var first = changedTab.First();
-					if (first != null) {
-						first.Label = splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
-					}
+//					IEnumerable<NotebookTab> changedTab = 
+//						notebook.Tabs.Where(t => t.Label.TrimEnd('*') == splitted[1]);
+//
+//					var first = changedTab.First();
+//					if (first != null) {
+//						first.Label = splitted[1] + (e != null && e.Unsaved.Contains(e.Changed) ? "*" : "");
+//					}
 				}
 			}
 		}
