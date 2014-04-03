@@ -166,7 +166,6 @@ namespace Baimp
 
 		#region events
 
-
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
 			base.OnButtonPressed(args);
@@ -187,6 +186,42 @@ namespace Baimp
 						mWindow.Show();
 					}
 				}
+			}
+		}
+
+		protected override void OnKeyPressed(KeyEventArgs args)
+		{
+			base.OnKeyPressed(args);
+			switch (args.Key) {
+			case Key.Delete:
+				TreeNavigator selected = store.GetNavigatorAt(SelectedRow);
+
+				if (selected != null) {
+					Dialog d = new Dialog();
+					d.Title = "Remove this scan";
+					VBox nameList = new VBox();
+
+					foreach (TreePosition selectPos in SelectedRows) {
+						nameList.PackStart(
+							new Label(store.GetNavigatorAt(selectPos).GetValue(nameCol))
+						);
+					}
+
+					d.Content = nameList;
+					d.Buttons.Add(new DialogButton(Command.Delete));
+					d.Buttons.Add(new DialogButton(Command.Cancel));
+
+					Command r = d.Run();
+					if (r != null && r.Id == Command.Delete.Id) {
+						foreach (TreePosition selectPos in SelectedRows) {
+							if (!string.IsNullOrEmpty(store.GetNavigatorAt(selectPos).GetValue(nameCol))) {
+								store.GetNavigatorAt(selectPos).Remove();
+							}
+						}
+					}
+					d.Dispose();
+				}
+				break;
 			}
 		}
 
