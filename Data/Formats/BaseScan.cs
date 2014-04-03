@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 using Xwt;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace Baimp
 {
@@ -216,6 +217,55 @@ namespace Baimp
 
 				Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));
 			});
+		}
+
+		/// <summary>
+		/// Generates thumbnails of every scan type from this scan.
+		/// Saves them to project file (if there is any).
+		/// </summary>
+		/// <returns>The thumbnails.</returns>
+		public virtual XD.Image[] GenerateThumbnails()
+		{
+			XD.Image[] thumbnails = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+				XD.Image[] ret = new XD.Image[AvailableScanTypes().Length];
+
+				int i = -1;
+				foreach (string scanType in AvailableScanTypes()) {
+					i++;
+
+					if(zipFile != null) {
+						ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}_{1}.png", Name, scanType));
+						if(maskEntry != null) {
+							Stream previewStream = zipFile.GetInputStream(maskEntry);
+							ret[i] = XD.Image.FromStream(previewStream);
+							break;
+						}
+					}
+
+					XD.Image newImage = GetAsImage(scanType, false);
+
+					Xwt.Drawing.BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
+					newImage.Dispose();
+
+					MemoryStream mStream = new MemoryStream();
+					newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
+					mStream.Position = 0;
+					CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+
+					if(zipFile != null) {
+						zipFile.BeginUpdate();
+						zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
+						zipFile.IsStreamOwner = true;
+						zipFile.CommitUpdate();
+					}
+
+					ret[i] = newRenderedImage;
+				}
+				return ret;
+
+			})) as XD.Image[];
+
+			return thumbnails;
 		}
 
 		/// <summary>

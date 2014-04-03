@@ -147,39 +147,13 @@ namespace Baimp
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				foreach (BaseScan scan in scansCopy) {
 					var lScan = scan;
-					Image image = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-						if(zipFile != null) {
-							ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}.png", lScan.Name));
-							if(maskEntry != null) {
-								Stream previewStream = zipFile.GetInputStream(maskEntry);
-								return Image.FromStream(previewStream);
-							}
-						}
+					Image[] thumbnails = lScan.GenerateThumbnails();
 
-						Image newImage = lScan.GetAsImage(lScan.AvailableScanTypes()[0], false);
-
-						BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
-						newImage.Dispose();
-
-						MemoryStream mStream = new MemoryStream();
-						newRenderedImage.Save(mStream, ImageFileType.Png);
-						mStream.Position = 0;
-						CustomStaticDataSource source = new CustomStaticDataSource(mStream);
-
-						if(zipFile != null) {
-							zipFile.BeginUpdate();
-							zipFile.Add(source, String.Format("thumbnails/{0}.png", lScan.Name));
-							zipFile.IsStreamOwner = true;
-							zipFile.CommitUpdate();
-						}
-
-						return newRenderedImage;
-
-					})) as Image;
-
-					Application.Invoke(
-						() => store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, image.WithBoxSize(48))
-					);
+					if (thumbnails.Length > 0 && thumbnails[0] != null) {
+						Application.Invoke( () => 
+							store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48))
+						);
+					}
 				}
 			});
 		}
