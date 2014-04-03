@@ -114,6 +114,7 @@ namespace Baimp
 		/// <param name="scan">Scan.</param>
 		private void Refresh(BaseScan scan)
 		{
+			Image thumbnail = store.GetNavigatorAt(scan.position).GetValue(thumbnailCol);
 			store.GetNavigatorAt(scan.position).Remove();
 
 			TreePosition parentNodePosition;
@@ -126,9 +127,11 @@ namespace Baimp
 
 			scan.position = store.AddNode(parentNodePosition)
 				.SetValue(nameCol, scan.ToString())
+				.SetValue(thumbnailCol, thumbnail)
 				.SetValue(saveStateCol, "*").CurrentPosition;
 
 			this.ExpandToRow(scan.position);
+			this.SelectRow(scan.position);
 
 			if (this.DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
 				store.GetNavigatorAt(scan.parentPosition).Remove();
