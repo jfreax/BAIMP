@@ -138,6 +138,7 @@
     <Compile Include="UI\ScanView.cs" />
     <Compile Include="UI\Widget\GridView.cs" />
     <Compile Include="Helper\ThreadPool.cs" />
+    <Compile Include="UI\MetadataWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

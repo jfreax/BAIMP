@@ -10,6 +10,8 @@ namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
+		ScanCollection scanCollection;
+
 		public DataField<Image> thumbnailCol = new DataField<Image>();
 
 		public DataField<string> nameCol = new DataField<string>();
@@ -50,7 +52,7 @@ namespace Baimp
 
 			this.Columns[0].SortDataField = nameCol;
 			this.Columns[2].SortDataField = saveStateCol;
-
+		
 			this.DataSource = store;
 		}
 
@@ -63,6 +65,7 @@ namespace Baimp
 		/// <param name="currentScan">Current focused scan</param>
 		public void Reload(ScanCollection scans, BaseScan currentScan = null)
 		{
+			scanCollection = scans;
 			store.Clear();
 
 			TreePosition pos = null;
@@ -162,6 +165,30 @@ namespace Baimp
 		}
 
 		#region events
+
+
+		protected override void OnButtonPressed(ButtonEventArgs args)
+		{
+			base.OnButtonPressed(args);
+
+			if (scanCollection == null) {
+				return;
+			}
+
+			if (args.MultiplePress >= 2) {
+				TreePosition selected = SelectedRow;
+				if (selected != null) {
+					string scanName = store.GetNavigatorAt(selected).GetValue(nameCol);
+					Image thumbnail = store.GetNavigatorAt(selected).GetValue(thumbnailCol);
+					BaseScan scan = scanCollection.Find(((BaseScan obj) => obj.Name == scanName));
+
+					if (scan != null) {
+						MetadataWindow mWindow = new MetadataWindow(scan, thumbnail);
+						mWindow.Show();
+					}
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets called when a scan has changed
