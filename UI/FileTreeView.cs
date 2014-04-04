@@ -124,7 +124,12 @@ namespace Baimp
 			if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
 				parentNodePosition = fiberTypeNodes[scan.FiberType]; 
 			} else {
-				parentNodePosition = store.AddNode(null).SetValue(nameCol, scan.FiberType).CurrentPosition;
+				TextLayout text = new TextLayout();
+				text.Text = scan.FiberType;
+				ImageBuilder ib = new ImageBuilder(text.GetSize().Width, text.GetSize().Height);
+				ib.Context.DrawTextLayout(text, Point.Zero);
+
+				parentNodePosition = store.AddNode(null).SetValue(thumbnailCol, ib.ToBitmap()).CurrentPosition;
 				fiberTypeNodes[scan.FiberType] = parentNodePosition;
 			}
 
