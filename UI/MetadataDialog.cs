@@ -4,15 +4,17 @@ using Xwt.Drawing;
 
 namespace Baimp
 {
-	public class MetadataWindow : Window
+	public class MetadataDialog : Dialog
 	{
+		BaseScan mScan;
+
 		readonly TextEntry nameEntry = new TextEntry();
 		readonly Label nameEntryUnedited = new Label();
 
 		readonly TextEntry fiberTypeEntry = new TextEntry();
 		readonly Label fiberTypeEntryUnedited = new Label();
 
-		public MetadataWindow(BaseScan scan, Image thumbnail)
+		public MetadataDialog(BaseScan scan, Image thumbnail)
 		{
 			InitializeUI(scan, thumbnail);
 			InitializeEvents();
@@ -20,6 +22,14 @@ namespace Baimp
 
 		private void InitializeUI(BaseScan scan, Image thumbnail)
 		{
+			mScan = scan;
+
+			Icon = thumbnail;
+			Title = scan.Name;
+
+			Buttons.Add(new DialogButton(Command.Cancel));
+			Buttons.Add(new DialogButton(Command.Apply));
+
 			Font fontH1 = Font.SystemFont.WithStyle(FontStyle.Oblique).WithSize(16);
 			Font fontH2 = fontH1.WithStyle(FontStyle.Normal).WithSize(12);
 
@@ -72,6 +82,8 @@ namespace Baimp
 			nameEntry.LostFocus += delegate(object sender, EventArgs e) {
 				nameEntryUnedited.Visible = true;
 				nameEntry.Visible = false;
+
+				nameEntryUnedited.Text = nameEntry.Text;
 			};	
 
 			fiberTypeEntryUnedited.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
@@ -83,7 +95,15 @@ namespace Baimp
 			fiberTypeEntry.LostFocus += delegate(object sender, EventArgs e) {
 				fiberTypeEntryUnedited.Visible = true;
 				fiberTypeEntry.Visible = false;
+
+				fiberTypeEntryUnedited.Text = fiberTypeEntry.Text;
 			};
+		}
+
+		public void Save()
+		{
+			mScan.Name = nameEntry.Text;
+			mScan.FiberType = fiberTypeEntry.Text;
 		}
 	}
 }

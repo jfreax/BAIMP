@@ -182,8 +182,15 @@ namespace Baimp
 					BaseScan scan = scanCollection.Find(((BaseScan obj) => obj.Name == scanName));
 
 					if (scan != null) {
-						MetadataWindow mWindow = new MetadataWindow(scan, thumbnail);
-						mWindow.Show();
+						MetadataDialog metaDialog = new MetadataDialog(scan, thumbnail);
+						Command r = metaDialog.Run();
+
+						if (r.Id == Command.Apply.Id) {
+							metaDialog.Save();
+						}
+
+						metaDialog.Dispose();
+
 					}
 				}
 			}
