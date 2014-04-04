@@ -13,11 +13,9 @@ namespace Baimp
 		// widgets
 		VPaned splitAlgorithmTree;
 		HPaned splitFiletree_Preview;
-		HBox splitPreview_Metadata;
 
 		Preview preview;
 		FileTreeView fileTree;
-		MetadataView metadata;
 
 		PipelineController pipelineController;
 
@@ -143,24 +141,18 @@ namespace Baimp
 			// load tree view with all available files
 			fileTree = new FileTreeView();
 
-			// load metadata viewer
-			metadata = new MetadataView();
 
 			// load pipeline controller
 			FrameBox controllbarShelf = new FrameBox();
 			FrameBox pipelineShelf = new FrameBox();
 			pipelineController = new PipelineController(project, controllbarShelf, pipelineShelf);
 
-			// set layout
-			splitPreview_Metadata = new HBox();
-			splitPreview_Metadata.PackStart(preview, true, true);
-			splitPreview_Metadata.PackEnd(metadata, false, false);
 
 			splitFiletree_Preview = new HPaned();
 			splitFiletree_Preview.Panel1.Content = fileTree;
 			splitFiletree_Preview.Panel1.Shrink = true;
 			fileTree.HorizontalScrollPolicy = ScrollPolicy.Never;
-			splitFiletree_Preview.Panel2.Content = splitPreview_Metadata;
+			splitFiletree_Preview.Panel2.Content = preview;
 			splitFiletree_Preview.Panel2.Resize = true;
 
 			VBox splitController_Preview = new VBox();
@@ -197,7 +189,6 @@ namespace Baimp
 					var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 					if (baseScan != null) {
 						preview.ShowPreviewOf(baseScan, previewImage);
-						metadata.Load(baseScan);
 					}
 
 				} else if(fileTree.SelectedRows != null) {
