@@ -351,7 +351,10 @@ namespace Baimp
 				return name;
 			}
 			set {
-				name = value;
+				if (name != value) {
+					name = value;
+					NotifyChange("Name");
+				}
 			}
 		}
 

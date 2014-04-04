@@ -244,6 +244,9 @@ namespace Baimp
 			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
 				Refresh(scan);
 			}
+			if (e.Changed.Equals("Name") && e.Unsaved.Contains("Name")) {
+				Refresh(scan);
+			}
 		}
 
 		/// <summary>
