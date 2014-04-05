@@ -128,6 +128,14 @@ namespace Baimp
 
 					lScanView.Initialize(scan, type);
 					lScanView.IsThumbnail = !isOnlyOne;
+
+					lScanView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+						if (e.MultiplePress >= 2) {
+							currentFiberTypes.Clear();
+							currentFiberTypes.Add(lScanView.ScanType);
+							ShowPreviewOf(lScanView.Scan);
+						}
+					};
 				}
 			}
 

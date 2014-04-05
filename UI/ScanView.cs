@@ -164,6 +164,8 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			base.OnButtonPressed(args);
+
 			Point scaleFactor = new Point(
 				scan.Size.Width / image.Size.Width, 
 				scan.Size.Height / image.Size.Height);
@@ -384,6 +386,12 @@ namespace Baimp
 		}
 
 		#region properties
+
+		public BaseScan Scan {
+			get {
+				return scan;
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets the scan image to show.
