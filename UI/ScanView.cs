@@ -48,6 +48,8 @@ namespace Baimp
 		public ScanView(BaseScan scan, Image thumbnail = null)
 		{
 			this.scan = scan;
+			this.WidthRequest = scan.Size.Width;
+			this.HeightRequest = scan.Size.Height;
 
 			this.CanGetFocus = true;
 
@@ -72,6 +74,9 @@ namespace Baimp
 		{
 			base.OnDraw(ctx, dirtyRect);
 
+			ctx.Rectangle(this.Bounds);
+			ctx.Fill();
+
 			if (image != null) {
 				ctx.DrawImage(image, Point.Zero);
 			}
@@ -79,6 +84,8 @@ namespace Baimp
 			if (mask != null) {
 				ctx.DrawImage(mask, Point.Zero);
 			}
+
+
 		}
 
 		#region contextmenu

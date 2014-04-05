@@ -12,8 +12,6 @@ namespace Baimp
 	{
 		public delegate void MyCallBack(string scanType);
 
-		Notebook notebook;
-
 		/// <summary>
 		/// Reference to scanview if only one scan if currently shown.
 		/// </summary>
@@ -25,7 +23,7 @@ namespace Baimp
 		List<BaseScan> currentScans;
 
 		MouseMover mouseMover = new MouseMover();
-		GridView gridView = new GridView(96.0);
+		GridView gridView = new GridView(96.0, 10.0);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
@@ -55,10 +53,17 @@ namespace Baimp
 
 		public void ShowPreviewOf(Dictionary<BaseScan, Image> scans)
 		{
+			if (scans == null || scans.Count == 0) {
+				return;
+			}
+
+			List<string> scanTypes = new List<string>(scans.Keys.First().AvailableScanTypes());
+
 			// deregister old events
 			if (currentScans != null) {
 				foreach (BaseScan cScan in currentScans) {
 					cScan.ScanDataChanged -= OnScanDataChanged;
+					scanTypes.Union(cScan.AvailableScanTypes());
 				}
 			}
 

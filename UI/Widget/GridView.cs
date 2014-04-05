@@ -10,13 +10,15 @@ namespace Baimp
 		Canvas canvas;
 
 		double minWidthPerChild;
+		double minHeightPerChild;
 		double margin = 12.0;
 
 		bool ignoreSizeChange;
 
-		public GridView(double minWidthPerChild)
+		public GridView(double minWidthPerChild, double minHeightPerChild)
 		{
 			this.minWidthPerChild = minWidthPerChild;
+			this.minHeightPerChild = minHeightPerChild;
 
 			this.canvas = new Canvas();
 			this.Content = canvas;
@@ -92,15 +94,23 @@ namespace Baimp
 			}
 
 			double colRight = margin;
-			double rowHeight = w + margin;
+			double rowHeight = minHeightPerChild + margin;
 			int row = 0;
 			foreach(Widget child in canvas.Children) {
-
-				Rectangle newbound = new Rectangle(colRight, rowHeight * row + margin, w, w);
+				double height = 
+					Math.Max(
+						minHeightPerChild, 
+						child.HeightRequest * (w / child.WidthRequest));
+				if (height + margin > rowHeight) {
+					rowHeight = height + margin;
+				}
+					
+				Rectangle newbound = new Rectangle(colRight, rowHeight * row + margin, w, height);
 				colRight += w + margin;
 
 				if (colRight + w >  VisibleRect.Size.Width) {
 					colRight = margin;
+					rowHeight = minHeightPerChild + margin;
 					row++;
 				}
 
