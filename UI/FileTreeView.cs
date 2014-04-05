@@ -296,12 +296,12 @@ namespace Baimp
 			case PointerButton.Right:
 				contextMenu.Items.Clear();
 				TreeStore currentStore = DataSource as TreeStore;
-				string currentFiberType = string.Empty;
+				string currentFiberType;
 				if (SelectedRow != null && currentStore != null) {
 					TreeNavigator row = currentStore.GetNavigatorAt(SelectedRow);
 
 					string name = row.GetValue(isFiltered ? nameColFilter : nameCol);
-					currentFiberType = scanCollection.Find((o) => o.Name == name).FiberType;
+					currentFiberType = scanCollection.Find(o => o.Name == name).FiberType;
 				
 					foreach (string typeName in fiberTypeNodes.Keys) {
 						RadioButtonMenuItem radioButton = new RadioButtonMenuItem(typeName);

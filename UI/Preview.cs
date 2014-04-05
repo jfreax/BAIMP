@@ -20,9 +20,15 @@ namespace Baimp
 		/// <summary>
 		/// List of all currently shown scan algorithms.
 		/// </summary>
-		List<BaseScan> currentScans;
+		Dictionary<BaseScan, Image> currentScans;
+
+		/// <summary>
+		/// List of all currenntly shown fiber types.
+		/// </summary>
+		HashSet<string> currentFiberTypes = new HashSet<string>();
 
 		MouseMover mouseMover = new MouseMover();
+		HBox controller = new HBox();
 		GridView gridView = new GridView(96.0, 10.0);
 
 		/// <summary>
@@ -35,6 +41,7 @@ namespace Baimp
 			this.Spacing = 0.0;
 			this.MinWidth = 320;
 			this.MinHeight = 320;
+			this.PackStart(controller, false, false);
 			this.PackEnd(gridView, true);
 		}
 
@@ -51,6 +58,10 @@ namespace Baimp
 			ShowPreviewOf(dic);
 		}
 
+		/// <summary>
+		/// Shows the preview of specified scan data
+		/// </summary>
+		/// <param name="scans">List of scans with their matching thumbnail image.</param>
 		public void ShowPreviewOf(Dictionary<BaseScan, Image> scans)
 		{
 			if (scans == null || scans.Count == 0) {
@@ -58,52 +69,86 @@ namespace Baimp
 			}
 
 			List<string> scanTypes = new List<string>(scans.Keys.First().AvailableScanTypes());
-
-			// deregister old events
 			if (currentScans != null) {
-				foreach (BaseScan cScan in currentScans) {
+				foreach (BaseScan cScan in currentScans.Keys) {
 					cScan.ScanDataChanged -= OnScanDataChanged;
 					scanTypes.Union(cScan.AvailableScanTypes());
 				}
 			}
 
+			controller.Clear();
+			foreach (string scanType in scanTypes) {
+				if (currentFiberTypes.Count == 0) {
+					currentFiberTypes.Add(scanType);
+				}
+
+				CheckBox cb = new CheckBox();
+				cb.Label = scanType;
+
+				if (currentFiberTypes.Contains(scanType)) {
+					cb.Active = true;
+				}
+
+				cb.Toggled += delegate(object sender, EventArgs e) {
+					if (cb.Active) {
+						AddFibertypeToShow(cb.Label);
+					} else {
+						RemoveFibertypeToShow(cb.Label);
+					}
+				};
+
+				controller.PackStart(cb);
+			}
+
 			// set new list of scans
-			currentScans = scans.Keys.ToList();
+			currentScans = scans;
 
 			// register new ones
-			foreach (BaseScan cScan in currentScans) {
+			foreach (BaseScan cScan in currentScans.Keys) {
 				cScan.ScanDataChanged += OnScanDataChanged;
 			}
 
-			bool isOnlyOne = currentScans.Count == 1;
+			bool isOnlyOne = currentScans.Keys.Count == 1 && currentFiberTypes.Count == 1;
 
 			gridView.Clear();
 			List<Widget> widgets = new List<Widget>();
-			int i = 0;
 			foreach (var scan in scans) {
 				if (!scan.Key.IsScaled() && this.Size.Width > 10) {
 					scan.Key.RequestedBitmapSize = this.Size;
 				}
 
-				ScanView lScanView = new ScanView();
+				foreach (string type in currentFiberTypes) {
+					ScanView lScanView = new ScanView();
 
-				if (isOnlyOne) {
-					gridView.Add(lScanView);
-					scanView = lScanView;
-				} else {
-					widgets.Add(lScanView);
+					if (isOnlyOne) {
+						gridView.Add(lScanView);
+						scanView = lScanView;
+					} else {
+						widgets.Add(lScanView);
+					}
+
+					lScanView.Initialize(scan.Key, scan.Value);
+					lScanView.IsThumbnail = !isOnlyOne;
+					lScanView.ScanType = type;
+
 				}
-
-				lScanView.Initialize(scan.Key, scan.Value);
-				lScanView.IsThumbnail = !isOnlyOne;
-				lScanView.ScanType = scan.Key.AvailableScanTypes()[0]; // TODO
-
-				i++;
 			}
 
 			if (!isOnlyOne) {
 				gridView.AddRange(widgets);
 			}
+		}
+
+		public void AddFibertypeToShow(string newType)
+		{
+			currentFiberTypes.Add(newType);
+			ShowPreviewOf(currentScans);
+		}
+
+		public void RemoveFibertypeToShow(string type)
+		{
+			currentFiberTypes.Remove(type);
+			ShowPreviewOf(currentScans);
 		}
 
 		#region callbacks

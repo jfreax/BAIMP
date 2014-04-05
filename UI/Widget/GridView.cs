@@ -15,10 +15,11 @@ namespace Baimp
 
 		bool ignoreSizeChange;
 
-		public GridView(double minWidthPerChild, double minHeightPerChild)
+
+		public GridView()
 		{
-			this.minWidthPerChild = minWidthPerChild;
-			this.minHeightPerChild = minHeightPerChild;
+			this.minWidthPerChild = 0;
+			this.minHeightPerChild = 0;
 
 			this.canvas = new Canvas();
 			this.Content = canvas;
@@ -27,6 +28,12 @@ namespace Baimp
 			canvas.VerticalPlacement = WidgetPlacement.Center;
 
 			canvas.BoundsChanged += (object sender, EventArgs e) => RecalculatePosition();
+		}
+
+		public GridView(double minWidthPerChild, double minHeightPerChild) : this()
+		{
+			this.minWidthPerChild = minWidthPerChild;
+			this.minHeightPerChild = minHeightPerChild;
 		}
 			
 
@@ -123,6 +130,8 @@ namespace Baimp
 			ignoreSizeChange = false;
 		}
 
+		#region Events
+
 		protected override void OnBoundsChanged()
 		{
 			if (!ignoreSizeChange) {
@@ -130,6 +139,32 @@ namespace Baimp
 				RecalculatePosition();
 			}
 		}
+
+		#endregion
+
+		#region Properties
+
+		public double MinWidthPerChild {
+			get {
+				return minWidthPerChild;
+			}
+			set {
+				minWidthPerChild = value;
+				RecalculatePosition();
+			}
+		}
+			
+		public double MinHeightPerChild {
+			get {
+				return minHeightPerChild;
+			}
+			set {
+				minHeightPerChild = value;
+				RecalculatePosition();
+			}
+		}
+
+		#endregion
 	}
 }
 
