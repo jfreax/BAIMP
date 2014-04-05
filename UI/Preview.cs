@@ -127,10 +127,8 @@ namespace Baimp
 						widgets.Add(lScanView);
 					}
 
-					lScanView.Initialize(scan.Key, scan.Value);
+					lScanView.Initialize(scan.Key, type);
 					lScanView.IsThumbnail = !isOnlyOne;
-					lScanView.ScanType = type;
-
 				}
 			}
 

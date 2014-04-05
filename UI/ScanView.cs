@@ -49,7 +49,7 @@ namespace Baimp
 		{
 		}
 
-		public void Initialize(BaseScan scan, Image thumbnail = null)
+		public void Initialize(BaseScan scan, string fibertype)
 		{
 			this.scan = scan;
 			this.WidthRequest = scan.Size.Width;
@@ -68,6 +68,8 @@ namespace Baimp
 			};
 
 			IsThumbnail = false;
+
+			Image thumbnail = scan.GetThumbnail(fibertype);
 			if (thumbnail != null) {
 				this.Image = thumbnail;
 			}

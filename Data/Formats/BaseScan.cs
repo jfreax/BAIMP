@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Drawing;
 using System.IO;
 using XD = Xwt.Drawing;
@@ -243,7 +244,7 @@ namespace Baimp
 						if(maskEntry != null) {
 							Stream previewStream = zipFile.GetInputStream(maskEntry);
 							ret[i] = XD.Image.FromStream(previewStream);
-							break;
+							continue;
 						}
 					}
 
@@ -274,6 +275,28 @@ namespace Baimp
 				thumbnails = lThumbnails;
 			}
 			return thumbnails;
+		}
+
+		/// <summary>
+		/// Get thumbnail of a specified fiber type.
+		/// </summary>
+		/// <returns>The thumbnail.</returns>
+		/// <param name="fibertype">Fibertype.</param>
+		public virtual XD.Image GetThumbnail(string fibertype)
+		{
+			XD.Image[] thumbList = GetThumbnails();
+			if (thumbList != null) {
+				int i = 0;
+				foreach (string f in AvailableScanTypes()) {
+					if (f == fibertype) {
+						break;
+					}
+					i++;
+				}
+				return thumbList[i];
+			}
+
+			return null;
 		}
 
 		/// <summary>
