@@ -27,6 +27,8 @@ namespace Baimp
 
 		bool isFiltered = false;
 
+		Menu contextMenu;
+
 		private Dictionary<string, TreePosition> fiberTypeNodes;
 
 		#region initialize
@@ -40,8 +42,9 @@ namespace Baimp
 			storeFilter = new TreeStore(thumbnailColFilter, nameColFilter, saveStateColFilter);
 
 			this.SelectionMode = SelectionMode.Multiple;
-
 			this.BoundsChanged += InitializeSize;
+
+			InitializeContextMenu();
 		}
 
 		private void InitializeSize(object sender, EventArgs e)
@@ -62,6 +65,14 @@ namespace Baimp
 
 			this.Columns[0].SortDataField = nameCol;
 			this.Columns[2].SortDataField = saveStateCol;
+		}
+
+		/// <summary>
+		/// Initializes the context menu.
+		/// </summary>
+		private void InitializeContextMenu()
+		{
+			contextMenu = new Menu();
 		}
 
 		#endregion
@@ -259,25 +270,61 @@ namespace Baimp
 				return;
 			}
 
-			if (args.MultiplePress >= 2) {
-				TreePosition selected = SelectedRow;
-				if (selected != null) {
-					string scanName = store.GetNavigatorAt(selected).GetValue(nameCol);
-					Image thumbnail = store.GetNavigatorAt(selected).GetValue(thumbnailCol);
-					BaseScan scan = scanCollection.Find(((BaseScan obj) => obj.Name == scanName));
+			switch (args.Button) {
+			case PointerButton.Left:
+				if (args.MultiplePress >= 2) {
+					TreePosition selected = SelectedRow;
+					if (selected != null) {
+						string scanName = store.GetNavigatorAt(selected).GetValue(nameCol);
+						Image thumbnail = store.GetNavigatorAt(selected).GetValue(thumbnailCol);
+						BaseScan scan = scanCollection.Find(((BaseScan obj) => obj.Name == scanName));
 
-					if (scan != null) {
-						MetadataDialog metaDialog = new MetadataDialog(scan, thumbnail);
-						Command r = metaDialog.Run();
+						if (scan != null) {
+							MetadataDialog metaDialog = new MetadataDialog(scan, thumbnail);
+							Command r = metaDialog.Run();
 
-						if (r.Id == Command.Apply.Id) {
-							metaDialog.Save();
+							if (r.Id == Command.Apply.Id) {
+								metaDialog.Save();
+							}
+
+							metaDialog.Dispose();
+
 						}
-
-						metaDialog.Dispose();
-
 					}
 				}
+				break;
+			case PointerButton.Right:
+				contextMenu.Items.Clear();
+				TreeStore currentStore = DataSource as TreeStore;
+				string currentFiberType = string.Empty;
+				if (SelectedRow != null && currentStore != null) {
+					TreeNavigator row = currentStore.GetNavigatorAt(SelectedRow);
+
+					string name = row.GetValue(isFiltered ? nameColFilter : nameCol);
+					currentFiberType = scanCollection.Find((o) => o.Name == name).FiberType;
+				
+					foreach (string typeName in fiberTypeNodes.Keys) {
+						RadioButtonMenuItem radioButton = new RadioButtonMenuItem(typeName);
+						if (typeName == currentFiberType) {
+							radioButton.Checked = true;
+						}
+
+						radioButton.Clicked += delegate(object sender, EventArgs e) {
+							foreach (TreePosition x in SelectedRows) {
+								RadioButtonMenuItem r = sender as RadioButtonMenuItem;
+								if (r != null) {
+									string n = currentStore.GetNavigatorAt(x)
+										.GetValue(isFiltered ? nameColFilter : nameCol);
+									scanCollection.Find((o) => o.Name == n).FiberType = r.Label;
+								}
+							}
+						};
+
+						contextMenu.Items.Add(radioButton);
+					}
+					contextMenu.Popup();
+				}
+				break;
 			}
 		}
 
