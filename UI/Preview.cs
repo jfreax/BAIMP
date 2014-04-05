@@ -20,7 +20,7 @@ namespace Baimp
 		/// <summary>
 		/// List of all currently shown scan algorithms.
 		/// </summary>
-		Dictionary<BaseScan, Image> currentScans;
+		List<BaseScan> currentScans;
 
 		/// <summary>
 		/// List of all currenntly shown fiber types.
@@ -49,28 +49,27 @@ namespace Baimp
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		/// <param name="thumbnail">Optional thumbnail image to show before scan image is ready</param>
-		public void ShowPreviewOf(BaseScan scan, Image thumbnail = null)
+		public void ShowPreviewOf(BaseScan scan)
 		{
-			Dictionary<BaseScan, Image> dic = new Dictionary<BaseScan, Image>();
-			dic[scan] = thumbnail;
+			List<BaseScan> l = new List<BaseScan>();
+			l.Add(scan);
 
-			ShowPreviewOf(dic);
+			ShowPreviewOf(l);
 		}
 
 		/// <summary>
 		/// Shows the preview of specified scan data
 		/// </summary>
 		/// <param name="scans">List of scans with their matching thumbnail image.</param>
-		public void ShowPreviewOf(Dictionary<BaseScan, Image> scans)
+		public void ShowPreviewOf(List<BaseScan> scans)
 		{
 			if (scans == null || scans.Count == 0) {
 				return;
 			}
 
-			List<string> scanTypes = new List<string>(scans.Keys.First().AvailableScanTypes());
+			List<string> scanTypes = new List<string>(scans[0].AvailableScanTypes());
 			if (currentScans != null) {
-				foreach (BaseScan cScan in currentScans.Keys) {
+				foreach (BaseScan cScan in currentScans) {
 					cScan.ScanDataChanged -= OnScanDataChanged;
 					scanTypes.Union(cScan.AvailableScanTypes());
 				}
@@ -104,17 +103,17 @@ namespace Baimp
 			currentScans = scans;
 
 			// register new ones
-			foreach (BaseScan cScan in currentScans.Keys) {
+			foreach (BaseScan cScan in currentScans) {
 				cScan.ScanDataChanged += OnScanDataChanged;
 			}
 
-			bool isOnlyOne = currentScans.Keys.Count == 1 && currentFiberTypes.Count == 1;
+			bool isOnlyOne = currentScans.Count == 1 && currentFiberTypes.Count == 1;
 
 			gridView.Clear();
 			List<Widget> widgets = new List<Widget>();
-			foreach (var scan in scans) {
-				if (!scan.Key.IsScaled() && this.Size.Width > 10) {
-					scan.Key.RequestedBitmapSize = this.Size;
+			foreach (BaseScan scan in scans) {
+				if (!scan.IsScaled() && this.Size.Width > 10) {
+					scan.RequestedBitmapSize = this.Size;
 				}
 
 				foreach (string type in currentFiberTypes) {
@@ -127,7 +126,7 @@ namespace Baimp
 						widgets.Add(lScanView);
 					}
 
-					lScanView.Initialize(scan.Key, type);
+					lScanView.Initialize(scan, type);
 					lScanView.IsThumbnail = !isOnlyOne;
 				}
 			}

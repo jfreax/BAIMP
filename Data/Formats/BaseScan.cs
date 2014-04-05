@@ -281,14 +281,14 @@ namespace Baimp
 		/// Get thumbnail of a specified fiber type.
 		/// </summary>
 		/// <returns>The thumbnail.</returns>
-		/// <param name="fibertype">Fibertype.</param>
-		public virtual XD.Image GetThumbnail(string fibertype)
+		/// <param name="scantype">Scan type.</param>
+		public virtual XD.Image GetThumbnail(string scantype)
 		{
 			XD.Image[] thumbList = GetThumbnails();
 			if (thumbList != null) {
 				int i = 0;
-				foreach (string f in AvailableScanTypes()) {
-					if (f == fibertype) {
+				foreach (string st in AvailableScanTypes()) {
+					if (st == scantype) {
 						break;
 					}
 					i++;

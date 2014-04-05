@@ -183,32 +183,23 @@ namespace Baimp
 						fileTree.store
 							.GetNavigatorAt(fileTree.SelectedRow)
 							.GetValue(fileTree.nameCol);
-					Image previewImage = 
-						fileTree.store
-							.GetNavigatorAt(fileTree.SelectedRow)
-							.GetValue(fileTree.thumbnailCol);
 
 					var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 					if (baseScan != null) {
-						preview.ShowPreviewOf(baseScan, previewImage);
+						preview.ShowPreviewOf(baseScan);
 					}
 
 				} else if(fileTree.SelectedRows != null) {
-					Dictionary<BaseScan, Image> scans = new Dictionary<BaseScan, Image>();
+					List<BaseScan> scans = new List<BaseScan>();
 					foreach (TreePosition pos in fileTree.SelectedRows) {
 						string fiberName = 
 							fileTree.store
 								.GetNavigatorAt(pos)
 								.GetValue(fileTree.nameCol);
 
-						Image previewImage = 
-							fileTree.store
-								.GetNavigatorAt(pos)
-								.GetValue(fileTree.thumbnailCol);
-
 						var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 						if(baseScan != null) {
-							scans[baseScan] = previewImage;
+							scans.Add(baseScan);
 						}
 					}
 
