@@ -1,16 +1,16 @@
 using System;
+using System.Linq;
 using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
-using System.Threading;
-using ICSharpCode.SharpZipLib.Zip;
-using System.IO;
+
 
 namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
 		ScanCollection scanCollection;
+		ScanCollection scanCollectionUnfiltered;
 
 		public DataField<Image> thumbnailCol = new DataField<Image>();
 
@@ -58,14 +58,26 @@ namespace Baimp
 
 		#endregion
 
+		public void Filter(string text)
+		{
+			scanCollection.Clear();
+			scanCollection.AddRange(scanCollectionUnfiltered.Where((o) => o.Name.Contains(text)));
+			Reload(scanCollection, null, false);
+		}
+
 		/// <summary>
 		/// Reloads file tree information.
 		/// </summary>
 		/// <param name="scans">Collection of loaded scans</param>
 		/// <param name="currentScan">Current focused scan</param>
-		public void Reload(ScanCollection scans, BaseScan currentScan = null)
+		/// <param name="save">Update scan collection</param>
+		public void Reload(ScanCollection scans, BaseScan currentScan = null, bool save = true)
 		{
-			scanCollection = scans;
+			if (save) {
+				scanCollection = scans;
+				scanCollectionUnfiltered = new ScanCollection(scans);
+			}
+
 			store.Clear();
 
 			TreePosition pos = null;

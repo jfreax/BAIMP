@@ -15,6 +15,15 @@ namespace Baimp
 		{
 		}
 
+		/// <summary>
+		/// Copy constructur
+		/// </summary>
+		/// <param name="scans">Scans.</param>
+		public ScanCollection(ScanCollection scans)
+		{
+			AddRange(scans);
+		}
+
 		#endregion
 
 		public void AddFiles(List<string> files, Type importerType, bool reimport = true)

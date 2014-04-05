@@ -139,6 +139,7 @@
     <Compile Include="UI\Widget\GridView.cs" />
     <Compile Include="Helper\ThreadPool.cs" />
     <Compile Include="UI\MetadataDialog.cs" />
+    <Compile Include="UI\FileTreeFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

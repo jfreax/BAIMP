@@ -140,7 +140,9 @@ namespace Baimp
 
 			// load tree view with all available files
 			fileTree = new FileTreeView();
-
+			VBox splitFileTreeSearch_FileTree = new VBox();
+			splitFileTreeSearch_FileTree.PackStart(new FileTreeFilter(fileTree));
+			splitFileTreeSearch_FileTree.PackStart(fileTree, true);
 
 			// load pipeline controller
 			FrameBox controllbarShelf = new FrameBox();
@@ -149,7 +151,7 @@ namespace Baimp
 
 
 			splitFiletree_Preview = new HPaned();
-			splitFiletree_Preview.Panel1.Content = fileTree;
+			splitFiletree_Preview.Panel1.Content = splitFileTreeSearch_FileTree;
 			splitFiletree_Preview.Panel1.Shrink = true;
 			fileTree.HorizontalScrollPolicy = ScrollPolicy.Never;
 			splitFiletree_Preview.Panel2.Content = preview;
