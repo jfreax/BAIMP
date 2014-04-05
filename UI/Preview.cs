@@ -85,17 +85,24 @@ namespace Baimp
 					scan.Key.RequestedBitmapSize = this.Size;
 				}
 
-				ScanView lScanView = new ScanView(scan.Key, scan.Value);
+				ScanView lScanView = new ScanView();
+
+				if (isOnlyOne) {
+					gridView.Add(lScanView);
+					scanView = lScanView;
+				} else {
+					widgets.Add(lScanView);
+				}
+
+				lScanView.Initialize(scan.Key, scan.Value);
 				lScanView.IsThumbnail = !isOnlyOne;
 				lScanView.ScanType = scan.Key.AvailableScanTypes()[0]; // TODO
 
-				widgets.Add(lScanView);
 				i++;
 			}
-			gridView.AddRange(widgets);
 
-			if (isOnlyOne) {
-				scanView = widgets[0] as ScanView;
+			if (!isOnlyOne) {
+				gridView.AddRange(widgets);
 			}
 		}
 

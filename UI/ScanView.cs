@@ -45,7 +45,11 @@ namespace Baimp
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
 		/// </summary>
-		public ScanView(BaseScan scan, Image thumbnail = null)
+		public ScanView()
+		{
+		}
+
+		public void Initialize(BaseScan scan, Image thumbnail = null)
 		{
 			this.scan = scan;
 			this.WidthRequest = scan.Size.Width;
@@ -63,19 +67,15 @@ namespace Baimp
 				}
 			};
 
+			IsThumbnail = false;
 			if (thumbnail != null) {
 				this.Image = thumbnail;
 			}
-
-			IsThumbnail = false;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 		{
 			base.OnDraw(ctx, dirtyRect);
-
-			ctx.Rectangle(this.Bounds);
-			ctx.Fill();
 
 			if (image != null) {
 				ctx.DrawImage(image, Point.Zero);
@@ -84,8 +84,6 @@ namespace Baimp
 			if (mask != null) {
 				ctx.DrawImage(mask, Point.Zero);
 			}
-
-
 		}
 
 		#region contextmenu
