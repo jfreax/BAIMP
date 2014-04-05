@@ -13,7 +13,7 @@ namespace Baimp
 			this.PlaceholderText = "Filter...";
 		}
 
-		protected override void OnKeyPressed(KeyEventArgs args)
+		protected override void OnKeyReleased(KeyEventArgs args)
 		{
 			base.OnKeyPressed(args);
 

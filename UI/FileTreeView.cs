@@ -13,10 +13,15 @@ namespace Baimp
 		ScanCollection scanCollectionUnfiltered;
 
 		public DataField<Image> thumbnailCol = new DataField<Image>();
-
 		public DataField<string> nameCol = new DataField<string>();
 		public DataField<string> saveStateCol = new DataField<string>();
+
+		public DataField<Image> thumbnailColFilter = new DataField<Image>();
+		public DataField<string> nameColFilter = new DataField<string>();
+		public DataField<string> saveStateColFilter = new DataField<string>();
+
 		public TreeStore store;
+		public TreeStore storeFilter;
 
 		private Dictionary<string, TreePosition> fiberTypeNodes;
 
@@ -28,6 +33,7 @@ namespace Baimp
 		public FileTreeView()
 		{
 			store = new TreeStore(thumbnailCol, nameCol, saveStateCol);
+			storeFilter = new TreeStore(thumbnailColFilter, nameColFilter, saveStateColFilter);
 
 			this.SelectionMode = SelectionMode.Multiple;
 
@@ -52,17 +58,54 @@ namespace Baimp
 
 			this.Columns[0].SortDataField = nameCol;
 			this.Columns[2].SortDataField = saveStateCol;
-		
-			this.DataSource = store;
 		}
 
 		#endregion
 
 		public void Filter(string text)
 		{
-			scanCollection.Clear();
-			scanCollection.AddRange(scanCollectionUnfiltered.Where((o) => o.Name.Contains(text)));
-			Reload(scanCollection, null, false);
+			string current = string.Empty;
+			if (SelectedRow != null) {
+				current = (DataSource as TreeStore).GetNavigatorAt(SelectedRow).GetValue(nameCol);
+			}
+
+			if (string.IsNullOrEmpty(text)) {
+				this.DataSource = store;
+				this.ExpandAll();
+				return;
+			}
+
+			this.DataSource = storeFilter;
+			storeFilter.Clear();
+
+			TreePosition selectedRow = null;
+			TreeNavigator typeNode = store.GetFirstNode();
+			do {
+				var newTypeNode = storeFilter.AddNode(null)
+						.SetValue(thumbnailColFilter, typeNode.GetValue(thumbnailCol));
+				typeNode.MoveToChild();
+				do {
+					string name = typeNode.GetValue(nameCol);
+					if (name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) {
+						var newElem = storeFilter.AddNode(newTypeNode.CurrentPosition)
+							.SetValue(thumbnailColFilter, typeNode.GetValue(thumbnailCol))
+							.SetValue(nameColFilter, typeNode.GetValue(nameCol))
+							.SetValue(saveStateColFilter, typeNode.GetValue(saveStateCol));
+							
+						if (typeNode.GetValue(nameCol) == current) {
+							selectedRow = newElem.CurrentPosition;
+						}
+					}
+
+				} while (typeNode.MoveNext());
+				typeNode.MoveToParent();
+			} while (typeNode.MoveNext());
+
+			this.ExpandAll();
+
+			if (selectedRow != null) {
+				this.SelectRow(selectedRow);
+			}
 		}
 
 		/// <summary>
@@ -78,6 +121,7 @@ namespace Baimp
 				scanCollectionUnfiltered = new ScanCollection(scans);
 			}
 
+			this.DataSource = store;
 			store.Clear();
 
 			TreePosition pos = null;
