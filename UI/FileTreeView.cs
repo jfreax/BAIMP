@@ -23,6 +23,10 @@ namespace Baimp
 		public TreeStore store;
 		public TreeStore storeFilter;
 
+		private Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
+
+		bool isFiltered = false;
+
 		private Dictionary<string, TreePosition> fiberTypeNodes;
 
 		#region initialize
@@ -62,6 +66,10 @@ namespace Baimp
 
 		#endregion
 
+		/// <summary>
+		/// Filter
+		/// </summary>
+		/// <param name="text">Text.</param>
 		public void Filter(string text)
 		{
 			string current = string.Empty;
@@ -72,11 +80,15 @@ namespace Baimp
 			if (string.IsNullOrEmpty(text)) {
 				this.DataSource = store;
 				this.ExpandAll();
+				isFiltered = false;
 				return;
 			}
 
+			isFiltered = true;
+
 			this.DataSource = storeFilter;
 			storeFilter.Clear();
+			filteredPositions.Clear();
 
 			TreePosition selectedRow = null;
 			TreeNavigator typeNode = store.GetFirstNode();
@@ -92,7 +104,9 @@ namespace Baimp
 							.SetValue(nameColFilter, typeNode.GetValue(nameCol))
 							.SetValue(saveStateColFilter, typeNode.GetValue(saveStateCol));
 							
-						if (typeNode.GetValue(nameCol) == current) {
+						string nameColValue = typeNode.GetValue(nameCol);
+						filteredPositions[nameColValue] = newElem.CurrentPosition;
+						if (nameColValue == current) {
 							selectedRow = newElem.CurrentPosition;
 						}
 					}
@@ -217,9 +231,19 @@ namespace Baimp
 					Image[] thumbnails = lScan.GenerateThumbnails();
 
 					if (thumbnails.Length > 0 && thumbnails[0] != null) {
-						Application.Invoke( () => 
-							store.GetNavigatorAt(lScan.position).SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48))
-						);
+						Application.Invoke( () => {
+							if (isFiltered) {
+								string name = store.GetNavigatorAt(lScan.position).GetValue(nameCol);
+								if (filteredPositions.ContainsKey(name)) {
+									storeFilter.GetNavigatorAt(filteredPositions[name])
+										.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(48));
+								}
+							}
+
+							store.GetNavigatorAt(lScan.position)
+								.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48));
+
+						});
 					}
 				}
 			});
