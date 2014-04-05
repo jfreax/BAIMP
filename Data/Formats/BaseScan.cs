@@ -24,7 +24,7 @@ namespace Baimp
 		private string filePath;
 
 		/// <summary>
-		/// Name of the scan
+		/// Name of the scan.
 		/// </summary>
 		private string name = string.Empty;
 
@@ -49,13 +49,13 @@ namespace Baimp
 		protected Xwt.Size size;
 
 		/// <summary>
-		/// Position in file tree view
+		/// Position in file tree view.
 		/// </summary>
 		[XmlIgnore]
 		public TreePosition position;
 
 		/// <summary>
-		/// Position of category item in file tree view
+		/// Position of category item in file tree view.
 		/// </summary>
 		[XmlIgnore]
 		public TreePosition parentPosition;
@@ -66,9 +66,14 @@ namespace Baimp
 		private bool isInitialized = false;
 
 		/// <summary>
-		/// Buffer of rendered images
+		/// Buffer of rendered images.
 		/// </summary>
 		private Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
+
+		/// <summary>
+		/// Buffer of thumbnails.
+		/// </summary>
+		XD.Image[] thumbnails;
 
 		/// <summary>
 		/// The metadata.
@@ -81,7 +86,7 @@ namespace Baimp
 		private Mask masks;
 
 		/// <summary>
-		/// Needed for xml serializer
+		/// Needed for xml serializer.
 		/// </summary>
 		protected BaseScan()
 		{
@@ -224,9 +229,9 @@ namespace Baimp
 		/// Saves them to project file (if there is any).
 		/// </summary>
 		/// <returns>The thumbnails.</returns>
-		public virtual XD.Image[] GenerateThumbnails()
+		public virtual XD.Image[] GetThumbnails()
 		{
-			XD.Image[] thumbnails = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+			XD.Image[] lThumbnails = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 				XD.Image[] ret = new XD.Image[AvailableScanTypes().Length];
 
 				int i = -1;
@@ -265,6 +270,9 @@ namespace Baimp
 
 			})) as XD.Image[];
 
+			if (lThumbnails != null) {
+				thumbnails = lThumbnails;
+			}
 			return thumbnails;
 		}
 

@@ -239,7 +239,7 @@ namespace Baimp
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				foreach (BaseScan scan in scansCopy) {
 					var lScan = scan;
-					Image[] thumbnails = lScan.GenerateThumbnails();
+					Image[] thumbnails = lScan.GetThumbnails();
 
 					if (thumbnails.Length > 0 && thumbnails[0] != null) {
 						Application.Invoke( () => {
