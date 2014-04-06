@@ -82,11 +82,17 @@ namespace Baimp
 			base.OnDraw(ctx, dirtyRect);
 
 			if (image != null) {
-				ctx.DrawImage(image, Point.Zero);
+				if(Heighlighted && IsThumbnail) {
+					ctx.RoundRectangle(new Rectangle(Point.Zero, image.Size), 3);
+					ctx.SetColor(Colors.LightSteelBlue);
+					ctx.Fill();
+				}
+
+				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 			}
 
 			if (mask != null) {
-				ctx.DrawImage(mask, Point.Zero);
+				ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 			}
 		}
 
@@ -238,11 +244,15 @@ namespace Baimp
 				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
 				ib.Context.ClosePath();
 			}
+
+			Heighlighted = false;
 		}
 
 		protected override void OnMouseEntered(EventArgs args)
 		{
-			this.SetFocus();
+			SetFocus();
+
+			Heighlighted = true;
 		}
 
 		protected override void OnBoundsChanged()
@@ -474,6 +484,11 @@ namespace Baimp
 					isEditMode = false;
 				}
 			}
+		}
+
+		bool Heighlighted {
+			get;
+			set;
 		}
 			
 		public bool IsThumbnail {

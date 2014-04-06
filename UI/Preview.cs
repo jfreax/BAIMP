@@ -95,7 +95,7 @@ namespace Baimp
 						RemoveFibertypeToShow(cb.Label);
 					}
 				};
-
+					
 				controller.PackStart(cb);
 			}
 
