@@ -36,7 +36,7 @@ namespace Baimp
 
 		// mouse actions
 		Pointer pointer;
-		const int pointerSize = 16;
+		int pointerSize = 16;
 
 		/// <summary>
 		/// Is edit mode (to draw mask) active?
@@ -286,6 +286,17 @@ namespace Baimp
 			if (isEditMode) {
 				mousePosition = new Point(args.X, args.Y);
 				QueueDraw();
+
+				if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
+					Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)) {
+
+					if (args.Direction == ScrollDirection.Up) {
+						pointerSize++;
+					} else {
+						pointerSize--;
+					}
+					args.Handled = true;
+				}
 			}
 		}
 
