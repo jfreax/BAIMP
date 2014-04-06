@@ -37,10 +37,21 @@ namespace Baimp
 		// mouse actions
 		Pointer pointer;
 		const int pointerSize = 16;
-		// state
+
+		/// <summary>
+		/// Is edit mode (to draw mask) active?
+		/// </summary>
 		bool isEditMode = false;
 
+		/// <summary>
+		/// Is scan view loaded?
+		/// </summary>
 		bool loadingComplete = false;
+
+		/// <summary>
+		/// Position of mouse pointer, Point.Zero if mouse exited view
+		/// </summary>
+		Point mousePosition;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
@@ -93,6 +104,16 @@ namespace Baimp
 
 			if (mask != null) {
 				ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
+			}
+
+			if (isEditMode && mousePosition != Point.Zero) {
+				Point scaleFactor = new Point(
+					scan.Size.Width / image.Size.Width, 
+					scan.Size.Height / image.Size.Height);
+
+				ctx.Arc(mousePosition.X, mousePosition.Y, pointerSize / scaleFactor.X, 0, 360);
+				ctx.SetColor(maskColor);
+				ctx.Fill();
 			}
 		}
 
@@ -221,6 +242,7 @@ namespace Baimp
 
 		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
+			mousePosition = new Point(args.X, args.Y);
 			if (isEditMode) {
 				Point scaleFactor = new Point(
 					scan.Size.Width / image.Size.Width, 
@@ -233,6 +255,8 @@ namespace Baimp
 						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
 					);
 				}
+
+				QueueDraw();
 			}
 		}
 
@@ -253,6 +277,16 @@ namespace Baimp
 			SetFocus();
 
 			Heighlighted = true;
+		}
+
+		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
+		{
+			base.OnMouseScrolled(args);
+
+			if (isEditMode) {
+				mousePosition = new Point(args.X, args.Y);
+				QueueDraw();
+			}
 		}
 
 		protected override void OnBoundsChanged()
