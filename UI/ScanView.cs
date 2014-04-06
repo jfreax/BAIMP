@@ -263,6 +263,7 @@ namespace Baimp
 		protected override void OnMouseExited(EventArgs args)
 		{
 			pointer = Pointer.None;
+			mousePosition = Point.Zero;
 
 			if (isEditMode) {
 				ImageBuilder ib = scan.Masks.GetMaskBuilder();
@@ -270,6 +271,8 @@ namespace Baimp
 			}
 
 			Heighlighted = false;
+
+			QueueDraw();
 		}
 
 		protected override void OnMouseEntered(EventArgs args)
