@@ -4,31 +4,23 @@ using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
 
-
 namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
 		ScanCollection scanCollection;
 		ScanCollection scanCollectionUnfiltered;
-
 		public DataField<Image> thumbnailCol = new DataField<Image>();
 		public DataField<string> nameCol = new DataField<string>();
 		public DataField<string> saveStateCol = new DataField<string>();
-
 		public DataField<Image> thumbnailColFilter = new DataField<Image>();
 		public DataField<string> nameColFilter = new DataField<string>();
 		public DataField<string> saveStateColFilter = new DataField<string>();
-
 		public TreeStore store;
 		public TreeStore storeFilter;
-
 		private Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
-
 		bool isFiltered = false;
-
 		Menu contextMenu;
-
 		private Dictionary<string, TreePosition> fiberTypeNodes;
 
 		#region initialize
@@ -227,7 +219,7 @@ namespace Baimp
 			}
 			scan.parentPosition = parentNodePosition;
 		}
-			
+
 		/// <summary>
 		/// Loads previews of all loaded file async.
 		/// Show them in tree view.
@@ -237,26 +229,29 @@ namespace Baimp
 		{
 			ManagedThreadPool.QueueUserWorkItem(o => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
-				foreach (BaseScan scan in scansCopy) {
-					var lScan = scan;
-					Image[] thumbnails = lScan.GetThumbnails();
+				Project.RequestZipAccess(new Project.ZipUsageCallback((zipFile) => {
+					foreach (BaseScan scan in scansCopy) {
+						var lScan = scan;
+						Image[] thumbnails = lScan.GetThumbnails(zipFile);
 
-					if (thumbnails.Length > 0 && thumbnails[0] != null) {
-						Application.Invoke( () => {
-							if (isFiltered) {
-								string name = store.GetNavigatorAt(lScan.position).GetValue(nameCol);
-								if (filteredPositions.ContainsKey(name)) {
-									storeFilter.GetNavigatorAt(filteredPositions[name])
+						if (thumbnails.Length > 0 && thumbnails[0] != null) {
+							Application.Invoke(() => {
+								if (isFiltered) {
+									string name = store.GetNavigatorAt(lScan.position).GetValue(nameCol);
+									if (filteredPositions.ContainsKey(name)) {
+										storeFilter.GetNavigatorAt(filteredPositions[name])
 										.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(48));
+									}
 								}
-							}
 
-							store.GetNavigatorAt(lScan.position)
+								store.GetNavigatorAt(lScan.position)
 								.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48));
 
-						});
+							});
+						}
 					}
-				}
+					return null;
+				}));
 			});
 		}
 

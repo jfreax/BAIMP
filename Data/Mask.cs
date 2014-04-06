@@ -12,6 +12,8 @@ namespace Baimp
 {
 	public class Mask
 	{
+		public delegate void ImageLoadedCallback(XD.Image image);
+
 		private readonly BaseScan scan;
 		private XD.ImageBuilder maskBuilder;
 
@@ -54,12 +56,12 @@ namespace Baimp
 		public XD.ImageBuilder GetMaskBuilder()
 		{
 			if (maskBuilder == null) {
-				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
+					maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
-				XD.Image mask = LoadMask();
-				if (mask != null) {
-					maskBuilder.Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
-				}
+					XD.Image mask = LoadMask();
+					if (mask != null) {
+						maskBuilder.Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
+					}
 			}
 				
 			return maskBuilder;
@@ -69,10 +71,27 @@ namespace Baimp
 		/// Gets the mask as image.
 		/// </summary>
 		/// <returns>The mask as image.</returns>
-		/// <param name="scanType">Type.</param>
 		public XD.Image GetMaskAsImage()
 		{
-			return GetMaskBuilder().ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
+			var mb = GetMaskBuilder();
+			if (mb == null) {
+				return null;
+			}
+
+			return mb.ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
+		}
+
+		/// <summary>
+		/// Gets the mask as image.
+		/// </summary>
+		/// <returns>The mask as image.</returns>
+		public void GetMaskAsImageAsync(ImageLoadedCallback callback)
+		{
+			ManagedThreadPool.QueueUserWorkItem(o => {
+				XD.Image maskImage = GetMaskBuilder().ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
+
+				Application.Invoke(() => callback(maskImage));
+			});
 		}
 			
 

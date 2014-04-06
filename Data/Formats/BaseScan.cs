@@ -232,49 +232,60 @@ namespace Baimp
 		/// <returns>The thumbnails.</returns>
 		public virtual XD.Image[] GetThumbnails()
 		{
-			XD.Image[] lThumbnails = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-				XD.Image[] ret = new XD.Image[AvailableScanTypes().Length];
-
-				int i = -1;
-				foreach (string scanType in AvailableScanTypes()) {
-					i++;
-
-					if(zipFile != null) {
-						ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}_{1}.png", Name, scanType));
-						if(maskEntry != null) {
-							Stream previewStream = zipFile.GetInputStream(maskEntry);
-							ret[i] = XD.Image.FromStream(previewStream);
-							continue;
-						}
-					}
-
-					XD.Image newImage = GetAsImage(scanType, false);
-
-					Xwt.Drawing.BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
-					newImage.Dispose();
-
-					MemoryStream mStream = new MemoryStream();
-					newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
-					mStream.Position = 0;
-					CustomStaticDataSource source = new CustomStaticDataSource(mStream);
-
-					if(zipFile != null) {
-						zipFile.BeginUpdate();
-						zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
-						zipFile.IsStreamOwner = true;
-						zipFile.CommitUpdate();
-					}
-
-					ret[i] = newRenderedImage;
-				}
-				return ret;
-
-			})) as XD.Image[];
+			XD.Image[] lThumbnails = 
+				Project.RequestZipAccess(
+					new Project.ZipUsageCallback(GetThumbnails)
+				) as XD.Image[];
 
 			if (lThumbnails != null) {
 				thumbnails = lThumbnails;
 			}
 			return thumbnails;
+		}
+
+		/// <summary>
+		/// Generates thumbnails of every scan type from this scan.
+		/// Saves them to project file (if there is any).
+		/// </summary>
+		/// <returns>The thumbnails.</returns>
+		/// <param name="zipFile">Zipfile handler.</param>
+		public virtual XD.Image[] GetThumbnails(ZipFile zipFile)
+		{
+			XD.Image[] ret = new XD.Image[AvailableScanTypes().Length];
+
+			int i = -1;
+			foreach (string scanType in AvailableScanTypes()) {
+				i++;
+
+				if(zipFile != null) {
+					ZipEntry maskEntry = zipFile.GetEntry(String.Format("thumbnails/{0}_{1}.png", Name, scanType));
+					if(maskEntry != null) {
+						Stream previewStream = zipFile.GetInputStream(maskEntry);
+						ret[i] = XD.Image.FromStream(previewStream);
+						continue;
+					}
+				}
+
+				XD.Image newImage = GetAsImage(scanType, false);
+
+				Xwt.Drawing.BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
+				newImage.Dispose();
+
+				MemoryStream mStream = new MemoryStream();
+				newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
+				mStream.Position = 0;
+				CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+
+				if(zipFile != null) {
+					zipFile.BeginUpdate();
+					zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
+					zipFile.IsStreamOwner = true;
+					zipFile.CommitUpdate();
+				}
+
+				ret[i] = newRenderedImage;
+			}
+			return ret;
 		}
 
 		/// <summary>

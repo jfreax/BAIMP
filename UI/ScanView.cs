@@ -157,9 +157,13 @@ namespace Baimp
 			currentShownType = scanType;
 			EditMode = false;
 
+			scan.Masks.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
+				Mask = loadedMask;
+				QueueDraw();
+			}));
+
 			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				Image = loadedImage;
-				Mask = scan.Masks.GetMaskAsImage();
 
 				QueueDraw();
 
