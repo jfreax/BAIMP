@@ -13,7 +13,7 @@ namespace Baimp
 	public class Mask
 	{
 		private readonly BaseScan scan;
-		private Dictionary<string, XD.ImageBuilder> maskBuilder = new Dictionary<string, XD.ImageBuilder>();
+		private XD.ImageBuilder maskBuilder;
 
 		public Mask(BaseScan scan)
 		{
@@ -24,13 +24,12 @@ namespace Baimp
 		/// Loads mask data
 		/// </summary>
 		/// <returns>The mask as an image.</returns>
-		/// <param name="scanType">Type.</param>
-		private XD.Image LoadMask(string scanType)
+		private XD.Image LoadMask()
 		{
 			XD.Image mask = null;
 			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 				if (zipFile != null) {
-					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename(scanType));
+					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
 					if (maskEntry != null) {
 						Stream maskStream = zipFile.GetInputStream(maskEntry);
 						mask = XD.Image.FromStream(maskStream);
@@ -49,22 +48,21 @@ namespace Baimp
 		/// Gets the mask builder to draw on it.
 		/// </summary>
 		/// <returns>The mask builder.</returns>
-		/// <param name="scanType">Type.</param>
 		/// <remarks>
 		/// Set the status of this scan to "unsaved"
 		/// </remarks>
-		public XD.ImageBuilder GetMaskBuilder(string scanType)
+		public XD.ImageBuilder GetMaskBuilder()
 		{
-			if (!maskBuilder.ContainsKey(scanType) || maskBuilder[scanType] == null) {
-				maskBuilder[scanType] = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
+			if (maskBuilder == null) {
+				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
-				XD.Image mask = LoadMask(scanType);
+				XD.Image mask = LoadMask();
 				if (mask != null) {
-					maskBuilder[scanType].Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
+					maskBuilder.Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
 				}
 			}
-
-			return maskBuilder[scanType];
+				
+			return maskBuilder;
 		}
 
 		/// <summary>
@@ -72,21 +70,20 @@ namespace Baimp
 		/// </summary>
 		/// <returns>The mask as image.</returns>
 		/// <param name="scanType">Type.</param>
-		public XD.Image GetMaskAsImage(string scanType)
+		public XD.Image GetMaskAsImage()
 		{
-			return GetMaskBuilder(scanType).ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
+			return GetMaskBuilder().ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
 		}
 			
 
 		/// <summary>
 		/// Saves the mask.
 		/// </summary>
-		/// <param name="scanType">Type.</param>
-		public unsafe void Save(string scanType)
+		public unsafe void Save()
 		{
 			MemoryStream outStream = new MemoryStream();
 
-			XD.BitmapImage mask = GetMaskBuilder(scanType).ToBitmap();
+			XD.BitmapImage mask = GetMaskBuilder().ToBitmap();
 			XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
 
 			if (MainClass.toolkitType == ToolkitType.Gtk) {
@@ -151,36 +148,37 @@ namespace Baimp
 
 				CustomStaticDataSource source = new CustomStaticDataSource(outStream);
 
-				zipFile.Add(source, MaskFilename(scanType));
+				zipFile.Add(source, MaskFilename());
 				zipFile.IsStreamOwner = true;
 				zipFile.CommitUpdate();
 
 				return null;
 			}));
 
-			maskBuilder[scanType].Dispose();
-			maskBuilder[scanType] = null;
+			maskBuilder.Dispose();
+			maskBuilder = null;
 
-			scan.NotifySaved("mask_" + scanType);
+			scan.NotifySaved("mask");
 		}
 
 
 		/// <summary>
 		/// Resets mask data
 		/// </summary>
-		/// <param name="scanType">Scan type.</param>
-		public void ResetMask(string scanType)
+		public void ResetMask()
 		{
-			maskBuilder[scanType].Dispose();
-			maskBuilder[scanType] = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
+			if (maskBuilder != null) {
+				maskBuilder.Dispose();
+				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
-			scan.NotifyChange("mask_" + scanType);
+				scan.NotifyChange("mask");
+			}
 		}
 
 
-		private string MaskFilename(string scanType)
+		private string MaskFilename()
 		{
-			return String.Format("masks/{0}_{1}.png", scan.Name, scanType);
+			return String.Format("masks/{0}.png", scan.Name);
 		}
 	}
 }

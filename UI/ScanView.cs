@@ -73,8 +73,8 @@ namespace Baimp
 
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-				if (e.Changed.Equals("mask_" + currentShownType)) {
-					Mask = scan.Masks.GetMaskAsImage(currentShownType);
+				if (e.Changed.Equals("mask")) {
+					Mask = scan.Masks.GetMaskAsImage();
 				}
 			};
 
@@ -136,7 +136,7 @@ namespace Baimp
 
 			MenuItem contextResetMask = new MenuItem("Reset mask");
 			contextResetMask.UseMnemonic = true;
-			contextResetMask.Clicked += (object sender, EventArgs e) => scan.Masks.ResetMask(currentShownType);
+			contextResetMask.Clicked += (object sender, EventArgs e) => scan.Masks.ResetMask();
 			contextMenu.Items.Add(contextResetMask);
 
 			MenuItem contextSaveMask = new MenuItem("Save changes");
@@ -159,7 +159,7 @@ namespace Baimp
 
 			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				Image = loadedImage;
-				Mask = scan.Masks.GetMaskAsImage(currentShownType);
+				Mask = scan.Masks.GetMaskAsImage();
 
 				QueueDraw();
 
@@ -202,10 +202,10 @@ namespace Baimp
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
-					scan.NotifyChange("mask_" + currentShownType);
+					scan.NotifyChange("mask");
 
 					Point positionInImage = new Point(args.X * scaleFactor.X, args.Y * scaleFactor.Y);
-					ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+					ImageBuilder ib = scan.Masks.GetMaskBuilder();
 					ib.Context.NewPath();
 					ib.Context.MoveTo(positionInImage);
 
@@ -230,7 +230,7 @@ namespace Baimp
 				pointer ^= Pointer.Left;
 
 				if (isEditMode) {
-					ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+					ImageBuilder ib = scan.Masks.GetMaskBuilder();
 					ib.Context.ClosePath();
 				}
 				break;
@@ -265,7 +265,7 @@ namespace Baimp
 			pointer = Pointer.None;
 
 			if (isEditMode) {
-				ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+				ImageBuilder ib = scan.Masks.GetMaskBuilder();
 				ib.Context.ClosePath();
 			}
 
@@ -340,7 +340,7 @@ namespace Baimp
 
 				if (loadingComplete) {
 					image = scan.GetAsImage(currentShownType);
-					mask = scan.Masks.GetMaskAsImage(currentShownType);
+					mask = scan.Masks.GetMaskAsImage();
 				}
 
 				if (Parent != null && Parent.Parent != null) {
@@ -362,7 +362,7 @@ namespace Baimp
 		/// <param name="unset">If set to <c>true</c> delete mask on position.</param>
 		private void SetMask(Point position, bool unset = false)
 		{
-			ImageBuilder ib = scan.Masks.GetMaskBuilder(currentShownType);
+			ImageBuilder ib = scan.Masks.GetMaskBuilder();
 			if (position.X > ib.Width || position.Y > ib.Height) {
 				return;
 			}
@@ -397,7 +397,7 @@ namespace Baimp
 				ib.Context.MoveTo(position);
 			}
 
-			Mask = scan.Masks.GetMaskAsImage(currentShownType);
+			Mask = scan.Masks.GetMaskAsImage();
 			QueueDraw();
 		}
 
@@ -406,8 +406,8 @@ namespace Baimp
 		/// </summary>
 		public void SaveMask()
 		{
-			scan.Masks.Save(currentShownType);
-			mask = scan.Masks.GetMaskAsImage(currentShownType);
+			scan.Masks.Save();
+			mask = scan.Masks.GetMaskAsImage();
 		}
 
 		/// <summary>

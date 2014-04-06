@@ -342,11 +342,8 @@ namespace Baimp
 		{
 			HashSet<string> unsavedCopy = new HashSet<string>(unsaved);
 			foreach (string toSave in unsavedCopy) {
-				if (toSave.StartsWith("mask_", StringComparison.Ordinal)) {
-					string[] splitted = toSave.Split('_');
-					if (splitted.Length >= 2) {
-						masks.Save(splitted[1]);
-					}
+				if (toSave == "mask") {
+					masks.Save();
 				}
 			}
 			if (unsaved.Count > 0) {
