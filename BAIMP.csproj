@@ -140,6 +140,7 @@
     <Compile Include="Helper\ThreadPool.cs" />
     <Compile Include="UI\MetadataDialog.cs" />
     <Compile Include="UI\FileTreeFilter.cs" />
+    <Compile Include="UI\StatusBar.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

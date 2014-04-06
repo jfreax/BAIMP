@@ -3,6 +3,7 @@
 //
 // Very simple threadpool in C#.
 // 4/27/04
+using Xwt;
 
 #region Namespaces
 using System;
@@ -89,7 +90,7 @@ namespace Baimp
 	{
 		#region Constants
 		/// <summary>Maximum number of threads the thread pool has at its disposal.</summary>
-		private const int _maxWorkerThreads = 16;
+		private const int _maxWorkerThreads = 3;
 		#endregion
 
 		#region Member Variables
@@ -262,9 +263,34 @@ namespace Baimp
 					{
 						Interlocked.Decrement(ref _inUseThreads);
 					}
+
+					Application.Invoke(() => {
+						if (activeThreadsChanged != null) {
+							activeThreadsChanged(null, new EventArgs());
+						}
+					});
 				}
 			}
 		}
+		#endregion
+
+		#region Custom Events
+
+		static EventHandler<EventArgs> activeThreadsChanged;
+
+		/// <summary>
+		/// Occurs when number of active threads changes
+		/// </summary>
+		public static event EventHandler<EventArgs> ActiveThreadsChanged {
+			add {
+				activeThreadsChanged += value;
+			}
+			remove {
+				activeThreadsChanged -= value;
+			}
+		}
+
+
 		#endregion
 
 		/// <summary>Used to hold a callback delegate and the state for that delegate.</summary>

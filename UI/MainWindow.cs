@@ -165,7 +165,11 @@ namespace Baimp
 			splitAlgorithmTree.Panel1.Content = splitController_Preview;
 			splitAlgorithmTree.Panel2.Content = pipelineShelf;
 
-			Content = splitAlgorithmTree;
+			VBox splitMain_Status = new VBox();
+			splitMain_Status.PackStart(splitAlgorithmTree, true, true);
+			splitMain_Status.PackEnd(new StatusBar());
+
+			Content = splitMain_Status;
 		}
 
 		/// <summary>
