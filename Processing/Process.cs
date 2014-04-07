@@ -45,7 +45,10 @@ namespace Baimp
 
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ManagedThreadPool.QueueUserWorkItem(o => {
-				startNode.algorithm.Yielded += GetSingleData;
+				var inputResult1 = inputResult;
+				EventHandler<AlgorithmEventArgs> yieldFun = 
+					(object sender, AlgorithmEventArgs e) => GetSingleData(inputResult1, sender, e);
+				startNode.algorithm.Yielded += yieldFun;
 
 				startNode.algorithm.SetProgress(0);
 				IType[] output = startNode.algorithm.Run(
@@ -58,8 +61,8 @@ namespace Baimp
 				foreach (Result res in inputResult) {
 					res.Finish(startNode);
 				}
-
-				startNode.algorithm.Yielded -= GetSingleData;
+					
+				startNode.algorithm.Yielded -= yieldFun;
 				if (output != null) { // null means, there is no more data
 					Application.Invoke( () => callback(output, inputResult) );
 				}
@@ -141,13 +144,16 @@ namespace Baimp
 			}
 		}
 
-		private void GetSingleData(object sender, AlgorithmEventArgs e)
+		private void GetSingleData(Result[] origInput, object sender, AlgorithmEventArgs e)
 		{
 			if (e.InputRef != null) {
 			Result[] inputResults = new Result[e.InputRef.Length];
 				int i = 0;
 				foreach (IType input in e.InputRef) {
-					inputResults[i] = new Result(input, null, true);
+					inputResults[i] = new Result(
+						input, 
+						origInput.Length > i ? origInput[i].Input : null,
+						true);
 					i++;
 				}
 				OnFinish(e.Data, inputResults);
@@ -155,6 +161,12 @@ namespace Baimp
 				OnFinish(e.Data, null);
 			}
 		}
+			
+		static Func<T2, T3, TResult> ApplyPartial<T1, T2, T3, TResult>
+		(Func<T1, T2, T3, TResult> function, T1 arg1) 
+		{ 
+			return (b, c) => function(arg1, b, c); 
+		} 
 	}
 }
 
