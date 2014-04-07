@@ -838,6 +838,14 @@ namespace Baimp
 		}
 
 		#endregion
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			if (popupWindow.Content != null) {
+				popupWindow.Content.Dispose();
+			}
+		}
 	}
 }
 
