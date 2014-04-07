@@ -242,7 +242,7 @@ namespace Baimp
 				pNode.ClearInputQueue();
 
 				if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
-					Process process = new Process(project, pNode, null);
+					Process process = new Process(project, pNode);
 					Result[] zeroInput = new Result[0];
 					process.Start(zeroInput);
 				}

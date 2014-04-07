@@ -9,25 +9,14 @@ namespace Baimp
 	public class Process
 	{
 		PipelineNode startNode;
-		PipelineNode inputDataFromNode;
 		Project project;
 
 		public delegate void OnTaskCompleteDelegate(IType[] result, Result[] inputRef);
 
-		public Process(Project project, PipelineNode startNode, PipelineNode inputDataFromNode)
+		public Process(Project project, PipelineNode startNode)
 		{
 			this.project = project;
 			this.startNode = startNode;
-			this.inputDataFromNode = inputDataFromNode;
-
-			startNode.algorithm.requestedData.Clear(); // FIXME
-			foreach (RequestType request in startNode.algorithm.Request) {
-				switch (request) {
-				case RequestType.ScanCollection:
-					startNode.algorithm.requestedData.Add(RequestType.ScanCollection, project.scanCollection);
-					break;
-				}
-			}
 		}
 
 		/// <summary>
@@ -44,6 +33,16 @@ namespace Baimp
 					i++;
 				}
 			}
+
+			Dictionary<RequestType, object> requestedData = new Dictionary<RequestType, object>();
+			foreach (RequestType request in startNode.algorithm.Request) {
+				switch (request) {
+				case RequestType.ScanCollection:
+					requestedData.Add(RequestType.ScanCollection, project.scanCollection);
+					break;
+				}
+			}
+
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ManagedThreadPool.QueueUserWorkItem(o => {
 				bool isSeqData = startNode.algorithm.OutputsSequentialData();
@@ -53,7 +52,7 @@ namespace Baimp
 
 				startNode.algorithm.SetProgress(0);
 				IType[] output = startNode.algorithm.Run(
-					                 startNode.algorithm.requestedData,
+					                 requestedData,
 					                 startNode.algorithm.options.ToArray(),
 					                 input
 				                 );
@@ -128,7 +127,7 @@ namespace Baimp
 
 					// start next node
 					if (targetNode.parent.IsReady()) {
-						Process newProcess = new Process(project, targetNode.parent, startNode);
+						Process newProcess = new Process(project, targetNode.parent);
 						newProcess.Start(targetNode.parent.DequeueInput());
 					}
 				}

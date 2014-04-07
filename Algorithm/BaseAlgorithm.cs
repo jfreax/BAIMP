@@ -40,11 +40,6 @@ namespace Baimp
 		protected HashSet<RequestType> request;
 
 		/// <summary>
-		/// The requested data.
-		/// </summary>
-		public Dictionary<RequestType, object> requestedData;
-
-		/// <summary>
 		/// List of all options
 		/// </summary>
 		public List<Option> options;
@@ -57,7 +52,6 @@ namespace Baimp
 			input = new List<Compatible>();
 			output = new List<Compatible>();
 			request = new HashSet<RequestType>();
-			requestedData = new Dictionary<RequestType, object>();
 			options = new List<Option>();
 		}
 
