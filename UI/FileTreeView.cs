@@ -227,6 +227,10 @@ namespace Baimp
 		/// <param name="scans">Scans.</param>
 		private void LoadPreviewsAsync(ScanCollection scans)
 		{
+			foreach (BaseScan scan in scans) {
+				scan.isLoadingThumbnail = true;
+			}
+
 			ManagedThreadPool.QueueUserWorkItem(o => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				Project.RequestZipAccess(new Project.ZipUsageCallback((zipFile) => {
@@ -252,6 +256,10 @@ namespace Baimp
 					}
 					return null;
 				}));
+
+				foreach (BaseScan scan in scans) {
+					scan.isLoadingThumbnail = false;
+				}
 			});
 		}
 

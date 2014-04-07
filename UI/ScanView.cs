@@ -100,10 +100,10 @@ namespace Baimp
 				}
 
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
-			}
 
-			if (mask != null) {
-				ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
+				if (mask != null) {
+					ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
+				}
 			}
 
 			if (isEditMode && mousePosition != Point.Zero) {
@@ -161,7 +161,7 @@ namespace Baimp
 				Mask = loadedMask;
 				QueueDraw();
 			}));
-
+				
 			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				Image = loadedImage;
 

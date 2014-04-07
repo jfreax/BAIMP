@@ -77,6 +77,11 @@ namespace Baimp
 		XD.Image[] thumbnails;
 
 		/// <summary>
+		/// True if a background worker loads the thumbnail image.
+		/// </summary>
+		public bool isLoadingThumbnail;
+
+		/// <summary>
 		/// The metadata.
 		/// </summary>
 		private List<Metadata> metadata = new List<Metadata>();
@@ -232,6 +237,15 @@ namespace Baimp
 		/// <returns>The thumbnails.</returns>
 		public virtual XD.Image[] GetThumbnails()
 		{
+			if (thumbnails != null) {
+				return thumbnails;
+			}
+
+			if (isLoadingThumbnail) {
+				return null;
+			}
+
+			isLoadingThumbnail = true;
 			XD.Image[] lThumbnails = 
 				Project.RequestZipAccess(
 					new Project.ZipUsageCallback(GetThumbnails)
@@ -240,6 +254,8 @@ namespace Baimp
 			if (lThumbnails != null) {
 				thumbnails = lThumbnails;
 			}
+
+			isLoadingThumbnail = false;
 			return thumbnails;
 		}
 
@@ -285,6 +301,11 @@ namespace Baimp
 
 				ret[i] = newRenderedImage;
 			}
+
+			if (ret != null) {
+				thumbnails = ret;
+			}
+
 			return ret;
 		}
 
