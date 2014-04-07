@@ -119,8 +119,6 @@
     <Compile Include="DataType\IType.cs" />
     <Compile Include="DataType\TMatrix.cs" />
     <Compile Include="DataType\TBitmap.cs" />
-    <Compile Include="DataType\Sequential.cs" />
-    <Compile Include="DataType\Parallel.cs" />
     <Compile Include="Contraint\BaseConstraint.cs" />
     <Compile Include="Contraint\MaximumUses.cs" />
     <Compile Include="Processing\Pipeline\ControllButton.cs" />
@@ -141,6 +139,7 @@
     <Compile Include="UI\FileTreeFilter.cs" />
     <Compile Include="UI\StatusBar.cs" />
     <Compile Include="Event\AlgorithmEventArgs.cs" />
+    <Compile Include="Algorithm\Misc\Windower.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -179,6 +178,7 @@
     <Folder Include="DataType\" />
     <Folder Include="Contraint\" />
     <Folder Include="UI\Widget\Controller\" />
+    <Folder Include="Algorithm\Misc\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

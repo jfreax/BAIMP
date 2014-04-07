@@ -45,10 +45,7 @@ namespace Baimp
 
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ManagedThreadPool.QueueUserWorkItem(o => {
-				bool isSeqData = startNode.algorithm.OutputsSequentialData();
-				if (isSeqData) {
-					startNode.algorithm.Yielded += GetSingleData;
-				}
+				startNode.algorithm.Yielded += GetSingleData;
 
 				startNode.algorithm.SetProgress(0);
 				IType[] output = startNode.algorithm.Run(
@@ -62,12 +59,9 @@ namespace Baimp
 					res.Finish(startNode);
 				}
 
-				if (isSeqData) {
-					startNode.algorithm.Yielded -= GetSingleData;
-				} else {
-					if (output != null) { // null means, there is no more data
-						Application.Invoke( () => callback(output, inputResult) );
-					}
+				startNode.algorithm.Yielded -= GetSingleData;
+				if (output != null) { // null means, there is no more data
+					Application.Invoke( () => callback(output, inputResult) );
 				}
 			});
 		}

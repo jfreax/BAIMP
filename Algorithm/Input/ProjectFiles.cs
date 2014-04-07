@@ -10,16 +10,16 @@ namespace Baimp
 		{
 			output.Add(new Compatible(
 				"Intensity",
-				typeof(Sequential<TBitmap>)
+				typeof(TBitmap)
 			));
 			output.Add(new Compatible(
 				"Topography", 
-				typeof(Sequential<TBitmap>),
+				typeof(TBitmap),
 				new MaximumUses(2)
 			));
 			output.Add(new Compatible(
 				"Color",
-				typeof(Sequential<TBitmap>)
+				typeof(TBitmap)
 			));
 
 			request.Add(RequestType.ScanCollection);

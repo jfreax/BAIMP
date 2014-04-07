@@ -89,21 +89,10 @@ namespace Baimp
 		/// <param name="inputRef">Reference to input data to compute the result.</param>
 		protected void Yield(IType[] data, params IType[] inputRef)
 		{
-			if (yielded != null) {
-				Application.Invoke( () => yielded(this, new AlgorithmEventArgs(data, inputRef)) );
+			var yieldCopy = yielded;
+			if (yieldCopy != null) {
+				Application.Invoke( () => yieldCopy(this, new AlgorithmEventArgs(data, inputRef)) );
 			}
-		}
-
-		public bool OutputsSequentialData()
-		{
-			foreach (Compatible comp in output) {
-				if (comp.Type.IsGenericType &&
-				    comp.Type.GetGenericTypeDefinition().IsEquivalentTo(typeof(Sequential<>))) {
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		/// <summary>
