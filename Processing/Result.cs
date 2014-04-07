@@ -11,11 +11,21 @@ namespace Baimp
 
 		private bool preserve;
 		private readonly HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
+
+		/// <summary>
+		/// The payload.
+		/// </summary>
 		public readonly IType Data;
 
-		public Result(ref IType data, bool preserve = false)
+		/// <summary>
+		/// The input that was used to compute these data.
+		/// </summary>
+		public readonly Result[] Input;
+
+		public Result(IType data, Result[] input, bool preserve = false)
 		{
 			this.Data = data;
+			this.Input = input;
 			this.preserve = preserve;
 		}
 
@@ -35,7 +45,7 @@ namespace Baimp
 			lock (removeLock) {
 				usedBy.Remove(by);
 				if (usedBy.Count <= 0 && !preserve) {
-					Data.Dispose();
+					Dispose();
 				}
 			}
 		}

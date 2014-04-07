@@ -14,7 +14,7 @@ namespace Baimp
 {
 	[XmlInclude(typeof(DDPlusScan))]
 	[XmlInclude(typeof(VK4Scan))]
-	abstract public class BaseScan
+	abstract public class BaseScan : IType
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
 		private Object asyncImageLock = new Object();
@@ -524,6 +524,16 @@ namespace Baimp
 		}
 
 		#endregion
+
+		public Widget ToWidget()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
 

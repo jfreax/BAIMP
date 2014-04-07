@@ -42,8 +42,15 @@ namespace Baimp
 
 		bool saveResult;
 
+		/// <summary>
+		/// Reference to all results + their input data.
+		/// Is filled only, if user wants to save them.
+		/// 
+		/// First element is the actual result data.
+		/// Second is the input data.
+		/// </summary>
 		[XmlIgnore]
-		public List<IType[]> results = new List<IType[]>();
+		public List<Tuple<IType[], Result[]>> results = new List<Tuple<IType[], Result[]>>();
 
 
 		#region initialize

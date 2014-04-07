@@ -9,16 +9,18 @@ namespace Baimp
 	public class Process
 	{
 		PipelineNode startNode;
+		PipelineNode inputDataFromNode;
 		Project project;
 
-		public delegate void OnTaskCompleteDelegate(IType[] result);
+		public delegate void OnTaskCompleteDelegate(IType[] result, Result[] inputRef);
 
-		public Process(Project project, PipelineNode startNode)
+		public Process(Project project, PipelineNode startNode, PipelineNode inputDataFromNode)
 		{
 			this.project = project;
 			this.startNode = startNode;
+			this.inputDataFromNode = inputDataFromNode;
 
-			startNode.algorithm.requestedData.Clear();
+			startNode.algorithm.requestedData.Clear(); // FIXME
 			foreach (RequestType request in startNode.algorithm.Request) {
 				switch (request) {
 				case RequestType.ScanCollection:
@@ -65,7 +67,7 @@ namespace Baimp
 					startNode.algorithm.Yielded -= GetSingleData;
 				} else {
 					if (output != null) { // null means, there is no more data
-						Application.Invoke( () => callback(output) );
+						Application.Invoke( () => callback(output, inputResult) );
 					}
 				}
 			});
@@ -75,7 +77,8 @@ namespace Baimp
 		/// Callback function called when algorithm finished
 		/// </summary>
 		/// <param name="result">Output of algorithm.</param>
-		private void OnFinish(IType[] result)
+		/// <param name="input">Reference to the data, that was used to compute these results</param>
+		private void OnFinish(IType[] result, params Result[] input)
 		{
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 
@@ -84,12 +87,12 @@ namespace Baimp
 			}
 
 			if (startNode.SaveResult) {
-				startNode.results.Add(result);
+				startNode.results.Add(new Tuple<IType[], Result[]>(result, input));
 			}
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
-				Result resultWrapper = new Result(ref result[i], startNode.SaveResult);
+				Result resultWrapper = new Result(result[i], input, startNode.SaveResult);
 
 				Result[] resultWrapperList = null;
 //				if (result[i].GetType().IsArray) {
@@ -125,7 +128,7 @@ namespace Baimp
 
 					// start next node
 					if (targetNode.parent.IsReady()) {
-						Process newProcess = new Process(project, targetNode.parent);
+						Process newProcess = new Process(project, targetNode.parent, startNode);
 						newProcess.Start(targetNode.parent.DequeueInput());
 					}
 				}
@@ -145,9 +148,19 @@ namespace Baimp
 			}
 		}
 
-		private void GetSingleData(object sender, AlgorithmDataArgs e)
+		private void GetSingleData(object sender, AlgorithmEventArgs e)
 		{
-			OnFinish(e.data);
+			if (e.InputRef != null) {
+			Result[] inputResults = new Result[e.InputRef.Length];
+				int i = 0;
+				foreach (IType input in e.InputRef) {
+					inputResults[i] = new Result(input, null, true);
+					i++;
+				}
+				OnFinish(e.Data, inputResults);
+			} else {
+				OnFinish(e.Data, null);
+			}
 		}
 	}
 }

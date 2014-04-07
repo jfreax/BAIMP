@@ -88,10 +88,15 @@ namespace Baimp
 
 		#region do not override
 
-		protected void Yield(IType[] data)
+		/// <summary>
+		/// Yield the specified data array.
+		/// </summary>
+		/// <param name="data">Data.</param>
+		/// <param name="inputRef">Reference to input data to compute the result.</param>
+		protected void Yield(IType[] data, params IType[] inputRef)
 		{
 			if (yielded != null) {
-				Application.Invoke( () => yielded(this, new AlgorithmDataArgs(data)) );
+				Application.Invoke( () => yielded(this, new AlgorithmEventArgs(data, inputRef)) );
 			}
 		}
 
@@ -121,12 +126,12 @@ namespace Baimp
 
 		#region events
 
-		EventHandler<AlgorithmDataArgs> yielded;
+		EventHandler<AlgorithmEventArgs> yielded;
 
 		/// <summary>
 		/// Yield sequential data
 		/// </summary>
-		public event EventHandler<AlgorithmDataArgs> Yielded {
+		public event EventHandler<AlgorithmEventArgs> Yielded {
 			add {
 				yielded += value;
 			}

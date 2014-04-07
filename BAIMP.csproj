@@ -98,7 +98,6 @@
     <Compile Include="Algorithm\Input\ProjectFiles.cs" />
     <Compile Include="Algorithm\Descriptor\GLCM.cs" />
     <Compile Include="Processing\Process.cs" />
-    <Compile Include="Event\AlgorithmDataArgs.cs" />
     <Compile Include="Event\ProgressEventArgs.cs" />
     <Compile Include="Option\Option.cs" />
     <Compile Include="UI\Widget\ResultPopupView.cs" />
@@ -141,6 +140,7 @@
     <Compile Include="UI\MetadataDialog.cs" />
     <Compile Include="UI\FileTreeFilter.cs" />
     <Compile Include="UI\StatusBar.cs" />
+    <Compile Include="Event\AlgorithmEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

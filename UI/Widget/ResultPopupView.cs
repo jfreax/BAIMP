@@ -6,19 +6,28 @@ namespace Baimp
 {
 	public class ResultPopupView : VBox
 	{
-		private List<IType[]> results;
+		private List<Tuple<IType[], Result[]>> results;
 		private int position;
 		private Widget widget = null;
 		private ComboBox combo = new ComboBox();
 
 
-		public ResultPopupView(List<IType[]> results, int position)
+		public ResultPopupView(List<Tuple<IType[], Result[]>> results, int position)
 		{
 			this.results = results;
 			this.position = position;
 
-			for (int i = 0; i < results.Count; i++) {
-				combo.Items.Add(i);
+			// TODO search all nodes until we find the right root
+			// right root == node without further input data and from type "BaseScan"
+			foreach (var result in results) {
+				Result[] input = result.Item2;
+				while (true) {
+					if (input[0].Input == null || input[0].Input.Length == 0) {
+						break;
+					}
+					input = input[0].Input;
+				}
+				combo.Items.Add(input[0].Data);
 			}
 
 			InitializeEvents();
@@ -34,7 +43,7 @@ namespace Baimp
 					this.Remove(widget);
 				}
 
-				widget = results[combo.SelectedIndex][position].ToWidget();
+				widget = results[combo.SelectedIndex].Item1[position].ToWidget();
 				this.PackEnd( widget );
 			};
 

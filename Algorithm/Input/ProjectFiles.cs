@@ -40,7 +40,7 @@ namespace Baimp
 				data[1] = new TBitmap(scan.GetAsBitmap("Topography"));
 				data[2] = new TBitmap(scan.GetAsBitmap("Color"));
 
-				Yield(data);
+				Yield(data, scan);
 				i++;
 
 				SetProgress((int)((i * 100) / size));

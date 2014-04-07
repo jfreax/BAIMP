@@ -233,7 +233,7 @@ namespace Baimp
 
 			ManagedThreadPool.QueueUserWorkItem(o => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
-				Project.RequestZipAccess(new Project.ZipUsageCallback((zipFile) => {
+				Project.RequestZipAccess(new Project.ZipUsageCallback(zipFile => {
 					foreach (BaseScan scan in scansCopy) {
 						var lScan = scan;
 						Image[] thumbnails = lScan.GetThumbnails(zipFile);
@@ -318,7 +318,7 @@ namespace Baimp
 								if (r != null) {
 									string n = currentStore.GetNavigatorAt(x)
 										.GetValue(isFiltered ? nameColFilter : nameCol);
-									scanCollection.Find((o) => o.Name == n).FiberType = r.Label;
+									scanCollection.Find(o => o.Name == n).FiberType = r.Label;
 								}
 							}
 						};
