@@ -287,12 +287,12 @@ namespace Baimp
 				Xwt.Drawing.BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
 				newImage.Dispose();
 
-				MemoryStream mStream = new MemoryStream();
-				newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
-				mStream.Position = 0;
-				CustomStaticDataSource source = new CustomStaticDataSource(mStream);
-
 				if(zipFile != null) {
+					MemoryStream mStream = new MemoryStream();
+					newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
+					mStream.Position = 0;
+					CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+
 					zipFile.BeginUpdate();
 					zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
 					zipFile.IsStreamOwner = true;
