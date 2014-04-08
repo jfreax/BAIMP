@@ -51,9 +51,12 @@ namespace Baimp
 
 			if (IsInput) {
 				int inputBufferSize = inputData.Count;
-				foreach (Result res in resultHistory) {
+				List<Result> rhCopy = new List<Result>(resultHistory);
+				foreach (Result res in rhCopy) {
 					if (res.IsUsed(parent)) {
 						inputBufferSize++;
+					} else {
+						resultHistory.Remove(res);
 					}
 				}
 				if (inputBufferSize > 0) {
@@ -74,6 +77,8 @@ namespace Baimp
 
 					ctx.SetColor(PipelineNode.NodeColor);
 					ctx.DrawTextLayout(text, inputbufferSizeLocation);
+
+					text.Dispose();
 				}
 			}
 		}
