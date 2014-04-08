@@ -61,7 +61,6 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;VERBOSE;</DefineConstants>
     <Externalconsole>true</Externalconsole>
-    <Commandlineparameters>-f test.baimp</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

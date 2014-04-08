@@ -155,6 +155,9 @@ namespace Baimp
 
 					currentNode = store.AddNode(null).SetValue(thumbnailCol, ib.ToVectorImage()).CurrentPosition;
 					fiberTypeNodes[scan.FiberType] = currentNode;
+
+					text.Dispose();
+					ib.Dispose();
 				}
 
 				var v = store.AddNode(currentNode)
@@ -204,6 +207,9 @@ namespace Baimp
 
 				parentNodePosition = store.AddNode(null).SetValue(thumbnailCol, ib.ToBitmap()).CurrentPosition;
 				fiberTypeNodes[scan.FiberType] = parentNodePosition;
+
+				text.Dispose();
+				ib.Dispose();
 			}
 
 			scan.position = store.AddNode(parentNodePosition)

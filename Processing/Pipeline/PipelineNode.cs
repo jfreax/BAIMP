@@ -107,8 +107,8 @@ namespace Baimp
 			// calculate header height
 			TextLayout text = new TextLayout();
 			text.Text = "M";
-
 			double textHeight = text.GetSize().Height;
+			text.Dispose();
 
 			// add widgets
 			icons["hide"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
@@ -235,6 +235,8 @@ namespace Baimp
 			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
 			ctx.SetLineWidth(1.0);
 			ctx.Stroke();
+
+			text.Dispose();
 		}
 
 		private bool DrawBody(Context ctx)
@@ -261,6 +263,8 @@ namespace Baimp
 					ret = true;
 				}
 			}
+
+			text.Dispose();
 
 			return ret;
 		}

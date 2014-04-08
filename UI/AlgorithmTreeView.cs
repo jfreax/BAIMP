@@ -84,6 +84,9 @@ namespace Baimp
 				d.Start();
 
 				d.Finished += (object sender, DragFinishedEventArgs e2) => this.UnselectAll();
+
+				text.Dispose();
+				ib.Dispose();
 			} else {
 				this.UnselectRow(SelectedRow);
 			}
