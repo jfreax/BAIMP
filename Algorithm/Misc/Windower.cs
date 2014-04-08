@@ -32,7 +32,6 @@ namespace Baimp
 			TBitmap tbitmap = inputArgs[0] as TBitmap;
 			if (tbitmap != null) {
 				Bitmap bitmap = tbitmap.Data;
-				IType[] ret = new IType[1];
 				Rectangle rect = new Rectangle(0, 0, width, height);
 
 				for (int y = 0; y < bitmap.Height-height; y += height) {
@@ -40,8 +39,8 @@ namespace Baimp
 
 					for (int x = 0; x < bitmap.Width-width; x += width) {
 						rect.X = x;
-						//ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
-						ret[0] = new TBitmap(new Bitmap(width, height));
+						IType[] ret = new IType[1];
+						ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
 
 						Yield(ret, inputArgs);
 					}
