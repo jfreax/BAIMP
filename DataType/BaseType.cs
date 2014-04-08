@@ -28,7 +28,7 @@ namespace Baimp
 			}
 		}
 
-		abstract public Xwt.Widget ToWidget();
+		abstract public Widget ToWidget();
 
 		#region IDisposable implementation
 
@@ -39,10 +39,12 @@ namespace Baimp
 				widget = null;
 			}
 
-			if (raw is IDisposable) {
-				(raw as IDisposable).Dispose();
+			IDisposable rawDisposable = raw as IDisposable;
+			if (rawDisposable != null) {
+				rawDisposable.Dispose();
 			}
 
+			raw = null;
 		}
 
 		#endregion
