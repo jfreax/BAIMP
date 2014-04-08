@@ -55,6 +55,7 @@ namespace Baimp
 				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX;
 				byte* srcBegin = (byte*) (data.Scan0) + windowY * stride + windowX;
 
+				int oldProgress = 0;
 				for (int j = windowY; j < windowHeight; j++) {
 					int y = j - windowY;
 
@@ -67,7 +68,11 @@ namespace Baimp
 
 					src += offset;
 
-					SetProgress((int) (j * 100.0) / windowHeight);
+					int progress = (int) (j * 100.0) / windowHeight;
+					if (progress - oldProgress > 10) {
+						oldProgress = progress;
+						SetProgress((int) (j * 100.0) / windowHeight);
+					}
 				}
 			} else {
 				int pixelSize = Bitmap.GetPixelFormatSize(data.PixelFormat) / 8;
@@ -75,6 +80,7 @@ namespace Baimp
 				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX * pixelSize;
 				byte* srcBegin = (byte*) (data.Scan0) + windowY * stride + windowX;
 
+				int oldProgress = 0;
 				for (int j = windowY; j < windowHeight; j++) {
 					int y = j - windowY;
 
@@ -89,13 +95,16 @@ namespace Baimp
 
 					src += offset;
 
-					SetProgress((int) (j * 100.0) / windowHeight);
-				}
+					int progress = (int) (j * 100.0) / windowHeight;
+					if (progress - oldProgress > 10) {
+						oldProgress = progress;
+						SetProgress((int) (j * 100.0) / windowHeight);
+					}				}
 			}
 
 			bitmap.UnlockBits(data);
 
-			IType[] ret = { new TMatrix(matrix) as IType };
+			IType[] ret = { new TMatrix(matrix) };
 			return ret;
 		}
 
