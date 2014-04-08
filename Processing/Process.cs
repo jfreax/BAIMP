@@ -49,11 +49,16 @@ namespace Baimp
 
 				startNode.algorithm.SetProgress(0);
 				startNode.algorithm.Yielded += yieldFun;
-				IType[] output = startNode.algorithm.Run(
-					                 requestedData,
-					                 startNode.algorithm.options.ToArray(),
-					                 input
-				                 );
+				IType[] output = null;
+				try {
+					output = startNode.algorithm.Run(
+						requestedData,
+						startNode.algorithm.options.ToArray(),
+						input
+					);
+				} catch (Exception e) {
+					Console.WriteLine(e.StackTrace);
+				}
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
