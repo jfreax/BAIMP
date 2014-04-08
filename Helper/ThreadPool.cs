@@ -187,7 +187,9 @@ namespace Baimp
 						if (callback.State is IDisposable) ((IDisposable)callback.State).Dispose();
 					}
 				} 
-				catch{}
+				catch (Exception e){
+					Console.WriteLine(e.StackTrace);
+				}
 
 				// Shutdown all existing threads
 				try 
@@ -197,7 +199,9 @@ namespace Baimp
 						if (thread != null) thread.Abort("reset");
 					}
 				}
-				catch{}
+				catch (Exception e){
+					Console.WriteLine(e.StackTrace);
+				}
 
 				// Reinitialize the pool (create new threads, etc.)
 				Initialize();
@@ -237,8 +241,9 @@ namespace Baimp
 					if (_waitingCallbacks.Count > 0)
 					{
 						try { callback = (WaitingCallback)_waitingCallbacks.Dequeue(); } 
-						catch{} // make sure not to fail here
-					}
+						catch (Exception e){
+							Console.WriteLine(e.StackTrace);
+						}					}
 				}
 
 				if (callback != null)
@@ -257,8 +262,9 @@ namespace Baimp
 							UnhandledExceptionEventHandler handler = UnhandledException;
 							if (handler != null) handler(typeof(ManagedThreadPool), new UnhandledExceptionEventArgs(exc, false));
 						}
-						catch{}
-					}
+						catch (Exception e){
+							Console.WriteLine(e.StackTrace);
+						}					}
 					finally
 					{
 						Interlocked.Decrement(ref _inUseThreads);

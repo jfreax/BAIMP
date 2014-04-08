@@ -40,7 +40,8 @@ namespace Baimp
 
 					for (int x = 0; x < bitmap.Width-width; x += width) {
 						rect.X = x;
-						ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
+						//ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
+						ret[0] = new TBitmap(new Bitmap(width, height));
 
 						Yield(ret, inputArgs);
 					}

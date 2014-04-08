@@ -8,21 +8,19 @@ namespace Baimp
 {
 	public class Process
 	{
-		PipelineNode startNode;
 		Project project;
 
-		public delegate void OnTaskCompleteDelegate(IType[] result, Result[] inputRef);
+		public delegate void OnTaskCompleteDelegate(PipelineNode startNode, IType[] result, Result[] inputRef);
 
-		public Process(Project project, PipelineNode startNode)
+		public Process(Project project)
 		{
 			this.project = project;
-			this.startNode = startNode;
 		}
 
 		/// <summary>
 		/// Start to evaluate the pipeline
 		/// </summary>
-		public void Start(Result[] inputResult)
+		public void Start(PipelineNode startNode, Result[] inputResult)
 		{
 			IType[] input = null;
 			if (inputResult != null) {
@@ -42,39 +40,47 @@ namespace Baimp
 					break;
 				}
 			}
-
+				
 			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
 			ManagedThreadPool.QueueUserWorkItem(o => {
 				var inputResult1 = inputResult;
 				EventHandler<AlgorithmEventArgs> yieldFun = 
-					(object sender, AlgorithmEventArgs e) => GetSingleData(inputResult1, sender, e);
-				startNode.algorithm.Yielded += yieldFun;
+					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, sender, e);
 
 				startNode.algorithm.SetProgress(0);
+				startNode.algorithm.Yielded += yieldFun;
 				IType[] output = startNode.algorithm.Run(
 					                 requestedData,
 					                 startNode.algorithm.options.ToArray(),
 					                 input
 				                 );
+				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
-				foreach (Result res in inputResult) {
-					res.Finish(startNode);
-				}
-					
-				startNode.algorithm.Yielded -= yieldFun;
 				if (output != null) { // null means, there is no more data
-					Application.Invoke( () => callback(output, inputResult) );
+					var inputResult2 = inputResult;
+					Application.Invoke( () => {
+						foreach (Result res in inputResult2) {
+							res.Finish(startNode);
+						}
+
+						if (startNode.IsReady()) {
+							this.Start(startNode, startNode.DequeueInput());
+						}
+					});
+					callback(startNode, output, inputResult2);
 				}
+
 			});
 		}
 
 		/// <summary>
 		/// Callback function called when algorithm finished
 		/// </summary>
+		/// <param name="startNode"></param>
 		/// <param name="result">Output of algorithm.</param>
 		/// <param name="input">Reference to the data, that was used to compute these results</param>
-		private void OnFinish(IType[] result, params Result[] input)
+		private void OnFinish(PipelineNode startNode, IType[] result, params Result[] input)
 		{
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 
@@ -89,14 +95,6 @@ namespace Baimp
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
 				Result resultWrapper = new Result(result[i], input, startNode.SaveResult);
-
-				Result[] resultWrapperList = null;
-//				if (result[i].GetType().IsArray) {
-//					resultWrapperList = new Result[(result[i] as IType[]).Length];
-//					for (int k = 0; k < (result[i] as IType[]).Length; k++) {
-//						resultWrapperList[k] = new Result(ref (result[i] as IType[])[k], startNode.SaveResult);
-//					}
-//				}
 					
 				// enqueue new data
 				foreach (Edge edge in startNode.MNodes[offsetIndex+i].Edges) {
@@ -105,49 +103,26 @@ namespace Baimp
 						break;
 					}
 
-//					bool targetIsParallel = false;
-//					Type tmpType = startNode.MNodes[offsetIndex + i].compatible.Type;
-//					if (tmpType.IsGenericType &&
-//					    tmpType.GetGenericTypeDefinition().IsEquivalentTo(typeof(Parallel<>))) {
-//						targetIsParallel = true;
-//					}
-//
-//					if (result[i].GetType().IsArray && !targetIsParallel) {
-//						for (int k = 0; k < (result[i] as IType[]).Length; k++) {
-//							resultWrapperList[k].Used(targetNode.parent);
-//							targetNode.EnqueueInput(resultWrapperList[k]);
-//						}
-//					} else {
-						resultWrapper.Used(targetNode.parent);
-						targetNode.EnqueueInput(resultWrapper);
-//					}
+					resultWrapper.Used(targetNode.parent);
+					targetNode.EnqueueInput(resultWrapper);
 
 					// start next node
 					if (targetNode.parent.IsReady()) {
-						Process newProcess = new Process(project, targetNode.parent);
-						newProcess.Start(targetNode.parent.DequeueInput());
+						this.Start(targetNode.parent, targetNode.parent.DequeueInput());
 					}
 				}
 
 				// dispose data when no one uses them
-				if (resultWrapperList == null) {
-					if (resultWrapper.InUse <= 0 && !startNode.SaveResult) {
-						resultWrapper.Dispose();
-					}
-				} else {
-					foreach (Result res in resultWrapperList) {
-						if (res.InUse <= 0 && !startNode.SaveResult) {
-							res.Dispose();
-						}
-					}
+				if (resultWrapper.InUse <= 0 && !startNode.SaveResult) {
+					resultWrapper.Dispose();
 				}
 			}
 		}
 
-		private void GetSingleData(Result[] origInput, object sender, AlgorithmEventArgs e)
+		private void GetSingleData(PipelineNode startNode, Result[] origInput, object sender, AlgorithmEventArgs e)
 		{
 			if (e.InputRef != null) {
-			Result[] inputResults = new Result[e.InputRef.Length];
+				Result[] inputResults = new Result[e.InputRef.Length];
 				int i = 0;
 				foreach (IType input in e.InputRef) {
 					inputResults[i] = new Result(
@@ -156,17 +131,11 @@ namespace Baimp
 						true);
 					i++;
 				}
-				OnFinish(e.Data, inputResults);
+				OnFinish(startNode, e.Data, inputResults);
 			} else {
-				OnFinish(e.Data, null);
+				OnFinish(startNode, e.Data, null);
 			}
 		}
-			
-		static Func<T2, T3, TResult> ApplyPartial<T1, T2, T3, TResult>
-		(Func<T1, T2, T3, TResult> function, T1 arg1) 
-		{ 
-			return (b, c) => function(arg1, b, c); 
-		} 
 	}
 }
 

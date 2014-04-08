@@ -15,7 +15,7 @@ namespace Baimp
 		/// <summary>
 		/// The payload.
 		/// </summary>
-		public readonly IType Data;
+		public IType Data;
 
 		/// <summary>
 		/// The input that was used to compute these data.
@@ -60,6 +60,7 @@ namespace Baimp
 		public void Dispose()
 		{
 			Data.Dispose();
+			Data = null;
 		}
 
 		#region helper functions

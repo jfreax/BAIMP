@@ -89,9 +89,16 @@ namespace Baimp
 		/// <param name="inputRef">Reference to input data to compute the result.</param>
 		protected void Yield(IType[] data, params IType[] inputRef)
 		{
-			var yieldCopy = yielded;
-			if (yieldCopy != null) {
-				Application.Invoke( () => yieldCopy(this, new AlgorithmEventArgs(data, inputRef)) );
+			int threadID = Thread.CurrentThread.ManagedThreadId;
+			if (yielded[threadID] != null) {
+				var lYield = yielded[threadID];
+				Application.Invoke(() => {
+					try {
+						lYield(this, new AlgorithmEventArgs(data, inputRef));
+					} catch (Exception e) {
+						Console.WriteLine(e.StackTrace);
+					}
+				});
 			}
 		}
 
@@ -109,31 +116,28 @@ namespace Baimp
 
 		#region events
 
-		EventHandler<AlgorithmEventArgs> yielded;
+		Dictionary<int, EventHandler<AlgorithmEventArgs>> yielded = 
+			new Dictionary<int, EventHandler<AlgorithmEventArgs>>();
+
+		private object yield_lock = new object();
 
 		/// <summary>
 		/// Yield sequential data
 		/// </summary>
 		public event EventHandler<AlgorithmEventArgs> Yielded {
 			add {
-				yielded += value;
+				lock(yield_lock) {
+					int threadID = Thread.CurrentThread.ManagedThreadId;
+					if (!yielded.ContainsKey(threadID)) {
+						yielded[threadID] = null;
+					} 
+					yielded[threadID] += value;
+				}
 			}
 			remove {
-				yielded -= value;
-			}
-		}
-
-		EventHandler<EventArgs> progress;
-
-		/// <summary>
-		/// Occurs when scan data changed
-		/// </summary>
-		public event EventHandler<EventArgs> Progress {
-			add {
-				progress += value;
-			}
-			remove {
-				progress -= value;
+				lock (yield_lock) {
+					yielded[Thread.CurrentThread.ManagedThreadId] -= value;
+				}
 			}
 		}
 			

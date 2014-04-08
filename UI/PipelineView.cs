@@ -235,18 +235,20 @@ namespace Baimp
 		/// <param name="project">Project.</param>
 		public void Execute(Project project)
 		{
-			foreach (PipelineNode pNode in nodes) {
-				//pNode.algorithm.SetProgress(0);
+			Process process = new Process(project);
+//			ManagedThreadPool.QueueUserWorkItem(o => {
+				foreach (PipelineNode pNode in nodes) {
+					//pNode.algorithm.SetProgress(0);
 
-				pNode.results.Clear();
-				pNode.ClearInputQueue();
+					pNode.results.Clear();
+					pNode.ClearInputQueue();
 
-				if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
-					Process process = new Process(project, pNode);
-					Result[] zeroInput = new Result[0];
-					process.Start(zeroInput);
+					if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
+						Result[] zeroInput = new Result[0];
+						process.Start(pNode, zeroInput);
+					}
 				}
-			}
+//			});
 		}
 
 		#endregion
