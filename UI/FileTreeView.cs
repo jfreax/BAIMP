@@ -356,8 +356,11 @@ namespace Baimp
 					Command r = d.Run();
 					if (r != null && r.Id == Command.Delete.Id) {
 						foreach (TreePosition selectPos in SelectedRows) {
-							if (!string.IsNullOrEmpty(store.GetNavigatorAt(selectPos).GetValue(nameCol))) {
+							string name = store.GetNavigatorAt(selectPos).GetValue(nameCol);
+							if (!string.IsNullOrEmpty(name)) {
 								store.GetNavigatorAt(selectPos).Remove();
+
+								scanCollection.RemoveAll(scan => scan.Name == name);
 							}
 						}
 					}
