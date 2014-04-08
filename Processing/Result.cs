@@ -34,10 +34,12 @@ namespace Baimp
 		/// </summary>
 		public void Used(PipelineNode by)
 		{
-			if (!usedBy.ContainsKey(by)) {
-				usedBy[by] = 0;
+			lock (removeLock) {
+				if (!usedBy.ContainsKey(by)) {
+					usedBy[by] = 0;
+				}
+				usedBy[by]++;
 			}
-			usedBy[by]++;
 		}
 
 		/// <summary>
