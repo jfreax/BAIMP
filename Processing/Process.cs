@@ -57,17 +57,18 @@ namespace Baimp
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
-				if (output != null) { // null means, there is no more data
-					var inputResult2 = inputResult;
-					Application.Invoke( () => {
-						foreach (Result res in inputResult2) {
-							res.Finish(startNode);
-						}
+				var inputResult2 = inputResult;
+				Application.Invoke( () => {
+					foreach (Result res in inputResult2) {
+						res.Finish(startNode);
+					}
 
-						if (startNode.IsReady()) {
-							this.Start(startNode, startNode.DequeueInput());
-						}
-					});
+//						if (startNode.IsReady()) {
+//							this.Start(startNode, startNode.DequeueInput());
+//						}
+				});
+
+				if (output != null) { // null means, there is no more data
 					callback(startNode, output, inputResult2);
 				}
 

@@ -35,7 +35,7 @@ namespace Baimp
 		public void Used(PipelineNode by)
 		{
 			if (!usedBy.ContainsKey(by)) {
-				usedBy[by] = 1;
+				usedBy[by] = 0;
 			}
 			usedBy[by]++;
 		}
@@ -47,12 +47,12 @@ namespace Baimp
 		{
 			lock (removeLock) {
 				if (usedBy.ContainsKey(by)) {
-					usedBy[by]--;
+					usedBy[by] = usedBy[by]-1;
 					if(usedBy[by] <= 0 && !preserve) {
+						usedBy.Remove(by);
 						Dispose();
 					}
 				} else {
-					Console.WriteLine("This should not happen!");
 					if(!preserve) {
 						Dispose();
 					}
@@ -77,7 +77,7 @@ namespace Baimp
 
 		public bool IsUsed(PipelineNode by)
 		{
-			return usedBy.ContainsKey(by);
+			return usedBy.ContainsKey(by) && usedBy[by] > 0;
 		}
 
 		#endregion
