@@ -62,21 +62,17 @@ namespace Baimp
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
-				var inputResult2 = inputResult;
 				Application.Invoke( () => {
-					foreach (Result res in inputResult2) {
-						res.Finish(startNode);
-					}
-
 //						if (startNode.IsReady()) {
 //							this.Start(startNode, startNode.DequeueInput());
 //						}
+					foreach (Result res in inputResult1) {
+						res.Finish(startNode);
+					}
+					if (output != null) { // null means, there is no more data
+						callback(startNode, output, inputResult1);
+					}
 				});
-
-				if (output != null) { // null means, there is no more data
-					callback(startNode, output, inputResult2);
-				}
-
 			});
 		}
 
@@ -88,11 +84,17 @@ namespace Baimp
 		/// <param name="input">Reference to the data, that was used to compute these results</param>
 		private void OnFinish(PipelineNode startNode, IType[] result, params Result[] input)
 		{
-			List<Compatible> compatibleOutput = startNode.algorithm.Output;
+//			if (input != null) {
+//				foreach (Result res in input) {
+//					res.Finish(startNode);
+//				}
+//			}
 
+			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 			if (result.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
+
 
 			if (startNode.SaveResult) {
 				startNode.results.Add(new Tuple<IType[], Result[]>(result, input));
@@ -101,6 +103,7 @@ namespace Baimp
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
 				Result resultWrapper = new Result(result[i], input, startNode.SaveResult);
+				HashSet<PipelineNode> markedAsUse = new HashSet<PipelineNode>();
 					
 				// enqueue new data
 				foreach (Edge edge in startNode.MNodes[offsetIndex+i].Edges) {
@@ -109,7 +112,11 @@ namespace Baimp
 						break;
 					}
 
-					resultWrapper.Used(targetNode.parent);
+					if (!markedAsUse.Contains(targetNode.parent)) {
+						markedAsUse.Add(targetNode.parent);
+						resultWrapper.Used(targetNode.parent);
+					}
+
 					targetNode.EnqueueInput(resultWrapper);
 
 					// start next node
@@ -132,14 +139,14 @@ namespace Baimp
 				int i = 0;
 				foreach (IType input in e.InputRef) {
 					inputResults[i] = new Result(
-						input, 
+						input,
 						origInput.Length > i ? origInput[i].Input : null,
 						true);
 					i++;
 				}
 				OnFinish(startNode, e.Data, inputResults);
 			} else {
-				OnFinish(startNode, e.Data, null);
+				OnFinish(startNode, e.Data, origInput);
 			}
 		}
 	}

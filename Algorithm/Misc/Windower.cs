@@ -42,7 +42,7 @@ namespace Baimp
 						IType[] ret = new IType[1];
 						ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
 
-						Yield(ret, inputArgs);
+						Yield(ret, null);
 					}
 				}
 			}

@@ -71,15 +71,17 @@ namespace Baimp
 		/// <see cref="Baimp.Result"/> was occupying.</remarks>
 		public void Dispose()
 		{
-			Data.Dispose();
-			Data = null;
+			if (Data != null) {
+				Data.Dispose();
+				Data = null;
+			}
 		}
 
 		#region helper functions
 
 		public bool IsUsed(PipelineNode by)
 		{
-			return usedBy.ContainsKey(by) && usedBy[by] > 0;
+			return usedBy.ContainsKey(by);
 		}
 
 		#endregion
