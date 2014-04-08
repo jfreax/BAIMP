@@ -532,7 +532,19 @@ namespace Baimp
 
 		public void Dispose()
 		{
-			throw new NotImplementedException();
+			if (renderedImage != null) {
+				foreach (XD.Image image in renderedImage.Values) {
+					image.Dispose();
+				}
+				renderedImage.Clear();
+			}
+
+			if (thumbnails != null) {
+				foreach (XD.Image thumb in thumbnails) {
+					thumb.Dispose();
+				}
+				thumbnails = null;
+			}
 		}
 	}
 }
