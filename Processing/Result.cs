@@ -10,7 +10,7 @@ namespace Baimp
 		private object removeLock = new object();
 
 		private bool preserve;
-		private readonly HashSet<PipelineNode> usedBy = new HashSet<PipelineNode>();
+		private readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
 
 		/// <summary>
 		/// The payload.
@@ -34,7 +34,10 @@ namespace Baimp
 		/// </summary>
 		public void Used(PipelineNode by)
 		{
-			usedBy.Add(by);
+			if (!usedBy.ContainsKey(by)) {
+				usedBy[by] = 1;
+			}
+			usedBy[by]++;
 		}
 
 		/// <summary>
@@ -43,9 +46,16 @@ namespace Baimp
 		public void Finish(PipelineNode by)
 		{
 			lock (removeLock) {
-				usedBy.Remove(by);
-				if (usedBy.Count <= 0 && !preserve) {
-					Dispose();
+				if (usedBy.ContainsKey(by)) {
+					usedBy[by]--;
+					if(usedBy[by] <= 0 && !preserve) {
+						Dispose();
+					}
+				} else {
+					Console.WriteLine("This should not happen!");
+					if(!preserve) {
+						Dispose();
+					}
 				}
 			}
 		}
@@ -67,7 +77,7 @@ namespace Baimp
 
 		public bool IsUsed(PipelineNode by)
 		{
-			return usedBy.Contains(by);
+			return usedBy.ContainsKey(by);
 		}
 
 		#endregion
