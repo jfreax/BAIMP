@@ -71,7 +71,7 @@ namespace Baimp
 					int progress = (int) (j * 100.0) / windowHeight;
 					if (progress - oldProgress > 10) {
 						oldProgress = progress;
-						SetProgress((int) (j * 100.0) / windowHeight);
+						SetProgress(progress);
 					}
 				}
 			} else {

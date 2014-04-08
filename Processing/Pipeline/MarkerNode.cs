@@ -3,6 +3,7 @@ using Xwt.Drawing;
 using Xwt;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Baimp
 {
@@ -17,8 +18,9 @@ namespace Baimp
 		private int positionNo;
 
 		[XmlIgnore]
-		private Queue<Result> inputData = new Queue<Result>();
-		private List<Result> resultHistory = new List<Result>();
+		private ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
+		private ConcurrentBag<Result> resultHistory = new ConcurrentBag<Result>();
+
 
 		public MarkerNode()
 		{
@@ -51,12 +53,12 @@ namespace Baimp
 
 			if (IsInput) {
 				int inputBufferSize = inputData.Count;
-				List<Result> rhCopy = new List<Result>(resultHistory);
-				foreach (Result res in rhCopy) {
+//				List<Result> rhCopy = new List<Result>(resultHistory);
+				foreach (Result res in resultHistory) {
 					if (res.IsUsed(parent)) {
 						inputBufferSize++;
 					} else {
-						resultHistory.Remove(res);
+//						resultHistory. Remove(res);
 					}
 				}
 				if (inputBufferSize > 0) {
@@ -149,7 +151,10 @@ namespace Baimp
 		/// <returns>Result from queue.</returns>
 		public Result DequeueInput()
 		{
-			return inputData.Dequeue();
+			Result value;
+			inputData.TryDequeue(out value);
+
+			return value;
 		}
 
 		/// <summary>
@@ -172,8 +177,11 @@ namespace Baimp
 			foreach (Result res in inputData) {
 				res.Dispose();
 			}
-			inputData.Clear();
-			resultHistory.Clear();
+
+			inputData = new ConcurrentQueue<Result>();
+
+			resultHistory = new ConcurrentBag<Result>();
+//			resultHistory.Clear();
 		}
 
 		#region properties

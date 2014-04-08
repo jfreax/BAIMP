@@ -3,6 +3,7 @@ using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace Baimp
 {
@@ -236,6 +237,7 @@ namespace Baimp
 		public void Execute(Project project)
 		{
 			Process process = new Process(project);
+			Task executionTask = Task.Factory.StartNew( () => {
 //			ManagedThreadPool.QueueUserWorkItem(o => {
 				foreach (PipelineNode pNode in nodes) {
 					//pNode.algorithm.SetProgress(0);
@@ -248,7 +250,7 @@ namespace Baimp
 						process.Start(pNode, zeroInput);
 					}
 				}
-//			});
+			});
 		}
 
 		#endregion

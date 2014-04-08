@@ -92,13 +92,13 @@ namespace Baimp
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			if (yielded[threadID] != null) {
 				var lYield = yielded[threadID];
-				Application.Invoke(() => {
+//				Application.Invoke(() => {
 					try {
 						lYield(this, new AlgorithmEventArgs(data, inputRef));
 					} catch (Exception e) {
 						Console.WriteLine(e.StackTrace);
 					}
-				});
+//				});
 			}
 		}
 

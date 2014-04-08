@@ -41,9 +41,11 @@ namespace Baimp
 				}
 			}
 				
-			OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
-			ManagedThreadPool.QueueUserWorkItem(o => {
-				var inputResult1 = inputResult;
+			//OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
+			//ThreadPool.QueueUserWorkItem(o => {
+			var inputResult2 = inputResult;
+			Task<IType[]> startTask = Task<IType[]>.Factory.StartNew( () => {
+				var inputResult1 = inputResult2;
 				EventHandler<AlgorithmEventArgs> yieldFun = 
 					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, sender, e);
 
@@ -62,17 +64,18 @@ namespace Baimp
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
-				Application.Invoke( () => {
-//						if (startNode.IsReady()) {
-//							this.Start(startNode, startNode.DequeueInput());
-//						}
-					foreach (Result res in inputResult1) {
-						res.Finish(startNode);
-					}
-					if (output != null) { // null means, there is no more data
-						callback(startNode, output, inputResult1);
-					}
-				});
+				return output;
+			}, TaskCreationOptions.AttachedToParent);
+				
+			Task contTask = startTask.ContinueWith(fromTask => {
+				foreach (Result res in inputResult) {
+					res.Finish(startNode);
+				}
+
+				IType[] taskOutput = fromTask.Result;
+				if (taskOutput != null) { // null means, there is no more data
+					OnFinish(startNode, taskOutput, inputResult);
+				}
 			});
 		}
 
@@ -84,12 +87,6 @@ namespace Baimp
 		/// <param name="input">Reference to the data, that was used to compute these results</param>
 		private void OnFinish(PipelineNode startNode, IType[] result, params Result[] input)
 		{
-//			if (input != null) {
-//				foreach (Result res in input) {
-//					res.Finish(startNode);
-//				}
-//			}
-
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 			if (result.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
