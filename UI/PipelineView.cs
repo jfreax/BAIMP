@@ -219,10 +219,10 @@ namespace Baimp
 		void QueueRedraw(object sender, EventArgs e)
 		{
 			if (!redrawQueued) {
+				redrawQueued = true;
 
 				Application.Invoke( delegate {
 					QueueDraw();
-					redrawQueued = true;
 				});
 			}
 		}
@@ -238,10 +238,7 @@ namespace Baimp
 		{
 			Process process = new Process(project);
 			Task executionTask = Task.Factory.StartNew( () => {
-//			ManagedThreadPool.QueueUserWorkItem(o => {
 				foreach (PipelineNode pNode in nodes) {
-					//pNode.algorithm.SetProgress(0);
-
 					pNode.results.Clear();
 					pNode.ClearInputQueue();
 

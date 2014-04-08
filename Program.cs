@@ -1,6 +1,7 @@
 using System;
 using Mono.Options;
 using Xwt;
+using System.Threading;
 
 namespace Baimp
 {
@@ -48,6 +49,8 @@ namespace Baimp
 				printHelp(p);
 				return;
 			}
+
+			ThreadPool.SetMaxThreads(8, 16);
 
 			// start application
 			if (GetOS() == OSType.Unix) {

@@ -19,8 +19,9 @@ namespace Baimp
 
 		[XmlIgnore]
 		private ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
-		private ConcurrentBag<Result> resultHistory = new ConcurrentBag<Result>();
+		private List<Result> resultHistory = new List<Result>();
 
+		object resultHistoryLock = new object();
 
 		public MarkerNode()
 		{
@@ -53,12 +54,18 @@ namespace Baimp
 
 			if (IsInput) {
 				int inputBufferSize = inputData.Count;
-//				List<Result> rhCopy = new List<Result>(resultHistory);
-				foreach (Result res in resultHistory) {
+
+				List<Result> rhCopy;
+				lock (resultHistoryLock) {
+					rhCopy = new List<Result>(resultHistory);
+				}
+				foreach (Result res in rhCopy) {
 					if (res.IsUsed(parent)) {
 						inputBufferSize++;
 					} else {
-//						resultHistory. Remove(res);
+						lock (resultHistoryLock) {
+							resultHistory.Remove(res);
+						}
 					}
 				}
 				if (inputBufferSize > 0) {
@@ -138,7 +145,10 @@ namespace Baimp
 		public void EnqueueInput(Result result) 
 		{
 			inputData.Enqueue(result);
-			resultHistory.Add(result);
+
+			lock (resultHistoryLock) {
+				resultHistory.Add(result);
+			}
 
 			if (parent.queueRedraw != null) {
 				parent.queueRedraw(this, null);
@@ -180,8 +190,9 @@ namespace Baimp
 
 			inputData = new ConcurrentQueue<Result>();
 
-			resultHistory = new ConcurrentBag<Result>();
-//			resultHistory.Clear();
+			lock (resultHistoryLock) {
+				resultHistory.Clear();
+			}
 		}
 
 		#region properties
