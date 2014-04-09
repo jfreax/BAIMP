@@ -1,38 +1,45 @@
 ﻿using System;
 using Xwt;
+using System.Threading;
 
 namespace Baimp
 {
 	public class StatusBar : HBox
 	{
+		Timer timer;
 		Label threadLabel = new Label();
+		int maxThreads;
 
 		public StatusBar()
 		{
 			InitializeUI();
-			InitializeEvents();
+
+			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
 		}
 
 		private void InitializeUI()
 		{
 			PackEnd(threadLabel);
-		}
 
-		private void InitializeEvents()
-		{
-			ManagedThreadPool.ActiveThreadsChanged += UpdateThreadLabel;
+			int completionPortThreads;
+			ThreadPool.GetMaxThreads(out maxThreads, out completionPortThreads);
 		}
-
-		private void UpdateThreadLabel(object sender, EventArgs e)
+			
+		private void UpdateThreadLabel(object o)
 		{
-			threadLabel.Text = "#Threads: " + (ManagedThreadPool.ActiveThreads+1);
+			int workerThreads;
+			int completionPortThreads;
+			ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+
+			Application.Invoke( () => threadLabel.Text = "#Threads: " + (maxThreads-workerThreads));
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			ManagedThreadPool.ActiveThreadsChanged -= UpdateThreadLabel;
+			timer.Dispose();
 		}
+
 	}
 }
 

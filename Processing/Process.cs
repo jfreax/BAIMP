@@ -67,7 +67,7 @@ namespace Baimp
 				return output;
 			}, TaskCreationOptions.AttachedToParent);
 				
-			Task contTask = startTask.ContinueWith(fromTask => {
+			startTask.ContinueWith(fromTask => {
 				foreach (Result res in inputResult) {
 					res.Finish(startNode);
 				}
