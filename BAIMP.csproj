@@ -133,7 +133,6 @@
     <Compile Include="UI\Preview.cs" />
     <Compile Include="UI\ScanView.cs" />
     <Compile Include="UI\Widget\GridView.cs" />
-    <Compile Include="Helper\ThreadPool.cs" />
     <Compile Include="UI\MetadataDialog.cs" />
     <Compile Include="UI\FileTreeFilter.cs" />
     <Compile Include="UI\StatusBar.cs" />

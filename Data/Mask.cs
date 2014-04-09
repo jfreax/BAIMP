@@ -87,7 +87,7 @@ namespace Baimp
 		/// <returns>The mask as image.</returns>
 		public void GetMaskAsImageAsync(ImageLoadedCallback callback)
 		{
-			ManagedThreadPool.QueueUserWorkItem(o => {
+			Task.Factory.StartNew( () => {
 				XD.Image maskImage = GetMaskBuilder().ToVectorImage().WithBoxSize(scan.RequestedBitmapSize);
 
 				Application.Invoke(() => callback(maskImage));

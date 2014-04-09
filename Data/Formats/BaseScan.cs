@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Xwt;
 using ICSharpCode.SharpZipLib.Zip;
+using System.Threading.Tasks;
 
 namespace Baimp
 {
@@ -223,7 +224,7 @@ namespace Baimp
 		/// <param name="callback">Function to call on finish.</param>
 		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
 		{
-			ManagedThreadPool.QueueUserWorkItem(o => {
+			Task.Factory.StartNew( () => {
 				XD.Image image = GetAsImage(scanType);
 
 				Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));

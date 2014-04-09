@@ -3,6 +3,7 @@ using System.Linq;
 using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
+using System.Threading.Tasks;
 
 namespace Baimp
 {
@@ -237,7 +238,7 @@ namespace Baimp
 				scan.isLoadingThumbnail = true;
 			}
 
-			ManagedThreadPool.QueueUserWorkItem(o => {
+			Task.Factory.StartNew( () => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				Project.RequestZipAccess(new Project.ZipUsageCallback(zipFile => {
 					foreach (BaseScan scan in scansCopy) {
