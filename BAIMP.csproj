@@ -138,6 +138,8 @@
     <Compile Include="UI\StatusBar.cs" />
     <Compile Include="Event\AlgorithmEventArgs.cs" />
     <Compile Include="Algorithm\Misc\Windower.cs" />
+    <Compile Include="Algorithm\Extraction\Haralick.cs" />
+    <Compile Include="DataType\TFeature.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

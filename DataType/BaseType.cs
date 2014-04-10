@@ -3,7 +3,7 @@ using Xwt;
 
 namespace Baimp
 {
-	public abstract class BaseType<T> : IType where T : class
+	public abstract class BaseType<T> : IType
 	{
 		public static readonly Size MaxWidgetSize = new Size(300, 200);
 
@@ -44,7 +44,7 @@ namespace Baimp
 				rawDisposable.Dispose();
 			}
 
-			raw = null;
+			raw = default(T);
 		}
 
 		#endregion
