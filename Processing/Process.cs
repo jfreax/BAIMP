@@ -60,6 +60,8 @@ namespace Baimp
 					);
 				} catch (Exception e) {
 					Console.WriteLine(e.StackTrace);
+					Console.WriteLine(e.Message);
+					Console.WriteLine(e.InnerException.Message);
 				}
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
