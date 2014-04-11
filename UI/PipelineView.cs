@@ -324,7 +324,9 @@ namespace Baimp
 				popupWindow.Content.Dispose();
 			}
 
-			ResultPopupView popupView = new ResultPopupView(pNode.results, mNode.Position);
+			List<Tuple<IType[], Result[]>> resultCopy = new List<Tuple<IType[], Result[]>>();
+			resultCopy.AddRange(pNode.results);
+			ResultPopupView popupView = new ResultPopupView(resultCopy, mNode.Position);
 
 			popupWindow.Content = popupView;
 			popupWindow.Size = new Size(1, 1);
