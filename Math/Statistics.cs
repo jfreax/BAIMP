@@ -60,7 +60,7 @@ namespace Baimp
 		{
 			double sum = 0;
 			foreach (double v in values)
-				sum += v * Math.Log(v);
+				sum += v * Math.Log(v, 2);
 			return -sum;
 		}
 
@@ -77,7 +77,7 @@ namespace Baimp
 		{
 			double sum = 0;
 			foreach (double v in values)
-				sum += v * Math.Log(v + eps);
+				sum += v * Math.Log(v + eps, 2);
 			return -sum;
 		}
 
@@ -94,7 +94,7 @@ namespace Baimp
 		{
 			double sum = 0;
 			foreach (double v in values)
-				sum += v * Math.Log(v + eps);
+				sum += v * Math.Log(v + eps, 2);
 			return -sum;
 		}
 	}

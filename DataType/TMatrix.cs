@@ -46,7 +46,7 @@ namespace Baimp
 					for (int y = 0; y < Data.GetLength(1); y++) {
 						copy[x, y] = Data[x, y];
 						if (copy[x, y] > 0) {
-							copy[x, y] = (int) (Math.Log(copy[x, y]) * 100.0);
+							copy[x, y] = (Math.Log(copy[x, y]) * 100.0);
 						}
 
 						if (copy[x, y] > max) {
