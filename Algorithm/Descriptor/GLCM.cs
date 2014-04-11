@@ -50,6 +50,8 @@ namespace Baimp
 			int windowWidth = Math.Min(windowX + area.Width, width - Math.Abs(dy));
 			int windowHeight = Math.Min(windowY + area.Height, height - Math.Abs(dy));
 
+			int pairs = 0;
+
 			if (data.PixelFormat == PixelFormat.Format8bppIndexed) {
 				int offset = stride - width;
 				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX;
@@ -64,6 +66,8 @@ namespace Baimp
 
 						int posWithOffset = ((y + dy) * stride) + (x + dx);
 						matrix[*src, srcBegin[posWithOffset]]++;
+
+						pairs++;
 					}
 
 					src += offset;
@@ -90,7 +94,9 @@ namespace Baimp
 						float v = (float) (0.2125 * src[0] + 0.7154 * src[1] + 0.0721 * src[2]);
 						int posWithOffset = ((y + dy) * stride) + (x + dx) * pixelSize;
 
-						matrix[(int) v, srcBegin[posWithOffset/2]]++;
+						matrix[(int) v, srcBegin[posWithOffset / 2]]++;
+
+						pairs++;
 					}
 
 					src += offset;
@@ -99,10 +105,21 @@ namespace Baimp
 					if (progress - oldProgress > 10) {
 						oldProgress = progress;
 						SetProgress((int) (j * 100.0) / windowHeight);
-					}				}
+					}
+				}
 			}
 
 			bitmap.UnlockBits(data);
+
+			// normalize
+			if (pairs > 0) {
+				fixed (double* ptrMatrix = matrix) {
+					double* c = ptrMatrix;
+					for (int i = 0; i < matrix.Length; i++, c++) {
+						*c /= pairs;
+					}
+				}
+			}
 
 			IType[] ret = { new TMatrix(matrix) };
 			return ret;
