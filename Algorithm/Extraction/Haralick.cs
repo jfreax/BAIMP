@@ -24,19 +24,7 @@ namespace Baimp
 		{
 			input.Add(new Compatible("Matrix", typeof(TMatrix)));
 
-			output.Add(new Compatible("ASM", typeof(TFeature<double>)));
-			output.Add(new Compatible("Contrast", typeof(TFeature<double>)));
-			output.Add(new Compatible("correlation", typeof(TFeature<double>)));
-			output.Add(new Compatible("variance", typeof(TFeature<double>)));
-			output.Add(new Compatible("homogeneity", typeof(TFeature<double>)));
-			output.Add(new Compatible("sumAverage", typeof(TFeature<double>)));
-			output.Add(new Compatible("sumVariance", typeof(TFeature<double>)));
-			output.Add(new Compatible("sumEntropy", typeof(TFeature<double>)));
-			output.Add(new Compatible("entropy", typeof(TFeature<double>)));
-			output.Add(new Compatible("diffVariance", typeof(TFeature<double>)));
-			output.Add(new Compatible("diffEntropy", typeof(TFeature<double>)));
-			output.Add(new Compatible("informationMeasure1", typeof(TFeature<double>)));
-			output.Add(new Compatible("informationMeasure2", typeof(TFeature<double>)));
+			output.Add(new Compatible("Haralick Features", typeof(TFeatureList<double>)));
 		}
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
@@ -102,19 +90,20 @@ namespace Baimp
 			informationMeasure2 = Math.Sqrt(1.0 - Math.Exp(-2 * (informationMeasure2Step - entropy)));
 					
 			return new IType[] { 
-				new TFeature<double>(asm),
-				new TFeature<double>(contrast),
-				new TFeature<double>(correlation),
-				new TFeature<double>(variance),
-				new TFeature<double>(homogeneity),
-				new TFeature<double>(sumAverage),
-				new TFeature<double>(sumVariance),
-				new TFeature<double>(sumEntropy),
-				new TFeature<double>(entropy),
-				new TFeature<double>(diffVariance),
-				new TFeature<double>(diffEntropy),
-				new TFeature<double>(informationMeasure1),
-				new TFeature<double>(informationMeasure2)
+				new TFeatureList<double>()
+					.AddFeature("asm", asm)
+					.AddFeature("contrast", contrast)
+					.AddFeature("correlation", correlation)
+					.AddFeature("variance", variance)
+					.AddFeature("homogeneity", homogeneity)
+					.AddFeature("sumAverage", sumAverage)
+					.AddFeature("sumVariance", sumVariance)
+					.AddFeature("sumEntropy", sumEntropy)
+					.AddFeature("entropy", entropy)
+					.AddFeature("diffVariance", diffVariance)
+					.AddFeature("diffEntropy", diffEntropy)
+					.AddFeature("informationMeasure1", informationMeasure1)
+					.AddFeature("informationMeasure2", informationMeasure2)
 			};
 		}
 
@@ -226,10 +215,10 @@ namespace Baimp
 		/// </summary>
 		public double[] Sums {
 			get {
-				if (sum == null) {
+				if (xysum == null) {
 					xysum = new double[2 * inputMatrix.GetLength(0)];
-					for (int i = 0; i < xysum.Length; i++)
-						for (int j = 0; j < xysum.Length; j++)
+					for (int i = 0; i < inputMatrix.GetLength(0); i++)
+						for (int j = 0; j < inputMatrix.GetLength(0); j++)
 							xysum[i + j] += inputMatrix[i, j];
 				}
 				return xysum;

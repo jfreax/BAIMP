@@ -141,6 +141,7 @@
     <Compile Include="Algorithm\Extraction\Haralick.cs" />
     <Compile Include="DataType\TFeature.cs" />
     <Compile Include="Math\Statistics.cs" />
+    <Compile Include="DataType\TFeatureList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
