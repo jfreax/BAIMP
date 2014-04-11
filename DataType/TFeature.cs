@@ -19,7 +19,15 @@ namespace Baimp
 		public override Widget ToWidget()
 		{
 			if (widget == null) {
-				widget = new Label(raw.ToString());
+				if (string.IsNullOrEmpty(name)) {
+					widget = new Label(raw.ToString());
+				} else {
+					HBox hbox = new HBox();
+					hbox.PackStart(new Label(name));
+					hbox.PackEnd(new Label(raw.ToString()));
+
+					widget = hbox;
+				}
 			}
 
 			return widget;
