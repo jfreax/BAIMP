@@ -5,33 +5,24 @@ using System;
 
 namespace Baimp
 {
-	public class TMatrix : BaseType<int[,]>
+	public class TMatrix : BaseType<double[,]>
 	{
 		public TMatrix() : base()
 		{
 		}
 
-		public TMatrix(int[,] matrix) : base(matrix)
+		public TMatrix(double[,] matrix) : base(matrix)
 		{
 		}
 
 		public override string ToString()
 		{
-//			string ret = "";
-//			for(int i = 0; i < Data.GetLength(0); i++) {
-//				for(int j = 0; j < Data.GetLength(1); j++) {
-//					ret += Data[i, j] + " ";
-//				}
-//				ret += "\n";
-//			}
-//			return ret;
-
-			return System.String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
+			return String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
 		}
 
 		#region implemented abstract members of BaseType
 
-		public override Xwt.Widget ToWidget()
+		public override Widget ToWidget()
 		{
 			if (widget == null) {
 				if (Data.GetLength(0) <= 16 && Data.GetLength(1) <= 16) {
@@ -50,7 +41,7 @@ namespace Baimp
 				BitmapImage bi = ib.ToBitmap();
 
 				double max = 0.0;
-				int[,] copy = new int[Data.GetLength(0), Data.GetLength(1)];
+				double[,] copy = new double[Data.GetLength(0), Data.GetLength(1)];
 				for (int x = 0; x < Data.GetLength(0); x++) {
 					for (int y = 0; y < Data.GetLength(1); y++) {
 						copy[x, y] = Data[x, y];
@@ -77,6 +68,11 @@ namespace Baimp
 
 			return widget;
 		}
+
+		#endregion
+
+		#region Properties
+
 
 		#endregion
 	}

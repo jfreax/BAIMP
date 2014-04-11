@@ -35,7 +35,7 @@ namespace Baimp
 			int dx = (int) options[0].Value;
 			int dy = (int) options[1].Value;
 
-			int[,] matrix = new int[256, 256];
+			double[,] matrix = new double[256, 256];
 			int height = data.Height;
 			int width = data.Width;
 			int stride = data.Stride;
