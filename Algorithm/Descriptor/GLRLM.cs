@@ -33,6 +33,8 @@ namespace Baimp
 
 			byte* src = (byte*) (data.Scan0);
 
+			int maxRunLength = 0;
+
 			for (int y = 0; y < height; y++) {
 				int runLength = 1;
 				for (int x = 1; x < width; x++) {
@@ -43,11 +45,18 @@ namespace Baimp
 						runLength++;
 					else {
 						matrix[a, runLength]++;
+						if (runLength > maxRunLength) {
+							maxRunLength = runLength;
+						}
+
 						runLength = 1;
 					}
 
 					if ((a == b) && (x == width - 1)) {
 						matrix[a, runLength]++;
+						if (runLength > maxRunLength) {
+							maxRunLength = runLength;
+						}
 					}
 					if ((a != b) && (x == width - 1)) {
 						matrix[b, 1]++;
@@ -56,6 +65,19 @@ namespace Baimp
 			}
 
 			bitmap.UnlockBits(data);
+
+			//if (crop) { // make this an option?
+			if (maxRunLength < width+1) {
+				double[,] matrixTmp = new double[256, maxRunLength+1];
+				for (int y = 0; y < maxRunLength+1; y++ ) {
+					for (int x = 0; x < 255; x++) {
+						matrixTmp[x, y] = matrix[x, y];
+					}
+				}
+
+				matrix = matrixTmp;
+			}
+			//}
 
 
 			IType[] ret = { new TMatrix(matrix) };
