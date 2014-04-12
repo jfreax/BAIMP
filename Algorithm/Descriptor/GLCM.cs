@@ -77,7 +77,7 @@ namespace Baimp
 					for (int i = startX; i < endX; i++) {
 
 						int pos = (j * stride) + i * pixelSize;
-						float v = (float) (0.2125 * src[pos] + 0.7154 * src[pos+1] + 0.0721 * src[pos+2]);
+						float v = (float) (0.2125 * src[pos] + 0.7154 * src[pos + 1] + 0.0721 * src[pos + 2]);
 						int posWithOffset = ((j + dy) * stride) + (i + dx) * pixelSize;
 
 						matrix[(int) v, src[posWithOffset / 2]]++;
@@ -117,7 +117,7 @@ namespace Baimp
 
 		public override string HelpText {
 			get {
-				return "GLCM";
+				return "GLCM - Gray Level Co-occurence Matrix";
 			}
 		}
 

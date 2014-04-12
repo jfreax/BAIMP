@@ -143,6 +143,8 @@
     <Compile Include="Math\Statistics.cs" />
     <Compile Include="DataType\TFeatureList.cs" />
     <Compile Include="Math\MathExtras.cs" />
+    <Compile Include="Algorithm\Descriptor\GLRLM.cs" />
+    <Compile Include="Option\OptionList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
