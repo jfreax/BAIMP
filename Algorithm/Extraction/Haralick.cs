@@ -58,6 +58,8 @@ namespace Baimp
 				contrast += (n * n) * xydiff[n];
 			}
 
+			SetProgress(75);
+
 			sumEntropy = h.Sums.Entropy(double.Epsilon);
 			for (int i = 0; i < h.Sums.Length; i++) {
 				sumAverage += i * h.Sums[i];
