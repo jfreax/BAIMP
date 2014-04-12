@@ -121,6 +121,11 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return string.Format("GLCM d=({0}, {1})", options[0].Value, options[1].Value);
+		}
+
 		#endregion
 	}
 }

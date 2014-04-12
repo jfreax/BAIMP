@@ -204,7 +204,7 @@ namespace Baimp
 			TextLayout text = new TextLayout();
 			Point textOffset = new Point(0, 4);
 
-			text.Text = algorithm.ToString();
+			text.Text = algorithm.Headline();
 			if (text.GetSize().Width < NodeSize.Width) {
 				textOffset.X = (NodeSize.Width - text.GetSize().Width) * 0.5;
 			} else {

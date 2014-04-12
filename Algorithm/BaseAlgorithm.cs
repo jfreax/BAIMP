@@ -71,8 +71,13 @@ namespace Baimp
 			get;
 		}
 
-		abstract public string HelpText {
+		abstract public string HelpText{
 			get;
+		}
+
+		virtual public string Headline()
+		{
+			return ToString();
 		}
 
 		public override string ToString()
