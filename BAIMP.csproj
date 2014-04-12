@@ -89,7 +89,6 @@
     <Compile Include="Helper\Options.cs" />
     <Compile Include="Helper\IniFile.cs" />
     <Compile Include="UI\MainWindow.cs" />
-    <Compile Include="Algorithm\Extraction\TestExtraction.cs" />
     <Compile Include="Algorithm\Compatible.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Event\ProjectChangedEventArgs.cs" />
