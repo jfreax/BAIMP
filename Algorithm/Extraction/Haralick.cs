@@ -33,7 +33,7 @@ namespace Baimp
 			// temp variables
 			double correlationStep = 0.0;
 			double informationMeasure1Step = 0.0, informationMeasure2Step = 0.0;
-			double[] xydiff = new double[h.InputMatrix.GetLength(0)];
+			double[] xydiff = new double[Math.Max(h.InputMatrix.GetLength(0), h.InputMatrix.GetLength(1))];
 
 			// compute
 			//Parallel.For(0, h.InputMatrix.GetLength(0), i => {
@@ -146,8 +146,8 @@ namespace Baimp
 				get {
 					if (px == null) {
 						px = new double[InputMatrix.GetLength(0)];
-						for (int i = 0; i < px.Length; i++)
-							for (int j = 0; j < px.Length; j++)
+						for (int i = 0; i < InputMatrix.GetLength(0); i++)
+							for (int j = 0; j < InputMatrix.GetLength(1); j++)
 								px[i] += InputMatrix[i, j];
 					}
 					return px;
@@ -160,9 +160,9 @@ namespace Baimp
 			public double[] Py {
 				get {
 					if (py == null) {
-						py = new double[InputMatrix.GetLength(0)];
-						for (int j = 0; j < py.Length; j++)
-							for (int i = 0; i < py.Length; i++)
+						py = new double[InputMatrix.GetLength(1)];
+						for (int j = 0; j < InputMatrix.GetLength(1); j++)
+							for (int i = 0; i < InputMatrix.GetLength(0); i++)
 								py[j] += InputMatrix[i, j];
 					}
 					return py;
