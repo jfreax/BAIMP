@@ -41,24 +41,26 @@ namespace Baimp
 			int startX = Math.Max(0, -dx);
 			int startY = Math.Max(0, -dy);
 
+			int endX = width - Math.Max(0, dx);
+			int endY = height - Math.Max(0, dy);
+
 			int pairs = 0;
 
+			int offset = stride - width;
 			if (data.PixelFormat == PixelFormat.Format8bppIndexed) {
-				int offset = stride - width;
-				byte* src = (byte*) (data.Scan0) + startY * stride + startX;
-				byte* srcBegin = (byte*) (data.Scan0) + startY * stride + startX;
+				byte* src = (byte*) (data.Scan0) + (startY * stride) + startX;
+				byte* srcBegin = (byte*) (data.Scan0);
 
 				int oldProgress = 0;
-				for (int y = startY; y < height - Math.Abs(dy); y++) {
-					for (int x = startX; x < width - Math.Abs(dx); x++, src++) {
+				for (int y = startY; y < endY; y++) {
+					for (int x = startX; x < endX; x++, src++) {
 
 						int posWithOffset = ((y + dy) * stride) + (x + dx);
 						matrix[*src, srcBegin[posWithOffset]]++;
 
 						pairs++;
 					}
-
-					src += offset;
+					src += offset + Math.Max(0, dx);
 
 					int progress = (int) (y * 100.0) / height;
 					if (progress - oldProgress > 10) {
@@ -68,24 +70,21 @@ namespace Baimp
 				}
 			} else {
 				int pixelSize = Bitmap.GetPixelFormatSize(data.PixelFormat) / 8;
-				int offset = stride - width * pixelSize;
-				byte* src = (byte*) (data.Scan0) + startY * stride + startX * pixelSize;
-				byte* srcBegin = (byte*) (data.Scan0) + startY * stride + startX * pixelSize;
+				byte* src = (byte*) (data.Scan0);
 
 				int oldProgress = 0;
-				for (int j = startY; j < height - Math.Abs(dy); j++) {
-					for (int i = startX; i < width - Math.Abs(dx); i++, src += pixelSize) {
+				for (int j = startY; j < endY; j++) {
+					for (int i = startX; i < endX; i++) {
 
-						float v = (float) (0.2125 * src[0] + 0.7154 * src[1] + 0.0721 * src[2]);
+						int pos = (j * stride) + i * pixelSize;
+						float v = (float) (0.2125 * src[pos] + 0.7154 * src[pos+1] + 0.0721 * src[pos+2]);
 						int posWithOffset = ((j + dy) * stride) + (i + dx) * pixelSize;
 
-						matrix[(int) v, srcBegin[posWithOffset / 2]]++;
+						matrix[(int) v, src[posWithOffset / 2]]++;
 
 						pairs++;
 					}
-
-					src += offset;
-
+						
 					int progress = (int) (j * 100.0) / height;
 					if (progress - oldProgress > 10) {
 						oldProgress = progress;
