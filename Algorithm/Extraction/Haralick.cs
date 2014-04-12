@@ -44,8 +44,8 @@ namespace Baimp
 					xydiff[Math.Abs(i - j)] += h.InputMatrix[i, j];
 					correlationStep += (i * j) * h.InputMatrix[i, j];
 
-					informationMeasure1Step -= h.InputMatrix[i, j] * Math.Log(h.Px[i] * h.Py[j] + double.Epsilon);
-					informationMeasure2Step -= h.Px[i] * h.Py[j] * Math.Log(h.Px[i] * h.Py[j] + double.Epsilon);
+					informationMeasure1Step -= h.InputMatrix[i, j] * Math.Log(h.Px[i] * h.Py[j] + double.Epsilon, 2);
+					informationMeasure2Step -= h.Px[i] * h.Py[j] * Math.Log(h.Px[i] * h.Py[j] + double.Epsilon, 2);
 
 					asm += value * value;
 					variance += (i - h.Mean) * h.InputMatrix[i, j];
