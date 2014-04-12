@@ -249,13 +249,12 @@ namespace Baimp
 									string name = store.GetNavigatorAt(lScan.position).GetValue(nameCol);
 									if (filteredPositions.ContainsKey(name)) {
 										storeFilter.GetNavigatorAt(filteredPositions[name])
-										.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(48));
+											.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(48));
 									}
 								}
 
 								store.GetNavigatorAt(lScan.position)
-								.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48));
-
+									.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48));
 							});
 						}
 					}
@@ -281,10 +280,13 @@ namespace Baimp
 			switch (args.Button) {
 			case PointerButton.Left:
 				if (args.MultiplePress >= 2) {
+					Console.WriteLine(isFiltered);
 					TreePosition selected = SelectedRow;
 					if (selected != null) {
-						string scanName = store.GetNavigatorAt(selected).GetValue(nameCol);
-						Image thumbnail = store.GetNavigatorAt(selected).GetValue(thumbnailCol);
+						string scanName = (DataSource as TreeStore).GetNavigatorAt(selected)
+							.GetValue(isFiltered ? nameColFilter : nameCol);
+						Image thumbnail = (DataSource as TreeStore).GetNavigatorAt(selected)
+							.GetValue(isFiltered ? thumbnailColFilter : thumbnailCol);
 						BaseScan scan = scanCollection.Find(((BaseScan obj) => obj.Name == scanName));
 
 						if (scan != null) {
@@ -341,35 +343,41 @@ namespace Baimp
 			base.OnKeyPressed(args);
 			switch (args.Key) {
 			case Key.Delete:
-				TreeNavigator selected = store.GetNavigatorAt(SelectedRow);
+				TreeStore currentStore = DataSource as TreeStore;
 
-				if (selected != null) {
-					Dialog d = new Dialog();
-					d.Title = "Remove this scan";
-					VBox nameList = new VBox();
+				if (currentStore != null) {
+					TreeNavigator selected = currentStore.GetNavigatorAt(SelectedRow);
 
-					foreach (TreePosition selectPos in SelectedRows) {
-						nameList.PackStart(
-							new Label(store.GetNavigatorAt(selectPos).GetValue(nameCol))
-						);
-					}
+					if (selected != null) {
+						Dialog d = new Dialog();
+						d.Title = "Remove this scan";
+						VBox nameList = new VBox();
 
-					d.Content = nameList;
-					d.Buttons.Add(new DialogButton(Command.Delete));
-					d.Buttons.Add(new DialogButton(Command.Cancel));
-
-					Command r = d.Run();
-					if (r != null && r.Id == Command.Delete.Id) {
 						foreach (TreePosition selectPos in SelectedRows) {
-							string name = store.GetNavigatorAt(selectPos).GetValue(nameCol);
-							if (!string.IsNullOrEmpty(name)) {
-								store.GetNavigatorAt(selectPos).Remove();
+							nameList.PackStart(
+								new Label(currentStore.GetNavigatorAt(selectPos)
+								.GetValue(isFiltered ? nameColFilter : nameCol))
+							);
+						}
 
-								scanCollection.RemoveAll(scan => scan.Name == name);
+						d.Content = nameList;
+						d.Buttons.Add(new DialogButton(Command.Delete));
+						d.Buttons.Add(new DialogButton(Command.Cancel));
+
+						Command r = d.Run();
+						if (r != null && r.Id == Command.Delete.Id) {
+							foreach (TreePosition selectPos in SelectedRows) {
+								string name = currentStore.GetNavigatorAt(selectPos)
+									.GetValue(isFiltered ? nameColFilter : nameCol);
+								if (!string.IsNullOrEmpty(name)) {
+									currentStore.GetNavigatorAt(selectPos).Remove();
+
+									scanCollection.RemoveAll(scan => scan.Name == name);
+								}
 							}
 						}
+						d.Dispose();
 					}
-					d.Dispose();
 				}
 				break;
 			}
@@ -407,6 +415,12 @@ namespace Baimp
 		}
 
 		#endregion
+
+		public bool IsFiltered {
+			get {
+				return isFiltered;
+			}
+		}
 	}
 }
 

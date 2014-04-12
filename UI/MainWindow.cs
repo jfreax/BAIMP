@@ -182,24 +182,23 @@ namespace Baimp
 			Closed += OnClosing;
 
 			fileTree.SelectionChanged += delegate(object sender, EventArgs e) {
-				if (fileTree.SelectedRow != null && fileTree.SelectedRows.Length == 1) {
-					string fiberName = 
-						fileTree.store
-							.GetNavigatorAt(fileTree.SelectedRow)
-							.GetValue(fileTree.nameCol);
+				TreeStore currentStore = fileTree.DataSource as TreeStore;
+				if (currentStore != null && fileTree.SelectedRow != null && fileTree.SelectedRows.Length == 1) {
+					string fiberName = 	currentStore
+						.GetNavigatorAt(fileTree.SelectedRow)
+						.GetValue(fileTree.IsFiltered ? fileTree.nameColFilter : fileTree.nameCol);
 
 					var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 					if (baseScan != null) {
 						preview.ShowPreviewOf(baseScan);
 					}
 
-				} else if(fileTree.SelectedRows != null) {
+				} else if(currentStore != null && fileTree.SelectedRows != null) {
 					List<BaseScan> scans = new List<BaseScan>();
 					foreach (TreePosition pos in fileTree.SelectedRows) {
-						string fiberName = 
-							fileTree.store
-								.GetNavigatorAt(pos)
-								.GetValue(fileTree.nameCol);
+						string fiberName =	currentStore
+							.GetNavigatorAt(pos)
+							.GetValue(fileTree.IsFiltered ? fileTree.nameColFilter : fileTree.nameCol);
 
 						var baseScan = project.scanCollection.Find(s => s.Name == fiberName);
 						if(baseScan != null) {
