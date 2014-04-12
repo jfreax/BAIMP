@@ -41,12 +41,13 @@ namespace Baimp
 				BitmapImage bi = ib.ToBitmap();
 
 				double max = 0.0;
-				double[,] copy = new double[Data.GetLength(0), Data.GetLength(1)];
+				double[,] copy = Data.Scale(1.0, 65536.0);
+
 				for (int x = 0; x < Data.GetLength(0); x++) {
 					for (int y = 0; y < Data.GetLength(1); y++) {
-						copy[x, y] = Data[x, y];
+						//copy[x, y] = Data[x, y];
 						if (copy[x, y] > 0) {
-							copy[x, y] = (Math.Log(copy[x, y]) * 100.0);
+							copy[x, y] = (Math.Log(copy[x, y]));
 						}
 
 						if (copy[x, y] > max) {

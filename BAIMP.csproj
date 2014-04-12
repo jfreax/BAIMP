@@ -142,6 +142,7 @@
     <Compile Include="DataType\TFeature.cs" />
     <Compile Include="Math\Statistics.cs" />
     <Compile Include="DataType\TFeatureList.cs" />
+    <Compile Include="Math\MathExtras.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
