@@ -7,8 +7,6 @@ namespace Baimp
 {
 	public class GLCM : BaseAlgorithm
 	{
-		Rectangle area = Rectangle.Empty;
-
 		public GLCM(PipelineNode parent) : base(parent)
 		{
 			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
@@ -40,29 +38,19 @@ namespace Baimp
 			int width = data.Width;
 			int stride = data.Stride;
 
-
-			if (area == Rectangle.Empty) {
-				area = new Rectangle(0, 0, width, height);
-			}
-
-			int windowX = Math.Max(area.X, -dx);
-			int windowY = Math.Max(area.Y, -dy);
-			int windowWidth = Math.Min(windowX + area.Width, width - Math.Abs(dy));
-			int windowHeight = Math.Min(windowY + area.Height, height - Math.Abs(dy));
+			int startX = Math.Max(0, -dx);
+			int startY = Math.Max(0, -dy);
 
 			int pairs = 0;
 
 			if (data.PixelFormat == PixelFormat.Format8bppIndexed) {
 				int offset = stride - width;
-				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX;
-				byte* srcBegin = (byte*) (data.Scan0) + windowY * stride + windowX;
+				byte* src = (byte*) (data.Scan0) + startY * stride + startX;
+				byte* srcBegin = (byte*) (data.Scan0) + startY * stride + startX;
 
 				int oldProgress = 0;
-				for (int j = windowY; j < windowHeight; j++) {
-					int y = j - windowY;
-
-					for (int i = windowX; i < windowWidth; i++, src++) {
-						int x = i - windowX;
+				for (int y = startY; y < height - Math.Abs(dy); y++) {
+					for (int x = startX; x < width - Math.Abs(dx); x++, src++) {
 
 						int posWithOffset = ((y + dy) * stride) + (x + dx);
 						matrix[*src, srcBegin[posWithOffset]]++;
@@ -72,7 +60,7 @@ namespace Baimp
 
 					src += offset;
 
-					int progress = (int) (j * 100.0) / windowHeight;
+					int progress = (int) (y * 100.0) / height;
 					if (progress - oldProgress > 10) {
 						oldProgress = progress;
 						SetProgress(progress);
@@ -81,18 +69,15 @@ namespace Baimp
 			} else {
 				int pixelSize = Bitmap.GetPixelFormatSize(data.PixelFormat) / 8;
 				int offset = stride - width * pixelSize;
-				byte* src = (byte*) (data.Scan0) + windowY * stride + windowX * pixelSize;
-				byte* srcBegin = (byte*) (data.Scan0) + windowY * stride + windowX;
+				byte* src = (byte*) (data.Scan0) + startY * stride + startX * pixelSize;
+				byte* srcBegin = (byte*) (data.Scan0) + startY * stride + startX * pixelSize;
 
 				int oldProgress = 0;
-				for (int j = windowY; j < windowHeight; j++) {
-					int y = j - windowY;
-
-					for (int i = windowX; i < windowWidth; i++, src += pixelSize) {
-						int x = i - windowX;
+				for (int j = startY; j < height - Math.Abs(dy); j++) {
+					for (int i = startX; i < width - Math.Abs(dx); i++, src += pixelSize) {
 
 						float v = (float) (0.2125 * src[0] + 0.7154 * src[1] + 0.0721 * src[2]);
-						int posWithOffset = ((y + dy) * stride) + (x + dx) * pixelSize;
+						int posWithOffset = ((j + dy) * stride) + (i + dx) * pixelSize;
 
 						matrix[(int) v, srcBegin[posWithOffset / 2]]++;
 
@@ -101,10 +86,10 @@ namespace Baimp
 
 					src += offset;
 
-					int progress = (int) (j * 100.0) / windowHeight;
+					int progress = (int) (j * 100.0) / height;
 					if (progress - oldProgress > 10) {
 						oldProgress = progress;
-						SetProgress((int) (j * 100.0) / windowHeight);
+						SetProgress(progress);
 					}
 				}
 			}
