@@ -97,6 +97,17 @@ namespace Baimp
 				sum += v * Math.Log(v + eps, 2);
 			return -sum;
 		}
+
+
+		public static double Sum(this double[,] values)
+		{
+			double sum = 0.0;
+			foreach (double v in values) {
+				sum += v;
+			}
+
+			return sum;
+		}
 	}
 }
 

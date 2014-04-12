@@ -144,6 +144,7 @@
     <Compile Include="Math\MathExtras.cs" />
     <Compile Include="Algorithm\Descriptor\GLRLM.cs" />
     <Compile Include="Option\OptionList.cs" />
+    <Compile Include="Algorithm\Extraction\Galloway.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
