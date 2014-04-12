@@ -45,7 +45,6 @@ namespace Baimp
 
 				for (int x = 0; x < Data.GetLength(0); x++) {
 					for (int y = 0; y < Data.GetLength(1); y++) {
-						//copy[x, y] = Data[x, y];
 						if (copy[x, y] > 0) {
 							copy[x, y] = (Math.Log(copy[x, y]));
 						}
@@ -73,7 +72,6 @@ namespace Baimp
 		#endregion
 
 		#region Properties
-
 
 		#endregion
 	}

@@ -6,7 +6,7 @@ namespace Baimp
 {
 	public class StatusBar : HBox
 	{
-		Timer timer;
+		readonly Timer timer;
 		Label threadLabel = new Label();
 		int maxThreads;
 

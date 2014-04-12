@@ -10,7 +10,6 @@ namespace Baimp
 	public class FileTreeView : TreeView
 	{
 		ScanCollection scanCollection;
-		ScanCollection scanCollectionUnfiltered;
 		public DataField<Image> thumbnailCol = new DataField<Image>();
 		public DataField<string> nameCol = new DataField<string>();
 		public DataField<string> saveStateCol = new DataField<string>();
@@ -136,7 +135,6 @@ namespace Baimp
 		{
 			if (save) {
 				scanCollection = scans;
-				scanCollectionUnfiltered = new ScanCollection(scans);
 			}
 
 			this.DataSource = store;

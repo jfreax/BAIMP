@@ -8,7 +8,6 @@ namespace Baimp
 	public class MetadataView : VBox
 	{
 		Dictionary<int, Widget>[] widgets;
-		BaseScan currentScan;
 		Table table;
 
 		/// <summary>
@@ -33,8 +32,6 @@ namespace Baimp
 		/// <param name="scan">Scan.</param>
 		public void Load(BaseScan scan)
 		{
-			this.currentScan = scan;
-
 			table.Clear();
 
 			int i = 1;
