@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 
 namespace Baimp
 {
@@ -40,7 +41,7 @@ namespace Baimp
 				}
 
 				int progress = (int) (y * 100.0) / height;
-				if (progress - oldProgress > 10) {
+				if (progress - oldProgress > 5) {
 					oldProgress = progress;
 					SetProgress(progress);
 				}
@@ -56,13 +57,25 @@ namespace Baimp
 			};
 		}
 
-		public double Sopt(double[,] sumAreaTable, int x, int y)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		static double Sopt(double[,] sumAreaTable, int x, int y)
 		{
 			double result = 0;
 			int kOpt = 1;
 
 			for (int k = 1; k < 5; k++) {
-				double E_k = Math.Max(E_h(sumAreaTable, x, y, k), E_v(sumAreaTable, x, y, k));
+				int p = (int) Math.Pow(2, k - 1);
+
+				double E_h = Math.Abs(
+					AverageNeighborhoods(sumAreaTable, x + p, y, k) -
+					AverageNeighborhoods(sumAreaTable, x - p, y, k)
+				);
+				double E_v = Math.Abs(
+					AverageNeighborhoods(sumAreaTable, x, y + p, k) -
+					AverageNeighborhoods(sumAreaTable, x, y - p, k)
+				);
+
+				double E_k = Math.Max(E_h, E_v);
 				if (result < E_k) {
 					kOpt = k;
 					result = E_k;
@@ -70,24 +83,9 @@ namespace Baimp
 			}
 			return kOpt;
 		}
-
-		double E_h(double[,] sumAreaTable, int x, int y, int k)
-		{
-			return Math.Abs(
-				AverageNeighborhoods(sumAreaTable, x + (int) Math.Pow(2, k - 1), y, k) -
-				AverageNeighborhoods(sumAreaTable, x - (int) Math.Pow(2, k - 1), y, k)
-			);
-		}
-
-		double E_v(double[,] sumAreaTable, int x, int y, int k)
-		{
-			return Math.Abs(
-				AverageNeighborhoods(sumAreaTable, x, y + (int) Math.Pow(2, k - 1), k) -
-				AverageNeighborhoods(sumAreaTable, x, y - (int) Math.Pow(2, k - 1), k)
-			);
-		}
-
-		unsafe double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int k)
+			
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		static double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int k)
 		{
 			int p = (int) Math.Pow(2, k - 1);
 
@@ -139,17 +137,15 @@ namespace Baimp
 			return ii;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static double MeanSubMatrix(double[,] sum, int left, int top, int right, int bottom)
 		{
-			double v1 = 0, v2 = 0, v3 = 0, v4 = 0;
-			try {
+			double v1, v2 , v3, v4;
 			v1 = (left == 0 || top == 0) ? 0 : sum[left - 1, top - 1];
 			v2 = (top == 0) ? 0 : sum[right, top - 1];
 			v3 = (left == 0) ? 0 : sum[left - 1, bottom];
 			v4 = sum[right, bottom];
-			} catch (Exception e) {
-				Console.WriteLine(e.Message);
-			}
+
 			return ((v4 + v1) - (v2 + v3)) / ((bottom - top) + (right - left));
 		}
 
