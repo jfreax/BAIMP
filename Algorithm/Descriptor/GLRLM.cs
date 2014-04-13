@@ -96,6 +96,11 @@ namespace Baimp
 			}
 		}
 
+		public override string ToString()
+		{
+			return "GLRLM - Gray Level Run Length Matrix";
+		}
+
 		#endregion
 	}
 }
