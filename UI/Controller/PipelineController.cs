@@ -10,14 +10,11 @@ namespace Baimp
 	{
 		private FrameBox controllbarShelf;
 		private FrameBox pipelineShelf;
-
 		private HBox controllbar;
 		private Project project;
 		private ScrollView pipelineScroller;
 		private AlgorithmTreeView algorithm;
-
 		private ComboBox projectMap;
-
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
@@ -82,20 +79,13 @@ namespace Baimp
 
 			playButton.ButtonPressed += (object sender, ButtonEventArgs e) => currentPipeline.Execute(project);
 
-			projectMap = new ComboBox();
-			foreach (PipelineView pView in pipelines.Values) {
-				projectMap.Items.Add(pView.PipelineName);
-			}
-			projectMap.Items.Add("Add new worksheet...");
-			projectMap.SelectedIndex = 0;
-			projectMap.MinWidth = 100;
-
 			playButton.MarginLeft = 8;
 			controllbar.PackStart(playButton, false, true);
 			controllbar.PackStart(pauseButton, false, true);
 			controllbar.PackStart(stopButton, false, true);
 
-			controllbar.PackStart(projectMap, false, false);
+			ReloadProjectMap();
+
 			controllbarShelf.Content = controllbar;
 		}
 
@@ -104,35 +94,43 @@ namespace Baimp
 		/// </summary>
 		private void InitializeEvents()
 		{
-			project.ProjectChanged += (object sender, ProjectChangedEventArgs e) => OnProjectDataChangged(e);
+			project.ProjectChanged += delegate(object sender, ProjectChangedEventArgs e) {
+				OnProjectDataChangged(e);
+				ReloadProjectMap();
+			};
+
 
 			foreach (PipelineView pView in pipelines.Values) {
-				pView.DataChanged += (object sender, SaveStateEventArgs e) => 
-					(controllbarShelf.ParentWindow as MainWindow).MarkAsUnsaved();
-			}
-
-			projectMap.SelectionChanged += delegate(object sender, EventArgs e) {
-				if (projectMap.SelectedIndex == projectMap.Items.Count-1) {
-					Tuple<Command, string> ret = WorksheetNameDialog();
-					Command r = ret.Item1;
-					if(r != null && r.Id == Command.Ok.Id) {
-						Console.WriteLine(ret.Item2);
-						PipelineView newPipeline = new PipelineView();
-						newPipeline.Initialize(pipelineScroller);
-						newPipeline.PipelineName = ret.Item2;
-						pipelines.Add(newPipeline.PipelineName, newPipeline);
-						CurrentPipeline = newPipeline;
-
-						projectMap.Items.Insert(projectMap.Items.Count-1, newPipeline.PipelineName);
-						projectMap.SelectedIndex = projectMap.Items.Count-2;
-					} else {
-						int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
-						projectMap.SelectedIndex = idx;
+				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
+					MainWindow mainWindow = controllbarShelf.ParentWindow as MainWindow;
+					if (mainWindow != null) {
+						mainWindow.MarkAsUnsaved();
 					}
-				} else if(projectMap.SelectedItem != null) {
-					CurrentPipeline = pipelines[projectMap.SelectedItem as string];
-				}
-			};
+				};
+			}
+		}
+
+		/// <summary>
+		/// Reloads the project map combobox
+		/// </summary>
+		private void ReloadProjectMap()
+		{
+			if (projectMap == null) {
+				projectMap = new ComboBox();
+				controllbar.PackStart(projectMap, false, false);
+			} else {
+				projectMap.SelectionChanged -= OnProjectMapSelectionChanged;
+			}
+				
+			projectMap.Items.Clear();
+			foreach (PipelineView pView in pipelines.Values) {
+				projectMap.Items.Add(pView.PipelineName);
+			}
+			projectMap.Items.Add("Add new worksheet...");
+			projectMap.SelectedIndex = 0;
+			projectMap.MinWidth = 100;
+
+			projectMap.SelectionChanged += OnProjectMapSelectionChanged;
 		}
 
 		#region events
@@ -161,6 +159,30 @@ namespace Baimp
 			}
 		}
 
+		public void OnProjectMapSelectionChanged(object sender, EventArgs e)
+		{
+			if (projectMap.SelectedIndex == projectMap.Items.Count - 1) {
+				Tuple<Command, string> ret = WorksheetNameDialog();
+				Command r = ret.Item1;
+				if (r != null && r.Id == Command.Ok.Id) {
+					Console.WriteLine(ret.Item2);
+					PipelineView newPipeline = new PipelineView();
+					newPipeline.Initialize(pipelineScroller);
+					newPipeline.PipelineName = ret.Item2;
+					pipelines.Add(newPipeline.PipelineName, newPipeline);
+					CurrentPipeline = newPipeline;
+
+					projectMap.Items.Insert(projectMap.Items.Count - 1, newPipeline.PipelineName);
+					projectMap.SelectedIndex = projectMap.Items.Count - 2;
+				} else {
+					int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
+					projectMap.SelectedIndex = idx;
+				}
+			} else if (projectMap.SelectedItem != null) {
+				CurrentPipeline = pipelines[projectMap.SelectedItem as string];
+			}
+		}
+
 		#endregion
 
 		#region dialogs
@@ -172,30 +194,30 @@ namespace Baimp
 		/// <param name="oldName">Optional old name of an existing worksheet</param>
 		public Tuple<Command, string> WorksheetNameDialog(string oldName = "")
 		{
-			Dialog d = new Dialog ();
+			Dialog d = new Dialog();
 			d.Title = "Choose name";
 			TextEntry nameEntry = new TextEntry();
 			nameEntry.PlaceholderText = "Name";
 
 			bool createNew = true;
-			if(!string.IsNullOrEmpty(oldName)) {
+			if (!string.IsNullOrEmpty(oldName)) {
 				nameEntry.Text = oldName;
 				createNew = false;
 			}
 
 			d.Content = nameEntry;
-			d.Buttons.Add (new DialogButton (createNew ? "Create Worksheet" : "Rename Worksheet", Command.Ok));
-			d.Buttons.Add (new DialogButton (Command.Cancel));
+			d.Buttons.Add(new DialogButton(createNew ? "Create Worksheet" : "Rename Worksheet", Command.Ok));
+			d.Buttons.Add(new DialogButton(Command.Cancel));
 
 			Command r;
-			while((r = d.Run()) != null &&
-				r.Id != Command.Cancel.Id &&
-				(nameEntry.Text.Length < 3 || pipelines.ContainsKey(nameEntry.Text))) {
+			while ((r = d.Run()) != null &&
+			       r.Id != Command.Cancel.Id &&
+			       (nameEntry.Text.Length < 3 || pipelines.ContainsKey(nameEntry.Text))) {
 
 				if (nameEntry.Text.Length < 3) {
-					MessageDialog.ShowMessage ("Worksheets name must consist of at least 3 letters.");
-				} else if(pipelines.ContainsKey(nameEntry.Text)) {
-					MessageDialog.ShowMessage ("Worksheet name already taken.");
+					MessageDialog.ShowMessage("Worksheets name must consist of at least 3 letters.");
+				} else if (pipelines.ContainsKey(nameEntry.Text)) {
+					MessageDialog.ShowMessage("Worksheet name already taken.");
 				}
 			}
 
@@ -207,6 +229,9 @@ namespace Baimp
 
 		#endregion
 
+		/// <summary>
+		/// Show dialog to rename the current worksheet.
+		/// </summary>
 		public void RenameCurrentWorksheetDialog()
 		{
 			Tuple<Command, string> ret = WorksheetNameDialog(CurrentPipeline.PipelineName);
@@ -236,7 +261,6 @@ namespace Baimp
 			}
 		}
 
-
 		public PipelineCollection Pipelines {
 			get {
 				return pipelines;
@@ -245,6 +269,7 @@ namespace Baimp
 				pipelines = value;
 			}
 		}
+
 		#endregion
 	}
 }
