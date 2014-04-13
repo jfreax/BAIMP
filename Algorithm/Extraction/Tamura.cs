@@ -28,8 +28,8 @@ namespace Baimp
 				                  bitmap.PixelFormat
 			                  );
 
-			int height = data.Height;
 			int width = data.Width;
+			int height = data.Height;
 
 			double coarsness = 0.0;
 			double[,] sumAreaTable = SumAreaTable(data);

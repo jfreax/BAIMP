@@ -146,6 +146,7 @@
     <Compile Include="Option\OptionList.cs" />
     <Compile Include="Algorithm\Extraction\Galloway.cs" />
     <Compile Include="Algorithm\Extraction\Tamura.cs" />
+    <Compile Include="Algorithm\Extraction\Moments.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
