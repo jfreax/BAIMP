@@ -145,6 +145,7 @@
     <Compile Include="Algorithm\Descriptor\GLRLM.cs" />
     <Compile Include="Option\OptionList.cs" />
     <Compile Include="Algorithm\Extraction\Galloway.cs" />
+    <Compile Include="Algorithm\Extraction\Tamura.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
