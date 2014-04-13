@@ -33,9 +33,16 @@ namespace Baimp
 			double coarsness = 0.0;
 			double[,] sumAreaTable = SumAreaTable(data);
 
+			int oldProgress = 0;
 			for (int y = 0; y < height; y++) {
 				for (int x = 1; x < width; x++) {
 					coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
+				}
+
+				int progress = (int) (y * 100.0) / height;
+				if (progress - oldProgress > 10) {
+					oldProgress = progress;
+					SetProgress(progress);
 				}
 			}
 
