@@ -67,12 +67,12 @@ namespace Baimp
 				int p = (int) Math.Pow(2, k - 1);
 
 				double E_h = Math.Abs(
-					AverageNeighborhoods(sumAreaTable, x + p, y, k) -
-					AverageNeighborhoods(sumAreaTable, x - p, y, k)
+					AverageNeighborhoods(sumAreaTable, x + p, y, p) -
+					AverageNeighborhoods(sumAreaTable, x - p, y, p)
 				);
 				double E_v = Math.Abs(
-					AverageNeighborhoods(sumAreaTable, x, y + p, k) -
-					AverageNeighborhoods(sumAreaTable, x, y - p, k)
+					AverageNeighborhoods(sumAreaTable, x, y + p, p) -
+					AverageNeighborhoods(sumAreaTable, x, y - p, p)
 				);
 
 				double E_k = Math.Max(E_h, E_v);
@@ -85,9 +85,8 @@ namespace Baimp
 		}
 			
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int k)
+		static double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int p)
 		{
-			int p = (int) Math.Pow(2, k - 1);
 
 			int left = x - p;
 			if (left < 0)
