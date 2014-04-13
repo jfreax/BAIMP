@@ -17,7 +17,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			TBitmap tbitmap = inputArgs[0] as TBitmap;
 			Bitmap bitmap = tbitmap.Data;
@@ -31,13 +31,23 @@ namespace Baimp
 			int width = data.Width;
 			int height = data.Height;
 
-			double coarsness = 0.0;
+			double coarsness = 0.0, contrast = 0.0;
+
 			double[,] sumAreaTable = SumAreaTable(data);
+
+			double mean = data.Mean();
+			double sigma = data.StandardDeviation(mean);
+			double moment4 = 0.0;
+
+			byte* src = (byte*) data.Scan0;
 
 			int oldProgress = 0;
 			for (int y = 0; y < height; y++) {
 				for (int x = 1; x < width; x++) {
 					coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
+					moment4 += Math.Pow(*src - mean, 4);
+
+					src++;
 				}
 
 				int progress = (int) (y * 100.0) / height;
@@ -49,11 +59,18 @@ namespace Baimp
 
 			coarsness /= height * width;
 
+			if (sigma > 0) { // sigma <= 0 only if image is complete black
+				double alpha4 = moment4 / (Math.Pow(sigma, 4));
+				contrast = sigma / Math.Pow(alpha4, 0.25);
+			}
+				
+
 			bitmap.UnlockBits(data);
 
 			return new IType[] { 
 				new TFeatureList<double>()
 					.AddFeature("coarsness", coarsness)
+					.AddFeature("contrast", contrast)
 			};
 		}
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Drawing.Imaging;
 
 namespace Baimp
 {
 	public static class Statistics
 	{
+		#region Mean
+
 		/// <summary>
 		/// Computes the mean of a given double array.
 		/// </summary>
@@ -16,15 +19,17 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Compute the Standard Deviation.
+		/// Compute the mean of all pixel in a given image.
 		/// </summary>
-		/// <returns>The Standard Deviation.</returns>
-		/// <param name="values">Values.</param>
-		/// <param name="mean">Mean.</param>
-		public static double StandardDeviation(this double[] values, double mean)
+		/// <param name="image">Image.</param>
+		public static double Mean(this BitmapData image)
 		{
-			return Math.Sqrt(Variance(values, mean));
+			return image.Sum() / (image.Width * image.Height);
 		}
+			
+		#endregion
+
+		#region Variance
 
 		/// <summary>
 		/// Compute the variance of a given vector.
@@ -51,6 +56,56 @@ namespace Baimp
 
 			return variance / (values.Length - 1);
 		}
+
+		#endregion
+
+		#region Standard Deviation
+
+		/// <summary>
+		/// Compute the Standard Deviation.
+		/// </summary>
+		/// <returns>The Standard Deviation.</returns>
+		/// <param name="values">Values.</param>
+		/// <param name="mean">Mean.</param>
+		public static double StandardDeviation(this double[] values, double mean)
+		{
+			return Math.Sqrt(Variance(values, mean));
+		}
+
+		/// <summary>
+		/// Compute the Standard Deviation.
+		/// </summary>
+		/// <returns>The Standard Deviation.</returns>
+		/// <param name="image">Values as BitmapData.</param>
+		/// <param name="mean">Mean.</param>
+		public static unsafe double StandardDeviation(this BitmapData image, double mean)
+		{
+			int width = image.Width;
+			int height = image.Height;
+			int offset = image.Stride - image.Width;
+
+			double sum = 0;
+
+			if (image.PixelFormat == PixelFormat.Format8bppIndexed) {
+				byte* src = (byte*) image.Scan0;
+
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++, src++) {
+						double u = (*src) - mean;
+						sum += u * u;
+					}
+					src += offset;
+				}
+			} else {
+				// TODO
+			}
+
+			return Math.Sqrt(sum / (width * height - 1));
+		}
+
+		#endregion
+
+		#region Entropy
 
 		/// <summary>
 		/// Computes the entropy for a given array.
@@ -98,7 +153,14 @@ namespace Baimp
 			return -sum;
 		}
 
+		#endregion
 
+		#region Sum
+
+		/// <summary>
+		/// Sum of all values.
+		/// </summary>
+		/// <param name="values">Values.</param>
 		public static double Sum(this double[,] values)
 		{
 			double sum = 0.0;
@@ -108,6 +170,34 @@ namespace Baimp
 
 			return sum;
 		}
+
+		/// <summary>
+		/// Sum of all pixel of a given image.
+		/// </summary>
+		/// <param name="image">Image.</param>
+		public static unsafe double Sum(this BitmapData image)
+		{
+			int width = image.Width;
+			int height = image.Height;
+			int stride = image.Stride;
+			int offset = image.Stride - image.Width;
+
+			int sum = 0;
+
+			if (image.PixelFormat == PixelFormat.Format8bppIndexed) {
+				byte* src = (byte*) image.Scan0;
+
+				for (int i = 0; i < height*width; i++) {
+					sum += (*src++);
+				}
+			} else {
+				// TODO
+			}
+
+			return sum;
+		}
+
+		#endregion
 	}
 }
 
