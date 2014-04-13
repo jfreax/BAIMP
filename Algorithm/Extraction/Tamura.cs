@@ -30,6 +30,7 @@ namespace Baimp
 
 			int width = data.Width;
 			int height = data.Height;
+			int stride = data.Stride;
 
 			double coarsness = 0.0, contrast = 0.0;
 
@@ -39,13 +40,32 @@ namespace Baimp
 			double sigma = data.StandardDeviation(mean);
 			double moment4 = 0.0;
 
+			const double maxResult = 4;
+			double[] histogram = new double[16];
+			double binWindow = maxResult / (double) (histogram.Length - 1);
+			int bin = -1;
+
+
 			byte* src = (byte*) data.Scan0;
+			byte* srcBegin = (byte*) data.Scan0;
 
 			int oldProgress = 0;
 			for (int y = 0; y < height; y++) {
-				for (int x = 1; x < width; x++) {
-					coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
+				for (int x = 0; x < width; x++) {
 					moment4 += Math.Pow(*src - mean, 4);
+
+					if (x > 0 && y > 0) {
+						coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
+
+						if (x < width - 1 && y < height - 1) {
+							double v = DeltaV(srcBegin, stride, x, y);
+							double h = DeltaH(srcBegin, stride, x, y);
+							if (h > 0.0 && v > 0.0) {
+								bin = (int) ((Math.PI / 2 + Math.Atan(v / h)) / binWindow);
+								histogram[bin]++;
+							}
+						}
+					}
 
 					src++;
 				}
@@ -84,13 +104,13 @@ namespace Baimp
 				int p = (int) Math.Pow(2, k - 1);
 
 				double E_h = Math.Abs(
-					AverageNeighborhoods(sumAreaTable, x + p, y, p) -
-					AverageNeighborhoods(sumAreaTable, x - p, y, p)
-				);
+					             AverageNeighborhoods(sumAreaTable, x + p, y, p) -
+					             AverageNeighborhoods(sumAreaTable, x - p, y, p)
+				             );
 				double E_v = Math.Abs(
-					AverageNeighborhoods(sumAreaTable, x, y + p, p) -
-					AverageNeighborhoods(sumAreaTable, x, y - p, p)
-				);
+					             AverageNeighborhoods(sumAreaTable, x, y + p, p) -
+					             AverageNeighborhoods(sumAreaTable, x, y - p, p)
+				             );
 
 				double E_k = Math.Max(E_h, E_v);
 				if (result < E_k) {
@@ -100,7 +120,7 @@ namespace Baimp
 			}
 			return kOpt;
 		}
-			
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int p)
 		{
@@ -156,13 +176,42 @@ namespace Baimp
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static double MeanSubMatrix(double[,] sum, int left, int top, int right, int bottom)
 		{
-			double v1, v2 , v3, v4;
+			double v1, v2, v3, v4;
 			v1 = (left == 0 || top == 0) ? 0 : sum[left - 1, top - 1];
 			v2 = (top == 0) ? 0 : sum[right, top - 1];
 			v3 = (left == 0) ? 0 : sum[left - 1, bottom];
 			v4 = sum[right, bottom];
 
 			return ((v4 + v1) - (v2 + v3)) / ((bottom - top) + (right - left));
+		}
+
+		static double[,] filterH = { { -1, 0, 1 }, { -1, 0, 1 }, { -1, 0, 1 } };
+		static double[,] filterV = { { -1, -1, -1 }, { 0, 0, 0 }, { 1, 1, 1 } };
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		static unsafe double DeltaH(byte* src, int stride, int x, int y)
+		{
+			double result = 0;
+
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					result = result + src[x - 1 + i + ((y - 1 + j) * stride)] * filterH[i, j];
+				}
+			}
+			return result;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		static unsafe double DeltaV(byte* src, int stride, int x, int y)
+		{
+			double result = 0;
+
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					result = result + src[x - 1 + i + ((y - 1 + j) * stride)] * filterV[i, j];
+				}
+			}
+			return result;
 		}
 
 		public override AlgorithmType AlgorithmType {
