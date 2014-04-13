@@ -35,35 +35,36 @@ namespace Baimp
 					}
 
 					widget = t;
-				}
+				} else {
 
-				ImageBuilder ib = new ImageBuilder(Data.GetLength(0), Data.GetLength(1));
-				BitmapImage bi = ib.ToBitmap();
+					ImageBuilder ib = new ImageBuilder(Data.GetLength(0), Data.GetLength(1));
+					BitmapImage bi = ib.ToBitmap();
 
-				double max = 0.0;
-				double[,] copy = Data.Scale(1.0, 65536.0);
+					double max = 0.0;
+					double[,] copy = Data.Scale(1.0, 65536.0);
 
-				for (int x = 0; x < Data.GetLength(0); x++) {
-					for (int y = 0; y < Data.GetLength(1); y++) {
-						if (copy[x, y] > 0) {
-							copy[x, y] = (Math.Log(copy[x, y]));
-						}
+					for (int x = 0; x < Data.GetLength(0); x++) {
+						for (int y = 0; y < Data.GetLength(1); y++) {
+							if (copy[x, y] > 0) {
+								copy[x, y] = (Math.Log(copy[x, y]));
+							}
 
-						if (copy[x, y] > max) {
-							max = copy[x, y];
+							if (copy[x, y] > max) {
+								max = copy[x, y];
+							}
 						}
 					}
-				}
 												
-				for (int x = 0; x < Data.GetLength(0); x++) {
-					for (int y = 0; y < Data.GetLength(1); y++) {
-						byte c = (byte) ((copy[x, y] * 255) / max);
-						bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+					for (int x = 0; x < Data.GetLength(0); x++) {
+						for (int y = 0; y < Data.GetLength(1); y++) {
+							byte c = (byte) ((copy[x, y] * 255) / max);
+							bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+						}
 					}
-				}
 
-				ib.Dispose();
-				widget = new ImageView(bi.WithBoxSize(MaxWidgetSize));
+					ib.Dispose();
+					widget = new ImageView(bi.WithBoxSize(MaxWidgetSize));
+				}
 			}
 
 			return widget;

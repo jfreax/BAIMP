@@ -13,6 +13,9 @@ namespace Baimp
 			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
 
 			output.Add(new Compatible("Tamura Features", typeof(TFeatureList<double>)));
+			output.Add(new Compatible("Directionality Histogram", typeof(THistogram)));
+
+
 		}
 
 		#region implemented abstract members of BaseAlgorithm
@@ -40,11 +43,9 @@ namespace Baimp
 			double sigma = data.StandardDeviation(mean);
 			double moment4 = 0.0;
 
-			const double maxResult = 4;
-			double[] histogram = new double[16];
-			double binWindow = maxResult / (double) (histogram.Length - 1);
+			int[] histogram = new int[64];
+			double binWindow = (histogram.Length - 1) / Math.PI;
 			int bin = -1;
-
 
 			byte* src = (byte*) data.Scan0;
 			byte* srcBegin = (byte*) data.Scan0;
@@ -61,7 +62,7 @@ namespace Baimp
 							double v = DeltaV(srcBegin, stride, x, y);
 							double h = DeltaH(srcBegin, stride, x, y);
 							if (h > 0.0 && v > 0.0) {
-								bin = (int) ((Math.PI / 2 + Math.Atan(v / h)) / binWindow);
+								bin = (int) ((Math.PI / 2 + Math.Atan(v / h)) * binWindow);
 								histogram[bin]++;
 							}
 						}
@@ -90,7 +91,8 @@ namespace Baimp
 			return new IType[] { 
 				new TFeatureList<double>()
 					.AddFeature("coarsness", coarsness)
-					.AddFeature("contrast", contrast)
+					.AddFeature("contrast", contrast),
+				new THistogram(histogram)
 			};
 		}
 
