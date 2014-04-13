@@ -31,10 +31,11 @@ namespace Baimp
 			int width = data.Width;
 
 			double coarsness = 0.0;
+			double[,] sumAreaTable = SumAreaTable(data);
 
 			for (int y = 0; y < height; y++) {
 				for (int x = 1; x < width; x++) {
-					coarsness += Math.Pow(2, Sopt(data, x, y));
+					coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
 				}
 			}
 
@@ -48,13 +49,13 @@ namespace Baimp
 			};
 		}
 
-		public double Sopt(BitmapData data, int x, int y)
+		public double Sopt(double[,] sumAreaTable, int x, int y)
 		{
 			double result = 0;
 			int kOpt = 1;
 
-			for (int k = 0; k < 3; k++) {
-				double E_k = Math.Max(E_h(data, x, y, k), E_v(data, x, y, k));
+			for (int k = 1; k < 5; k++) {
+				double E_k = Math.Max(E_h(sumAreaTable, x, y, k), E_v(sumAreaTable, x, y, k));
 				if (result < E_k) {
 					kOpt = k;
 					result = E_k;
@@ -63,51 +64,86 @@ namespace Baimp
 			return kOpt;
 		}
 
-		double E_h(BitmapData data, int x, int y, int k)
+		double E_h(double[,] sumAreaTable, int x, int y, int k)
 		{
 			return Math.Abs(
-				AverageNeighborhoods(data, x + (int) Math.Pow(2, k - 1), y, k) -
-				AverageNeighborhoods(data, x - (int) Math.Pow(2, k - 1), y, k)
+				AverageNeighborhoods(sumAreaTable, x + (int) Math.Pow(2, k - 1), y, k) -
+				AverageNeighborhoods(sumAreaTable, x - (int) Math.Pow(2, k - 1), y, k)
 			);
 		}
 
-		double E_v(BitmapData data, int x, int y, int k)
+		double E_v(double[,] sumAreaTable, int x, int y, int k)
 		{
 			return Math.Abs(
-				AverageNeighborhoods(data, x, y + (int) Math.Pow(2, k - 1), k) -
-				AverageNeighborhoods(data, x, y - (int) Math.Pow(2, k - 1), k)
+				AverageNeighborhoods(sumAreaTable, x, y + (int) Math.Pow(2, k - 1), k) -
+				AverageNeighborhoods(sumAreaTable, x, y - (int) Math.Pow(2, k - 1), k)
 			);
 		}
 
-		unsafe double AverageNeighborhoods(BitmapData data, int x, int y, int k)
+		unsafe double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int k)
 		{
-			double result = 0, border;
-			border = Math.Pow(2, 2 * k);
-			int x0 = 0, y0 = 0;
-
 			int p = (int) Math.Pow(2, k - 1);
 
+			int left = x - p;
+			if (left < 0)
+				left = 0;
+
+			int right = x + p - 1;
+			if (right >= sumAreaTable.GetLength(0))
+				right = sumAreaTable.GetLength(0) - 1;
+
+			int top = y - p;
+			if (top < 0)
+				top = 0;
+
+			int bottom = y + p - 1;
+			if (bottom >= sumAreaTable.GetLength(1))
+				bottom = sumAreaTable.GetLength(1) - 1;
+			if (bottom < 0)
+				bottom = 0;
+
+			return MeanSubMatrix(sumAreaTable, left, top, right, bottom);
+		}
+
+		static unsafe double[,] SumAreaTable(BitmapData data)
+		{
 			byte* src = (byte*) (data.Scan0);
+
 			int stride = data.Stride;
+			int n = data.Width;
+			int m = data.Height;
+			double[,] s = new double[n, m];
+			double[,] ii = new double[n, m];
 
-			for (int i = 0; i < border; i++) {
-				for (int j = 0; j < border; j++) {
-					x0 = x - p + i;
-					y0 = y - p + j;
+			s[0, 0] = *src;
+			ii[0, 0] = s[0, 0];
+			for (int x = 1; x < n; x++) {
+				s[x, 0] = src[x]; // [x, 0];
+				ii[x, 0] = ii[x - 1, 0] + s[x, 0]; 
+			}
+			for (int y = 1; y < m; y++) {
+				ii[0, y] = s[0, y] = s[0, y - 1] + src[(stride * y)]; // [0, y];
 
-					if (x0 < 0)
-						x0 = 0;
-					if (y0 < 0)
-						y0 = 0;
-					if (x0 >= data.Width)
-						x0 = data.Width - 1;
-					if (y0 >= data.Height)
-						y0 = data.Width - 1;
-					result += src[(stride * y0) + x0];
+				for (int x = 1; x < n; x++) {
+					s[x, y] = s[x, y - 1] + src[(stride * y) + x];
+					ii[x, y] = ii[x - 1, y] + s[x, y];
 				}
 			}
+			return ii;
+		}
 
-			return result / Math.Pow(2, 2 * k);
+		static double MeanSubMatrix(double[,] sum, int left, int top, int right, int bottom)
+		{
+			double v1 = 0, v2 = 0, v3 = 0, v4 = 0;
+			try {
+			v1 = (left == 0 || top == 0) ? 0 : sum[left - 1, top - 1];
+			v2 = (top == 0) ? 0 : sum[right, top - 1];
+			v3 = (left == 0) ? 0 : sum[left - 1, bottom];
+			v4 = sum[right, bottom];
+			} catch (Exception e) {
+				Console.WriteLine(e.Message);
+			}
+			return ((v4 + v1) - (v2 + v3)) / ((bottom - top) + (right - left));
 		}
 
 		public override AlgorithmType AlgorithmType {
