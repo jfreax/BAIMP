@@ -187,8 +187,12 @@ namespace Baimp
 			if (image.PixelFormat == PixelFormat.Format8bppIndexed) {
 				byte* src = (byte*) image.Scan0;
 
-				for (int i = 0; i < height*width; i++) {
-					sum += (*src++);
+				for (int i = 0; i < height; i++) {
+					for (int j = 0; j < width; j++) {
+						sum += (*src++);
+					}
+
+					src += offset;
 				}
 			} else {
 				// TODO
