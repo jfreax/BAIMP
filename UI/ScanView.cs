@@ -162,7 +162,7 @@ namespace Baimp
 				QueueDraw();
 			}));
 				
-			scan.GetAsImageAsync(scanType, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
+			scan.GetAsImageAsync(scanType, false, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				Image = loadedImage;
 
 				QueueDraw();
@@ -346,7 +346,7 @@ namespace Baimp
 				scan.ScaleImage(scale);
 
 				if (loadingComplete) {
-					image = scan.GetAsImage(currentShownType);
+					image = scan.GetAsImage(currentShownType, false);
 					mask = scan.Masks.GetMaskAsImage();
 				}
 

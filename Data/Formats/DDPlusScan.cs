@@ -187,6 +187,11 @@ namespace Baimp
 			return bitmap;
 		}
 
+		public override unsafe Bitmap GetAsColorizedBitmap(string scanType)
+		{
+			return GetAsBitmap(scanType); // TODO
+		}
+
 		public override UInt32[] GetAsArray(string scanType)
 		{
 			throw new NotImplementedException();

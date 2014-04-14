@@ -71,6 +71,7 @@ namespace Baimp
 		/// Buffer of rendered images.
 		/// </summary>
 		private Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
+		private Dictionary<string, XD.Image> renderedColorImage = new Dictionary<string, XD.Image>();
 
 		/// <summary>
 		/// Buffer of thumbnails.
@@ -156,16 +157,28 @@ namespace Baimp
 		abstract public unsafe Bitmap GetAsBitmap(string scanType);
 
 		/// <summary>
+		/// Get colorized scan as 32bit argb bitmap.
+		/// 
+		/// Heightmap, intensity, etc should be green to red encoded.
+		/// </summary>
+		/// <returns>The specified scan as a bitmap.</returns>
+		/// <param name="scanType">Scantile</param>
+		abstract public unsafe Bitmap GetAsColorizedBitmap(string scanType);
+
+		/// <summary>
 		/// Get as image.
 		/// </summary>
 		/// <returns>The as image.</returns>
 		/// <param name="scanType">Type.</param>
 		/// <param name="saveImage">Save the result?</param>
-		public Xwt.Drawing.Image GetAsImage(string scanType, bool saveImage = true)
+		/// <param name="colorized">Colorize (green to red) heightmap/intensity/... ?</param>
+		public Xwt.Drawing.Image GetAsImage(string scanType, bool colorized, bool saveImage = true)
 		{
 			lock (asyncImageLock) {
-				if (!renderedImage.ContainsKey(scanType) || renderedImage[scanType] == null) {
-					MemoryStream mStream = GetAsMemoryStream(scanType);
+				var currentRenderDict = colorized ? renderedColorImage : renderedImage;
+
+				if (!currentRenderDict.ContainsKey(scanType) || currentRenderDict[scanType] == null) {
+					MemoryStream mStream = GetAsMemoryStream(scanType, colorized);
 					XD.Image img = XD.Image.FromStream(mStream).WithBoxSize(requestedBitmapSize);
 					mStream.Dispose();
 
@@ -173,21 +186,29 @@ namespace Baimp
 						return img;
 					}
 
-					renderedImage[scanType] = img;
+					currentRenderDict[scanType] = img;
 				}
 			}
-			return renderedImage[scanType].WithBoxSize(requestedBitmapSize);
+			return colorized ? 
+				renderedColorImage[scanType].WithBoxSize(requestedBitmapSize) : 
+				renderedImage[scanType].WithBoxSize(requestedBitmapSize);
 		}
 
 		/// <summary>
-		/// Gets image as memory stream in tiff format
+		/// Gets image as memory stream.
 		/// </summary>
 		/// <returns>The memory stream.</returns>
 		/// <param name="scanType">Scan type.</param>
-		public MemoryStream GetAsMemoryStream(string scanType)
+		/// <param name="colorized">Colorize (green to red) heightmap/intensity/... ?</param>>
+		public MemoryStream GetAsMemoryStream(string scanType, bool colorized)
 		{
 			MemoryStream memoryStream = new MemoryStream();
-			Bitmap bmp = GetAsBitmap(scanType);
+			Bitmap bmp;
+			if (colorized) {
+				bmp = GetAsColorizedBitmap(scanType);
+			} else {
+				bmp = GetAsBitmap(scanType);
+			}
 			if (bmp == null) {
 				// TODO raise error
 				return null;
@@ -222,12 +243,17 @@ namespace Baimp
 		/// </summary>
 		/// <param name="scanType">Scan type.</param>
 		/// <param name="callback">Function to call on finish.</param>
-		public virtual void GetAsImageAsync(string scanType, ImageLoadedCallback callback)
+		/// <param name="colorized">Colorize (green to red) heightmap/intensity/... ?</param>
+		public virtual void GetAsImageAsync(string scanType, bool colorized, ImageLoadedCallback callback)
 		{
 			Task.Factory.StartNew( () => {
-				XD.Image image = GetAsImage(scanType);
-
-				Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));
+				try {
+					XD.Image image = GetAsImage(scanType, colorized);
+					Application.Invoke(() => callback(image.WithBoxSize(requestedBitmapSize)));
+				} catch (Exception e) {
+					Console.WriteLine(e.StackTrace);
+					Console.WriteLine(e.Message);
+				}
 			});
 		}
 

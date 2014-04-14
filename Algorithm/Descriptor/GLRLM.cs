@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -15,7 +16,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override unsafe IType[] Run(System.Collections.Generic.Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			TBitmap tbitmap = inputArgs[0] as TBitmap;
 			Bitmap bitmap = tbitmap.Data;

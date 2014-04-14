@@ -361,6 +361,52 @@ namespace Baimp
 			return bitmap;
 		}
 
+		public override unsafe Bitmap GetAsColorizedBitmap(string scanType)
+		{
+			if (scanType == "Color") {
+				return GetAsBitmap(scanType);
+			}
+				
+			UInt32[] array = GetAsArray(scanType);
+			int width = (int) size.Width;
+			int height = (int) size.Height;
+
+			Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+			//Create a BitmapData and Lock all pixels to be written 
+			BitmapData bmpData = bitmap.LockBits(
+				new Rectangle(0, 0, width, height),   
+				ImageLockMode.WriteOnly, bitmap.PixelFormat);
+				
+			int offset = (bmpData.Stride / 4) - width;
+
+			byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+			double max = (double)array.Max();
+
+			int i = 0;
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++, i++, scan0++) {
+					double intensitiy = 1.0 - (double)array[i] / max;
+					Color color = ImageTools.HSVtoRGB(intensitiy * 130, 0.9, 0.9, 1.0);
+
+					*scan0 = color.B;
+					scan0++;
+					*scan0 = color.G;
+					scan0++;
+					*scan0 = color.R;
+					scan0++;
+					*scan0 = 255;
+				}
+
+				scan0 += offset;
+			}
+
+			//Unlock the pixels
+			bitmap.UnlockBits(bmpData);
+
+			return bitmap;
+		}
+
 		#endregion
 	}
 }

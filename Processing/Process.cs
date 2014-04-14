@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Xwt;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Baimp
 {
@@ -61,7 +62,9 @@ namespace Baimp
 				} catch (Exception e) {
 					Console.WriteLine(e.StackTrace);
 					Console.WriteLine(e.Message);
-					Console.WriteLine(e.InnerException.Message);
+					if (e.InnerException != null) { 
+						Console.WriteLine(e.InnerException.Message);
+					}
 				}
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
