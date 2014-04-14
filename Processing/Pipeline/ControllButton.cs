@@ -6,19 +6,17 @@ namespace Baimp
 {
 	public class ControllButton : Canvas
 	{
-		Image bgNormal;
-		Image bgHover;
-		Image bgPressed;
+		static readonly Image bgNormal = Image.FromResource("Baimp.Resources.btExecuteBase-Normal.png");
+		static readonly Image bgHover = Image.FromResource("Baimp.Resources.btExecuteBase-Hover.png");
+		static readonly Image bgPressed = Image.FromResource("Baimp.Resources.btExecuteBase-Pressed.png");
+
 		Image icon;
 
 		bool isHover = false;
 		bool isPressed = false;
 
-		public ControllButton(Image bgNormal, Image bgHover, Image bgPressed, Image icon)
+		public ControllButton(Image icon)
 		{
-			this.bgNormal = bgNormal;
-			this.bgHover = bgHover;
-			this.bgPressed = bgPressed;
 			this.icon = icon;
 		}
 
