@@ -15,7 +15,7 @@ namespace Baimp
 			output.Add(new Compatible("Tamura Features", typeof(TFeatureList<double>)));
 			output.Add(new Compatible("Directionality Histogram", typeof(THistogram)));
 
-
+			options.Add(new Option("Directionality Histogram #Bins", 4, int.MaxValue, 64));
 		}
 
 		#region implemented abstract members of BaseAlgorithm
@@ -24,6 +24,8 @@ namespace Baimp
 		{
 			TBitmap tbitmap = inputArgs[0] as TBitmap;
 			Bitmap bitmap = tbitmap.Data;
+
+			int nrOfBins = (int) options[0].Value;
 
 			BitmapData data = bitmap.LockBits(
 				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -43,7 +45,7 @@ namespace Baimp
 			double sigma = data.StandardDeviation(mean);
 			double moment4 = 0.0;
 
-			int[] histogram = new int[64];
+			int[] histogram = new int[nrOfBins];
 			double binWindow = (histogram.Length - 1) / Math.PI;
 			int bin = -1;
 
@@ -226,6 +228,11 @@ namespace Baimp
 			get {
 				return "Tamura Features";
 			}
+		}
+
+		public override string Headline()
+		{
+			return string.Format("Tamuara ({0})", options[0].Value);
 		}
 
 		#endregion
