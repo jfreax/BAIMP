@@ -172,6 +172,20 @@ namespace Baimp
 		}
 
 		/// <summary>
+		/// Sum of all values.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		public static int Sum(this int[] values)
+		{
+			int sum = 0;
+			foreach (int v in values) {
+				sum += v;
+			}
+
+			return sum;
+		}
+
+		/// <summary>
 		/// Sum of all pixel of a given image.
 		/// </summary>
 		/// <param name="image">Image.</param>

@@ -37,7 +37,7 @@ namespace Baimp
 			int height = data.Height;
 			int stride = data.Stride;
 
-			double coarsness = 0.0, contrast = 0.0;
+			double coarsness = 0.0, contrast = 0.0, directionality = 0.0;
 
 			double[,] sumAreaTable = SumAreaTable(data);
 
@@ -86,14 +86,42 @@ namespace Baimp
 				double alpha4 = moment4 / (Math.Pow(sigma, 4));
 				contrast = sigma / Math.Pow(alpha4, 0.25);
 			}
+
+			int histSum = histogram.Sum();
+
+			int lastValley = -1;
+			int lastHill = -1;
+			int hillCount = 0; // n_p
+			for (int i = 0; i < histogram.Length-1; i++) {
+				double diff = histogram[i] - histogram[i + 1];
+
+				if (diff > 0 && lastValley == -1) { // new valley begins here
+					lastValley = i;
+					lastHill = -1; // finished hill
+				} else if (diff < 0 && lastHill == -1) { // new hill begins here
+					hillCount++;
+					lastHill = i;
+					if (lastValley != -1) { // there was a valley before
+						for (int j = lastValley; j < i; j++) {
+							directionality += Math.Pow(j - i, 2) * ((double) histogram[j] / histSum);
+						}
+
+						lastValley = -1; // finished valley
+					}
+				} else if (diff < 0) { // it still goes down
+					directionality += Math.Pow(i - lastHill, 2) * ((double)histogram[i] / histSum);
+				}
+			}
 				
+			directionality = 1 - (binWindow * hillCount * directionality);
 
 			bitmap.UnlockBits(data);
 
 			return new IType[] { 
 				new TFeatureList<double>()
 					.AddFeature("coarsness", coarsness)
-					.AddFeature("contrast", contrast),
+					.AddFeature("contrast", contrast)
+					.AddFeature("directionality", directionality),
 				new THistogram(histogram)
 			};
 		}
