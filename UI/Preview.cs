@@ -28,21 +28,55 @@ namespace Baimp
 		HashSet<string> currentFiberTypes = new HashSet<string>();
 
 		MouseMover mouseMover = new MouseMover();
+		HBox controlbar = new HBox();
 		HBox controller = new HBox();
 		GridView gridView = new GridView(96.0, 10.0);
+
+		ToggleButton maskButton = new ToggleButton();
+		ToggleButton grayColorButton = new ToggleButton();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
 		/// </summary>
 		public Preview()
 		{
+			InitializeUI();
 			InitializeEvents();
+		}
 
-			this.Spacing = 0.0;
-			this.MinWidth = 320;
-			this.MinHeight = 320;
-			this.PackStart(controller, false, false);
-			this.PackEnd(gridView, true);
+		/// <summary>
+		/// Initializes the U.
+		/// </summary>
+		private void InitializeUI()
+		{
+			Spacing = 0.0;
+			MinWidth = 320;
+			MinHeight = 320;
+			PackStart(controlbar, false, false);
+			PackEnd(gridView, true);
+
+			controller.MarginRight = 32;
+
+//			maskButton.MarginRight = 0;
+			maskButton.BackgroundColor = Color.FromBytes(232, 232, 232);
+			maskButton.Style = ButtonStyle.Flat;
+//			grayColorButton.MarginLeft = 0;
+			grayColorButton.BackgroundColor = Color.FromBytes(232, 232, 232);
+			grayColorButton.Style = ButtonStyle.Flat;
+
+			grayColorButton.Toggled += delegate(object sender, EventArgs e) {
+				if (grayColorButton.Active) {
+					grayColorButton.Style = ButtonStyle.Normal;
+				} else {
+					grayColorButton.Style = ButtonStyle.Flat;
+				}
+			};
+
+			maskButton.Label = "bla2";
+			grayColorButton.Label = "TEST";
+			controller.Spacing = 0.0;
+			controller.PackEnd(maskButton);
+			controller.PackEnd(grayColorButton);
 		}
 
 		/// <summary>
@@ -75,7 +109,7 @@ namespace Baimp
 				}
 			}
 
-			controller.Clear();
+			controlbar.Clear();
 			foreach (string scanType in scanTypes) {
 				if (currentFiberTypes.Count == 0) {
 					currentFiberTypes.Add(scanType);
@@ -96,8 +130,9 @@ namespace Baimp
 					}
 				};
 					
-				controller.PackStart(cb);
+				controlbar.PackStart(cb);
 			}
+			controlbar.PackEnd(controller);
 
 			// set new list of scans
 			currentScans = scans;

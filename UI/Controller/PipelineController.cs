@@ -18,6 +18,9 @@ namespace Baimp
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
+		Image[] iconPlay;
+		Image[] iconStop;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.PipelineController"/> class.
 		/// </summary>
@@ -72,17 +75,41 @@ namespace Baimp
 		/// </summary>
 		private void InitializeControllerbar()
 		{
+			Image buttonBg = Image.FromResource("Baimp.Resources.btExecuteBase-Normal.png");
+
+			ImageBuilder ib = new ImageBuilder(buttonBg.Width, buttonBg.Height);
+			ib.Context.DrawImage(buttonBg, Point.Zero);
+			ib.Context.DrawImage(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"), Point.Zero);
+
+			iconPlay = new Image[] {
+				Image.FromResource("Baimp.Resources.icoExecute-Normal.png"),
+				Image.FromResource("Baimp.Resources.icoExecute-Disabled.png")
+			};
+
+			iconStop = new Image[] {
+				Image.FromResource("Baimp.Resources.icoStop-Normal.png"),
+				Image.FromResource("Baimp.Resources.icoStop-Disabled.png")
+			};
+				
 			controllbar = new HBox();
-			ControllButton playButton = new ControllButton(Image.FromResource("Baimp.Resources.play.png"));
-			ControllButton pauseButton = new ControllButton(Image.FromResource("Baimp.Resources.pause.png"));
-			ControllButton stopButton = new ControllButton(Image.FromResource("Baimp.Resources.stop.png"));
+			ControllButton playButton = new ControllButton(
+				Image.FromResource("Baimp.Resources.btExecuteBase-Normal.png"),
+				Image.FromResource("Baimp.Resources.btExecuteBase-Hover.png"),
+				Image.FromResource("Baimp.Resources.btExecuteBase-Pressed.png"),
+				Image.FromResource("Baimp.Resources.icoExecute-Normal.png")
+			);
+			playButton.Margin = 0;
+			//ControllButton pauseButton = new ControllButton(Image.FromResource("Baimp.Resources.pause.png"));
+//			ControllButton stopButton = new ControllButton(iconStop[0]);
 
 			playButton.ButtonPressed += (object sender, ButtonEventArgs e) => currentPipeline.Execute(project);
 
 			playButton.MarginLeft = 8;
-			controllbar.PackStart(playButton, false, true);
-			controllbar.PackStart(pauseButton, false, true);
-			controllbar.PackStart(stopButton, false, true);
+			controllbar.Margin = 0;
+			
+			controllbar.PackStart(playButton, false, margin:0.0);
+			//controllbar.PackStart(pauseButton, false, true);
+//			controllbar.PackStart(stopButton, false, true);
 
 			ReloadProjectMap();
 

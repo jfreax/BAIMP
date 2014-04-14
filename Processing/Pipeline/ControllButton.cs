@@ -4,27 +4,74 @@ using Xwt.Drawing;
 
 namespace Baimp
 {
-	public class ControllButton : ImageView
+	public class ControllButton : Canvas
 	{
-		public ControllButton()
+		Image bgNormal;
+		Image bgHover;
+		Image bgPressed;
+		Image icon;
+
+		bool isHover = false;
+		bool isPressed = false;
+
+		public ControllButton(Image bgNormal, Image bgHover, Image bgPressed, Image icon)
 		{
+			this.bgNormal = bgNormal;
+			this.bgHover = bgHover;
+			this.bgPressed = bgPressed;
+			this.icon = icon;
 		}
 
-		public ControllButton(Image image)
+		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 		{
-			this.Image = image.WithSize(24).WithAlpha(0.6);
+			base.OnDraw(ctx, dirtyRect);
+
+			if (isPressed) {
+				ctx.DrawImage(bgPressed, Point.Zero);
+			} else if (isHover) {
+				ctx.DrawImage(bgHover, Point.Zero);
+			} else {
+				ctx.DrawImage(bgNormal, Point.Zero);
+			}
+
+			ctx.DrawImage(icon, Point.Zero);
 		}
 
 		protected override void OnMouseEntered(EventArgs args)
 		{
 			base.OnMouseEntered(args);
-			this.Image = this.Image.WithAlpha(1.0);
+
+			isHover = true;
+			QueueDraw();
 		}
 
 		protected override void OnMouseExited(EventArgs args)
 		{
 			base.OnMouseExited(args);
-			this.Image = this.Image.WithAlpha(0.6);
+
+			isHover = false;
+			QueueDraw();
+		}
+
+		protected override void OnButtonPressed(ButtonEventArgs args)
+		{
+			base.OnButtonPressed(args);
+
+			isPressed = true;
+			QueueDraw();
+		}
+
+		protected override void OnButtonReleased(ButtonEventArgs args)
+		{
+			base.OnButtonReleased(args);
+
+			isPressed = false;
+			QueueDraw();
+		}
+
+		protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+		{
+			return bgNormal.Size;
 		}
 	}
 }

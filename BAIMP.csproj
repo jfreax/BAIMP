@@ -221,5 +221,19 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\btDebugBase-LeftCap-Normal.png" />
+    <EmbeddedResource Include="Resources\btDebugBase-LeftCap-Pressed.png" />
+    <EmbeddedResource Include="Resources\btDebugBase-MidCap-Normal.png" />
+    <EmbeddedResource Include="Resources\btDebugBase-MidCap-Pressed.png" />
+    <EmbeddedResource Include="Resources\btDebugBase-RightCap-Normal.png" />
+    <EmbeddedResource Include="Resources\btDebugBase-RightCap-Pressed.png" />
+    <EmbeddedResource Include="Resources\btExecuteBase-Disabled.png" />
+    <EmbeddedResource Include="Resources\btExecuteBase-Hover.png" />
+    <EmbeddedResource Include="Resources\btExecuteBase-Normal.png" />
+    <EmbeddedResource Include="Resources\btExecuteBase-Pressed.png" />
+    <EmbeddedResource Include="Resources\icoExecute-Disabled.png" />
+    <EmbeddedResource Include="Resources\icoExecute-Normal.png" />
+    <EmbeddedResource Include="Resources\icoStop-Disabled.png" />
+    <EmbeddedResource Include="Resources\icoStop-Normal.png" />
   </ItemGroup>
 </Project>
