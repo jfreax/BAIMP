@@ -101,6 +101,11 @@ namespace Baimp
 			return "GLRLM - Gray Level Run Length Matrix";
 		}
 
+		public override string Headline()
+		{
+			return "GLRLM";
+		}
+
 		#endregion
 	}
 }
