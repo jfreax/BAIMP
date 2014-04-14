@@ -5,20 +5,20 @@ using Xwt;
 
 namespace Baimp
 {
-	public class THistogram : BaseType<int[]>
+	public class THistogram : BaseType<double[]>
 	{
 		public THistogram() : base()
 		{
 		}
 
-		public THistogram(int[] histogram) : base(histogram)
+		public THistogram(double[] histogram) : base(histogram)
 		{
 		}
 
 		public override string ToString()
 		{
 			string ret = string.Empty;
-			foreach (int v in Data) {
+			foreach (double v in Data) {
 				ret += v + ", ";
 			}
 
@@ -31,13 +31,13 @@ namespace Baimp
 		{
 			if (widget == null) {
 				int histHeight = Data.Length * 3 / 4;
-				int[] scaledData = Data.Scale(0, histHeight);
+				double[] scaledData = Data.Scale(0, histHeight);
 				ImageBuilder ib = new ImageBuilder(scaledData.Length, histHeight);
 
 				int i = 0;
-				foreach (int v in scaledData) {
+				foreach (double v in scaledData) {
 					ib.Context.MoveTo(i, histHeight);
-					ib.Context.LineTo(i, histHeight-v);
+					ib.Context.LineTo(i, (int)(histHeight-(int)v));
 					i++;
 				}
 				ib.Context.Stroke();

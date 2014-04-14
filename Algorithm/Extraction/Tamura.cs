@@ -45,7 +45,7 @@ namespace Baimp
 			double sigma = data.StandardDeviation(mean);
 			double moment4 = 0.0;
 
-			int[] histogram = new int[nrOfBins];
+			double[] histogram = new double[nrOfBins];
 			double binWindow = (histogram.Length - 1) / Math.PI;
 			int bin = -1;
 
@@ -87,7 +87,10 @@ namespace Baimp
 				contrast = sigma / Math.Pow(alpha4, 0.25);
 			}
 
-			int histSum = histogram.Sum();
+			double histSum = histogram.Sum();
+			for (int i = 0; i < histogram.Length; i++) {
+				histogram[i] /= histSum;
+			}
 
 			int lastValley = -1;
 			int lastHill = -1;
@@ -103,13 +106,13 @@ namespace Baimp
 					lastHill = i;
 					if (lastValley != -1) { // there was a valley before
 						for (int j = lastValley; j < i; j++) {
-							directionality += Math.Pow(j - i, 2) * ((double) histogram[j] / histSum);
+							directionality += Math.Pow(j - i, 2) * ((double) histogram[j]);
 						}
 
 						lastValley = -1; // finished valley
 					}
 				} else if (diff < 0) { // it still goes down
-					directionality += Math.Pow(i - lastHill, 2) * ((double)histogram[i] / histSum);
+					directionality += Math.Pow(i - lastHill, 2) * ((double)histogram[i]);
 				}
 			}
 				
