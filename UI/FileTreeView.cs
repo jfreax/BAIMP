@@ -351,7 +351,9 @@ namespace Baimp
 					if (selected != null) {
 						Dialog d = new Dialog();
 						d.Title = "Remove this scan";
+
 						VBox nameList = new VBox();
+						ScrollView nameListScroll = new ScrollView(nameList);
 
 						foreach (TreePosition selectPos in SelectedRows) {
 							nameList.PackStart(
@@ -359,8 +361,13 @@ namespace Baimp
 								.GetValue(isFiltered ? nameColFilter : nameCol))
 							);
 						}
+						TextLayout text = new TextLayout();
+						text.Text = "M";
+						double textHeight = text.GetSize().Height;
+						text.Dispose();
 
-						d.Content = nameList;
+						nameListScroll.MinHeight = Math.Min(10, SelectedRows.Length) * textHeight;
+						d.Content = nameListScroll;
 						d.Buttons.Add(new DialogButton(Command.Delete));
 						d.Buttons.Add(new DialogButton(Command.Cancel));
 
