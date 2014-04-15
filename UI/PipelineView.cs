@@ -572,6 +572,9 @@ namespace Baimp
 			PipelineNode node = GetNodeAt(args.Position, true);
 			if ( node != null) {
 				if (currentHoveredNode != node) {
+					if (currentHoveredNode != null) {
+						currentHoveredNode.OnMouseExited();
+					}
 					currentHoveredNode = node;
 					node.OnMouseEntered();
 				}
