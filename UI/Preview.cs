@@ -54,7 +54,7 @@ namespace Baimp
 
 			controlbar.Spacing = 0;
 
-			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			controller.AddButton(Image.FromResource("Baimp.Resources.mask.png"), true);
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 		}

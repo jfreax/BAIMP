@@ -227,5 +227,6 @@
     <EmbeddedResource Include="Resources\icoExecute-Normal.png" />
     <EmbeddedResource Include="Resources\icoStop-Disabled.png" />
     <EmbeddedResource Include="Resources\icoStop-Normal.png" />
+    <EmbeddedResource Include="Resources\mask.png" />
   </ItemGroup>
 </Project>

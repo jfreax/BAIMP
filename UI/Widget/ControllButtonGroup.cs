@@ -24,7 +24,7 @@ namespace Baimp
 			this.Spacing = 0;
 		}
 
-		public ControllButtonGroup AddButton(Image icon)
+		public ControllButtonGroup AddButton(Image icon, bool toggleButton = false)
 		{
 			int childCounter = 0;
 			foreach (var child in Children) {
@@ -40,9 +40,9 @@ namespace Baimp
 				}
 			}
 			if (childCounter == 0) {
-				PackStart(new ButtonSegment(SegmentType.Left, icon));
+				PackStart(new ButtonSegment(SegmentType.Left, icon, toggleButton));
 			} else {
-				PackStart(new ButtonSegment(SegmentType.Right, icon));
+				PackStart(new ButtonSegment(SegmentType.Right, icon, toggleButton));
 			}
 
 			childCounter++;
@@ -59,22 +59,26 @@ namespace Baimp
 		{
 			SegmentType segmentType;
 			Image icon;
+			bool toggleButton;
 
 			Image[] bg;
 			bool isPressed = false;
 
-			public ButtonSegment(SegmentType segmentType, Image icon)
+			public ButtonSegment(SegmentType segmentType, Image icon, bool toggleButton = false)
 			{
 				SegmentType = segmentType;
 				this.icon = icon.WithBoxSize(bg[0].Size);
+				this.toggleButton = toggleButton;
+
+				Active = false;
 			}
 
 			protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 			{
 				base.OnDraw(ctx, dirtyRect);
 
-				if (isPressed) {
-					ctx.DrawImage(bg[1], Point.Zero);
+				if (isPressed || Active) {
+					ctx.DrawImage(toggleButton && isPressed ? bg[1].WithAlpha(0.8) : bg[1], Point.Zero);
 				} else {
 					ctx.DrawImage(bg[0], Point.Zero);
 				}
@@ -95,6 +99,11 @@ namespace Baimp
 				base.OnButtonReleased(args);
 
 				isPressed = false;
+
+				if (toggleButton) {
+					Toggle();
+				}
+
 				QueueDraw();
 			}
 
@@ -120,6 +129,15 @@ namespace Baimp
 			protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
 			{
 				return bg[0].Size;
+			}
+
+			public bool Active {
+				get;
+				set;
+			}
+
+			public void Toggle() {
+				Active = !Active;
 			}
 		}
 	}
