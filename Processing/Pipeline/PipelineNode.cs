@@ -11,6 +11,8 @@ namespace Baimp
 	[XmlRoot("node")]
 	public class PipelineNode
 	{
+		#region static
+
 		static readonly public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
 		static readonly public Size NodeSize = new Size(200, 40);
 		static readonly public Size NodeInOutSpace = new Size(8, 8);
@@ -18,7 +20,10 @@ namespace Baimp
 		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252);
 		static readonly public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
 		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
+		static readonly public Color NodeColorGlow = Colors.SkyBlue.WithAlpha(0.4);
 		static readonly public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
+
+		#endregion
 
 		Dictionary<int, int> progress = new Dictionary<int, int>();
 
@@ -40,7 +45,15 @@ namespace Baimp
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
 
+		/// <summary>
+		/// Should results from this node be saved?
+		/// </summary>
 		bool saveResult;
+
+		/// <summary>
+		/// True, if mouse is currently over this node
+		/// </summary>
+		bool hover;
 
 		/// <summary>
 		/// Reference to all results + their input data.
@@ -142,10 +155,10 @@ namespace Baimp
 		private void DrawBackground(Context ctx)
 		{
 			// draw shadow
-			ctx.RoundRectangle(bound.Offset(0, 3), NodeRadius);
+			ctx.RoundRectangle(bound.Inflate(-1, -1).Offset(1, 3), NodeRadius);
 			ctx.SetColor(NodeColorShadow);
-			ctx.SetLineWidth(2);
-			ctx.Fill();
+			ctx.SetLineWidth(4);
+			ctx.Stroke();
 
 			// border
 			ctx.RoundRectangle(bound.Inflate(-1, -1), NodeRadius);
@@ -156,6 +169,13 @@ namespace Baimp
 			// background
 			ctx.SetColor(NodeColor);
 			ctx.Fill();
+
+			if (hover) { // draw glow
+				ctx.RoundRectangle(bound.Inflate(1, 1), NodeRadius*2);
+				ctx.SetColor(NodeColorGlow);
+				ctx.SetLineWidth(1);
+				ctx.Stroke();
+			}
 		}
 
 		private void DrawProgress(Context ctx)
@@ -279,9 +299,8 @@ namespace Baimp
 			foreach (var x in icons) {
 				if (x.Value.Visible && x.Value.Bounds.Contains(e.Position)) {
 					x.Value.OnButtonPressed(this, e);
-                    if (queueRedraw != null) {
-                        queueRedraw(this, null);
-                    }
+					Redraw();
+
 					ret = true;
 					break;
 				}
@@ -292,10 +311,14 @@ namespace Baimp
 
 		public void OnMouseEntered()
 		{
+			hover = true;
+			Redraw();
 		}
 
 		public void OnMouseExited()
 		{
+			hover = false;
+			Redraw();
 		}
 
 		/// <summary>
@@ -400,12 +423,16 @@ namespace Baimp
 		public void SetProgress(int threadID, int progress)
 		{
 			this.progress[threadID] = progress;
+			Redraw();
+		}
+
+		#region custom events
+
+		private void Redraw() {
 			if (queueRedraw != null) {
 				queueRedraw(this, null);
 			}
 		}
-
-		#region custom events
 
 		[XmlIgnore]
 		public EventHandler<EventArgs> queueRedraw;
