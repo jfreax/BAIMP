@@ -115,6 +115,8 @@ namespace Baimp
 				if (toggled != null) {
 					toggled(this, new EventArgs());
 				}
+
+				QueueDraw();
 			}
 		}
 

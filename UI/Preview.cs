@@ -61,14 +61,7 @@ namespace Baimp
 
 			buttonMask = controller.AddButton(Image.FromResource("Baimp.Resources.icoMask-Normal.png"), true);
 			buttonMask.TooltipText = "Show/Hide mask";
-			buttonMask.Toggled += delegate {
-				foreach (Widget w in gridView.Children) {
-					ScanView s = w as ScanView;
-					if (s != null) {
-						s.ShowMask = buttonMask.Active;
-					}
-				}
-			};
+			buttonMask.Toggled += ShowMaskToggled;
 
 			buttonMonochrome = controller.AddButton(Image.FromResource("Baimp.Resources.icoMonochrome-Normal.png"), true);
 			buttonMonochrome.TooltipText = "Monochrome/Colorized";
@@ -181,6 +174,12 @@ namespace Baimp
 							ShowPreviewOf(lScanView.Scan);
 						}
 					};
+
+					lScanView.ShowMaskToggled += delegate {
+						buttonMask.Toggled -= ShowMaskToggled;
+						buttonMask.Active = lScanView.ShowMask;
+						buttonMask.Toggled += ShowMaskToggled;
+					};
 				}
 			}
 
@@ -201,8 +200,17 @@ namespace Baimp
 			ShowPreviewOf(currentScans);
 		}
 
-		#region callbacks
+		#region Event handler
 	
+		void ShowMaskToggled(object sender, EventArgs e)
+		{
+			foreach (Widget w in gridView.Children) {
+				ScanView s = w as ScanView;
+				if (s != null) {
+					s.ShowMask = buttonMask.Active;
+				}
+			}
+		}
 
 		#endregion
 
@@ -288,6 +296,10 @@ namespace Baimp
 				scanDataChanged(sender, e);
 			}
 		}
+
+		#endregion
+
+		#region Custom events
 
 		EventHandler<ScanDataEventArgs> scanDataChanged;
 

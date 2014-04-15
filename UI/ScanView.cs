@@ -41,10 +41,7 @@ namespace Baimp
 		/// Is edit mode (to draw mask) active?
 		/// </summary>
 		bool isEditMode = false;
-		/// <summary>
-		/// Is scan view loaded?
-		/// </summary>
-		bool loadingComplete = false;
+
 		/// <summary>
 		/// Position of mouse pointer, Point.Zero if mouse exited view
 		/// </summary>
@@ -156,7 +153,6 @@ namespace Baimp
 		{
 			currentShownType = scanType;
 			EditMode = false;
-			loadingComplete = false;
 
 			scan.Masks.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
 				Mask = loadedMask;
@@ -172,8 +168,6 @@ namespace Baimp
 				if (imageLoaded != null) {
 					imageLoaded(this, new EventArgs());
 				}
-
-				loadingComplete = true;
 			}));
 		}
 
@@ -330,6 +324,20 @@ namespace Baimp
 			}
 			remove {
 				imageLoaded -= value;
+			}
+		}
+
+		EventHandler<EventArgs> showMaskToggled;
+
+		/// <summary>
+		/// Occurs when the flag show mask was toggled
+		/// </summary>
+		public event EventHandler<EventArgs> ShowMaskToggled {
+			add {
+				showMaskToggled += value;
+			}
+			remove {
+				showMaskToggled -= value;
 			}
 		}
 
@@ -566,6 +574,11 @@ namespace Baimp
 				if (!showMask) {
 					EditMode = false;
 				}
+
+				if (showMaskToggled != null) {
+					showMaskToggled(this, new EventArgs());
+				}
+
 				QueueDraw();
 			}
 		}
