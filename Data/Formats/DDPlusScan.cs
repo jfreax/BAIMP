@@ -171,11 +171,12 @@ namespace Baimp
 			} else {
 				float[] array = GetAsArray(scanType);
 				float maxForType = this.max[scanType];
+				float min = array.Min();
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				int len = width * height;
 				for (int i = 0; i < len; ++i) {
-					byte color = (byte) ((array[i] * 255.0) / maxForType);
+					byte color = (byte) ((array[i] - min) / (maxForType - min) * 255);
 					*scan0 = color;
 					scan0++;
 				}

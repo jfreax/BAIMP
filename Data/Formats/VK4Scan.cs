@@ -346,11 +346,12 @@ namespace Baimp
 				}
 			} else {
 				float max = array.Max();
+				float min = array.Min();
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				int len = width * height;
 				for (int i = 0; i < len; ++i) {
-					byte color = (byte) ((array[i] * 255) / max);
+					byte color = (byte) ((array[i] - min) / (max - min) * 255);
 					*scan0 = color;
 					scan0++;
 				}
@@ -383,11 +384,12 @@ namespace Baimp
 
 			byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 			float max = array.Max();
+			float min = array.Min();
 
 			int i = 0;
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++, i++, scan0++) {
-					double intensitiy = 1 - array[i] / max;
+					double intensitiy = 1 - (array[i] - min) / (max - min);
 					Color color = ImageTools.ColorFromHSV(intensitiy * 130, 0.8-intensitiy*0.4, 0.9);
 						
 					*scan0 = color.B;
