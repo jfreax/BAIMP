@@ -13,6 +13,7 @@ namespace Baimp
 		// widgets
 		VPaned splitAlgorithmTree;
 		HPaned splitFiletree_Preview;
+		VBox splitController_Preview;
 
 		Preview preview;
 		FileTreeView fileTree;
@@ -113,6 +114,27 @@ namespace Baimp
 			menuClose.Clicked += (object sender, EventArgs e) => Close();
 			fileMenu.SubMenu.Items.Add(menuClose);
 
+			// View menu
+			MenuItem viewMenu = new MenuItem("_View");
+			viewMenu.SubMenu = new Menu();
+			RadioButtonMenuItemGroup viewRadioGroup = new RadioButtonMenuItemGroup();
+			RadioButtonMenuItem menuViewOverview = new RadioButtonMenuItem("Overview");
+			menuViewOverview.Checked = true;
+			menuViewOverview.Group = viewRadioGroup;
+			viewMenu.SubMenu.Items.Add(menuViewOverview);
+
+			RadioButtonMenuItem menuViewPipeline = new RadioButtonMenuItem("Pipeline");
+			menuViewPipeline.Group = menuViewOverview.Group;
+			viewMenu.SubMenu.Items.Add(menuViewPipeline);
+
+			menuViewOverview.Clicked += delegate {
+				splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
+			};
+			menuViewPipeline.Clicked += delegate {
+				splitController_Preview.Remove(splitFiletree_Preview);
+			};
+
+
 			// Edit menu
 			MenuItem editMenu = new MenuItem("_Edit");
 			editMenu.SubMenu = new Menu();
@@ -131,6 +153,7 @@ namespace Baimp
 			// main menu
 			Menu menu = new Menu();
 			menu.Items.Add(fileMenu);
+			menu.Items.Add(viewMenu);
 			menu.Items.Add(editMenu);
 			menu.Items.Add(pipelineMenu);
 			MainMenu = menu;
@@ -146,7 +169,7 @@ namespace Baimp
 
 			// load pipeline controller
 			FrameBox controllbarShelf = new FrameBox();
-			FrameBox pipelineShelf = new FrameBox();
+			VBox pipelineShelf = new VBox();
 			pipelineController = new PipelineController(project, controllbarShelf, pipelineShelf);
 
 
@@ -157,13 +180,14 @@ namespace Baimp
 			splitFiletree_Preview.Panel2.Content = preview;
 			splitFiletree_Preview.Panel2.Resize = true;
 
-			VBox splitController_Preview = new VBox();
+			splitController_Preview = new VBox();
 			splitController_Preview.PackStart(controllbarShelf, false, false);
 			splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
 
 			splitAlgorithmTree = new VPaned();
 			splitAlgorithmTree.Panel1.Content = splitController_Preview;
 			splitAlgorithmTree.Panel2.Content = pipelineShelf;
+			splitAlgorithmTree.Panel2.Resize = true;
 
 			VBox splitMain_Status = new VBox();
 			splitMain_Status.PackStart(splitAlgorithmTree, true, true);

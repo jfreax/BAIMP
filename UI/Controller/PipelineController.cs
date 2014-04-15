@@ -9,7 +9,7 @@ namespace Baimp
 	public class PipelineController
 	{
 		private FrameBox controllbarShelf;
-		private FrameBox pipelineShelf;
+		private VBox pipelineShelf;
 		private HBox controllbar;
 		private Project project;
 		private ScrollView pipelineScroller;
@@ -24,7 +24,7 @@ namespace Baimp
 		/// <param name="project">Project.</param>
 		/// <param name="controllbarShelf">Frame where the controllbar should be.</param>
 		/// <param name="pipelineShelf">Frame where the pipeline should be.</param>
-		public PipelineController(Project project, FrameBox controllbarShelf, FrameBox pipelineShelf)
+		public PipelineController(Project project, FrameBox controllbarShelf, VBox pipelineShelf)
 		{
 			this.controllbarShelf = controllbarShelf;
 			this.pipelineShelf = pipelineShelf;
@@ -61,7 +61,7 @@ namespace Baimp
 			splitPipeline_Algorithm.Panel1.Shrink = false;
 
 
-			pipelineShelf.Content = splitPipeline_Algorithm;
+			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
 			InitializeControllerbar();
 			InitializeEvents();
