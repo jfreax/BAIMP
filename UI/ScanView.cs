@@ -529,6 +529,7 @@ namespace Baimp
 					this.Cursor = CursorType.Crosshair;
 
 					isEditMode = true;
+					ShowMask = true;
 				} else {
 					contextEditMask.Label = "Edit mask";
 					this.Cursor = CursorType.Arrow;
@@ -559,6 +560,10 @@ namespace Baimp
 			}
 			set {
 				showMask = value;
+
+				if (!showMask) {
+					EditMode = false;
+				}
 				QueueDraw();
 			}
 		}
