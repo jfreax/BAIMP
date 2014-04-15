@@ -378,7 +378,20 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			popupWindow.Hide();
+
 			PipelineNode node = GetNodeAt(args.Position, true);
+
+			if (node != null) {
+				ButtonEventArgs nodeArgs = new ButtonEventArgs();
+				nodeArgs.X = args.X - node.bound.Location.X;
+				nodeArgs.Y = args.Y - node.bound.Location.Y;
+				nodeArgs.Button = args.Button;
+				nodeArgs.MultiplePress = args.MultiplePress;
+				if (node.OnButtonPressed(nodeArgs)) {
+					return;
+				}
+			}
 
 			switch (args.Button) {
 			case PointerButton.Left:
@@ -447,14 +460,6 @@ namespace Baimp
 				}
 
 				break;
-			}
-
-			popupWindow.Hide();
-
-			if (!args.Handled && node != null) {
-				args.X -= node.bound.Location.X;
-				args.Y -= node.bound.Location.Y;
-				node.OnButtonPressed(args);
 			}
 		}
 
