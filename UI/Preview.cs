@@ -61,7 +61,6 @@ namespace Baimp
 
 			buttonMask = controller.AddButton(Image.FromResource("Baimp.Resources.icoMask-Normal.png"), true);
 			buttonMask.TooltipText = "Show/Hide mask";
-			buttonMask.Active = true;
 			buttonMask.Toggled += delegate {
 				scanView.ShowMask = buttonMask.Active;
 

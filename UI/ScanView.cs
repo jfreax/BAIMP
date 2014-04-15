@@ -548,7 +548,7 @@ namespace Baimp
 			set;
 		}
 
-		bool showMask = true;
+		bool showMask = false;
 		/// <summary>
 		/// Gets or sets a value indicating whether mask should be drawn or not.
 		/// </summary>
