@@ -101,7 +101,7 @@ namespace Baimp
 
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
-				if (mask != null) {
+				if (mask != null && ShowMask) {
 					ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 				}
 			}
@@ -547,6 +547,22 @@ namespace Baimp
 			get;
 			set;
 		}
+
+		bool showMask = true;
+		/// <summary>
+		/// Gets or sets a value indicating whether mask should be drawn or not.
+		/// </summary>
+		/// <value><c>true</c> if show mask; otherwise, <c>false</c>.</value>
+		public bool ShowMask {
+			get {
+				return showMask;
+			}
+			set {
+				showMask = value;
+				QueueDraw();
+			}
+		}
+
 		#endregion
 	}
 }

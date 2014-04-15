@@ -29,15 +29,15 @@ namespace Baimp
 		Image icon;
 		bool toggleButton;
 		Image[] bg;
+
 		bool isPressed = false;
+		bool active = false;
 
 		public ButtonSegment(SegmentType segmentType, Image icon, bool toggleButton = false)
 		{
 			SegmentType = segmentType;
 			this.icon = icon.WithBoxSize(bg[0].Size);
 			this.toggleButton = toggleButton;
-
-			Active = false;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -107,8 +107,15 @@ namespace Baimp
 		/// </summary>
 		/// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
 		public bool Active {
-			get;
-			set;
+			get {
+				return active;
+			}
+			set {
+				active = value;
+				if (toggled != null) {
+					toggled(this, new EventArgs());
+				}
+			}
 		}
 
 		/// <summary>
@@ -118,6 +125,24 @@ namespace Baimp
 		{
 			Active = !Active;
 		}
+
+		#region Custom events
+
+		EventHandler<EventArgs> toggled;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<EventArgs> Toggled {
+			add {
+				toggled += value;
+			}
+			remove {
+				toggled -= value;
+			}
+		}
+
+		#endregion
 	}
 }
 

@@ -32,6 +32,8 @@ namespace Baimp
 		ControllButtonGroup controller = new ControllButtonGroup();
 		GridView gridView = new GridView(96.0, 10.0);
 
+		ButtonSegment maskButton;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
 		/// </summary>
@@ -54,7 +56,17 @@ namespace Baimp
 
 			controlbar.Spacing = 0;
 
-			controller.AddButton(Image.FromResource("Baimp.Resources.mask.png"), true);
+			maskButton = controller.AddButton(Image.FromResource("Baimp.Resources.mask.png"), true);
+			maskButton.Active = true;
+			maskButton.Toggled += delegate {
+				if (maskButton.Active) {
+					scanView.ShowMask = true;
+				} else {
+					scanView.ShowMask = false;
+				}
+			};
+
+
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 		}
@@ -138,6 +150,7 @@ namespace Baimp
 
 				foreach (string type in currentFiberTypes) {
 					ScanView lScanView = new ScanView();
+					lScanView.ShowMask = maskButton.Active;
 
 					if (isOnlyOne) {
 						gridView.Add(lScanView);
