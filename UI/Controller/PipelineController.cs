@@ -146,6 +146,13 @@ namespace Baimp
 							newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
 							newPipeline.PipelineName = wrapper.name;
 							pipelines.Add(newPipeline.PipelineName, newPipeline);
+
+							newPipeline.DataChanged += delegate(object sender, SaveStateEventArgs e2) {
+								MainWindow mainWindow = pipelineShelf.ParentWindow as MainWindow;
+								if (mainWindow != null) {
+									mainWindow.MarkAsUnsaved();
+								}
+							};
 						}
 
 						CurrentPipeline = pipelines.Values.ToArray()[0];
