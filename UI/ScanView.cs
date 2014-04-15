@@ -28,8 +28,7 @@ namespace Baimp
 
 		Preview.MyCallBack imageLoadedCallback = null;
 		public Dictionary<string, object> data = new Dictionary<string, object>();
-		private Image imageOriginal;
-		private Image imageColored;
+
 		/// <summary>Current image</summary>
 		private Image image;
 		private Image mask;
@@ -82,11 +81,11 @@ namespace Baimp
 				this.Image = thumbnail;
 			}
 
-			ScanType = scantype;
-
 			// do not use the property method,
 			// Scantype already loads the initial image async
 			this.showColorized = showColoried;
+
+			ScanType = scantype;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -157,6 +156,7 @@ namespace Baimp
 		{
 			currentShownType = scanType;
 			EditMode = false;
+			loadingComplete = false;
 
 			scan.Masks.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
 				Mask = loadedMask;
@@ -164,14 +164,6 @@ namespace Baimp
 			}));
 				
 			scan.GetAsImageAsync(scanType, ShowColorized, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
-				if (ShowColorized) {
-					imageColored = loadedImage;
-					imageOriginal = null;
-				} else {
-					imageOriginal = loadedImage;
-					imageColored = null;
-				}
-
 				Image = loadedImage;
 
 				if (imageLoadedCallback != null) {
@@ -352,9 +344,10 @@ namespace Baimp
 			if (image != null) {
 				scan.ScaleImage(scale);
 
-				if (loadingComplete) {
-					image = scan.GetAsImage(currentShownType, ShowColorized);
-					mask = scan.Masks.GetMaskAsImage();
+				image = image.WithBoxSize(scan.RequestedBitmapSize);
+
+				if (mask != null) {
+					mask = mask.WithBoxSize(scan.RequestedBitmapSize);
 				}
 
 				if (Parent != null && Parent.Parent != null) {
@@ -590,27 +583,7 @@ namespace Baimp
 			set {
 				showColorized = value;
 
-				if (imageColored == null && showColorized) {
-					// load color image
-					scan.GetAsImageAsync(ScanType, true, 
-						new BaseScan.ImageLoadedCallback((Image loadedColoredImage) => {
-							imageColored = loadedColoredImage;
-							Image = loadedColoredImage;
-						}));
-				} else if (imageOriginal == null && !showColorized) {
-					// load normal image
-					scan.GetAsImageAsync(ScanType, false, 
-						new BaseScan.ImageLoadedCallback((Image loadedColoredImage) => {
-							imageOriginal = loadedColoredImage;
-							Image = loadedColoredImage;
-						}));
-				} else if (showColorized) {
-					Image = imageColored;
-				} else {
-					Image = imageOriginal;
-				}
-
-				QueueDraw();
+				ShowType(currentShownType);
 			}
 		}
 
