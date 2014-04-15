@@ -128,7 +128,9 @@ namespace Baimp
 
 			canvas.QueueDraw();
 			ignoreSizeChange = false;
+
 		}
+			
 
 		#region Events
 
@@ -161,6 +163,12 @@ namespace Baimp
 			set {
 				minHeightPerChild = value;
 				RecalculatePosition();
+			}
+		}
+
+		public IEnumerable<Widget> Children {
+			get {
+				return canvas.Children;
 			}
 		}
 

@@ -59,10 +59,13 @@ namespace Baimp
 			maskButton = controller.AddButton(Image.FromResource("Baimp.Resources.mask.png"), true);
 			maskButton.Active = true;
 			maskButton.Toggled += delegate {
-				if (maskButton.Active) {
-					scanView.ShowMask = true;
-				} else {
-					scanView.ShowMask = false;
+				scanView.ShowMask = maskButton.Active;
+
+				foreach (Widget w in gridView.Children) {
+					ScanView s = w as ScanView;
+					if (s != null) {
+						s.ShowMask = maskButton.Active;
+					}
 				}
 			};
 
