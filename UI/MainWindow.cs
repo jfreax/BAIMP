@@ -168,9 +168,8 @@ namespace Baimp
 			splitFileTreeSearch_FileTree.PackStart(fileTree, true);
 
 			// load pipeline controller
-			FrameBox controllbarShelf = new FrameBox();
 			VBox pipelineShelf = new VBox();
-			pipelineController = new PipelineController(project, controllbarShelf, pipelineShelf);
+			pipelineController = new PipelineController(project, pipelineShelf);
 
 
 			splitFiletree_Preview = new HPaned();
@@ -181,7 +180,7 @@ namespace Baimp
 			splitFiletree_Preview.Panel2.Resize = true;
 
 			splitController_Preview = new VBox();
-			splitController_Preview.PackStart(controllbarShelf, false, false);
+			//splitController_Preview.PackStart(controllbarShelf, false, false);
 			splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
 
 			splitAlgorithmTree = new VPaned();

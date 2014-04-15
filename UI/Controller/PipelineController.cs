@@ -8,7 +8,6 @@ namespace Baimp
 {
 	public class PipelineController
 	{
-		private FrameBox controllbarShelf;
 		private VBox pipelineShelf;
 		private HBox controllbar;
 		private Project project;
@@ -22,11 +21,9 @@ namespace Baimp
 		/// Initializes a new instance of the <see cref="Baimp.PipelineController"/> class.
 		/// </summary>
 		/// <param name="project">Project.</param>
-		/// <param name="controllbarShelf">Frame where the controllbar should be.</param>
 		/// <param name="pipelineShelf">Frame where the pipeline should be.</param>
-		public PipelineController(Project project, FrameBox controllbarShelf, VBox pipelineShelf)
+		public PipelineController(Project project, VBox pipelineShelf)
 		{
-			this.controllbarShelf = controllbarShelf;
 			this.pipelineShelf = pipelineShelf;
 
 			pipelineScroller = new ScrollView();
@@ -52,25 +49,28 @@ namespace Baimp
 			algorithm = new AlgorithmTreeView();
 			algorithm.MinWidth = 200;
 
+			VBox splitAlgorithm_Controller = new VBox();
+			splitAlgorithm_Controller.PackEnd(algorithm, true);
+
 			HPaned splitPipeline_Algorithm = new HPaned();
+			splitPipeline_Algorithm.Panel1.Content = splitAlgorithm_Controller;
+			splitPipeline_Algorithm.Panel1.Resize = false;
+			splitPipeline_Algorithm.Panel1.Shrink = false;
 			splitPipeline_Algorithm.Panel2.Content = pipelineScroller;
 			splitPipeline_Algorithm.Panel2.Resize = true;
 			splitPipeline_Algorithm.Panel2.Shrink = false;
-			splitPipeline_Algorithm.Panel1.Content = algorithm;
-			splitPipeline_Algorithm.Panel1.Resize = false;
-			splitPipeline_Algorithm.Panel1.Shrink = false;
 
 
 			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
-			InitializeControllerbar();
+			splitAlgorithm_Controller.PackStart(InitializeControllerbar());
 			InitializeEvents();
 		}
 
 		/// <summary>
 		/// Initializes the controllerbar.
 		/// </summary>
-		private void InitializeControllerbar()
+		private HBox InitializeControllerbar()
 		{
 			controllbar = new HBox();
 			ControllButton playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
@@ -85,7 +85,8 @@ namespace Baimp
 
 			ReloadProjectMap();
 
-			controllbarShelf.Content = controllbar;
+			
+			return controllbar;
 		}
 
 		/// <summary>
@@ -98,10 +99,9 @@ namespace Baimp
 				ReloadProjectMap();
 			};
 
-
 			foreach (PipelineView pView in pipelines.Values) {
 				pView.DataChanged += delegate(object sender, SaveStateEventArgs e) {
-					MainWindow mainWindow = controllbarShelf.ParentWindow as MainWindow;
+					MainWindow mainWindow = pipelineShelf.ParentWindow as MainWindow;
 					if (mainWindow != null) {
 						mainWindow.MarkAsUnsaved();
 					}
@@ -164,7 +164,6 @@ namespace Baimp
 				Tuple<Command, string> ret = WorksheetNameDialog();
 				Command r = ret.Item1;
 				if (r != null && r.Id == Command.Ok.Id) {
-					Console.WriteLine(ret.Item2);
 					PipelineView newPipeline = new PipelineView();
 					newPipeline.Initialize(pipelineScroller);
 					newPipeline.PipelineName = ret.Item2;
