@@ -58,6 +58,8 @@ namespace Baimp
 		/// </summary>
 		public ScanView()
 		{
+			// build context menu
+			InitializeContextMenu();
 		}
 
 		public void Initialize(BaseScan scan, string scantype)
@@ -67,9 +69,6 @@ namespace Baimp
 			this.HeightRequest = scan.Size.Height;
 
 			this.CanGetFocus = true;
-
-			// build context menu
-			InitializeContextMenu();
 
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
