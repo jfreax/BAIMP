@@ -18,7 +18,6 @@ namespace Baimp
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.PipelineController"/> class.
 		/// </summary>
@@ -75,9 +74,14 @@ namespace Baimp
 		{
 			controllbar = new HBox();
 			ControllButton playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			playButton.TooltipText = "Execute pipeline";
 
-			playButton.ButtonPressed += (object sender, ButtonEventArgs e) => currentPipeline.Execute(project);
-			controllbar.PackStart(playButton, false, margin:0.0);
+			playButton.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+				if (currentPipeline.Execute(project)) {
+					playButton.Disable();
+				}
+			};
+			controllbar.PackStart(playButton, false, margin: 0.0);
 
 			ReloadProjectMap();
 

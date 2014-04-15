@@ -234,7 +234,8 @@ namespace Baimp
 		/// Execute the pipeline of the specified project.
 		/// </summary>
 		/// <param name="project">Project.</param>
-		public void Execute(Project project)
+		/// <returns>True if started, otherwise false<returns>
+		public bool Execute(Project project)
 		{
 			Process process = new Process(project);
 			Task executionTask = Task.Factory.StartNew( () => {
@@ -248,6 +249,8 @@ namespace Baimp
 					}
 				}
 			});
+
+			return nodes.Count > 0;
 		}
 
 		#endregion
