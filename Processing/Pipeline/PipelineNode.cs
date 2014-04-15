@@ -290,6 +290,14 @@ namespace Baimp
 			return ret;
 		}
 
+		public void OnMouseEntered()
+		{
+		}
+
+		public void OnMouseExited()
+		{
+		}
+
 		/// <summary>
 		/// Raises when this node was moved.
 		/// </summary>

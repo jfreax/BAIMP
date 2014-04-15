@@ -20,7 +20,6 @@ namespace Baimp
 	{
 		static private int globalId = 0;
 
-
 		private ScrollView scrollview;
 
 		private List<PipelineNode> nodes;
@@ -29,6 +28,7 @@ namespace Baimp
 		private Point connectNodesEnd;
 		private Point mousePosition = Point.Zero;
 		private PipelineNode lastSelectedNode = null;
+		private PipelineNode currentHoveredNode = null;
 		private Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
 		private MouseAction mouseAction = MouseAction.None;
 		private MouseMover mouseMover;
@@ -561,6 +561,19 @@ namespace Baimp
 					TooltipText = mNode.compatible + "\n" + mNode.compatible.Type;
 				} else {
 					TooltipText = string.Empty;
+				}
+			}
+
+			PipelineNode node = GetNodeAt(args.Position, true);
+			if ( node != null) {
+				if (currentHoveredNode == null) {
+					currentHoveredNode = node;
+					node.OnMouseEntered();
+				}
+			} else {
+				if (currentHoveredNode != null) {
+					currentHoveredNode.OnMouseExited();
+					currentHoveredNode = null;
 				}
 			}
 		}
