@@ -28,26 +28,24 @@ namespace Baimp
 
 		Preview.MyCallBack imageLoadedCallback = null;
 		public Dictionary<string, object> data = new Dictionary<string, object>();
-
+		private Image imageOriginal;
+		private Image imageColored;
+		/// <summary>Current image</summary>
 		private Image image;
 		private Image mask;
 		private BaseScan scan;
 		private string currentShownType;
-
 		// mouse actions
 		Pointer pointer;
 		int pointerSize = 16;
-
 		/// <summary>
 		/// Is edit mode (to draw mask) active?
 		/// </summary>
 		bool isEditMode = false;
-
 		/// <summary>
 		/// Is scan view loaded?
 		/// </summary>
 		bool loadingComplete = false;
-
 		/// <summary>
 		/// Position of mouse pointer, Point.Zero if mouse exited view
 		/// </summary>
@@ -62,7 +60,7 @@ namespace Baimp
 			InitializeContextMenu();
 		}
 
-		public void Initialize(BaseScan scan, string scantype)
+		public void Initialize(BaseScan scan, string scantype, bool showColoried = false)
 		{
 			this.scan = scan;
 			this.WidthRequest = scan.Size.Width;
@@ -85,6 +83,10 @@ namespace Baimp
 			}
 
 			ScanType = scantype;
+
+			// do not use the property method,
+			// Scantype already loads the initial image async
+			this.showColorized = showColoried;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -92,7 +94,7 @@ namespace Baimp
 			base.OnDraw(ctx, dirtyRect);
 
 			if (image != null) {
-				if(Heighlighted && IsThumbnail) {
+				if (Heighlighted && IsThumbnail) {
 					ctx.RoundRectangle(new Rectangle(Point.Zero, image.Size), 3);
 					ctx.SetColor(Colors.LightSteelBlue);
 					ctx.Fill();
@@ -107,8 +109,8 @@ namespace Baimp
 
 			if (isEditMode && mousePosition != Point.Zero) {
 				Point scaleFactor = new Point(
-					scan.Size.Width / image.Size.Width, 
-					scan.Size.Height / image.Size.Height);
+					                    scan.Size.Width / image.Size.Width, 
+					                    scan.Size.Height / image.Size.Height);
 
 				ctx.Arc(mousePosition.X, mousePosition.Y, pointerSize / scaleFactor.X, 0, 360);
 				ctx.SetColor(maskColor);
@@ -161,10 +163,16 @@ namespace Baimp
 				QueueDraw();
 			}));
 				
-			scan.GetAsImageAsync(scanType, false, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
-				Image = loadedImage;
+			scan.GetAsImageAsync(scanType, ShowColorized, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
+				if (ShowColorized) {
+					imageColored = loadedImage;
+					imageOriginal = null;
+				} else {
+					imageOriginal = loadedImage;
+					imageColored = null;
+				}
 
-				QueueDraw();
+				Image = loadedImage;
 
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
@@ -197,8 +205,8 @@ namespace Baimp
 			base.OnButtonPressed(args);
 
 			Point scaleFactor = new Point(
-				scan.Size.Width / image.Size.Width, 
-				scan.Size.Height / image.Size.Height);
+				                    scan.Size.Width / image.Size.Width, 
+				                    scan.Size.Height / image.Size.Height);
 
 			switch (args.Button) {
 			case PointerButton.Left:
@@ -248,8 +256,8 @@ namespace Baimp
 			mousePosition = new Point(args.X, args.Y);
 			if (isEditMode) {
 				Point scaleFactor = new Point(
-					scan.Size.Width / image.Size.Width, 
-					scan.Size.Height / image.Size.Height);
+					                    scan.Size.Width / image.Size.Width, 
+					                    scan.Size.Height / image.Size.Height);
 
 				if (pointer.HasFlag(Pointer.Left)) {
 					SetMask(
@@ -294,7 +302,7 @@ namespace Baimp
 				QueueDraw();
 
 				if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Control) ||
-					Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)) {
+				    Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)) {
 
 					if (args.Direction == ScrollDirection.Up) {
 						pointerSize++;
@@ -345,7 +353,7 @@ namespace Baimp
 				scan.ScaleImage(scale);
 
 				if (loadingComplete) {
-					image = scan.GetAsImage(currentShownType, false);
+					image = scan.GetAsImage(currentShownType, ShowColorized);
 					mask = scan.Masks.GetMaskAsImage();
 				}
 
@@ -464,7 +472,8 @@ namespace Baimp
 			}
 			set {
 				image = value;
-				if(!scan.IsScaled() && Parent != null && Parent.Parent != null) {
+
+				if (!scan.IsScaled() && Parent != null && Parent.Parent != null) {
 					WithBoxSize(Parent.Parent.Size);
 				} else {
 					image = image.WithBoxSize(scan.RequestedBitmapSize);
@@ -542,13 +551,14 @@ namespace Baimp
 			get;
 			set;
 		}
-			
+
 		public bool IsThumbnail {
 			get;
 			set;
 		}
 
 		bool showMask = false;
+
 		/// <summary>
 		/// Gets or sets a value indicating whether mask should be drawn or not.
 		/// </summary>
@@ -563,6 +573,43 @@ namespace Baimp
 				if (!showMask) {
 					EditMode = false;
 				}
+				QueueDraw();
+			}
+		}
+
+		bool showColorized = false;
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the image should be colorized or not.
+		/// </summary>
+		/// <value><c>true</c> if colorized; otherwise, <c>false</c>.</value>
+		public bool ShowColorized {
+			get {
+				return showColorized;
+			}
+			set {
+				showColorized = value;
+
+				if (imageColored == null && showColorized) {
+					// load color image
+					scan.GetAsImageAsync(ScanType, true, 
+						new BaseScan.ImageLoadedCallback((Image loadedColoredImage) => {
+							imageColored = loadedColoredImage;
+							Image = loadedColoredImage;
+						}));
+				} else if (imageOriginal == null && !showColorized) {
+					// load normal image
+					scan.GetAsImageAsync(ScanType, false, 
+						new BaseScan.ImageLoadedCallback((Image loadedColoredImage) => {
+							imageOriginal = loadedColoredImage;
+							Image = loadedColoredImage;
+						}));
+				} else if (showColorized) {
+					Image = imageColored;
+				} else {
+					Image = imageOriginal;
+				}
+
 				QueueDraw();
 			}
 		}

@@ -62,8 +62,6 @@ namespace Baimp
 			buttonMask = controller.AddButton(Image.FromResource("Baimp.Resources.icoMask-Normal.png"), true);
 			buttonMask.TooltipText = "Show/Hide mask";
 			buttonMask.Toggled += delegate {
-				scanView.ShowMask = buttonMask.Active;
-
 				foreach (Widget w in gridView.Children) {
 					ScanView s = w as ScanView;
 					if (s != null) {
@@ -75,6 +73,14 @@ namespace Baimp
 			buttonMonochrome = controller.AddButton(Image.FromResource("Baimp.Resources.icoMonochrome-Normal.png"), true);
 			buttonMonochrome.TooltipText = "Monochrome/Colorized";
 			buttonMonochrome.Active = true;
+			buttonMonochrome.Toggled += delegate {
+				foreach (Widget w in gridView.Children) {
+					ScanView s = w as ScanView;
+					if (s != null) {
+						s.ShowColorized = !buttonMonochrome.Active;
+					}
+				}
+			};
 		}
 
 		/// <summary>
@@ -165,7 +171,7 @@ namespace Baimp
 						widgets.Add(lScanView);
 					}
 
-					lScanView.Initialize(scan, type);
+					lScanView.Initialize(scan, type, !buttonMonochrome.Active);
 					lScanView.IsThumbnail = !isOnlyOne;
 
 					lScanView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
