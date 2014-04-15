@@ -42,6 +42,8 @@ namespace Baimp
 		/// </summary>
 		bool isEditMode = false;
 
+		bool finishedImageLoading;
+
 		/// <summary>
 		/// Position of mouse pointer, Point.Zero if mouse exited view
 		/// </summary>
@@ -153,6 +155,7 @@ namespace Baimp
 		{
 			currentShownType = scanType;
 			EditMode = false;
+			finishedImageLoading = false;
 
 			scan.Masks.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
 				Mask = loadedMask;
@@ -168,6 +171,8 @@ namespace Baimp
 				if (imageLoaded != null) {
 					imageLoaded(this, new EventArgs());
 				}
+
+				finishedImageLoading = true;
 			}));
 		}
 
@@ -352,10 +357,12 @@ namespace Baimp
 			if (image != null) {
 				scan.ScaleImage(scale);
 
-				image = image.WithBoxSize(scan.RequestedBitmapSize);
+				if (finishedImageLoading) {
+					image = image.WithBoxSize(scan.RequestedBitmapSize);
 
-				if (mask != null) {
-					mask = mask.WithBoxSize(scan.RequestedBitmapSize);
+					if (mask != null) {
+						mask = mask.WithBoxSize(scan.RequestedBitmapSize);
+					}
 				}
 
 				if (Parent != null && Parent.Parent != null) {
