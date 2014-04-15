@@ -29,11 +29,8 @@ namespace Baimp
 
 		MouseMover mouseMover = new MouseMover();
 		HBox controlbar = new HBox();
-		HBox controller = new HBox();
+		ControllButtonGroup controller = new ControllButtonGroup();
 		GridView gridView = new GridView(96.0, 10.0);
-
-		ToggleButton maskButton = new ToggleButton();
-		ToggleButton grayColorButton = new ToggleButton();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Preview"/> class.
@@ -55,28 +52,10 @@ namespace Baimp
 			PackStart(controlbar, false, false);
 			PackEnd(gridView, true);
 
-			controller.MarginRight = 32;
 
-//			maskButton.MarginRight = 0;
-			maskButton.BackgroundColor = Color.FromBytes(232, 232, 232);
-			maskButton.Style = ButtonStyle.Flat;
-//			grayColorButton.MarginLeft = 0;
-			grayColorButton.BackgroundColor = Color.FromBytes(232, 232, 232);
-			grayColorButton.Style = ButtonStyle.Flat;
-
-			grayColorButton.Toggled += delegate(object sender, EventArgs e) {
-				if (grayColorButton.Active) {
-					grayColorButton.Style = ButtonStyle.Normal;
-				} else {
-					grayColorButton.Style = ButtonStyle.Flat;
-				}
-			};
-
-			maskButton.Label = "bla2";
-			grayColorButton.Label = "TEST";
-			controller.Spacing = 0.0;
-			controller.PackEnd(maskButton);
-			controller.PackEnd(grayColorButton);
+			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 		}
 
 		/// <summary>

@@ -119,7 +119,6 @@
     <Compile Include="DataType\TBitmap.cs" />
     <Compile Include="Contraint\BaseConstraint.cs" />
     <Compile Include="Contraint\MaximumUses.cs" />
-    <Compile Include="Processing\Pipeline\ControllButton.cs" />
     <Compile Include="Processing\Pipeline\MarkerEdge.cs" />
     <Compile Include="Processing\Pipeline\MarkerNode.cs" />
     <Compile Include="Processing\Pipeline\PipelineNode.cs" />
@@ -150,6 +149,8 @@
     <Compile Include="Helper\Math\MathExtras.cs" />
     <Compile Include="Helper\Math\Statistics.cs" />
     <Compile Include="Helper\ImageTools.cs" />
+    <Compile Include="UI\Widget\ControllButton.cs" />
+    <Compile Include="UI\Widget\ControllButtonGroup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
