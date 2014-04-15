@@ -50,9 +50,12 @@ namespace Baimp
 			lock (removeLock) {
 				if (usedBy.ContainsKey(by)) {
 					usedBy[by] = usedBy[by]-1;
-					if(usedBy[by] <= 0 && !preserve) {
+					if(usedBy[by] <= 0) {
 						usedBy.Remove(by);
-						Dispose();
+
+						if (!preserve) {
+							Dispose();
+						}
 					}
 				} else {
 					if(!preserve) {
