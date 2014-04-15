@@ -151,6 +151,7 @@
     <Compile Include="Helper\ImageTools.cs" />
     <Compile Include="UI\Widget\ControllButton.cs" />
     <Compile Include="UI\Widget\ControllButtonGroup.cs" />
+    <Compile Include="UI\Widget\ButtonSegment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
