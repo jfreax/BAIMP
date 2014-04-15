@@ -145,9 +145,9 @@ namespace Baimp
 		/// <summary>
 		/// Gets scan as array.
 		/// </summary>
-		/// <returns>The specified scan as a plan float array.</returns>
+		/// <returns>The specified scan as a plain float array.</returns>
 		/// <param name="scanType">Type.</param>
-		abstract public UInt32[] GetAsArray(string scanType);
+		abstract public float[] GetAsArray(string scanType);
 
 		/// <summary>
 		/// Get scan as bitmap.

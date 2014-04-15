@@ -91,9 +91,9 @@ namespace Baimp
 		/// <summary>
 		/// Gets scan as array.
 		/// </summary>
-		/// <returns>The specified scan as a plan float array.</returns>
-		/// <param name="scanType">Scan type.</param>
-		private float[] GetAsArrayFloat(string scanType)
+		/// <returns>The specified scan as a plain float array.</returns>
+		/// <param name="scanType">Type.</param>
+		public override float[] GetAsArray(string scanType)
 		{
 			if (arrayData.ContainsKey(scanType) && arrayData[scanType] != null) {
 				return arrayData[scanType];
@@ -169,7 +169,7 @@ namespace Baimp
 				s.CopyTo(ums, len);
 
 			} else {
-				float[] array = GetAsArrayFloat(scanType);
+				float[] array = GetAsArray(scanType);
 				float maxForType = this.max[scanType];
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
@@ -190,11 +190,6 @@ namespace Baimp
 		public override unsafe Bitmap GetAsColorizedBitmap(string scanType)
 		{
 			return GetAsBitmap(scanType); // TODO
-		}
-
-		public override UInt32[] GetAsArray(string scanType)
-		{
-			throw new NotImplementedException();
 		}
 
 		#endregion

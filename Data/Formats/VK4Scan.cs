@@ -242,7 +242,7 @@ namespace Baimp
 			return scanTypes;
 		}
 
-		public override uint[] GetAsArray(string scanType)
+		public override float[] GetAsArray(string scanType)
 		{
 			using (FileStream fileStream = new FileStream(FilePath, FileMode.Open)) {
 				using (BinaryReader fileReader = new BinaryReader(fileStream)) {
@@ -280,7 +280,7 @@ namespace Baimp
 
 						int len = width * height * 2;
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
-						return Array.ConvertAll(array, Convert.ToUInt32);
+						return Array.ConvertAll(array, Convert.ToSingle);
 
 					} 
 					if (bitdepth == 24) {
@@ -288,7 +288,7 @@ namespace Baimp
 						int len = width * height * 3;
 
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
-						return Array.ConvertAll(array, Convert.ToUInt32);
+						return Array.ConvertAll(array, Convert.ToSingle);
 						//return array;
 					} 
 					if (bitdepth == 32) {
@@ -297,7 +297,8 @@ namespace Baimp
 						int len = width * height * 4;
 
 						Buffer.BlockCopy(fileReader.ReadBytes(len), 0, array, 0, len);
-						return array;
+						return Array.ConvertAll(array, Convert.ToSingle);
+						//return array;
 					}
 
 					return null;
@@ -307,7 +308,7 @@ namespace Baimp
 
 		public override unsafe Bitmap GetAsBitmap(string scanType)
 		{
-			UInt32[] array = GetAsArray(scanType);
+			float[] array = GetAsArray(scanType);
 			int width = (int) size.Width;
 			int height = (int) size.Height;
 
@@ -344,7 +345,7 @@ namespace Baimp
 					scan0++;
 				}
 			} else {
-				UInt32 max = array.Max();
+				float max = array.Max();
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 				int len = width * height;
@@ -367,35 +368,33 @@ namespace Baimp
 				return GetAsBitmap(scanType);
 			}
 				
-			UInt32[] array = GetAsArray(scanType);
+			float[] array = GetAsArray(scanType);
 			int width = (int) size.Width;
 			int height = (int) size.Height;
 
-			Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+			Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
 			//Create a BitmapData and Lock all pixels to be written 
 			BitmapData bmpData = bitmap.LockBits(
 				new Rectangle(0, 0, width, height),   
 				ImageLockMode.WriteOnly, bitmap.PixelFormat);
 				
-			int offset = (bmpData.Stride / 4) - width;
+			int offset = (bmpData.Stride / 3) - width;
 
 			byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
-			double max = (double)array.Max();
+			float max = array.Max();
 
 			int i = 0;
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++, i++, scan0++) {
-					double intensitiy = 1.0 - (double)array[i] / max;
-					Color color = ImageTools.HSVtoRGB(intensitiy * 130, 0.9, 0.9, 1.0);
-
+					double intensitiy = 1 - array[i] / max;
+					Color color = ImageTools.ColorFromHSV(intensitiy * 130, 0.8-intensitiy*0.4, 0.9);
+						
 					*scan0 = color.B;
 					scan0++;
 					*scan0 = color.G;
 					scan0++;
 					*scan0 = color.R;
-					scan0++;
-					*scan0 = 255;
 				}
 
 				scan0 += offset;
