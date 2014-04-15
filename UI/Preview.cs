@@ -52,6 +52,7 @@ namespace Baimp
 			PackStart(controlbar, false, false);
 			PackEnd(gridView, true);
 
+			controlbar.Spacing = 0;
 
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			controller.AddButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
@@ -94,7 +95,8 @@ namespace Baimp
 					currentFiberTypes.Add(scanType);
 				}
 
-				CheckBox cb = new CheckBox();
+				ToggleButton cb = new ToggleButton();
+				cb.Style = ButtonStyle.Flat;
 				cb.Label = scanType;
 
 				if (currentFiberTypes.Contains(scanType)) {
@@ -105,7 +107,11 @@ namespace Baimp
 					if (cb.Active) {
 						AddFibertypeToShow(cb.Label);
 					} else {
-						RemoveFibertypeToShow(cb.Label);
+						if (currentFiberTypes.Count > 1) {
+							RemoveFibertypeToShow(cb.Label);
+						} else {
+							cb.Active = true;
+						}
 					}
 				};
 					
