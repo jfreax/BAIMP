@@ -14,7 +14,7 @@ namespace Baimp
 
 			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
 
-			options.Add(new Option("Bpp", 2, 14, 8));
+			options.Add(new Option("Bpp", 2, 32, 8));
 			options.Add(new Option("X Offest", 0, 10, 1));
 			options.Add(new Option("Y Offest", 0, 10, 1));
 		}
@@ -29,7 +29,9 @@ namespace Baimp
 			int dy = (int) options[2].Value;
 			int p = (int) Math.Pow(2, bpp);
 
-			double[,] matrix = new double[p+1, p+1];
+			SparseMatrix<double> matrix = new SparseMatrix<double>(p + 1, p + 1);
+			SparseMatrix<double> normalizedMatrix = new SparseMatrix<double>(p + 1, p + 1);
+
 			int width = (int) scan.Size.Width;
 			int height = (int) scan.Size.Height;
 
@@ -72,19 +74,22 @@ namespace Baimp
 						}
 					}
 				}
+			}
 
-				// normalize
-				if (pairs > 0) {
-					fixed (double* ptrMatrix = matrix) {
-						double* c = ptrMatrix;
-						for (int i = 0; i < matrix.Length; i++, c++) {
-							*c /= pairs;
-						}
+			// normalize
+			if (pairs > 0) {
+				foreach (int row in matrix.GetRows()) {
+					int i = 0;
+					foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
+						normalizedMatrix[row, v.Key] = v.Value / pairs;
+						i++;
 					}
 				}
 			}
 
-			IType[] ret = { new TMatrix(matrix) };
+			matrix.Dispose();
+
+			IType[] ret = { new TMatrix(normalizedMatrix) };
 			return ret;
 		}
 

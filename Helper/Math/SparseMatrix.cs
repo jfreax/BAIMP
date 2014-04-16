@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class SparseMatrix<T>
+	public class SparseMatrix<T> : IDisposable
 	{
 		// Dictionary to hold rows of column dictionary
+		static int gid = 0;
 		protected Dictionary<int, Dictionary<int, T>> rows = new Dictionary<int, Dictionary<int, T>>();
-
-		T max = default(T);
-		T min = default(T);
+		public readonly int id = 0;
 
 		public SparseMatrix(int width, int height)
 		{
 			Width = width;
 			Height = height;
+			id = gid++;
 		}
 
 		/// <summary>
@@ -105,7 +105,6 @@ namespace Baimp
 		/// <returns>The row ids.</returns>
 		public IEnumerable<int> GetRows()
 		{
-			Dictionary<int, T> cols;
 			foreach(var x in rows) {
 				yield return x.Key;
 			}
@@ -160,14 +159,27 @@ namespace Baimp
 
 		#region Properties
 
-		public int Width {
+		public long Width {
 			get;
 			set;
 		}
 			
-		public int Height {
+		public long Height {
 			get;
 			set;
+		}
+
+		#endregion
+
+		#region IDisposable implementation
+
+		public void Dispose()
+		{
+			foreach (KeyValuePair<int, Dictionary<int, T>> cols in rows) {
+				cols.Value.Clear();
+			}
+
+			rows.Clear();
 		}
 
 		#endregion

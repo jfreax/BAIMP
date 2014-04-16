@@ -102,8 +102,6 @@ namespace Baimp
 			double[] px;
 			double[] py;
 
-			double? sum;
-			double? mean;
 			double? meanx;
 			double? meany;
 			double? xdev;

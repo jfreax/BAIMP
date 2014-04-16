@@ -38,8 +38,8 @@ namespace Baimp
 
 		public Widget ToWidget()
 		{
-			int coloumns = isSparse ? sparseMatrix.Width : matrix.GetLength(0);
-			int rows = isSparse ? sparseMatrix.Height : matrix.GetLength(1);
+			long coloumns = Width;
+			long rows = Height;
 
 			if (widget == null) {
 				if (rows <= 16 && coloumns <= 16) {
@@ -61,21 +61,30 @@ namespace Baimp
 
 					widget = t;
 				} else {
+					BitmapImage bi;
 
-					ImageBuilder ib = new ImageBuilder(coloumns, rows);
-					BitmapImage bi = ib.ToBitmap();
+					double xDiv = (double) coloumns / (double) BaseType<int>.MaxWidgetSize.Width;
+					double yDiv = (double) rows / (double) BaseType<int>.MaxWidgetSize.Height;
 
 					if (isSparse) {
+						ImageBuilder ib = new ImageBuilder(coloumns / xDiv, rows / yDiv);
+						bi = ib.ToBitmap();
+
 						double max = sparseMatrix.Max();
 
 						foreach (int y in sparseMatrix.GetRows()) {
 							foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(y)) {
 								byte c = (byte) ((v.Value * 255) / max);
-								bi.SetPixel(v.Key, y, Color.FromBytes(c, c, c));
+								bi.SetPixel((int)(v.Key / xDiv), (int)(y / yDiv), Color.FromBytes(c, c, c));
 							}
 						}
 
+						ib.Dispose();
+
 					} else {
+						ImageBuilder ib = new ImageBuilder(coloumns, rows);
+						bi = ib.ToBitmap();
+
 						double max = 0.0;
 						double[,] copy = matrix.Scale(1.0, 65536.0);
 
@@ -97,9 +106,9 @@ namespace Baimp
 								bi.SetPixel(x, y, Color.FromBytes(c, c, c));
 							}
 						}
+						ib.Dispose();
 					}
 
-					ib.Dispose();
 					widget = new ImageView(bi.WithBoxSize(BaseType<int>.MaxWidgetSize));
 				}
 			}
@@ -112,6 +121,12 @@ namespace Baimp
 			if (widget != null) {
 				widget.Dispose();
 				widget = null;
+			}
+
+			if (isSparse) {
+				sparseMatrix.Dispose();
+			} else {
+				matrix = null;
 			}
 		}
 			
@@ -177,34 +192,34 @@ namespace Baimp
 		public double this[int row, int col] {
 			get {
 				if (isSparse) {
-					sparseMatrix.GetAt(col, row);
+					return sparseMatrix.GetAt(col, row);
 				}
 
 				return matrix[col, row];
 			}
 		}
 
-		public int Width {
+		public long Width {
 			get {
 				if (isSparse) {
 					return sparseMatrix.Width;
 				} 
 
-				return matrix.GetLength(0);
+				return matrix.GetLongLength(0);
 			}
 		}
 
-		public int Height {
+		public long Height {
 			get {
 				if (isSparse) {
 					return sparseMatrix.Height;
 				} 
 
-				return matrix.GetLength(1);
+				return matrix.GetLongLength(1);
 			}
 		}
 
-		public int Length {
+		public long Length {
 			get {
 				return Width * Height;
 			}
