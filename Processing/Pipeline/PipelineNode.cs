@@ -65,6 +65,12 @@ namespace Baimp
 		[XmlIgnore]
 		public List<Tuple<IType[], Result[]>> results = new List<Tuple<IType[], Result[]>>();
 
+		/// <summary>
+		/// Comments from user
+		/// </summary>
+		[XmlElement("comment")]
+		public string userComment = string.Empty;
+
 
 		#region initialize
 

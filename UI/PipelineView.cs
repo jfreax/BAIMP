@@ -116,6 +116,7 @@ namespace Baimp
 			contextMenuNodeOptions.Clicked += delegate(object sender, EventArgs e) {
 				if (lastSelectedNode != null) {
 					OpenOptionWindow(lastSelectedNode);
+					mouseAction = MouseAction.None;
 				}
 			};
 			contextMenuNode.Items.Add(contextMenuNodeOptions);
@@ -290,25 +291,30 @@ namespace Baimp
 		/// <param name="pNode">Pipeline node for which the option should be shown.</param>
 		private void OpenOptionWindow(PipelineNode pNode)
 		{
-			if (pNode.algorithm.Options.Count == 0) {
-				return;
-			}
-
 			Dialog d = new Dialog ();
 			d.Title = String.Format("Option for \"{0}\"", pNode.algorithm);
-			Table t = new Table ();
+			Table table = new Table ();
+			VBox contentBox = new VBox();
 
 			int i = 0;
 			TextEntry[] entries = new TextEntry[pNode.algorithm.Options.Count];
 			foreach (Option option in pNode.algorithm.Options) {
-				t.Add (new Label (option.name), 0, i);
+				table.Add (new Label (option.name), 0, i);
 				TextEntry entry = new TextEntry();
 				entry.Text = option.Value.ToString();
 				entries[i] = entry;
-				t.Add (entry, 1, i);
+				table.Add (entry, 1, i);
 				i++;
 			}
-			d.Content = t;
+
+			TextEntry commentEntry = new TextEntry();
+			commentEntry.PlaceholderText = "Comments...";
+			commentEntry.MultiLine = true;
+			commentEntry.Text = pNode.userComment;
+
+			contentBox.PackStart(table);
+			contentBox.PackEnd(commentEntry);
+			d.Content = contentBox;
 
 			d.Buttons.Add (new DialogButton (Command.Cancel));
 			d.Buttons.Add (new DialogButton (Command.Apply));
@@ -326,6 +332,7 @@ namespace Baimp
 					}
 					i++;
 				}
+				pNode.userComment = commentEntry.Text;
 			}
 
 			d.Dispose ();
