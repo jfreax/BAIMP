@@ -78,11 +78,13 @@ namespace Baimp
 
 			// normalize
 			if (pairs > 0) {
+				double max2 = 0;
 				foreach (int row in matrix.GetRows()) {
-					int i = 0;
 					foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
 						normalizedMatrix[row, v.Key] = v.Value / pairs;
-						i++;
+						if (v.Value / pairs > max2) {
+							max2 = v.Value / pairs;
+						}
 					}
 				}
 			}

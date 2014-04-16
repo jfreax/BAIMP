@@ -72,6 +72,18 @@ namespace Baimp
 			return min;
 		}
 
+		public static double Min(this SparseMatrix<double> matrix) {
+			double min = double.MaxValue;
+			foreach (int row in matrix.GetRows()) {
+				foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
+					if (v.Value < min) {
+						min = v.Value;
+					}
+				}
+			}
+			return min;
+		}
+
 		#endregion
 
 		#region Max

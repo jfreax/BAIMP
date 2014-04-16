@@ -63,19 +63,24 @@ namespace Baimp
 				} else {
 					BitmapImage bi;
 
-					double xDiv = (double) coloumns / (double) BaseType<int>.MaxWidgetSize.Width;
-					double yDiv = (double) rows / (double) BaseType<int>.MaxWidgetSize.Height;
+					int xDiv = (int) Math.Round((double) coloumns / (double) BaseType<int>.MaxWidgetSize.Width) + 1;
+					int yDiv = (int) Math.Round((double) rows / (double) BaseType<int>.MaxWidgetSize.Height) + 1;
 
 					if (isSparse) {
 						ImageBuilder ib = new ImageBuilder(coloumns / xDiv, rows / yDiv);
 						bi = ib.ToBitmap();
 
 						double max = sparseMatrix.Max();
+						double min = sparseMatrix.Min();
 
+						const double toMax = 65536.0;
+						double toMaxLog = Math.Log(toMax);
 						foreach (int y in sparseMatrix.GetRows()) {
 							foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(y)) {
-								byte c = (byte) ((v.Value * 255) / max);
-								bi.SetPixel((int)(v.Key / xDiv), (int)(y / yDiv), Color.FromBytes(c, c, c));
+								double toLog = (toMax - 1.0) * ((v.Value - min) / (max - min)) + 1.0;
+								byte c = (byte) ((Math.Log(toLog) / toMaxLog) * 255);
+
+								bi.SetPixel(v.Key / xDiv, y / yDiv, Color.FromBytes(c, c, c));
 							}
 						}
 
