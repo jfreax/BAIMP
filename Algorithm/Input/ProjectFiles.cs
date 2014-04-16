@@ -34,6 +34,10 @@ namespace Baimp
 
 			int i = 0;
 			foreach (BaseScan scan in scans) {
+				if (IsCanceled) {
+					break;
+				}
+
 				IType[] data = new IType[3];
 				// TODO test available scan types
 				data[0] = new TBitmap(scan.GetAsBitmap("Intensity"));

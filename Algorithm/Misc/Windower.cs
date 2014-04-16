@@ -37,6 +37,10 @@ namespace Baimp
 				for (int y = 0; y < bitmap.Height-height; y += height) {
 					rect.Y = y;
 
+					if (IsCanceled) {
+						break;
+					}
+
 					for (int x = 0; x < bitmap.Width-width; x += width) {
 						rect.X = x;
 						IType[] ret = new IType[1];

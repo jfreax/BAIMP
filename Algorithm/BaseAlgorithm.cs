@@ -44,6 +44,11 @@ namespace Baimp
 		/// </summary>
 		public List<Option> options;
 
+		/// <summary>
+		/// The cancellation token.
+		/// </summary>
+		public CancellationToken cancellationToken;
+
 
 		internal BaseAlgorithm(PipelineNode parent)
 		{
@@ -97,13 +102,11 @@ namespace Baimp
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			if (yielded[threadID] != null) {
 				var lYield = yielded[threadID];
-//				Application.Invoke(() => {
 					try {
 						lYield(this, new AlgorithmEventArgs(data, inputRef));
 					} catch (Exception e) {
 						Console.WriteLine(e.StackTrace);
 					}
-//				});
 			}
 		}
 
@@ -115,6 +118,16 @@ namespace Baimp
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			Application.Invoke( () => Parent.SetProgress(threadID, percent));
+		}
+
+		public bool IsCanceled {
+			get {
+				if (cancellationToken.IsCancellationRequested) {
+					return true;
+				}
+
+				return false;
+			}
 		}
 
 		#endregion

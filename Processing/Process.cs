@@ -61,6 +61,7 @@ namespace Baimp
 				startNode.algorithm.Yielded += yieldFun;
 				IType[] output = null;
 				try {
+					startNode.algorithm.cancellationToken = cancellationToken;
 					output = startNode.algorithm.Run(
 						requestedData,
 						startNode.algorithm.options.ToArray(),
