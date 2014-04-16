@@ -152,6 +152,7 @@
     <Compile Include="UI\Widget\ControllButton.cs" />
     <Compile Include="UI\Widget\ControllButtonGroup.cs" />
     <Compile Include="UI\Widget\ButtonSegment.cs" />
+    <Compile Include="DataType\TScan.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

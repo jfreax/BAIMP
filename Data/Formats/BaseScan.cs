@@ -154,6 +154,9 @@ namespace Baimp
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="scanType">Scantile</param>
+		/// <remarks>
+		/// Uncached!
+		/// </remarks>
 		abstract public unsafe Bitmap GetAsBitmap(string scanType);
 
 		/// <summary>
@@ -163,6 +166,9 @@ namespace Baimp
 		/// </summary>
 		/// <returns>The specified scan as a bitmap.</returns>
 		/// <param name="scanType">Scantile</param>
+		/// <remarks>
+		/// Uncached!
+		/// </remarks>
 		abstract public unsafe Bitmap GetAsColorizedBitmap(string scanType);
 
 		/// <summary>
