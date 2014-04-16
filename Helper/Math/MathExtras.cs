@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -80,6 +81,18 @@ namespace Baimp
 			foreach (double v in values) {
 				if (v > max) {
 					max = v;
+				}
+			}
+			return max;
+		}
+
+		public static double Max(this SparseMatrix<double> matrix) {
+			double max = double.MinValue;
+			foreach (int row in matrix.GetRows()) {
+				foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
+					if (v.Value > max) {
+						max = v.Value;
+					}
 				}
 			}
 			return max;

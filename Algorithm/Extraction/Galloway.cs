@@ -16,21 +16,20 @@ namespace Baimp
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			TMatrix tMatrix = inputArgs[0] as TMatrix;
-			if (tMatrix == null || tMatrix.Data == null) {
+			TMatrix matrix = inputArgs[0] as TMatrix;
+			if (matrix == null) {
 				return null;
 			}
-			double[,] matrix = tMatrix.Data;
 
-			double numberOfRuns = matrix.Sum(); // R_G
+			double numberOfRuns = matrix.Sum; // R_G
 
 			double sre = 0.0, lre = 0.0, lgre = 0.0, hlre = 0.0;
 			double gln = 0.0, rln = 0.0;
 
 			int n = 0; // number of pixels in original image
-			for (int i = 0; i < matrix.GetLength(0); i++) {
+			for (int i = 0; i < matrix.Width; i++) {
 				double glnInner = 0.0;
-				for (int j = 0; j < matrix.GetLength(1); j++) {
+				for (int j = 0; j < matrix.Height; j++) {
 					if (matrix[i, j] >= double.Epsilon) {
 						n += (int) (matrix[i, j] * j);
 						sre += matrix[i, j] / (j * j);
@@ -45,9 +44,9 @@ namespace Baimp
 
 			SetProgress(50);
 
-			for (int j = 0; j < matrix.GetLength(1); j++) {
+			for (int j = 0; j < matrix.Height; j++) {
 				double rlnInner = 0.0;
-				for (int i = 0; i < matrix.GetLength(0); i++) {
+				for (int i = 0; i < matrix.Width; i++) {
 					rlnInner += matrix[i, j];
 				}
 				rln += rlnInner * rlnInner;

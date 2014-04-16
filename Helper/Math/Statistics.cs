@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Drawing.Imaging;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -150,6 +151,26 @@ namespace Baimp
 			double sum = 0;
 			foreach (double v in values)
 				sum += v * Math.Log(v + eps, 2);
+			return -sum;
+		}
+
+		/// <summary>
+		/// Computes the entropy for a given sparse matrix.
+		/// </summary>
+		/// 
+		/// <param name="matrix">Sparse matrix.</param>
+		/// <param name="eps">
+		/// A very small constant to avoid <see cref="Double.NaN"/>
+		/// if there are any zero values
+		/// </param>
+		public static double Entropy(this SparseMatrix<double> matrix, double eps = 0)
+		{
+			double sum = 0;
+			foreach (int row in matrix.GetRows()) {
+				foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
+					sum += v.Value * Math.Log(v.Value + eps, 2);
+				}
+			}
 			return -sum;
 		}
 

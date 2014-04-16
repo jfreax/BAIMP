@@ -17,11 +17,11 @@ namespace Baimp
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
 			TMatrix tMatrix = inputArgs[0] as TMatrix;
-			if (tMatrix == null || tMatrix.Data == null) {
+			if (tMatrix == null) {
 				return null;
 			}
 
-			HaralickIntern h = new HaralickIntern(tMatrix.Data);
+			HaralickIntern h = new HaralickIntern(tMatrix);
 
 			// features
 			double asm = 0.0, contrast = 0.0, correlation, variance = 0.0, homogeneity = 0.0;
@@ -32,12 +32,13 @@ namespace Baimp
 			// temp variables
 			double correlationStep = 0.0;
 			double informationMeasure1Step = 0.0, informationMeasure2Step = 0.0;
-			double[] xydiff = new double[Math.Max(h.InputMatrix.GetLength(0), h.InputMatrix.GetLength(1))];
+			double[] xydiff = new double[Math.Max(h.InputMatrix.Width, h.InputMatrix.Height)];
 
+			double mean = h.InputMatrix.Mean;
 			// compute
 			//Parallel.For(0, h.InputMatrix.GetLength(0), i => {
-			for (int i = 0; i < h.InputMatrix.GetLength(0); i++) {
-				for (int j = 0; j < h.InputMatrix.GetLength(1); j++) {
+			for (int i = 0; i < h.InputMatrix.Width; i++) {
+				for (int j = 0; j < h.InputMatrix.Height; j++) {
 					double value = h.InputMatrix[i, j];
 
 					xydiff[Math.Abs(i - j)] += h.InputMatrix[i, j];
@@ -47,7 +48,7 @@ namespace Baimp
 					informationMeasure2Step -= h.Px[i] * h.Py[j] * Math.Log(h.Px[i] * h.Py[j] + double.Epsilon, 2);
 
 					asm += value * value;
-					variance += (i - h.Mean) * h.InputMatrix[i, j];
+					variance += (i - mean) * h.InputMatrix[i, j];
 					homogeneity += h.InputMatrix[i, j] / (double) (1 + (i - j) * (i - j));
 				}
 			} //);
@@ -97,7 +98,7 @@ namespace Baimp
 
 		class HaralickIntern {
 
-			public readonly double[,] InputMatrix;
+			public readonly TMatrix InputMatrix;
 			double[] px;
 			double[] py;
 
@@ -110,35 +111,10 @@ namespace Baimp
 
 			double[] xysum;
 
-			public HaralickIntern(double[,] matrix) {
+			public HaralickIntern(TMatrix matrix) {
 				this.InputMatrix = matrix;
 			}
-
-			/// <summary>
-			/// Sum of all matrix elements.
-			/// </summary>
-			public double Sum {
-				get {
-					if (sum == null) {
-						double s = 0;
-						foreach (double x in InputMatrix)
-							s += x;
-						sum = s;
-					}
-					return sum.Value;
-				}
-			}
-
-			/// <summary>
-			/// Gets the matrix mean μ.
-			/// </summary>
-			public double Mean {
-				get {
-					if (mean == null)
-						mean = Sum / InputMatrix.Length;
-					return mean.Value;
-				}
-			}
+				
 
 			/// <summary>
 			/// p<sub>x</sub>(i) = Σ<sub>j</sub> p(i,j).
@@ -146,9 +122,9 @@ namespace Baimp
 			public double[] Px {
 				get {
 					if (px == null) {
-						px = new double[InputMatrix.GetLength(0)];
-						for (int i = 0; i < InputMatrix.GetLength(0); i++)
-							for (int j = 0; j < InputMatrix.GetLength(1); j++)
+						px = new double[InputMatrix.Width];
+						for (int i = 0; i < InputMatrix.Width; i++)
+							for (int j = 0; j < InputMatrix.Height; j++)
 								px[i] += InputMatrix[i, j];
 					}
 					return px;
@@ -161,9 +137,9 @@ namespace Baimp
 			public double[] Py {
 				get {
 					if (py == null) {
-						py = new double[InputMatrix.GetLength(1)];
-						for (int j = 0; j < InputMatrix.GetLength(1); j++)
-							for (int i = 0; i < InputMatrix.GetLength(0); i++)
+						py = new double[InputMatrix.Height];
+						for (int j = 0; j < InputMatrix.Height; j++)
+							for (int i = 0; i < InputMatrix.Width; i++)
 								py[j] += InputMatrix[i, j];
 					}
 					return py;
@@ -223,9 +199,9 @@ namespace Baimp
 			public double[] Sums {
 				get {
 					if (xysum == null) {
-						xysum = new double[2 * InputMatrix.GetLength(0)];
-						for (int i = 0; i < InputMatrix.GetLength(0); i++)
-							for (int j = 0; j < InputMatrix.GetLength(0); j++)
+						xysum = new double[2 * InputMatrix.Width];
+						for (int i = 0; i < InputMatrix.Width; i++)
+							for (int j = 0; j < InputMatrix.Width; j++)
 								xysum[i + j] += InputMatrix[i, j];
 					}
 					return xysum;

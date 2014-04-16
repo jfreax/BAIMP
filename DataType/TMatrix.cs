@@ -2,77 +2,213 @@
 using Xwt.Drawing;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class TMatrix : BaseType<double[,]>
+	public class TMatrix : IType
 	{
-		public TMatrix() : base()
+		private double[,] matrix;
+		private SparseMatrix<double> sparseMatrix;
+		private Widget widget = null;
+
+		bool isSparse;
+
+		public TMatrix(double[,] matrix)
 		{
+			this.matrix = matrix;
 		}
 
-		public TMatrix(double[,] matrix) : base(matrix)
+		public TMatrix(SparseMatrix<double> matrix)
 		{
+			this.sparseMatrix = matrix;
+			isSparse = true;
 		}
 
 		public override string ToString()
 		{
-			return String.Format("{0}x{1} Matrix", Data.GetLength(0), Data.GetLength(1));
+			if (isSparse) {
+				return String.Format("{0}x{1} Matrix", sparseMatrix.Width, sparseMatrix.Height);
+			} else {
+				return String.Format("{0}x{1} Matrix", matrix.GetLength(0), matrix.GetLength(1));
+			}
 		}
 
-		#region implemented abstract members of BaseType
+		#region implemented interface members
 
-		public override Widget ToWidget()
+		public Widget ToWidget()
 		{
+			int coloumns = isSparse ? sparseMatrix.Width : matrix.GetLength(0);
+			int rows = isSparse ? sparseMatrix.Height : matrix.GetLength(1);
+
 			if (widget == null) {
-				if (Data.GetLength(0) <= 16 && Data.GetLength(1) <= 16) {
+				if (rows <= 16 && coloumns <= 16) {
 					Table t = new Table();
 
-					for (int x = 0; x < Data.GetLength(0); x++) {
-						for (int y = 0; y < Data.GetLength(1); y++) {
-							t.Add(new Label(Data[x, y].ToString()), x, y);
+					if (isSparse) {
+						foreach (int i in sparseMatrix.GetRows()) {
+							foreach (KeyValuePair<int, double> value in sparseMatrix.GetRowData(i)) {
+								t.Add(new Label(value.Value.ToString()), value.Key, i);
+							}
+						}
+					} else {
+						for (int x = 0; x < coloumns; x++) {
+							for (int y = 0; y < rows; y++) {
+								t.Add(new Label(matrix[x, y].ToString()), x, y);
+							}
 						}
 					}
 
 					widget = t;
 				} else {
 
-					ImageBuilder ib = new ImageBuilder(Data.GetLength(0), Data.GetLength(1));
+					ImageBuilder ib = new ImageBuilder(coloumns, rows);
 					BitmapImage bi = ib.ToBitmap();
 
-					double max = 0.0;
-					double[,] copy = Data.Scale(1.0, 65536.0);
+					if (isSparse) {
+						double max = sparseMatrix.Max();
 
-					for (int x = 0; x < Data.GetLength(0); x++) {
-						for (int y = 0; y < Data.GetLength(1); y++) {
-							if (copy[x, y] > 0) {
-								copy[x, y] = (Math.Log(copy[x, y]));
-							}
-
-							if (copy[x, y] > max) {
-								max = copy[x, y];
+						foreach (int y in sparseMatrix.GetRows()) {
+							foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(y)) {
+								byte c = (byte) ((v.Value * 255) / max);
+								bi.SetPixel(v.Key, y, Color.FromBytes(c, c, c));
 							}
 						}
-					}
+
+					} else {
+						double max = 0.0;
+						double[,] copy = matrix.Scale(1.0, 65536.0);
+
+						for (int x = 0; x < coloumns; x++) {
+							for (int y = 0; y < rows; y++) {
+								if (copy[x, y] > 0) {
+									copy[x, y] = (Math.Log(copy[x, y]));
+								}
+
+								if (copy[x, y] > max) {
+									max = copy[x, y];
+								}
+							}
+						}
 												
-					for (int x = 0; x < Data.GetLength(0); x++) {
-						for (int y = 0; y < Data.GetLength(1); y++) {
-							byte c = (byte) ((copy[x, y] * 255) / max);
-							bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+						for (int x = 0; x < coloumns; x++) {
+							for (int y = 0; y < rows; y++) {
+								byte c = (byte) ((copy[x, y] * 255) / max);
+								bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+							}
 						}
 					}
 
 					ib.Dispose();
-					widget = new ImageView(bi.WithBoxSize(MaxWidgetSize));
+					widget = new ImageView(bi.WithBoxSize(BaseType<int>.MaxWidgetSize));
 				}
 			}
 
 			return widget;
 		}
 
+		public void Dispose()
+		{
+			if (widget != null) {
+				widget.Dispose();
+				widget = null;
+			}
+		}
+			
+		#endregion
+
+		#region Statistic methods
+
+		/// <summary>
+		/// Computes the entropy for this matrix.
+		/// </summary>
+		/// 
+		/// <param name="eps">
+		/// A very small constant to avoid <see cref="Double.NaN"/>
+		/// if there are any zero values
+		/// </param>
+		public double Entropy(double eps = 0)
+		{
+			if (isSparse) {
+				double sum = 0;
+				foreach (int row in sparseMatrix.GetRows()) {
+					foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
+						sum += v.Value * Math.Log(v.Value + eps, 2);
+					}
+				}
+				return -sum;
+			}
+
+			return matrix.Entropy(eps);
+		}
+
+		/// <summary>
+		/// Sum of all matrix elements.
+		/// </summary>
+		public double Sum {
+			get {
+				if (isSparse) {
+					double sum = 0;
+					foreach (int row in sparseMatrix.GetRows()) {
+						foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
+							sum += v.Value;
+						}
+					}
+					return sum;
+				}
+
+				return matrix.Sum();
+			}
+		}
+
+		/// <summary>
+		/// Gets the matrix mean μ.
+		/// </summary>
+		public double Mean {
+			get {
+				return Sum / Length;
+			}
+		}
+
 		#endregion
 
 		#region Properties
+
+		public double this[int row, int col] {
+			get {
+				if (isSparse) {
+					sparseMatrix.GetAt(col, row);
+				}
+
+				return matrix[col, row];
+			}
+		}
+
+		public int Width {
+			get {
+				if (isSparse) {
+					return sparseMatrix.Width;
+				} 
+
+				return matrix.GetLength(0);
+			}
+		}
+
+		public int Height {
+			get {
+				if (isSparse) {
+					return sparseMatrix.Height;
+				} 
+
+				return matrix.GetLength(1);
+			}
+		}
+
+		public int Length {
+			get {
+				return Width * Height;
+			}
+		}
 
 		#endregion
 	}
