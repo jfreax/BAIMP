@@ -8,7 +8,7 @@ namespace Baimp
 	{
 		public Moments(PipelineNode parent) : base(parent)
 		{
-			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 
 			output.Add(new Compatible("Moments", typeof(TFeatureList<double>)));
 		}
@@ -17,8 +17,8 @@ namespace Baimp
 
 		public unsafe override IType[] Run(System.Collections.Generic.Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			TBitmap tbitmap = inputArgs[0] as TBitmap;
-			Bitmap bitmap = tbitmap.Data;
+			TScan tScan = inputArgs[0] as TScan;
+			Bitmap bitmap = tScan.GrayScale8bpp;
 
 			BitmapData data = bitmap.LockBits(
 				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),

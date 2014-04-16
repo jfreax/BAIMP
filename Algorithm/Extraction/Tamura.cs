@@ -10,7 +10,7 @@ namespace Baimp
 	{
 		public Tamura(PipelineNode parent) : base(parent)
 		{
-			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 
 			output.Add(new Compatible("Tamura Features", typeof(TFeatureList<double>)));
 			output.Add(new Compatible("Directionality Histogram", typeof(THistogram)));
@@ -22,8 +22,8 @@ namespace Baimp
 
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			TBitmap tbitmap = inputArgs[0] as TBitmap;
-			Bitmap bitmap = tbitmap.Data;
+			TScan tScan = inputArgs[0] as TScan;
+			Bitmap bitmap = tScan.GrayScale8bpp;
 
 			int nrOfBins = (int) options[0].Value;
 

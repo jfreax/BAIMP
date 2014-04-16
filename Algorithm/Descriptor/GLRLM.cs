@@ -9,7 +9,7 @@ namespace Baimp
 	{
 		public GLRLM(PipelineNode parent) : base(parent)
 		{
-			input.Add(new Compatible("Image", typeof(TBitmap), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 
 			output.Add(new Compatible("GLRL-Matrix", typeof(TMatrix)));
 		}
@@ -18,8 +18,8 @@ namespace Baimp
 
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			TBitmap tbitmap = inputArgs[0] as TBitmap;
-			Bitmap bitmap = tbitmap.Data;
+			TScan tScan = inputArgs[0] as TScan;
+			Bitmap bitmap = tScan.GrayScale8bpp;
 
 			BitmapData data = bitmap.LockBits(
 				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
