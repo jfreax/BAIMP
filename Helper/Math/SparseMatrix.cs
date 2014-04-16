@@ -6,15 +6,12 @@ namespace Baimp
 	public class SparseMatrix<T> : IDisposable
 	{
 		// Dictionary to hold rows of column dictionary
-		static int gid = 0;
 		protected Dictionary<int, Dictionary<int, T>> rows = new Dictionary<int, Dictionary<int, T>>();
-		public readonly int id = 0;
 
-		public SparseMatrix(int width, int height)
+		public SparseMatrix(long width, long height)
 		{
 			Width = width;
 			Height = height;
-			id = gid++;
 		}
 
 		/// <summary>

@@ -108,7 +108,9 @@ namespace Baimp
 						for (int x = 0; x < coloumns; x++) {
 							for (int y = 0; y < rows; y++) {
 								byte c = (byte) ((copy[x, y] * 255) / max);
-								bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+								if (c > 0) {
+									bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+								}
 							}
 						}
 						ib.Dispose();
@@ -190,6 +192,27 @@ namespace Baimp
 			}
 		}
 
+		public void DivideAll(double by)
+		{
+			if (isSparse) {
+				SparseMatrix<double> newMatrix = new SparseMatrix<double>(Width, Height);
+				foreach (int row in sparseMatrix.GetRows()) {
+					foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
+						newMatrix[row, v.Key] = v.Value / by;
+					}
+				}
+
+				sparseMatrix.Dispose();
+				sparseMatrix = newMatrix;
+			} else {
+				for (int i = 0; i < matrix.GetLength(0); i++) {
+					for (int j = 0; j < matrix.GetLength(1); j++) {
+						matrix[i, j] /= by;
+					}
+				}
+			}
+		}
+
 		#endregion
 
 		#region Properties
@@ -197,10 +220,17 @@ namespace Baimp
 		public double this[int row, int col] {
 			get {
 				if (isSparse) {
-					return sparseMatrix.GetAt(col, row);
+					return sparseMatrix.GetAt(row, col);
 				}
 
-				return matrix[col, row];
+				return matrix[row, col];
+			}
+			set {
+				if (isSparse) {
+					sparseMatrix.SetAt(row, col, value);
+				} else {
+					matrix[row, col] = value;
+				}
 			}
 		}
 

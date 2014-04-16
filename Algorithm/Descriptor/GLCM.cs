@@ -29,8 +29,13 @@ namespace Baimp
 			int dy = (int) options[2].Value;
 			int p = (int) Math.Pow(2, bpp);
 
-			SparseMatrix<double> matrix = new SparseMatrix<double>(p + 1, p + 1);
-			SparseMatrix<double> normalizedMatrix = new SparseMatrix<double>(p + 1, p + 1);
+			TMatrix matrix;
+
+			if (bpp > 10) {
+				matrix = new TMatrix(new SparseMatrix<double>(p + 1, p + 1));
+			} else {
+				matrix = new TMatrix(new double[p + 1, p + 1]);
+			}
 
 			int width = (int) scan.Size.Width;
 			int height = (int) scan.Size.Height;
@@ -78,20 +83,11 @@ namespace Baimp
 
 			// normalize
 			if (pairs > 0) {
-				double max2 = 0;
-				foreach (int row in matrix.GetRows()) {
-					foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
-						normalizedMatrix[row, v.Key] = v.Value / pairs;
-						if (v.Value / pairs > max2) {
-							max2 = v.Value / pairs;
-						}
-					}
-				}
+				matrix.DivideAll(pairs);
 			}
 
-			matrix.Dispose();
 
-			IType[] ret = { new TMatrix(normalizedMatrix) };
+			IType[] ret = { matrix };
 			return ret;
 		}
 
