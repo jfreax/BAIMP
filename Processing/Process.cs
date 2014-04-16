@@ -10,12 +10,19 @@ namespace Baimp
 	public class Process
 	{
 		Project project;
+		CancellationToken cancellationToken;
 
 		public delegate void OnTaskCompleteDelegate(PipelineNode startNode, IType[] result, Result[] inputRef);
 
-		public Process(Project project)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.Process"/> class.
+		/// </summary>
+		/// <param name="project">Project.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public Process(Project project, CancellationToken cancellationToken)
 		{
 			this.project = project;
+			this.cancellationToken = cancellationToken;
 		}
 
 		/// <summary>
@@ -123,6 +130,9 @@ namespace Baimp
 
 					// start next node
 					if (targetNode.parent.IsReady()) {
+						if (cancellationToken.IsCancellationRequested) {
+							return;
+						}
 						this.Start(targetNode.parent, targetNode.parent.DequeueInput());
 					}
 				}

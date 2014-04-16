@@ -4,6 +4,7 @@ using Xwt.Drawing;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Baimp
 {
@@ -32,6 +33,8 @@ namespace Baimp
 		private Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
 		private MouseAction mouseAction = MouseAction.None;
 		private MouseMover mouseMover;
+
+		CancellationTokenSource cancelRequest;
 
 		CursorType oldCursor;
 
@@ -241,11 +244,18 @@ namespace Baimp
 				return false;
 			}
 
+			cancelRequest = new CancellationTokenSource();
+			CancellationToken token = cancelRequest.Token;
+
 			project.NotifyPipelineStart(this);
 
-			Process process = new Process(project);
+			Process process = new Process(project, token);
 			Task executionTask = Task.Factory.StartNew( () => {
 				foreach (PipelineNode pNode in nodes) {
+					if (token.IsCancellationRequested) {
+						break;
+					}
+
 					pNode.results.Clear();
 					pNode.ClearInputQueue();
 
@@ -261,6 +271,13 @@ namespace Baimp
 			});
 
 			return true;
+		}
+
+		public void StopExecution()
+		{
+			if (cancelRequest != null) {
+				cancelRequest.Cancel();
+			}
 		}
 
 		#endregion

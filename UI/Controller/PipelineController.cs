@@ -80,14 +80,19 @@ namespace Baimp
 			playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			playButton.TooltipText = "Execute pipeline";
 
-			stopButton = new ControllButton(Image.FromResource("Baimp.Resources.icoStop-Normal.png"));
-			playButton.TooltipText = "Stop pipeline execution";
-
-			playButton.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+			playButton.ButtonPressed += delegate {
 				if (currentPipeline.Execute(project)) {
 					playButton.Disable();
 				}
 			};
+
+			stopButton = new ControllButton(Image.FromResource("Baimp.Resources.icoStop-Normal.png"));
+			stopButton.TooltipText = "Stop pipeline execution";
+			stopButton.ButtonPressed += delegate {
+				currentPipeline.StopExecution();
+				stopButton.Disable();
+			};
+
 
 			playStopButtonPlacement = new FrameBox();
 			playStopButtonPlacement.Content = playButton;

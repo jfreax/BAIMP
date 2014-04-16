@@ -401,7 +401,7 @@ namespace Baimp
 		EventHandler<EventArgs> pipelineFinished;
 
 		/// <summary>
-		/// Occurs when we start executing the a pipeline
+		/// Occurs when we pipeline execution finished
 		/// </summary>
 		public event EventHandler<EventArgs> PipelineFinished {
 			add {
