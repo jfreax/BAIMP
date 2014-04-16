@@ -89,7 +89,7 @@ namespace Baimp
 			isDisabled = true;
 		}
 
-		public void Enabled()
+		public void Enable()
 		{
 			isDisabled = false;
 		}

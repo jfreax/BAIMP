@@ -237,6 +237,12 @@ namespace Baimp
 		/// <returns>True if started, otherwise false<returns>
 		public bool Execute(Project project)
 		{
+			if (nodes.Count == 0) {
+				return false;
+			}
+
+			project.NotifyPipelineStart(this);
+
 			Process process = new Process(project);
 			Task executionTask = Task.Factory.StartNew( () => {
 				foreach (PipelineNode pNode in nodes) {
@@ -250,7 +256,11 @@ namespace Baimp
 				}
 			});
 
-			return nodes.Count > 0;
+			executionTask.ContinueWith(fromTask => {
+				Application.Invoke( () => project.NotifyPipelineStop(this) );
+			});
+
+			return true;
 		}
 
 		#endregion

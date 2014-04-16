@@ -25,6 +25,9 @@ namespace Baimp
 		[XmlAttribute]
 		public int version = 3;
 
+		[XmlIgnore]
+		bool pipelineRunning;
+
 		#region initialize
 
 		public Project()
@@ -351,6 +354,20 @@ namespace Baimp
 
 		#endregion
 
+		public void NotifyPipelineStart(PipelineView pipeline)
+		{
+			if (pipelineExecuted != null) {
+				pipelineExecuted(pipeline, null);
+			}
+		}
+
+		public void NotifyPipelineStop(PipelineView pipeline)
+		{
+			if (pipelineFinished != null) {
+				pipelineFinished(pipeline, null);
+			}
+		}
+
 		#region custom events
 
 		EventHandler<ProjectChangedEventArgs> projectChanged;
@@ -364,6 +381,34 @@ namespace Baimp
 			}
 			remove {
 				projectChanged -= value;
+			}
+		}
+
+		EventHandler<EventArgs> pipelineExecuted;
+
+		/// <summary>
+		/// Occurs when we start executing the a pipeline
+		/// </summary>
+		public event EventHandler<EventArgs> PipelineExecuted {
+			add {
+				pipelineExecuted += value;
+			}
+			remove {
+				pipelineExecuted -= value;
+			}
+		}
+
+		EventHandler<EventArgs> pipelineFinished;
+
+		/// <summary>
+		/// Occurs when we start executing the a pipeline
+		/// </summary>
+		public event EventHandler<EventArgs> PipelineFinished {
+			add {
+				pipelineFinished += value;
+			}
+			remove {
+				pipelineFinished -= value;
 			}
 		}
 
@@ -383,18 +428,7 @@ namespace Baimp
 			set;
 		}
 
-//		[XmlArray("files")]
-//		[XmlArrayItem("file")]
-//		public List<string> Files {
-//			get {
-//				return files;
-//			}
-//			set {
-//				files = value;
-//			}
-//		}
-
-		private List<PipelineNodeWrapper> loadedPipelines = new List<PipelineNodeWrapper>();
+		List<PipelineNodeWrapper> loadedPipelines = new List<PipelineNodeWrapper>();
 
 		[XmlArray("worksheets")]
 		[XmlArrayItem("worksheet")]
@@ -404,6 +438,15 @@ namespace Baimp
 			}
 			set {
 				loadedPipelines = value;
+			}
+		}
+
+		public bool IsPipelineRunning {
+			get {
+				return pipelineRunning;
+			}
+			set {
+				pipelineRunning = value;
 			}
 		}
 

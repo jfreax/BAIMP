@@ -17,6 +17,10 @@ namespace Baimp
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
+		FrameBox playStopButtonPlacement;
+		ControllButton playButton;
+		ControllButton stopButton;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.PipelineController"/> class.
 		/// </summary>
@@ -73,15 +77,22 @@ namespace Baimp
 		private HBox InitializeControllerbar()
 		{
 			controllbar = new HBox();
-			ControllButton playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			playButton.TooltipText = "Execute pipeline";
+
+			stopButton = new ControllButton(Image.FromResource("Baimp.Resources.icoStop-Normal.png"));
+			playButton.TooltipText = "Stop pipeline execution";
 
 			playButton.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
 				if (currentPipeline.Execute(project)) {
 					playButton.Disable();
 				}
 			};
-			controllbar.PackStart(playButton, false, margin: 0.0);
+
+			playStopButtonPlacement = new FrameBox();
+			playStopButtonPlacement.Content = playButton;
+
+			controllbar.PackStart(playStopButtonPlacement, false, margin: 0.0);
 
 			ReloadProjectMap();
 
@@ -107,6 +118,16 @@ namespace Baimp
 					}
 				};
 			}
+
+			project.PipelineExecuted += delegate {
+				playStopButtonPlacement.Content = stopButton;
+			};
+
+			project.PipelineFinished += delegate {
+				playButton.Enable();
+				playStopButtonPlacement.Content = playButton;
+			};
+
 		}
 
 		/// <summary>
