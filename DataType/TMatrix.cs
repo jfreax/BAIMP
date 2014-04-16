@@ -63,12 +63,14 @@ namespace Baimp
 				} else {
 					BitmapImage bi;
 
-					int xDiv = (int) Math.Round((double) coloumns / (double) BaseType<int>.MaxWidgetSize.Width) + 1;
-					int yDiv = (int) Math.Round((double) rows / (double) BaseType<int>.MaxWidgetSize.Height) + 1;
+					int iScaleFactor = MathExtras.NextPowerOf2(
+						(int) Math.Round((double) Math.Max(coloumns, rows) / BaseType<int>.MaxWidgetSize.Width) + 1
+					);
+
+					ImageBuilder ib = new ImageBuilder(coloumns / iScaleFactor, rows / iScaleFactor);
+					bi = ib.ToBitmap();
 
 					if (isSparse) {
-						ImageBuilder ib = new ImageBuilder(coloumns / xDiv, rows / yDiv);
-						bi = ib.ToBitmap();
 
 						double max = sparseMatrix.Max();
 						double min = sparseMatrix.Min();
@@ -80,15 +82,10 @@ namespace Baimp
 								double toLog = (toMax - 1.0) * ((v.Value - min) / (max - min)) + 1.0;
 								byte c = (byte) ((Math.Log(toLog) / toMaxLog) * 255);
 
-								bi.SetPixel(v.Key / xDiv, y / yDiv, Color.FromBytes(c, c, c));
+								bi.SetPixel(v.Key / iScaleFactor, y / iScaleFactor, Color.FromBytes(c, c, c));
 							}
 						}
-
-						ib.Dispose();
-
 					} else {
-						ImageBuilder ib = new ImageBuilder(coloumns, rows);
-						bi = ib.ToBitmap();
 
 						double max = 0.0;
 						double[,] copy = matrix.Scale(1.0, 65536.0);
@@ -109,13 +106,13 @@ namespace Baimp
 							for (int y = 0; y < rows; y++) {
 								byte c = (byte) ((copy[x, y] * 255) / max);
 								if (c > 0) {
-									bi.SetPixel(x, y, Color.FromBytes(c, c, c));
+									bi.SetPixel(x / iScaleFactor, y / iScaleFactor, Color.FromBytes(c, c, c));
 								}
 							}
 						}
-						ib.Dispose();
 					}
 
+					ib.Dispose();
 					widget = new ImageView(bi.WithBoxSize(BaseType<int>.MaxWidgetSize));
 				}
 			}

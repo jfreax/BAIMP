@@ -7,6 +7,7 @@ namespace Baimp
 	public static class MathExtras
 	{
 		#region Scale
+
 		public static double[] Scale(double fromMin, double fromMax, double toMin, double toMax, double[] x)
 		{
 			double[] result = new double[x.Length];
@@ -22,7 +23,7 @@ namespace Baimp
 
 			for (int i = 0; i < x.GetLength(0); i++) {
 				for (int j = 0; j < x.GetLength(1); j++) {
-					result[i, j] = (toMax - toMin) * (x[i,j] - fromMin) / (fromMax - fromMin) + toMin;
+					result[i, j] = (toMax - toMin) * (x[i, j] - fromMin) / (fromMax - fromMin) + toMin;
 				}
 			}
 
@@ -62,7 +63,8 @@ namespace Baimp
 
 		#region Min
 
-		public static double Min(this double[,] values) {
+		public static double Min(this double[,] values)
+		{
 			double min = double.MaxValue;
 			foreach (double v in values) {
 				if (v < min) {
@@ -72,7 +74,8 @@ namespace Baimp
 			return min;
 		}
 
-		public static double Min(this SparseMatrix<double> matrix) {
+		public static double Min(this SparseMatrix<double> matrix)
+		{
 			double min = double.MaxValue;
 			foreach (int row in matrix.GetRows()) {
 				foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
@@ -88,7 +91,8 @@ namespace Baimp
 
 		#region Max
 
-		public static double Max(this double[,] values) {
+		public static double Max(this double[,] values)
+		{
 			double max = double.MinValue;
 			foreach (double v in values) {
 				if (v > max) {
@@ -98,7 +102,8 @@ namespace Baimp
 			return max;
 		}
 
-		public static double Max(this SparseMatrix<double> matrix) {
+		public static double Max(this SparseMatrix<double> matrix)
+		{
 			double max = double.MinValue;
 			foreach (int row in matrix.GetRows()) {
 				foreach (KeyValuePair<int, double> v in matrix.GetRowData(row)) {
@@ -111,6 +116,17 @@ namespace Baimp
 		}
 
 		#endregion
+
+		public static int NextPowerOf2(int x)
+		{
+			--x;
+			x |= x >> 1;
+			x |= x >> 2;
+			x |= x >> 4;
+			x |= x >> 8;
+			x |= x >> 16;
+			return ++x;
+		}
 	}
 }
 
