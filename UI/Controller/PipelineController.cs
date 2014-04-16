@@ -83,6 +83,7 @@ namespace Baimp
 			playButton.ButtonPressed += delegate {
 				if (currentPipeline.Execute(project)) {
 					playButton.Disable();
+					stopButton.Enable();
 				}
 			};
 

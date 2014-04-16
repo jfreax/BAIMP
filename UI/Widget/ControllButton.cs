@@ -92,6 +92,8 @@ namespace Baimp
 		public void Enable()
 		{
 			isDisabled = false;
+			isPressed = false;
+			isHover = false;
 		}
 	}
 }
