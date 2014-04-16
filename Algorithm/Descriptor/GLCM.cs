@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
@@ -13,30 +14,24 @@ namespace Baimp
 
 			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
 
+			options.Add(new Option("Bpp", 2, 14, 8));
 			options.Add(new Option("X Offest", 0, 10, 1));
 			options.Add(new Option("Y Offest", 0, 10, 1));
 		}
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
 		{
-			TScan tScan = inputArgs[0] as TScan;
-			Bitmap bitmap = tScan.GrayScale8bpp;
+			TScan scan = inputArgs[0] as TScan;
+			int bpp = (int) options[0].Value;
+			int dx = (int) options[1].Value;
+			int dy = (int) options[2].Value;
+			int p = (int) Math.Pow(2, bpp);
 
-			BitmapData data = bitmap.LockBits(
-				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				                  ImageLockMode.ReadOnly,
-				                  bitmap.PixelFormat
-			                  );
-				
-			int dx = (int) options[0].Value;
-			int dy = (int) options[1].Value;
-
-			double[,] matrix = new double[256, 256];
-			int height = data.Height;
-			int width = data.Width;
-			int stride = data.Stride;
+			double[,] matrix = new double[p+1, p+1];
+			int width = (int) scan.Size.Width;
+			int height = (int) scan.Size.Height;
 
 			int startX = Math.Max(0, -dx);
 			int startY = Math.Max(0, -dy);
@@ -45,62 +40,46 @@ namespace Baimp
 			int endY = height - Math.Max(0, dy);
 
 			int pairs = 0;
+			int offset = Math.Max(0, dx);
 
-			int offset = stride - width;
-			if (data.PixelFormat == PixelFormat.Format8bppIndexed) {
-				byte* src = (byte*) (data.Scan0) + (startY * stride) + startX;
-				byte* srcBegin = (byte*) (data.Scan0);
+			float[] data = scan.Data;
+			float max = data.Max();
+			unsafe {
+				fixed (float* ptrData = data) {
+					float* src = ptrData;
 
-				int oldProgress = 0;
-				for (int y = startY; y < endY; y++) {
-					for (int x = startX; x < endX; x++, src++) {
+					int oldProgress = 0;
+					for (int y = startY; y < endY; y++) {
+						for (int x = startX; x < endX; x++, src++) {
+							int posWithOffset = ((y + dy) * width) + (x + dx);
 
-						int posWithOffset = ((y + dy) * stride) + (x + dx);
-						matrix[*src, srcBegin[posWithOffset]]++;
+							int fromValue = (int) ((*src / max) * p);
+							int toValue = (int) ((data[posWithOffset] / max) * p);
+							try {
+								matrix[fromValue, toValue]++;
+							} catch (Exception e) {
+								Console.WriteLine(e);
+							}
 
-						pairs++;
-					}
-					src += offset + Math.Max(0, dx);
+							pairs++;
+						}
+						src += offset;
 
-					int progress = (int) (y * 100.0) / height;
-					if (progress - oldProgress > 10) {
-						oldProgress = progress;
-						SetProgress(progress);
-					}
-				}
-			} else {
-				int pixelSize = Bitmap.GetPixelFormatSize(data.PixelFormat) / 8;
-				byte* src = (byte*) (data.Scan0);
-
-				int oldProgress = 0;
-				for (int j = startY; j < endY; j++) {
-					for (int i = startX; i < endX; i++) {
-
-						int pos = (j * stride) + i * pixelSize;
-						float v = (float) (0.2125 * src[pos] + 0.7154 * src[pos + 1] + 0.0721 * src[pos + 2]);
-						int posWithOffset = ((j + dy) * stride) + (i + dx) * pixelSize;
-
-						matrix[(int) v, src[posWithOffset / 2]]++;
-
-						pairs++;
-					}
-						
-					int progress = (int) (j * 100.0) / height;
-					if (progress - oldProgress > 10) {
-						oldProgress = progress;
-						SetProgress(progress);
+						int progress = (int) (y * 100.0) / height;
+						if (progress - oldProgress > 10) {
+							oldProgress = progress;
+							SetProgress(progress);
+						}
 					}
 				}
-			}
 
-			bitmap.UnlockBits(data);
-
-			// normalize
-			if (pairs > 0) {
-				fixed (double* ptrMatrix = matrix) {
-					double* c = ptrMatrix;
-					for (int i = 0; i < matrix.Length; i++, c++) {
-						*c /= pairs;
+				// normalize
+				if (pairs > 0) {
+					fixed (double* ptrMatrix = matrix) {
+						double* c = ptrMatrix;
+						for (int i = 0; i < matrix.Length; i++, c++) {
+							*c /= pairs;
+						}
 					}
 				}
 			}
@@ -123,7 +102,7 @@ namespace Baimp
 
 		public override string Headline()
 		{
-			return string.Format("GLCM d=({0}, {1})", options[0].Value, options[1].Value);
+			return string.Format("GLCM d=({1}, {2}) {0}bpp", options[0].Value, options[1].Value, options[2].Value);
 		}
 
 		public override string ToString()
