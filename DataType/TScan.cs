@@ -24,7 +24,7 @@ namespace Baimp
 		/// <param name="multipleUsage">
 		/// If set to <c>true</c> every data retrieving will create a new copy.
 		/// </param>
-		public TScan(BaseScan scan, string scanType, bool multipleUsage = true)
+		public TScan(BaseScan scan, string scanType, bool multipleUsage = false)
 		{
 			this.scan = scan;
 			this.scanType = scanType;
@@ -73,6 +73,24 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Enables the multiple access mode.
+		/// You can't disable it after enabling.
+		/// </summary>
+		public void EnableMultipleAccessMode()
+		{
+			multipleUsage = true;
+		}
+
+		/// <summary>
+		/// Preloads the data.
+		/// </summary>
+		public TScan Preload()
+		{
+			rawData = scan.GetAsArray(scanType);
+			return this;
+		}
+
 		public Xwt.Size Size {
 			get {
 				return scan.Size;
@@ -104,7 +122,6 @@ namespace Baimp
 			if (grayScale8bbp != null) {
 				foreach (Bitmap gs in grayScale8bbp) {
 					gs.Dispose();
-					gs = null;
 				}
 				grayScale8bbp.Clear();
 			}

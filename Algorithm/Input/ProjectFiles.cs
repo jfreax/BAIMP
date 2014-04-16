@@ -10,16 +10,16 @@ namespace Baimp
 		{
 			output.Add(new Compatible(
 				"Intensity",
-				typeof(TBitmap)
+				typeof(TScan)
 			));
 			output.Add(new Compatible(
 				"Topography", 
-				typeof(TBitmap),
+				typeof(TScan),
 				new MaximumUses(2)
 			));
 			output.Add(new Compatible(
 				"Color",
-				typeof(TBitmap)
+				typeof(TScan)
 			));
 
 			request.Add(RequestType.ScanCollection);
@@ -40,9 +40,9 @@ namespace Baimp
 
 				IType[] data = new IType[3];
 				// TODO test available scan types
-				data[0] = new TBitmap(scan.GetAsBitmap("Intensity"));
-				data[1] = new TBitmap(scan.GetAsBitmap("Topography"));
-				data[2] = new TBitmap(scan.GetAsBitmap("Color"));
+				data[0] = new TScan(scan, "Intensity").Preload();
+				data[1] = new TScan(scan, "Topography").Preload();
+				data[2] = new TScan(scan, "Color").Preload();
 
 				Yield(data, scan);
 				i++;
