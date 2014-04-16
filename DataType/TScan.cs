@@ -1,6 +1,7 @@
 ﻿using System;
 using Xwt;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -11,10 +12,18 @@ namespace Baimp
 		private bool multipleUsage;
 
 		float[] rawData;
-		Bitmap grayScale8bbp;
+		List<Bitmap> grayScale8bbp = new List<Bitmap>();
 
 		private Widget widget = null;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.TScan"/> class.
+		/// </summary>
+		/// <param name="scan">Scan.</param>
+		/// <param name="scanType">Scan type.</param>
+		/// <param name="multipleUsage">
+		/// If set to <c>true</c> every data retrieving will create a new copy.
+		/// </param>
 		public TScan(BaseScan scan, string scanType, bool multipleUsage = true)
 		{
 			this.scan = scan;
@@ -44,13 +53,23 @@ namespace Baimp
 			}
 		}
 
-		public Bitmap GrayScale8bbp {
+		/// <summary>
+		/// Gets a grayscale 8bpp representation.
+		/// </summary>
+		/// <value>The gray scale8bpp.</value>
+		public Bitmap GrayScale8bpp {
 			get {
 				if (grayScale8bbp == null) {
-					grayScale8bbp = scan.GetAsBitmap(scanType);
+					grayScale8bbp = new List<Bitmap>();
 				}
 
-				return grayScale8bbp;
+				if (multipleUsage || grayScale8bbp.Count == 0) {
+					Bitmap b = scan.GetAsBitmap(scanType);
+					grayScale8bbp.Add(b);
+					return b;
+				}
+
+				return grayScale8bbp[0];
 			}
 		}
 
@@ -83,8 +102,11 @@ namespace Baimp
 			}
 
 			if (grayScale8bbp != null) {
-				grayScale8bbp.Dispose();
-				grayScale8bbp = null;
+				foreach (Bitmap gs in grayScale8bbp) {
+					gs.Dispose();
+					gs = null;
+				}
+				grayScale8bbp.Clear();
 			}
 
 			rawData = null;
