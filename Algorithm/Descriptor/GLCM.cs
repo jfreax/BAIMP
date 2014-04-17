@@ -46,7 +46,9 @@ namespace Baimp
 			int endX = width - Math.Max(0, dx);
 			int endY = height - Math.Max(0, dy);
 
-			int pairs = 0;
+			int pairs = (endX - startX) * (endY - startY);
+			double increment = 1.0 / (double) pairs;
+
 			int offset = Math.Max(0, dx);
 
 			float[] data = scan.Data;
@@ -63,12 +65,11 @@ namespace Baimp
 							int fromValue = (int) ((*src / max) * p);
 							int toValue = (int) ((data[posWithOffset] / max) * p);
 							try {
-								matrix[fromValue, toValue]++;
+								matrix[fromValue, toValue] += increment;
 							} catch (Exception e) {
 								Console.WriteLine(e);
 							}
 
-							pairs++;
 						}
 						src += offset;
 
@@ -80,12 +81,6 @@ namespace Baimp
 					}
 				}
 			}
-
-			// normalize
-			if (pairs > 0) {
-				matrix.DivideAll(pairs);
-			}
-
 
 			IType[] ret = { matrix };
 			return ret;

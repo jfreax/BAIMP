@@ -71,12 +71,12 @@ namespace Baimp
 					bi = ib.ToBitmap();
 
 					if (isSparse) {
-
 						double max = sparseMatrix.Max();
 						double min = sparseMatrix.Min();
 
 						const double toMax = 65536.0;
 						double toMaxLog = Math.Log(toMax);
+
 						foreach (int y in sparseMatrix.GetRows()) {
 							foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(y)) {
 								double toLog = (toMax - 1.0) * ((v.Value - min) / (max - min)) + 1.0;
