@@ -262,7 +262,7 @@ namespace Baimp
 
 					if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
 						Result[] zeroInput = new Result[0];
-						process.Start(pNode, zeroInput);
+						process.Start(pNode, zeroInput, int.MaxValue);
 					}
 				}
 			});
@@ -356,7 +356,7 @@ namespace Baimp
 			if (pNode.results[0].Item1.Length-1 < mNode.Position) {
 				return;
 			}
-
+				
 			if (popupWindow.Content != null) {
 				popupWindow.Content.Dispose();
 			}

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xwt;
 using System.Threading.Tasks;
-using System.Reflection;
+using System.Threading.Tasks.Schedulers;
 
 namespace Baimp
 {
 	public class Process
 	{
+		QueuedTaskScheduler qts = new QueuedTaskScheduler();
+		Dictionary<int, TaskScheduler> priorizedScheduler = new Dictionary<int, TaskScheduler>();
+
 		Project project;
 		CancellationToken cancellationToken;
 
@@ -28,7 +30,10 @@ namespace Baimp
 		/// <summary>
 		/// Start to evaluate the pipeline
 		/// </summary>
-		public void Start(PipelineNode startNode, Result[] inputResult)
+		/// <param name="startNode"></param>
+		/// <param name="inputResult"></param>
+		/// <param name="priority">Thread priority</param>
+		public void Start(PipelineNode startNode, Result[] inputResult, int priority)
 		{
 			IType[] input = null;
 			if (inputResult != null) {
@@ -48,14 +53,16 @@ namespace Baimp
 					break;
 				}
 			}
-				
-			//OnTaskCompleteDelegate callback = new OnTaskCompleteDelegate(OnFinish);
-			//ThreadPool.QueueUserWorkItem(o => {
+
+			if (!priorizedScheduler.ContainsKey(priority)) {
+				priorizedScheduler[priority] = qts.ActivateNewQueue(priority);
+			}
+								
 			var inputResult2 = inputResult;
 			Task<IType[]> startTask = Task<IType[]>.Factory.StartNew( () => {
 				var inputResult1 = inputResult2;
 				EventHandler<AlgorithmEventArgs> yieldFun = 
-					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, sender, e);
+					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, priority, sender, e);
 
 				startNode.algorithm.SetProgress(0);
 				startNode.algorithm.Yielded += yieldFun;
@@ -78,7 +85,7 @@ namespace Baimp
 				startNode.algorithm.SetProgress(100);
 
 				return output;
-			}, TaskCreationOptions.AttachedToParent);
+			}, cancellationToken, TaskCreationOptions.AttachedToParent, priorizedScheduler[priority]);
 				
 			startTask.ContinueWith(fromTask => {
 				foreach (Result res in inputResult) {
@@ -87,18 +94,19 @@ namespace Baimp
 
 				IType[] taskOutput = fromTask.Result;
 				if (taskOutput != null) { // null means, there is no more data
-					OnFinish(startNode, taskOutput, inputResult);
+					OnFinish(startNode, priority, taskOutput, inputResult);
 				}
-			});
+			}, priorizedScheduler[priority]);
 		}
 
 		/// <summary>
 		/// Callback function called when algorithm finished
 		/// </summary>
 		/// <param name="startNode"></param>
+		/// <param name="priority">Current thread priority</param>
 		/// <param name="result">Output of algorithm.</param>
 		/// <param name="input">Reference to the data, that was used to compute these results</param>
-		private void OnFinish(PipelineNode startNode, IType[] result, params Result[] input)
+		private void OnFinish(PipelineNode startNode, int priority, IType[] result, params Result[] input)
 		{
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 			if (result.Length != compatibleOutput.Count) {
@@ -134,7 +142,7 @@ namespace Baimp
 						if (cancellationToken.IsCancellationRequested) {
 							return;
 						}
-						this.Start(targetNode.parent, targetNode.parent.DequeueInput());
+						this.Start(targetNode.parent, targetNode.parent.DequeueInput(), priority-1);
 					}
 				}
 
@@ -145,7 +153,7 @@ namespace Baimp
 			}
 		}
 
-		private void GetSingleData(PipelineNode startNode, Result[] origInput, object sender, AlgorithmEventArgs e)
+		private void GetSingleData(PipelineNode startNode, Result[] origInput, int priority, object sender, AlgorithmEventArgs e)
 		{
 			if (e.InputRef != null) {
 				Result[] inputResults = new Result[e.InputRef.Length];
@@ -157,9 +165,9 @@ namespace Baimp
 						true);
 					i++;
 				}
-				OnFinish(startNode, e.Data, inputResults);
+				OnFinish(startNode, priority, e.Data, inputResults);
 			} else {
-				OnFinish(startNode, e.Data, origInput);
+				OnFinish(startNode, priority, e.Data, origInput);
 			}
 		}
 	}

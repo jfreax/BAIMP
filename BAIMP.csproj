@@ -154,6 +154,7 @@
     <Compile Include="UI\Widget\ButtonSegment.cs" />
     <Compile Include="DataType\TScan.cs" />
     <Compile Include="Helper\Math\SparseMatrix.cs" />
+    <Compile Include="Processing\QueuedTaskScheduler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
