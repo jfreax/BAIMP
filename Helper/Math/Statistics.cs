@@ -146,6 +146,40 @@ namespace Baimp
 		/// A very small constant to avoid <see cref="Double.NaN"/>
 		/// if there are any zero values
 		/// </param>
+		public static float Entropy(this float[] values, float eps = 0f)
+		{
+			float sum = 0f;
+			foreach (float v in values)
+				sum += v * (float) Math.Log(v + eps, 2);
+			return -sum;
+		}
+
+		/// <summary>
+		/// Computes the entropy for a given array.
+		/// </summary>
+		/// 
+		/// <param name="values">Values.</param>
+		/// <param name="eps">
+		/// A very small constant to avoid <see cref="Double.NaN"/>
+		/// if there are any zero values
+		/// </param>
+		public static float Entropy(this float[,] values, float eps = 0f)
+		{
+			float sum = 0;
+			foreach (float v in values)
+				sum += v * (float) Math.Log(v + eps, 2);
+			return -sum;
+		}
+
+		/// <summary>
+		/// Computes the entropy for a given array.
+		/// </summary>
+		/// 
+		/// <param name="values">Values.</param>
+		/// <param name="eps">
+		/// A very small constant to avoid <see cref="Double.NaN"/>
+		/// if there are any zero values
+		/// </param>
 		public static double Entropy(this double[,] values, double eps = 0)
 		{
 			double sum = 0;
@@ -177,6 +211,20 @@ namespace Baimp
 		#endregion
 
 		#region Sum
+
+		/// <summary>
+		/// Sum of all values.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		public static float Sum(this float[,] values)
+		{
+			float sum = 0.0f;
+			foreach (float v in values) {
+				sum += v;
+			}
+
+			return sum;
+		}
 
 		/// <summary>
 		/// Sum of all values.

@@ -8,18 +8,18 @@ namespace Baimp
 {
 	public class TMatrix : IType
 	{
-		private double[,] matrix;
-		private SparseMatrix<double> sparseMatrix;
+		private float[,] matrix;
+		private SparseMatrix<float> sparseMatrix;
 		private Widget widget = null;
 
 		bool isSparse;
 
-		public TMatrix(double[,] matrix)
+		public TMatrix(float[,] matrix)
 		{
 			this.matrix = matrix;
 		}
 
-		public TMatrix(SparseMatrix<double> matrix)
+		public TMatrix(SparseMatrix<float> matrix)
 		{
 			this.sparseMatrix = matrix;
 			isSparse = true;
@@ -29,9 +29,9 @@ namespace Baimp
 		{
 			if (isSparse) {
 				return String.Format("{0}x{1} Matrix", sparseMatrix.Width, sparseMatrix.Height);
-			} else {
-				return String.Format("{0}x{1} Matrix", matrix.GetLength(0), matrix.GetLength(1));
 			}
+
+			return String.Format("{0}x{1} Matrix", matrix.GetLength(0), matrix.GetLength(1));
 		}
 
 		#region implemented interface members
@@ -47,7 +47,7 @@ namespace Baimp
 
 					if (isSparse) {
 						foreach (int i in sparseMatrix.GetRows()) {
-							foreach (KeyValuePair<int, double> value in sparseMatrix.GetRowData(i)) {
+							foreach (KeyValuePair<int, float> value in sparseMatrix.GetRowData(i)) {
 								t.Add(new Label(value.Value.ToString()), value.Key, i);
 							}
 						}
@@ -64,22 +64,22 @@ namespace Baimp
 					BitmapImage bi;
 
 					int iScaleFactor = MathExtras.NextPowerOf2(
-						(int) Math.Round((double) Math.Max(coloumns, rows) / BaseType<int>.MaxWidgetSize.Width) + 1
+						(int) Math.Round((float) Math.Max(coloumns, rows) / BaseType<int>.MaxWidgetSize.Width) + 1
 					);
 
 					ImageBuilder ib = new ImageBuilder(coloumns / iScaleFactor, rows / iScaleFactor);
 					bi = ib.ToBitmap();
 
 					if (isSparse) {
-						double max = sparseMatrix.Max();
-						double min = sparseMatrix.Min();
+						float max = sparseMatrix.Max();
+						float min = sparseMatrix.Min();
 
-						const double toMax = 65536.0;
-						double toMaxLog = Math.Log(toMax);
+						const float toMax = 65536.0f;
+						float toMaxLog = (float) Math.Log(toMax);
 
 						foreach (int y in sparseMatrix.GetRows()) {
-							foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(y)) {
-								double toLog = (toMax - 1.0) * ((v.Value - min) / (max - min)) + 1.0;
+							foreach (KeyValuePair<int, float> v in sparseMatrix.GetRowData(y)) {
+								float toLog = (toMax - 1.0f) * ((v.Value - min) / (max - min)) + 1.0f;
 								byte c = (byte) ((Math.Log(toLog) / toMaxLog) * 255);
 
 								bi.SetPixel(v.Key / iScaleFactor, y / iScaleFactor, Color.FromBytes(c, c, c));
@@ -87,13 +87,13 @@ namespace Baimp
 						}
 					} else {
 
-						double max = 0.0;
-						double[,] copy = matrix.Scale(1.0, 65536.0);
+						float max = 0.0f;
+						float[,] copy = matrix.Scale(1.0f, 65536.0f);
 
 						for (int x = 0; x < coloumns; x++) {
 							for (int y = 0; y < rows; y++) {
 								if (copy[x, y] > 0) {
-									copy[x, y] = (Math.Log(copy[x, y]));
+									copy[x, y] = (float) (Math.Log(copy[x, y]));
 								}
 
 								if (copy[x, y] > max) {
@@ -146,13 +146,13 @@ namespace Baimp
 		/// A very small constant to avoid <see cref="Double.NaN"/>
 		/// if there are any zero values
 		/// </param>
-		public double Entropy(double eps = 0)
+		public float Entropy(float eps = 0)
 		{
 			if (isSparse) {
-				double sum = 0;
+				float sum = 0f;
 				foreach (int row in sparseMatrix.GetRows()) {
-					foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
-						sum += v.Value * Math.Log(v.Value + eps, 2);
+					foreach (KeyValuePair<int, float> v in sparseMatrix.GetRowData(row)) {
+						sum += v.Value * (float) Math.Log(v.Value + eps, 2);
 					}
 				}
 				return -sum;
@@ -164,12 +164,12 @@ namespace Baimp
 		/// <summary>
 		/// Sum of all matrix elements.
 		/// </summary>
-		public double Sum {
+		public float Sum {
 			get {
 				if (isSparse) {
-					double sum = 0;
+					float sum = 0f;
 					foreach (int row in sparseMatrix.GetRows()) {
-						foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
+						foreach (KeyValuePair<int, float> v in sparseMatrix.GetRowData(row)) {
 							sum += v.Value;
 						}
 					}
@@ -183,18 +183,18 @@ namespace Baimp
 		/// <summary>
 		/// Gets the matrix mean μ.
 		/// </summary>
-		public double Mean {
+		public float Mean {
 			get {
 				return Sum / Length;
 			}
 		}
 
-		public void DivideAll(double by)
+		public void DivideAll(float by)
 		{
 			if (isSparse) {
-				SparseMatrix<double> newMatrix = new SparseMatrix<double>(Width, Height);
+				SparseMatrix<float> newMatrix = new SparseMatrix<float>(Width, Height);
 				foreach (int row in sparseMatrix.GetRows()) {
-					foreach (KeyValuePair<int, double> v in sparseMatrix.GetRowData(row)) {
+					foreach (KeyValuePair<int, float> v in sparseMatrix.GetRowData(row)) {
 						newMatrix[row, v.Key] = v.Value / by;
 					}
 				}
@@ -214,7 +214,7 @@ namespace Baimp
 
 		#region Properties
 
-		public double this[int row, int col] {
+		public float this[int row, int col] {
 			get {
 				if (isSparse) {
 					return sparseMatrix.GetAt(row, col);

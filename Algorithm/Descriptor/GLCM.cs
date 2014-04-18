@@ -30,11 +30,10 @@ namespace Baimp
 			int p = (int) Math.Pow(2, bpp);
 
 			TMatrix matrix;
-
 			if (bpp > 10) {
-				matrix = new TMatrix(new SparseMatrix<double>(p + 1, p + 1));
+				matrix = new TMatrix(new SparseMatrix<float>(p + 1, p + 1));
 			} else {
-				matrix = new TMatrix(new double[p + 1, p + 1]);
+				matrix = new TMatrix(new float[p + 1, p + 1]);
 			}
 
 			int width = (int) scan.Size.Width;
@@ -47,7 +46,7 @@ namespace Baimp
 			int endY = height - Math.Max(0, dy);
 
 			int pairs = (endX - startX) * (endY - startY);
-			double increment = 1.0 / (double) pairs;
+			float increment = 1.0f / (float) pairs;
 
 			int offset = Math.Max(0, dx);
 

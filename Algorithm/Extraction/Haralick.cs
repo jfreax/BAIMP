@@ -67,7 +67,7 @@ namespace Baimp
 				sumVariance += (i - sumEntropy) * (i - sumEntropy) * h.Sums[i];
 			}
 
-			entropy = h.InputMatrix.Entropy(double.Epsilon);
+			entropy = h.InputMatrix.Entropy(float.Epsilon);
 			diffVariance = xydiff.Variance();
 			diffEntropy = xydiff.Entropy(double.Epsilon);
 
