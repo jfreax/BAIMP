@@ -10,11 +10,10 @@ namespace Baimp
 	{
 		QueuedTaskScheduler qts = new QueuedTaskScheduler();
 		Dictionary<int, TaskScheduler> priorizedScheduler = new Dictionary<int, TaskScheduler>();
-
 		Project project;
 		CancellationToken cancellationToken;
 
-		public delegate void OnTaskCompleteDelegate(PipelineNode startNode, IType[] result, Result[] inputRef);
+		public delegate void OnTaskCompleteDelegate(PipelineNode startNode,IType[] result,Result[] inputRef);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.Process"/> class.
@@ -59,7 +58,7 @@ namespace Baimp
 			}
 								
 			var inputResult2 = inputResult;
-			Task<IType[]> startTask = Task<IType[]>.Factory.StartNew( () => {
+			Task startTask = Task<IType[]>.Factory.StartNew((x) => {
 				var inputResult1 = inputResult2;
 				EventHandler<AlgorithmEventArgs> yieldFun = 
 					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, priority, sender, e);
@@ -84,19 +83,21 @@ namespace Baimp
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);
 
-				return output;
-			}, cancellationToken, TaskCreationOptions.AttachedToParent, priorizedScheduler[priority]);
-				
-			startTask.ContinueWith(fromTask => {
-				foreach (Result res in inputResult) {
-					res.Finish(startNode);
-				}
 
-				IType[] taskOutput = fromTask.Result;
-				if (taskOutput != null) { // null means, there is no more data
-					OnFinish(startNode, priority, taskOutput, inputResult);
-				}
-			}, priorizedScheduler[priority]);
+				return output;
+			}, cancellationToken, TaskCreationOptions.AttachedToParent)
+				.ContinueWith(fromTask => {
+
+					foreach (Result res in inputResult) {
+						res.Finish(startNode);
+					}
+
+					IType[] taskOutput = fromTask.Result;
+					if (taskOutput != null) { // null means, there is no more data
+						OnFinish(startNode, priority, taskOutput, inputResult);
+					}
+			});
+
 		}
 
 		/// <summary>
@@ -142,7 +143,7 @@ namespace Baimp
 						if (cancellationToken.IsCancellationRequested) {
 							return;
 						}
-						this.Start(targetNode.parent, targetNode.parent.DequeueInput(), priority-1);
+						this.Start(targetNode.parent, targetNode.parent.DequeueInput(), priority - 1);
 					}
 				}
 
