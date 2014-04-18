@@ -265,9 +265,7 @@ namespace Baimp
 						process.Start(pNode, zeroInput, int.MaxValue);
 					}
 				}
-			});
-
-			executionTask.ContinueWith(fromTask => {
+			}).ContinueWith(fromTask => {
 				Application.Invoke( () => project.NotifyPipelineStop(this) );
 			});
 
