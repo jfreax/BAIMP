@@ -78,6 +78,23 @@ namespace Baimp
 		}
 
 		/// <summary>
+		/// Determines whether this is an end part. Aka a feature(-list).
+		/// </summary>
+		/// <returns><c>true</c> if this instance is end; otherwise, <c>false</c>.</returns>
+		public bool IsEnd(){
+			if (Type.IsGenericType) {
+				Type genericType = Type.GetGenericTypeDefinition();
+				if (genericType == typeof(TFeatureList<int>).GetGenericTypeDefinition() ||
+				   genericType == typeof(TFeature<int>).GetGenericTypeDefinition()) {
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
 		/// Type of in-/output
 		/// </summary>
 		/// <value>The type.</value>

@@ -16,11 +16,9 @@ namespace Baimp
 		[XmlIgnore]
 		public PipelineNode parent;
 		private int positionNo;
-
 		[XmlIgnore]
 		private ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
 		private List<Result> inputHistory = new List<Result>();
-
 		object inputHistoryLock = new object();
 
 		public MarkerNode()
@@ -89,6 +87,12 @@ namespace Baimp
 
 					text.Dispose();
 				}
+			} else {
+				if (parent.algorithm.Output[positionNo].IsEnd()) {
+					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
+					ctx.LineTo(bndTmp.Right, bndTmp.Bottom);
+					ctx.Stroke();
+				}
 			}
 		}
 
@@ -142,7 +146,7 @@ namespace Baimp
 		/// Enqueues the a result object to the input buffer.
 		/// </summary>
 		/// <param name="result">Result.</param>
-		public void EnqueueInput(Result result) 
+		public void EnqueueInput(Result result)
 		{
 			inputData.Enqueue(result);
 
