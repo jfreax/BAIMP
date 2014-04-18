@@ -211,8 +211,15 @@ namespace Baimp
 				}
 			}
 
-			if ((mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) && !mouseAction.HasFlag(MouseAction.AddEdgeNew)) {
-				ctx.MoveTo(connectNodesStartMarker.Bounds.Center);
+			if ((mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) && 
+				!mouseAction.HasFlag(MouseAction.AddEdgeNew)) {
+
+				ctx.MoveTo(
+					connectNodesStartMarker.IsInput ? 
+						connectNodesStartMarker.Bounds.Left : 
+						connectNodesStartMarker.Bounds.Right, 
+					connectNodesStartMarker.Bounds.Center.Y
+				);
 				ctx.LineTo(connectNodesEnd);
 				ctx.Stroke();
 			}
@@ -437,7 +444,7 @@ namespace Baimp
 					} else {
 						
 						MarkerNode mNode = node.GetMarkerNodeAt(args.Position);
-						if (mNode != null) {
+						if (mNode != null && !mNode.compatible.IsEnd()) {
 							connectNodesStartMarker = mNode;
 							mouseAction |= MouseAction.AddEdge | MouseAction.AddEdgeNew;
 						} else {
@@ -586,8 +593,8 @@ namespace Baimp
 			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
 				mouseAction &= ~MouseAction.AddEdgeNew;
 				MarkerNode mNode = GetInOutMarkerAt(args.Position, PipelineNode.NodeInOutSpace);
-				if (mNode != null) {
-					connectNodesEnd = mNode.Bounds.Center;
+				if (mNode != null && mNode.Match(connectNodesStartMarker)) {
+					connectNodesEnd = new Point(mNode.IsInput ? mNode.Bounds.Left : mNode.Bounds.Right, mNode.Bounds.Center.Y);
 				} else {
 					connectNodesEnd = args.Position;
 				}
