@@ -14,7 +14,8 @@ namespace Baimp
 		DragDrop = 1,
 		MoveNode = 2,
 		AddEdge = 4,
-		MoveEdge = 8
+		AddEdgeNew = 8,
+		MoveEdge = 16
 	}
 			
 	public class PipelineView : Canvas
@@ -210,7 +211,7 @@ namespace Baimp
 				}
 			}
 
-			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
+			if ((mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) && !mouseAction.HasFlag(MouseAction.AddEdgeNew)) {
 				ctx.MoveTo(connectNodesStartMarker.Bounds.Center);
 				ctx.LineTo(connectNodesEnd);
 				ctx.Stroke();
@@ -433,21 +434,22 @@ namespace Baimp
 						mouseAction = MouseAction.None;
 						args.Handled = true;
 						break;
-					}
-						
-					MarkerNode mNode = node.GetMarkerNodeAt(args.Position);
-					if (mNode != null) {
-						connectNodesStartMarker = mNode;
-						mouseAction |= MouseAction.AddEdge;
 					} else {
-						if (node.bound.Contains(args.Position)) {
-							nodeToMoveOffset = new Point(
-								node.bound.Location.X - args.Position.X,
-								node.bound.Location.Y - args.Position.Y
-							);
-							lastSelectedNode = node;
-							mouseAction |= MouseAction.MoveNode;
-						} 
+						
+						MarkerNode mNode = node.GetMarkerNodeAt(args.Position);
+						if (mNode != null) {
+							connectNodesStartMarker = mNode;
+							mouseAction |= MouseAction.AddEdge | MouseAction.AddEdgeNew;
+						} else {
+							if (node.bound.Contains(args.Position)) {
+								nodeToMoveOffset = new Point(
+									node.bound.Location.X - args.Position.X,
+									node.bound.Location.Y - args.Position.Y
+								);
+								lastSelectedNode = node;
+								mouseAction |= MouseAction.MoveNode;
+							} 
+						}
 					}
 				} else {
 					Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt(args.Position);
@@ -582,6 +584,7 @@ namespace Baimp
 				}
 			}
 			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
+				mouseAction &= ~MouseAction.AddEdgeNew;
 				MarkerNode mNode = GetInOutMarkerAt(args.Position, PipelineNode.NodeInOutSpace);
 				if (mNode != null) {
 					connectNodesEnd = mNode.Bounds.Center;
