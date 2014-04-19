@@ -5,11 +5,11 @@ namespace Baimp
 {
 	public class MouseMover
 	{
-		private ScrollView scrollview;
-		private long lastMoveTimestamp;
-		private Point lastPosition;
-		private long timer = 50;
-		private bool enabled;
+		ScrollView scrollview;
+		long lastMoveTimestamp;
+		Point lastPosition;
+		long timer = 50;
+		bool enabled;
 
 		public MouseMover()
 		{

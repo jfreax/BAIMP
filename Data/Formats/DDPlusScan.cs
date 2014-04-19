@@ -5,25 +5,21 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using XD = Xwt.Drawing;
 using System.Drawing;
-using System.Xml.Serialization;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.ComponentModel;
 
 namespace Baimp
 {
 	public class DDPlusScan : BaseScan
 	{
-		private static string[] scanTypes = {
+		static string[] scanTypes = {
 			"Intensity",
 			"Topography",
 			"Color"
 		};
 			
-		private Dictionary<string, string> filenames = new Dictionary<string, string>();
-		private Dictionary<string, float[]> arrayData = new Dictionary<string, float[]>();
+		Dictionary<string, string> filenames = new Dictionary<string, string>();
+		Dictionary<string, float[]> arrayData = new Dictionary<string, float[]>();
 
-		private Dictionary<string, float> max = new Dictionary<string, float>();
+		Dictionary<string, float> max = new Dictionary<string, float>();
 
 
 		/// <summary>

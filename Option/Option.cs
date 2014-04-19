@@ -18,7 +18,7 @@ namespace Baimp
 		public readonly IComparable DefaultValue;
 	
 		[XmlIgnore]
-		private IComparable val;
+		IComparable val;
 
 		/// <summary>
 		/// For xml serialization only. Do not use!

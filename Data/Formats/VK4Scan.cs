@@ -10,14 +10,14 @@ namespace Baimp
 {
 	public class VK4Scan : BaseScan
 	{
-		private static string[] scanTypes = {
+		static string[] scanTypes = {
 			"Intensity",
 			"Topography",
 			"Color"
 		};
 
 		Dictionary<string, int> measurementCondition = new Dictionary<string, int>();
-		private byte[] header;
+		byte[] header;
 
 		private int measurementConditionOffset;
 		private int colorImageOffset;

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using System.Collections;
 
 namespace Baimp
 {
@@ -28,7 +26,7 @@ namespace Baimp
 		Dictionary<int, int> progress = new Dictionary<int, int>();
 
 		[XmlIgnore]
-		private Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
+		Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
 
 		[XmlIgnore]
 		PipelineView parent;

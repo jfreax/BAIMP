@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using Xwt;
-using Xwt.Drawing;
 using System.Collections.Generic;
 
 namespace Baimp

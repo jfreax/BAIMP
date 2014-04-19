@@ -2,7 +2,6 @@
 using Xwt;
 using Xwt.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace Baimp
@@ -11,7 +10,8 @@ namespace Baimp
 	{
 		public DataField<object> nameCol;
 		public TreeStore store;
-		private Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
+
+		Dictionary<string, List<BaseAlgorithm>> algorithmCollection;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.AlgorithmTreeView"/> class.

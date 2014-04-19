@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Xwt.Drawing;
+﻿using System.Collections.Generic;
 
 namespace Baimp
 {

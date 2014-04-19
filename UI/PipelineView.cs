@@ -2,7 +2,6 @@
 using Xwt;
 using Xwt.Drawing;
 using System.Collections.Generic;
-using System.Collections;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -20,26 +19,26 @@ namespace Baimp
 			
 	public class PipelineView : Canvas
 	{
-		static private int globalId = 0;
+		static int globalId = 0;
 
-		private ScrollView scrollview;
+		ScrollView scrollview;
 
-		private List<PipelineNode> nodes;
-		private Point nodeToMoveOffset = Point.Zero;
-		private MarkerNode connectNodesStartMarker;
-		private Point connectNodesEnd;
-		private Point mousePosition = Point.Zero;
-		private PipelineNode lastSelectedNode = null;
-		private PipelineNode currentHoveredNode = null;
-		private Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
-		private MouseAction mouseAction = MouseAction.None;
-		private MouseMover mouseMover;
+		List<PipelineNode> nodes;
+		Point nodeToMoveOffset = Point.Zero;
+		MarkerNode connectNodesStartMarker;
+		Point connectNodesEnd;
+		Point mousePosition = Point.Zero;
+		PipelineNode lastSelectedNode = null;
+		PipelineNode currentHoveredNode = null;
+		Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
+		MouseAction mouseAction = MouseAction.None;
+		MouseMover mouseMover;
 
 		CancellationTokenSource cancelRequest;
 
 		CursorType oldCursor;
 
-		private bool redrawQueued;
+		bool redrawQueued;
 
 		Window popupWindow = new Window ();
 

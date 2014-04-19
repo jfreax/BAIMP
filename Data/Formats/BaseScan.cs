@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Drawing;
 using System.IO;
 using XD = Xwt.Drawing;
-using System.Threading;
 using System.Collections.Generic;
-using System.Xml;
 using System.Xml.Serialization;
 using Xwt;
 using ICSharpCode.SharpZipLib.Zip;

@@ -2,18 +2,17 @@
 using System.Linq;
 using Xwt;
 using Xwt.Drawing;
-using System.Collections.Generic;
 
 namespace Baimp
 {
 	public class PipelineController
 	{
-		private VBox pipelineShelf;
-		private HBox controllbar;
-		private Project project;
-		private ScrollView pipelineScroller;
-		private AlgorithmTreeView algorithm;
-		private ComboBox projectMap;
+		VBox pipelineShelf;
+		HBox controllbar;
+		Project project;
+		ScrollView pipelineScroller;
+		AlgorithmTreeView algorithm;
+		ComboBox projectMap;
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using Xwt.Drawing;
 using System.IO;
 using System.Collections.Generic;
 
@@ -7,10 +6,10 @@ namespace Baimp
 {
 	public class Result : IDisposable
 	{
-		private object removeLock = new object();
+		object removeLock = new object();
 
-		private bool preserve;
-		private readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
+		bool preserve;
+		readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
 
 		/// <summary>
 		/// The payload.

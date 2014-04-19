@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Xwt;
 using System.Collections.Generic;
 using Xwt.Drawing;
@@ -18,10 +17,10 @@ namespace Baimp
 		public DataField<string> saveStateColFilter = new DataField<string>();
 		public TreeStore store;
 		public TreeStore storeFilter;
-		private Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
+		Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
 		bool isFiltered = false;
 		Menu contextMenu;
-		private Dictionary<string, TreePosition> fiberTypeNodes;
+		Dictionary<string, TreePosition> fiberTypeNodes;
 
 		#region initialize
 

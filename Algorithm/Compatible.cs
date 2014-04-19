@@ -5,9 +5,9 @@ namespace Baimp
 {
 	public class Compatible
 	{
-		private readonly string name;
-		private Type type;
 		public readonly BaseConstraint[] Constraints;
+		readonly string name;
+		Type type;
 
 		public Compatible()
 		{
