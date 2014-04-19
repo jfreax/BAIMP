@@ -7,9 +7,9 @@ namespace Baimp
 {
 	public class TScan : IType
 	{
-		private BaseScan scan;
-		private string scanType;
-		private bool multipleUsage;
+		BaseScan scan;
+		string scanType;
+		bool multipleUsage;
 
 		float[] rawData;
 		List<Bitmap> grayScale8bbp = new List<Bitmap>();

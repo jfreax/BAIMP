@@ -45,7 +45,7 @@ namespace Baimp
 				Yield(data, scan);
 				i++;
 
-				SetProgress((int)((i * 100) / size));
+				SetProgress((i * 100) / size);
 			}
 
 			return null;
@@ -59,7 +59,7 @@ namespace Baimp
 
 		public override string HelpText {
 			get {
-				return "Test only";
+				return "Load scan data.";
 			}
 		}
 

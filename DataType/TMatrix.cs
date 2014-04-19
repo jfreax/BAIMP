@@ -27,11 +27,13 @@ namespace Baimp
 
 		public override string ToString()
 		{
-			if (isSparse) {
+			if (isSparse && sparseMatrix != null) {
 				return String.Format("{0}x{1} Matrix", sparseMatrix.Width, sparseMatrix.Height);
+			} else if (matrix != null) {
+				return String.Format("{0}x{1} Matrix", matrix.GetLength(0), matrix.GetLength(1));
+			} else {
+				return "Matrix";
 			}
-
-			return String.Format("{0}x{1} Matrix", matrix.GetLength(0), matrix.GetLength(1));
 		}
 
 		#region implemented interface members

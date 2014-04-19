@@ -94,7 +94,13 @@ namespace Baimp
 
 					IType[] taskOutput = fromTask.Result;
 					if (taskOutput != null) { // null means, there is no more data
-						OnFinish(startNode, priority, taskOutput, inputResult);
+						Result[] thisInput = new Result[taskOutput.Length];
+						int i = 0;
+						foreach (IType to in taskOutput) {
+							thisInput[i] = new Result(to, inputResult, startNode.SaveResult);
+							i++;
+						}
+						OnFinish(startNode, priority, taskOutput, thisInput);
 					}
 			});
 
@@ -163,7 +169,7 @@ namespace Baimp
 					inputResults[i] = new Result(
 						input,
 						origInput.Length > i ? origInput[i].Input : null,
-						true);
+						startNode.SaveResult);
 					i++;
 				}
 				OnFinish(startNode, priority, e.Data, inputResults);
