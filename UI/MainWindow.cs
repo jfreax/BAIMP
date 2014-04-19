@@ -169,7 +169,6 @@ namespace Baimp
 			VBox pipelineShelf = new VBox();
 			pipelineController = new PipelineController(project, pipelineShelf);
 
-
 			splitFiletree_Preview = new HPaned();
 			splitFiletree_Preview.Panel1.Content = splitFileTreeSearch_FileTree;
 			splitFiletree_Preview.Panel1.Shrink = true;
@@ -241,6 +240,18 @@ namespace Baimp
 
 			// global key events
 			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+
+			preview.Dispose();
+			fileTree.Dispose();
+			pipelineController.Dispose();
+			splitAlgorithmTree.Dispose();
+			splitController_Preview.Dispose();
+			splitFiletree_Preview.Dispose();
 		}
 
 		#endregion

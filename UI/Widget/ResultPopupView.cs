@@ -6,10 +6,10 @@ namespace Baimp
 {
 	public class ResultPopupView : VBox
 	{
-		private List<Tuple<IType[], Result[]>> results;
-		private int position;
-		private Widget widget = null;
-		private ComboBox combo = new ComboBox();
+		List<Tuple<IType[], Result[]>> results;
+		int position;
+		Widget widget = null;
+		ComboBox combo = new ComboBox();
 
 
 		public ResultPopupView(List<Tuple<IType[], Result[]>> results, int position)

@@ -5,7 +5,7 @@ using Xwt.Drawing;
 
 namespace Baimp
 {
-	public class PipelineController
+	public class PipelineController : IDisposable
 	{
 		VBox pipelineShelf;
 		HBox controllbar;
@@ -285,6 +285,10 @@ namespace Baimp
 				return currentPipeline;
 			}
 			set {
+				if (currentPipeline != null) {
+					CurrentPipeline.Dispose();
+				}
+
 				currentPipeline = value;
 				currentPipeline.ExpandHorizontal = true;
 				currentPipeline.ExpandVertical = true;
@@ -301,6 +305,15 @@ namespace Baimp
 			}
 		}
 
+		#endregion
+
+		#region IDisposable implementation
+		public void Dispose()
+		{
+			currentPipeline.Dispose();
+			pipelineScroller.Dispose();
+
+		}
 		#endregion
 	}
 }

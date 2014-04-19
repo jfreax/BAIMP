@@ -915,8 +915,12 @@ namespace Baimp
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			if (popupWindow.Content != null) {
-				popupWindow.Content.Dispose();
+			if (popupWindow != null) {
+				if (popupWindow.Content != null) {
+					popupWindow.Content.Dispose();
+				}
+
+				popupWindow.Dispose();
 			}
 		}
 	}
