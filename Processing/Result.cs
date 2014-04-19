@@ -52,12 +52,12 @@ namespace Baimp
 					if(usedBy[by] <= 0) {
 						usedBy.Remove(by);
 
-						if (!preserve) {
+						if (usedBy.Count == 0 && !preserve) {
 							Dispose();
 						}
 					}
 				} else {
-					if(!preserve) {
+					if(usedBy.Count == 0 && !preserve) {
 						Dispose();
 					}
 				}
