@@ -56,7 +56,7 @@ namespace Baimp
 		private void AddResult(IFeature feature, Result[] inputs)
 		{
 			string completeFeatureName = feature.Key();
-			string className = "";
+			string className = string.Empty;
 
 			List<Result> currInputs = new List<Result>();
 			currInputs.AddRange(inputs);
@@ -64,7 +64,7 @@ namespace Baimp
 				List<Result> nextInputs = new List<Result>();
 				foreach (Result input in currInputs) {
 					if (input.Data != null) {
-						if (input.Node.algorithm.AlgorithmType == AlgorithmType.Input) {
+						if (input.Node.algorithm.AlgorithmType == AlgorithmType.Input && string.IsNullOrEmpty(className)) {
 							className = input.Data.ToString();
 						} else {
 							completeFeatureName = string.Format("{0}_{1}", input.Node, completeFeatureName);
