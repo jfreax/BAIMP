@@ -11,15 +11,20 @@ namespace Baimp
 	{
 		static readonly public int NodeInOutMarkerSize = 10;
 		static readonly public int NodeInOutSpace = 18;
+
 		[XmlIgnore]
 		public Compatible compatible;
+
 		[XmlIgnore]
 		public PipelineNode parent;
-		private int positionNo;
-		[XmlIgnore]
-		private ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
-		private List<Result> inputHistory = new List<Result>();
+
+		int positionNo;
+		ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
+		List<Result> inputHistory = new List<Result>();
 		object inputHistoryLock = new object();
+
+		/// <summary>Temp variable to store rendering text</summary>
+		TextLayout textLayout = new TextLayout();
 
 		public MarkerNode()
 		{
@@ -67,10 +72,9 @@ namespace Baimp
 					}
 				}
 				if (inputBufferSize > 0) {
-					TextLayout text = new TextLayout();
-					text.Text = inputBufferSize.ToString();
-					double textWidth = text.GetSize().Width;
-					double textHeight = text.GetSize().Height;
+					textLayout.Text = inputBufferSize.ToString();
+					double textWidth = textLayout.GetSize().Width;
+					double textHeight = textLayout.GetSize().Height;
 					Point inputbufferSizeLocation = 
 						Bounds.Location.Offset(-(textWidth / 2), -(textHeight));
 
@@ -83,15 +87,36 @@ namespace Baimp
 					ctx.Fill();
 
 					ctx.SetColor(PipelineNode.NodeColor);
-					ctx.DrawTextLayout(text, inputbufferSizeLocation);
-
-					text.Dispose();
+					ctx.DrawTextLayout(textLayout, inputbufferSizeLocation);
 				}
 			} else {
 				if (parent.algorithm.Output[positionNo].IsEnd()) {
 					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
 					ctx.LineTo(bndTmp.Right, bndTmp.Bottom);
 					ctx.Stroke();
+
+					// draw output size on end nodes (= number of features
+					if (parent.results != null &&
+						parent.results.Count != 0 &&
+						parent.results[0].Item1.Length-1 >= Position) {
+
+						textLayout.Text = parent.results.Count.ToString();
+						double textWidth = textLayout.GetSize().Width;
+						double textHeight = textLayout.GetSize().Height;
+						Point outputbufferSizeLocation = 
+							Bounds.Location.Offset(Bounds.Width*1.8, 0);
+
+						ctx.Arc(
+							outputbufferSizeLocation.X + textWidth / 2,
+							outputbufferSizeLocation.Y + textHeight / 2,
+							Math.Max(textHeight, textWidth) / 2 + 1,
+							0, 360
+						);
+						ctx.Fill();
+
+						ctx.SetColor(PipelineNode.NodeColor);
+						ctx.DrawTextLayout(textLayout, outputbufferSizeLocation);
+					}
 				}
 			}
 		}
