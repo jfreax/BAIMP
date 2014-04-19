@@ -90,7 +90,7 @@ namespace Baimp
 					ctx.DrawTextLayout(textLayout, inputbufferSizeLocation);
 				}
 			} else {
-				if (parent.algorithm.Output[positionNo].IsEnd()) {
+				if (parent.algorithm.Output[positionNo].IsFinal()) {
 					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
 					ctx.LineTo(bndTmp.Right, bndTmp.Bottom);
 					ctx.Stroke();

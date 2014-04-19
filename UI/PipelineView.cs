@@ -444,7 +444,7 @@ namespace Baimp
 					} else {
 						
 						MarkerNode mNode = node.GetMarkerNodeAt(args.Position);
-						if (mNode != null && !mNode.compatible.IsEnd()) {
+						if (mNode != null && !mNode.compatible.IsFinal()) {
 							connectNodesStartMarker = mNode;
 							mouseAction |= MouseAction.AddEdge | MouseAction.AddEdgeNew;
 						} else {

@@ -130,11 +130,13 @@ namespace Baimp
 			text.Dispose();
 
 			// add widgets
-			icons["hide"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
-			icons["view"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
+			if (!IsFinalNode()) {
+				icons["hide"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
+				icons["view"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
 
-			icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
-			icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
+				icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
+				icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
+			}
 
 			// set initial position
 			OnMove(null);
@@ -296,6 +298,23 @@ namespace Baimp
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Determines whether the algorithm of this node outputs only final data
+		/// </summary>
+		/// <returns><c>true</c> if this instance is end node; otherwise, <c>false</c>.</returns>
+		public bool IsFinalNode()
+		{
+			if (algorithm != null && algorithm.Output != null) {
+				foreach (Compatible x in algorithm.Output) {
+					if (!x.IsFinal()) {
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
 
 		#region events
 
@@ -530,17 +549,21 @@ namespace Baimp
 				return saveResult;
 			}
 			set {
-				saveResult = value;
-				if (saveResult) {
-					icons["hide"].Visible = false;
-					icons["view"].Visible = true;
+				if (IsFinalNode()) {
+					saveResult = true;
 				} else {
-					icons["hide"].Visible = true;
-					icons["view"].Visible = false;
-				}
+					saveResult = value;
+					if (saveResult) {
+						icons["hide"].Visible = false;
+						icons["view"].Visible = true;
+					} else {
+						icons["hide"].Visible = true;
+						icons["view"].Visible = false;
+					}
 
-				if (queueRedraw != null) {
-					queueRedraw(this, new EventArgs());
+					if (queueRedraw != null) {
+						queueRedraw(this, new EventArgs());
+					}
 				}
 			}
 		}
