@@ -30,6 +30,11 @@ namespace Baimp
 
 		abstract public Widget ToWidget();
 
+		public object RawData()
+		{
+			return raw as object;
+		}
+
 		#region IDisposable implementation
 
 		public virtual void Dispose()

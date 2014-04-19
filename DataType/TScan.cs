@@ -97,6 +97,12 @@ namespace Baimp
 			}
 		}
 
+		public object RawData()
+		{
+			return Data as object;
+		}
+
+
 		public Widget ToWidget()
 		{
 			if (widget == null) {

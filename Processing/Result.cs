@@ -7,15 +7,12 @@ namespace Baimp
 	public class Result : IDisposable
 	{
 		object removeLock = new object();
-
 		bool preserve;
 		readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
-
 		/// <summary>
 		/// The payload.
 		/// </summary>
 		public IType Data;
-
 		/// <summary>
 		/// The input that was used to compute these data.
 		/// </summary>
@@ -48,18 +45,16 @@ namespace Baimp
 		{
 			lock (removeLock) {
 				if (usedBy.ContainsKey(by)) {
-					usedBy[by] = usedBy[by]-1;
-					if(usedBy[by] <= 0) {
+					usedBy[by] = usedBy[by] - 1;
+					if (usedBy[by] <= 0) {
 						usedBy.Remove(by);
 
 						if (usedBy.Count == 0 && !preserve) {
 							Dispose();
 						}
 					}
-				} else {
-					if(usedBy.Count == 0 && !preserve) {
-						Dispose();
-					}
+				} else if (usedBy.Count == 0 && !preserve) {
+					Dispose();
 				}
 			}
 		}

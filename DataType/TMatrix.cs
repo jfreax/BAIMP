@@ -36,6 +36,15 @@ namespace Baimp
 
 		#region implemented interface members
 
+		public object RawData()
+		{
+			if (isSparse) {
+				return sparseMatrix as object;
+			}
+
+			return matrix as object;
+		}
+
 		public Widget ToWidget()
 		{
 			long coloumns = Width;

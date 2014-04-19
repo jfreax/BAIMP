@@ -560,6 +560,11 @@ namespace Baimp
 			throw new NotImplementedException();
 		}
 
+		public object RawData()
+		{
+			throw new NotImplementedException();
+		}
+			
 		public void Dispose()
 		{
 			if (renderedImage != null) {

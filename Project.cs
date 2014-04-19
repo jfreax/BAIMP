@@ -48,7 +48,7 @@ namespace Baimp
 		#region global methos
 
 		/// <summary>
-		/// Use this method to access the savegame.
+		/// Use this method to access the save file.
 		/// This is the only thread safe method!
 		/// </summary>
 		/// <param name="callback">Function to run.</param>

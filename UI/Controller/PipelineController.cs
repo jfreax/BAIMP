@@ -91,6 +91,9 @@ namespace Baimp
 			stopButton.ButtonPressed += delegate {
 				currentPipeline.StopExecution();
 				stopButton.Disable();
+
+				Arff arff = new Arff(currentPipeline.Nodes);
+				arff.Generate();
 			};
 
 

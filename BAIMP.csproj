@@ -103,9 +103,6 @@
     <Compile Include="UI\Widget\LightImageWidget.cs" />
     <Compile Include="Processing\Result.cs" />
     <Compile Include="Data\CustomStaticDataSource.cs" />
-    <Compile Include="Data\Formats\VK4Scan.cs" />
-    <Compile Include="Data\Formats\DDPlusScan.cs" />
-    <Compile Include="Data\Formats\BaseScan.cs" />
     <Compile Include="Data\Metadata.cs" />
     <Compile Include="Data\Graph\Edge.cs" />
     <Compile Include="Data\Graph\Node.cs" />
@@ -155,6 +152,11 @@
     <Compile Include="DataType\TScan.cs" />
     <Compile Include="Helper\Math\SparseMatrix.cs" />
     <Compile Include="Processing\QueuedTaskScheduler.cs" />
+    <Compile Include="Data\Import\VK4Scan.cs" />
+    <Compile Include="Data\Import\DDPlusScan.cs" />
+    <Compile Include="Data\Import\BaseScan.cs" />
+    <Compile Include="Data\Export\Arff.cs" />
+    <Compile Include="DataType\IFeature.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -188,12 +190,13 @@
     <Folder Include="Option\" />
     <Folder Include="Algorithm\Output\" />
     <Folder Include="Resources\" />
-    <Folder Include="Data\Formats\" />
     <Folder Include="Data\Graph\" />
     <Folder Include="DataType\" />
     <Folder Include="Contraint\" />
     <Folder Include="UI\Widget\Controller\" />
     <Folder Include="Algorithm\Misc\" />
+    <Folder Include="Data\Import\" />
+    <Folder Include="Data\Export\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

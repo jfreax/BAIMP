@@ -3,27 +3,23 @@ using Xwt;
 
 namespace Baimp
 {
-	public class TFeature<T> : BaseType<T>
+	public class TFeature<T> : BaseType<T>, IFeature
 	{
-		string name;
+		string key;
 
-		public TFeature(T value) : base(value)
+		public TFeature(string key, T value) : base(value)
 		{
-		}
-
-		public TFeature(string name, T value) : base(value)
-		{
-			this.name = name;
+			this.key = key;
 		}
 			
 		public override Widget ToWidget()
 		{
 			if (widget == null) {
-				if (string.IsNullOrEmpty(name)) {
+				if (string.IsNullOrEmpty(key)) {
 					widget = new Label(raw.ToString());
 				} else {
 					HBox hbox = new HBox();
-					hbox.PackStart(new Label(name));
+					hbox.PackStart(new Label(key));
 					hbox.PackEnd(new Label(raw.ToString()));
 
 					widget = hbox;
@@ -33,6 +29,16 @@ namespace Baimp
 			return widget;
 		}
 
+		#region IFeature implementation
+		public string Key()
+		{
+			return key;
+		}
+		public string Value()
+		{
+			return raw.ToString();
+		}
+		#endregion
 	}
 }
 
