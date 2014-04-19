@@ -29,6 +29,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return "Writer";
+		}
+
+		public override string ShortName()
+		{
+			return "Writer";
+		}
+
 		public override string HelpText {
 			get {
 				return "Writes every input to standard output";

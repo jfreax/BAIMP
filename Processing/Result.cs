@@ -9,17 +9,22 @@ namespace Baimp
 		object removeLock = new object();
 		bool preserve;
 		readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
+
+		PipelineNode node;
+
 		/// <summary>
 		/// The payload.
 		/// </summary>
 		public IType Data;
+
 		/// <summary>
 		/// The input that was used to compute these data.
 		/// </summary>
 		public readonly Result[] Input;
 
-		public Result(IType data, Result[] input, bool preserve = false)
+		public Result(PipelineNode node, IType data, Result[] input, bool preserve = false)
 		{
+			this.node = node;
 			this.Data = data;
 			this.Input = input;
 			this.preserve = preserve;
@@ -90,7 +95,12 @@ namespace Baimp
 				return usedBy.Count;
 			}
 		}
-
+			
+		public PipelineNode Node {
+			get {
+				return node;
+			}
+		}
 		#endregion
 	}
 }

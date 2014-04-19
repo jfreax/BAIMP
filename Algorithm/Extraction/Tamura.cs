@@ -266,6 +266,11 @@ namespace Baimp
 			return string.Format("Tamuara ({0})", options[0].Value);
 		}
 
+		public override string ShortName()
+		{
+			return "tamura";
+		}
+
 		#endregion
 	}
 }

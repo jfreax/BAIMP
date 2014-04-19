@@ -97,7 +97,7 @@ namespace Baimp
 						Result[] thisInput = new Result[taskOutput.Length];
 						int i = 0;
 						foreach (IType to in taskOutput) {
-							thisInput[i] = new Result(to, inputResult, startNode.SaveResult);
+							thisInput[i] = new Result(startNode, to, inputResult, startNode.SaveResult);
 							i++;
 						}
 						OnFinish(startNode, priority, taskOutput, thisInput);
@@ -127,7 +127,7 @@ namespace Baimp
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
-				Result resultWrapper = new Result(result[i], input, startNode.SaveResult);
+				Result resultWrapper = new Result(startNode, result[i], input, startNode.SaveResult);
 				HashSet<PipelineNode> markedAsUse = new HashSet<PipelineNode>();
 					
 				// enqueue new data
@@ -167,6 +167,7 @@ namespace Baimp
 				int i = 0;
 				foreach (IType input in e.InputRef) {
 					inputResults[i] = new Result(
+						startNode,
 						input,
 						origInput.Length > i ? origInput[i].Input : null,
 						startNode.SaveResult);

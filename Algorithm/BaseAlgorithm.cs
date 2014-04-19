@@ -76,15 +76,29 @@ namespace Baimp
 			get;
 		}
 
+		/// <summary>
+		/// Gets the help text.
+		/// </summary>
+		/// <value>The help text.</value>
 		abstract public string HelpText{
 			get;
 		}
 
-		virtual public string Headline()
-		{
-			return ToString();
-		}
+		/// <summary>
+		/// Text shown on top of node in pipeline graph.
+		/// </summary>
+		abstract public string Headline();
 
+		/// <summary>
+		/// String used to represent this node in exported data.
+		/// Should be short and without any spaces, new lines and special characters.
+		/// </summary>
+		/// <returns>The name.</returns>
+		abstract public string ShortName();
+
+		/// <summary>
+		/// Text shown in algorithm tree viewer.
+		/// </summary>
 		public override string ToString()
 		{
 			return this.GetType().Name;

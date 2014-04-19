@@ -213,6 +213,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return "Haralick";
+		}
+
+		public override string ShortName()
+		{
+			return "haralick";
+		}
+
 		public override string HelpText {
 			get {
 				return "Haralick Texture Features";

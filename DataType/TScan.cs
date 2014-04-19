@@ -114,6 +114,11 @@ namespace Baimp
 			return widget;
 		}
 
+		public override string ToString()
+		{
+			return string.Format("{0}_{1}", scan.ToString(), scanType);
+		}
+
 		public void Dispose()
 		{
 			if (widget != null) {

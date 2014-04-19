@@ -102,6 +102,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return "Raw moments";
+		}
+
+		public override string ShortName()
+		{
+			return "moments";
+		}
+
 		#endregion
 	}
 }

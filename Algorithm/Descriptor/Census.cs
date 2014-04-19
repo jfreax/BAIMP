@@ -27,6 +27,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return "Census Transform";
+		}
+
+		public override string ShortName()
+		{
+			return "census";
+		}
+
 		#endregion
 	}
 }

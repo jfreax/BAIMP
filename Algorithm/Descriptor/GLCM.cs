@@ -102,6 +102,11 @@ namespace Baimp
 			return string.Format("GLCM d=({1}, {2}) {0}bpp", options[0].Value, options[1].Value, options[2].Value);
 		}
 
+		public override string ShortName()
+		{
+			return "glcm";
+		}
+
 		public override string ToString()
 		{
 			return "GLCM - Gray Level Co-occurence Matrix";

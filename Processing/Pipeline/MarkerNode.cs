@@ -97,7 +97,7 @@ namespace Baimp
 
 					// draw output size on end nodes (= number of features
 					if (parent.results != null &&
-						parent.results.Count != 0 &&
+						parent.results.Count > 0 &&
 						parent.results[0].Item1 != null &&
 						parent.results[0].Item1.Length-1 >= Position) {
 

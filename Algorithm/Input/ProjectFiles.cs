@@ -63,6 +63,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return ToString();
+		}
+
+		public override string ShortName()
+		{
+			return "projectfiles";
+		}
+
 		public override string ToString()
 		{
 			return "Project files";

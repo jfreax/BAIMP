@@ -71,6 +71,11 @@ namespace Baimp
 			return string.Format("Windower {0}x{1}", options[0].Value, options[1].Value);
 		}
 
+		public override string ShortName()
+		{
+			return "windower";
+		}
+
 		#endregion
 	}
 }

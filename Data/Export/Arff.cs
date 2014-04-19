@@ -37,21 +37,46 @@ namespace Baimp
 								if (featureList != null) {
 									// ... then iterate over the whole list
 									foreach (IFeature feature in featureList) {
-										Console.WriteLine(feature.Key() + " -> " + feature.Value());
+										AddResult(feature, resultList.Item2[i].Input);
 									}
 								}
 							} else {
 								// if its only a single feature
 								IFeature feature = resultList.Item1[i] as IFeature;
 								if (feature != null) {
-									Console.WriteLine(feature.Key() + " -> " + feature.Value());
+									AddResult(feature, resultList.Item2[i].Input);
 								}
 							}
 						}
 					}
 				}
 			}
+		}
 
+		private void AddResult(IFeature feature, Result[] inputs)
+		{
+			string completeFeatureName = feature.Key();
+			string className = "";
+
+			List<Result> currInputs = new List<Result>();
+			currInputs.AddRange(inputs);
+			while(currInputs != null && currInputs.Count > 0) {
+				List<Result> nextInputs = new List<Result>();
+				foreach (Result input in currInputs) {
+					if (input.Data != null) {
+						if (input.Node.algorithm.AlgorithmType == AlgorithmType.Input) {
+							className = input.Data.ToString();
+						} else {
+							completeFeatureName = string.Format("{0}_{1}", input.Node, completeFeatureName);
+						}
+					}
+					if (input.Input != null) {
+						nextInputs.AddRange(input.Input);
+					}
+				}
+				currInputs = nextInputs;
+			}
+			Console.WriteLine("Class: " + className + " | Feature: " + completeFeatureName + " | Value: " + feature.Value());
 		}
 	}
 }

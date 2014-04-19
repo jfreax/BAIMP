@@ -107,6 +107,11 @@ namespace Baimp
 			return "GLRLM";
 		}
 
+		public override string ShortName()
+		{
+			return "glrm";
+		}
+
 		#endregion
 	}
 }

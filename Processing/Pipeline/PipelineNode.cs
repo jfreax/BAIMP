@@ -314,6 +314,16 @@ namespace Baimp
 			return true;
 		}
 
+		public override string ToString()
+		{
+			string name = algorithm.ShortName() + "(";
+			foreach (Option option in algorithm.Options) {
+				name += option.Value + ",";
+			}
+			name = name.TrimEnd(',') + ")";
+			return name;
+		}
+
 		#region events
 
 		public bool OnButtonPressed(ButtonEventArgs e)

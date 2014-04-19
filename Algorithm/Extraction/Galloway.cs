@@ -86,6 +86,16 @@ namespace Baimp
 			}
 		}
 
+		public override string Headline()
+		{
+			return "Galloway";
+		}
+
+		public override string ShortName()
+		{
+			return "galloway";
+		}
+
 		#endregion
 	}
 }
