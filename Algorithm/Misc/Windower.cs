@@ -25,7 +25,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			int width = (int) options[0].Value;
 			int height = (int) options[1].Value;

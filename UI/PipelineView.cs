@@ -304,7 +304,7 @@ namespace Baimp
 			int i = 0;
 			TextEntry[] entries = new TextEntry[pNode.algorithm.Options.Count];
 			foreach (Option option in pNode.algorithm.Options) {
-				table.Add (new Label (option.name), 0, i);
+				table.Add (new Label (option.Name.ToString()), 0, i);
 				TextEntry entry = new TextEntry();
 				entry.Text = option.Value.ToString();
 				entries[i] = entry;

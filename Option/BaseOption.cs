@@ -1,11 +1,20 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Baimp
 {
+	[XmlInclude(typeof(Option))]
+	[XmlInclude(typeof(OptionBool))]
 	public abstract class BaseOption
 	{
-		protected string name;
-		protected object Value {
+		[XmlElement("key")]
+		public string Name {
+			get;
+			set;
+		}
+
+		[XmlElement("value")]
+		public virtual object Value {
 			get;
 			set;
 		}

@@ -584,7 +584,7 @@ namespace Baimp
 		/// Internal use only! (xml serialization)
 		/// </summary>
 		[XmlIgnore]
-		List<Option> _intern_options = new List<Option>();
+		List<BaseOption> _intern_options = new List<BaseOption>();
 
 		/// <summary>
 		/// Internal use only! (xml serialization)
@@ -592,7 +592,7 @@ namespace Baimp
 		/// <value>The _intern_ options.</value>
 		[XmlArray("options")]
 		[XmlArrayItem(ElementName = "option")]
-		public List<Option> InternOptions {
+		public List<BaseOption> InternOptions {
 			get {
 				return _intern_options;
 			}

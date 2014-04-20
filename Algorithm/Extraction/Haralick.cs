@@ -14,7 +14,7 @@ namespace Baimp
 			output.Add(new Compatible("Haralick Features", typeof(TFeatureList<double>)));
 		}
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TMatrix tMatrix = inputArgs[0] as TMatrix;
 			if (tMatrix == null) {

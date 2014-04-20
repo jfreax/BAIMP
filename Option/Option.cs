@@ -3,11 +3,8 @@ using System.Xml.Serialization;
 
 namespace Baimp
 {
-	public class Option
+	public class Option : BaseOption
 	{
-		[XmlAttribute]
-		public string name;
-
 		[XmlIgnore]
 		public readonly IComparable MinValue = null;
 
@@ -27,7 +24,7 @@ namespace Baimp
 
 		public Option(string name, IComparable defaultValue)
 		{
-			this.name = name;
+			this.Name = name;
 			this.DefaultValue = defaultValue;
 
 			this.val = defaultValue;
@@ -35,7 +32,7 @@ namespace Baimp
 
 		public Option(string name, IComparable minValue, IComparable maxValue, IComparable defaultValue)
 		{
-			this.name = name;
+			this.Name = name;
 			this.MinValue = minValue;
 			this.MaxValue = maxValue;
 			this.DefaultValue = defaultValue;
@@ -43,33 +40,24 @@ namespace Baimp
 			this.val = defaultValue;
 		}
 
-		[XmlIgnore]
-		public IComparable Value
+		[XmlElement("value")]
+		public override object Value
 		{
 			get {
 				return val;
 			}
 			set {
-				if (value != null) {
+				IComparable val = value as IComparable;
+				if (val != null) {
 
-					if (MaxValue != null && value.CompareTo(MaxValue) > 0) {
+					if (MaxValue != null && val.CompareTo(MaxValue) > 0) {
 						this.val = MaxValue;
-					} else if (MinValue != null && value.CompareTo(MinValue) < 0) {
+					} else if (MinValue != null && val.CompareTo(MinValue) < 0) {
 						this.val = MinValue;
 					} else {
-						this.val = value;
+						this.val = val;
 					}
 				}
-			}
-		}
-
-		[XmlElement("value")]
-		public object InternValue {
-			get {
-				return Value;
-			}
-			set {
-				Value = value as IComparable;
 			}
 		}
 	}

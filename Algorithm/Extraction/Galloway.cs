@@ -14,7 +14,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TMatrix matrix = inputArgs[0] as TMatrix;
 			if (matrix == null) {

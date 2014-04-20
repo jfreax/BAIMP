@@ -20,7 +20,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TScan tScan = inputArgs[0] as TScan;
 			Bitmap bitmap = tScan.GrayScale8bpp;

@@ -158,6 +158,8 @@
     <Compile Include="Data\Export\Arff.cs" />
     <Compile Include="DataType\IFeature.cs" />
     <Compile Include="Data\Export\IExporter.cs" />
+    <Compile Include="Option\OptionBool.cs" />
+    <Compile Include="Option\BaseOption.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

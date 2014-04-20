@@ -42,7 +42,7 @@ namespace Baimp
 		/// <summary>
 		/// List of all options
 		/// </summary>
-		public List<Option> options;
+		public List<BaseOption> options;
 
 		/// <summary>
 		/// The cancellation token.
@@ -57,7 +57,7 @@ namespace Baimp
 			input = new List<Compatible>();
 			output = new List<Compatible>();
 			request = new HashSet<RequestType>();
-			options = new List<Option>();
+			options = new List<BaseOption>();
 		}
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Baimp
 		/// Return null, when no more data is available (important for sequential data output).
 		/// Use Yield() function to return data when one output parameter is Parallel.
 		/// </remarks>
-		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs);
+		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs);
 
 		abstract public AlgorithmType AlgorithmType {
 			get;
@@ -195,7 +195,7 @@ namespace Baimp
 			}
 		}
 
-		public List<Option> Options {
+		public List<BaseOption> Options {
 			get {
 				return options;
 			}

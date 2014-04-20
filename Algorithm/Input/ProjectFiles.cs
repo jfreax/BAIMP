@@ -20,12 +20,14 @@ namespace Baimp
 				typeof(TScan)
 			));
 
+			options.Add(new OptionBool("Mask only", true));
+
 			request.Add(RequestType.ScanCollection);
 		}
 
 		#region BaseAlgorithm implementation
 
-		public override IType[] Run(Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
 			int size = scans.Count;

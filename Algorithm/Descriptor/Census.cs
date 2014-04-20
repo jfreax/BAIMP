@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -10,7 +11,7 @@ namespace Baimp
 
 		#region implemented abstract members of BaseAlgorithm
 
-		public override IType[] Run(System.Collections.Generic.Dictionary<RequestType, object> requestedData, Option[] options, IType[] inputArgs)
+		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			throw new NotImplementedException();
 		}
