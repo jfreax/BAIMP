@@ -18,7 +18,6 @@ namespace Baimp
 		[STAThread]
 		public static void Main(string[] args)
 		{
-
 			bool show_help = false;
 			string filename = null;
 			string path = null;
