@@ -7,9 +7,11 @@ namespace Baimp
 	public class Arff : IExporter
 	{
 		readonly List<string> attributes = new List<string>();
+		readonly HashSet<string> classes = new HashSet<string>();
 
-		// class name -> (attribute index -> value)
-		readonly Dictionary<string, Dictionary<int, string>> values = new Dictionary<string, Dictionary<int, string>>();
+		// fiber name -> (class name, (attribute index -> value))
+		readonly Dictionary<string, Tuple<string, Dictionary<int, string>>> values = 
+			new Dictionary<string, Tuple<string, Dictionary<int, string>>>();
 
 
 		public void Run(List<PipelineNode> pipeline)
@@ -58,6 +60,7 @@ namespace Baimp
 		{
 			string completeFeatureName = feature.Key();
 			string className = string.Empty;
+			string fiberName = string.Empty;
 
 			List<Result> currInputs = new List<Result>();
 			currInputs.AddRange(inputs);
@@ -66,8 +69,13 @@ namespace Baimp
 				foreach (Result input in currInputs) {
 					if (input.Data != null) {
 						if (input.Node.algorithm.AlgorithmType == AlgorithmType.Input) {
-							if (string.IsNullOrEmpty(className)) {
-								className = input.Data.ToString();
+							if (string.IsNullOrEmpty(fiberName)) {
+								fiberName = input.Data.ToString();
+							}
+
+							BaseScan scan = input.Data as BaseScan;
+							if (scan != null) {
+								className = scan.FiberType;
 							}
 						} else {
 							completeFeatureName = string.Format("{0}_{1}", input.Node, completeFeatureName);
@@ -86,11 +94,13 @@ namespace Baimp
 				attributeIndex = attributes.Count - 1;
 			}
 
-			if (!values.ContainsKey(className)) {
-				values[className] = new Dictionary<int, string>();
+			if (!values.ContainsKey(fiberName)) {
+				values[fiberName] = 
+					new Tuple<string, Dictionary<int, string>>(className, new Dictionary<int, string>());
 			}
 
-			values[className][attributeIndex] = feature.Value();
+			values[fiberName].Item2[attributeIndex] = feature.Value();
+			classes.Add(className);
 		}
 
 		private void ToArff()
@@ -100,22 +110,22 @@ namespace Baimp
 				arff += string.Format("@attribute {0} numeric\n", attr);
 			}
 			arff += "@attribute class {";
-			foreach (string className in values.Keys) {
+			foreach (string className in classes) {
 				arff += string.Format("\"{0}\",", className);
 			}
 
 			arff = arff.TrimEnd(',') + "}";
 			arff += "\n\n@data\n";
 
-			foreach (KeyValuePair<string, Dictionary<int, string>> v in values) {
+			foreach (KeyValuePair<string, Tuple<string, Dictionary<int, string>>> v in values) {
 				for (int i = 0; i < attributes.Count; i++) {
-					if (v.Value.ContainsKey(i)) {
+					if (v.Value.Item2.ContainsKey(i)) {
 						try {
-							double numeric = double.Parse(v.Value[i]);
+							double numeric = double.Parse(v.Value.Item2[i]);
 							if (double.IsNaN(numeric) || double.IsInfinity(numeric)) {
 								arff += "?,";
 							} else {
-								arff += v.Value[i].Replace(',', '.') + ",";
+								arff += v.Value.Item2[i].Replace(',', '.') + ",";
 							}
 						} catch (Exception e) {
 							arff += "?,";
@@ -124,7 +134,7 @@ namespace Baimp
 						arff += "?,";
 					}
 				}
-				arff += v.Key + "\n";
+				arff += v.Value.Item1 + "\n";
 			}
 
 			Console.WriteLine(arff);
