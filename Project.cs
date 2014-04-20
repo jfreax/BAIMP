@@ -62,6 +62,9 @@ namespace Baimp
 						zipFile = new ZipFile(ProjectFile);
 					} else {
 						zipFile = ZipFile.Create(ProjectFile);
+						zipFile.CommitUpdate();
+						zipFile.Close();
+						zipFile = new ZipFile(ProjectFile);
 					}
 					using (zipFile) {
 						ret = callback(zipFile);
@@ -115,9 +118,9 @@ namespace Baimp
 							foreach (PipelineNode pNode in wrapper.pNodes) {
 								pNode.Initialize();
 
-								foreach (Option option in pNode.InternOptions) {
+								foreach (BaseOption option in pNode.InternOptions) {
 									var localOption = option;
-									Option targetOption = pNode.algorithm.Options.Find((Option o) => o.name == localOption.name);
+									BaseOption targetOption = pNode.algorithm.Options.Find((BaseOption o) => o.Name == localOption.Name);
 									targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
 								}
 
@@ -295,7 +298,7 @@ namespace Baimp
 			if (saveDialog.Run()) {
 				string filename = saveDialog.FileName;
 				if (string.IsNullOrEmpty(filename)) {
-					ErrorMessage = "File not found";
+					ErrorMessage = "Invalid file path.";
 					return false;
 				}
 
@@ -305,8 +308,15 @@ namespace Baimp
 
 				Project.ProjectFile = filename;
 
+				using (ZipFile zipFile = ZipFile.Create(ProjectFile)) {
+					zipFile.BeginUpdate();
+					zipFile.CommitUpdate();
+					zipFile.Close();
+				}
+
                 if (reset) {
-					this.LoadedPipelines = new List<PipelineNodeWrapper>();
+					LoadedPipelines = new List<PipelineNodeWrapper>();
+					LoadedPipelines.Add(new PipelineNodeWrapper("Master", null));
 
                     scanCollection.Clear();
                     if (projectChanged != null)
@@ -340,7 +350,8 @@ namespace Baimp
 				typeof(Node),
 				typeof(ScanCollection),
 				typeof(List<BaseScan>),
-				typeof(BaseScan)
+				typeof(BaseScan),
+				typeof(BaseOption)
 			};
 
 			XmlSerializer serializer = new XmlSerializer(this.GetType(), extraTypes);
