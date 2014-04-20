@@ -31,12 +31,17 @@ namespace Baimp
 				double glnInner = 0.0;
 				for (int j = 0; j < matrix.Height; j++) {
 					if (matrix[i, j] >= double.Epsilon) {
-						n += (int) (matrix[i, j] * j);
-						sre += matrix[i, j] / (j * j);
-						lre += matrix[i, j] * (j * j);
-						lgre += matrix[i, j] / (i * i);
-						hlre += matrix[i, j] * (i * i);
 						glnInner += matrix[i, j];
+
+						if (j > 0) {
+							n += (int) (matrix[i, j] * j);
+							sre += matrix[i, j] / (j * j);
+							lre += matrix[i, j] * (j * j);
+						}
+						if (i > 0) {
+							lgre += matrix[i, j] / (i * i);
+							hlre += matrix[i, j] * (i * i);
+						}
 					}
 				}
 				gln += glnInner * glnInner;
