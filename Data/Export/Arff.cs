@@ -122,6 +122,7 @@ namespace Baimp
 			arff += "\n\n@data\n";
 
 			foreach (KeyValuePair<string, Tuple<string, Dictionary<int, string>>> v in values) {
+				arff += string.Format("% {0}\n", v.Key);
 				for (int i = 0; i < attributes.Count; i++) {
 					if (v.Value.Item2.ContainsKey(i)) {
 						try {
@@ -139,7 +140,7 @@ namespace Baimp
 						arff += "?,";
 					}
 				}
-				arff += v.Value.Item1 + "\n";
+				arff += string.Format("\"{0}\"\n", v.Value.Item1);
 			}
 
 			Console.WriteLine(arff);
