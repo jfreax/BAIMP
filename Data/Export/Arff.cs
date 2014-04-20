@@ -4,20 +4,15 @@ using System.Collections.Generic;
 
 namespace Baimp
 {
-	public class Arff
+	public class Arff : IExporter
 	{
-		readonly List<PipelineNode> pipeline;
 		readonly List<string> attributes = new List<string>();
 
 		// class name -> (attribute index -> value)
 		readonly Dictionary<string, Dictionary<int, string>> values = new Dictionary<string, Dictionary<int, string>>();
 
-		public Arff(List<PipelineNode> nodes)
-		{
-			pipeline = nodes;
-		}
 
-		public void Generate()
+		public void Run(List<PipelineNode> pipeline)
 		{
 			// for every node in the current pipeline
 			foreach (PipelineNode pNode in pipeline) {

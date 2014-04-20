@@ -157,6 +157,7 @@
     <Compile Include="Data\Import\BaseScan.cs" />
     <Compile Include="Data\Export\Arff.cs" />
     <Compile Include="DataType\IFeature.cs" />
+    <Compile Include="Data\Export\IExporter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

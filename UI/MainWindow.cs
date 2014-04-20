@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xwt;
 using System.Collections.Generic;
 
@@ -147,6 +148,30 @@ namespace Baimp
 			MenuItem menuExecute = new MenuItem("_Execute");
 			menuExecute.Clicked += (object sender, EventArgs e) => pipelineController.CurrentPipeline.Execute(project);
 			pipelineMenu.SubMenu.Items.Add(menuExecute);
+
+			pipelineMenu.SubMenu.Items.Add(new SeparatorMenuItem());
+
+			MenuItem menuExport = new MenuItem("Export");
+			menuExport.SubMenu = new Menu();
+			pipelineMenu.SubMenu.Items.Add(menuExport);
+
+			Type exporterType = typeof(IExporter);
+			IEnumerable<Type> exporter = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(t => t.GetInterfaces().Contains(exporterType));
+
+			foreach (Type export in exporter) {
+				MenuItem ni = new MenuItem(string.Format("As {0}...", export.Name));
+				menuExport.SubMenu.Items.Add(ni);
+				var lExport = export;
+				ni.Clicked += delegate {
+					IExporter instance = 
+						Activator.CreateInstance(lExport) as IExporter;
+					if (instance != null) {
+						instance.Run(pipelineController.CurrentPipeline.Nodes);
+					}
+				};
+			}
 
 			// main menu
 			Menu menu = new Menu();
