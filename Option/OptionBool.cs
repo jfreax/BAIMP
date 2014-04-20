@@ -24,6 +24,15 @@ namespace Baimp
 			this.val = defaultValue;
 		}
 
+		[XmlElement("value")]
+		public override object Value {
+			get {
+				return val;
+			}
+			set {
+				val = (bool) value;
+			}
+		}
 	}
 }
 

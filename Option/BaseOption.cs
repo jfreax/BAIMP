@@ -12,9 +12,8 @@ namespace Baimp
 			get;
 			set;
 		}
-
-		[XmlElement("value")]
-		public virtual object Value {
+			
+		public abstract object Value {
 			get;
 			set;
 		}
