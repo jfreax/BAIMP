@@ -111,7 +111,7 @@ namespace Baimp
 		{
 			string arff = string.Format("@relation \"{0}\"\n\n", pipeline.PipelineName);
 			foreach (string attr in attributes) {
-				arff += string.Format("@attribute {0} numeric\n", attr);
+				arff += string.Format("@attribute \"{0}\" numeric\n", attr);
 			}
 			arff += "@attribute class {";
 			foreach (string className in classes) {
