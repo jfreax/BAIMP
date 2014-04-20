@@ -6,6 +6,8 @@ namespace Baimp
 {
 	public class Arff : IExporter
 	{
+		PipelineView pipeline;
+
 		readonly List<string> attributes = new List<string>();
 		readonly HashSet<string> classes = new HashSet<string>();
 
@@ -14,10 +16,12 @@ namespace Baimp
 			new Dictionary<string, Tuple<string, Dictionary<int, string>>>();
 
 
-		public void Run(List<PipelineNode> pipeline)
+		public void Run(PipelineView pipeline)
 		{
+			this.pipeline = pipeline;
+
 			// for every node in the current pipeline
-			foreach (PipelineNode pNode in pipeline) {
+			foreach (PipelineNode pNode in pipeline.Nodes) {
 				int offset = pNode.algorithm.Input.Count;
 
 				// get all output nodes
@@ -105,7 +109,7 @@ namespace Baimp
 
 		private void ToArff()
 		{
-			string arff = "";
+			string arff = string.Format("@relation \"{0}\"\n\n", pipeline.PipelineName);
 			foreach (string attr in attributes) {
 				arff += string.Format("@attribute {0} numeric\n", attr);
 			}

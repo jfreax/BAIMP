@@ -5,7 +5,7 @@ namespace Baimp
 {
 	public interface IExporter
 	{
-		void Run(List<PipelineNode> pipeline);
+		void Run(PipelineView pipeline);
 	}
 }
 

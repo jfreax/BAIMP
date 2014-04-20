@@ -168,7 +168,7 @@ namespace Baimp
 					IExporter instance = 
 						Activator.CreateInstance(lExport) as IExporter;
 					if (instance != null) {
-						instance.Run(pipelineController.CurrentPipeline.Nodes);
+						instance.Run(pipelineController.CurrentPipeline);
 					}
 				};
 			}
