@@ -305,13 +305,13 @@ namespace Baimp
 		{
 			if (algorithm != null && algorithm.Output != null) {
 				foreach (Compatible x in algorithm.Output) {
-					if (!x.IsFinal()) {
-						return false;
+					if (x.IsFinal()) {
+						return true;
 					}
 				}
 			}
 
-			return true;
+			return false;
 		}
 
 		public override string ToString()
