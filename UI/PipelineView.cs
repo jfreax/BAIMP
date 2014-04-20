@@ -16,13 +16,11 @@ namespace Baimp
 		AddEdgeNew = 8,
 		MoveEdge = 16
 	}
-			
+
 	public class PipelineView : Canvas
 	{
 		static int globalId = 0;
-
 		ScrollView scrollview;
-
 		List<PipelineNode> nodes;
 		Point nodeToMoveOffset = Point.Zero;
 		MarkerNode connectNodesStartMarker;
@@ -33,23 +31,18 @@ namespace Baimp
 		Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
 		MouseAction mouseAction = MouseAction.None;
 		MouseMover mouseMover;
-
 		CancellationTokenSource cancelRequest;
-
 		CursorType oldCursor;
-
 		bool redrawQueued;
-
-		Window popupWindow = new Window ();
-
+		Window popupWindow = new Window();
 
 		#region initialize
 
-		public PipelineView() {
+		public PipelineView()
+		{
 			PipelineName = "Untitled " + globalId;
 			globalId++;
 		}
-
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.PipelineView"/> class.
@@ -210,8 +203,8 @@ namespace Baimp
 				}
 			}
 
-			if ((mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) && 
-				!mouseAction.HasFlag(MouseAction.AddEdgeNew)) {
+			if ((mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) &&
+			    !mouseAction.HasFlag(MouseAction.AddEdgeNew)) {
 
 				ctx.MoveTo(
 					connectNodesStartMarker.IsInput ? 
@@ -226,17 +219,17 @@ namespace Baimp
 			redrawQueued = false;
 		}
 
-
 		void QueueRedraw(object sender, EventArgs e)
 		{
 			if (!redrawQueued) {
 				redrawQueued = true;
 
-				Application.Invoke( delegate {
+				Application.Invoke(delegate {
 					QueueDraw();
 				});
 			}
 		}
+
 		#endregion
 
 		#region start/stop
@@ -258,7 +251,7 @@ namespace Baimp
 			project.NotifyPipelineStart(this);
 
 			Process process = new Process(project, token);
-			Task executionTask = Task.Factory.StartNew( () => {
+			Task executionTask = Task.Factory.StartNew(() => {
 				foreach (PipelineNode pNode in nodes) {
 					if (token.IsCancellationRequested) {
 						break;
@@ -273,7 +266,7 @@ namespace Baimp
 					}
 				}
 			}).ContinueWith(fromTask => {
-				Application.Invoke( () => project.NotifyPipelineStop(this) );
+				Application.Invoke(() => project.NotifyPipelineStop(this));
 			});
 
 			return true;
@@ -296,19 +289,28 @@ namespace Baimp
 		/// <param name="pNode">Pipeline node for which the option should be shown.</param>
 		private void OpenOptionWindow(PipelineNode pNode)
 		{
-			Dialog d = new Dialog ();
+			Dialog d = new Dialog();
 			d.Title = String.Format("Option for \"{0}\"", pNode.algorithm);
-			Table table = new Table ();
+			Table table = new Table();
 			VBox contentBox = new VBox();
 
 			int i = 0;
-			TextEntry[] entries = new TextEntry[pNode.algorithm.Options.Count];
-			foreach (Option option in pNode.algorithm.Options) {
-				table.Add (new Label (option.Name.ToString()), 0, i);
-				TextEntry entry = new TextEntry();
-				entry.Text = option.Value.ToString();
+			Widget[] entries = new Widget[pNode.algorithm.Options.Count];
+			foreach (BaseOption option in pNode.algorithm.Options) {
+				table.Add(new Label(option.Name), 0, i);
+
+				Widget entry = null;
+				if (option is OptionBool) {
+					CheckBox checkbox = new CheckBox();
+					checkbox.State = (bool) option.Value ? CheckBoxState.On : CheckBoxState.Off;
+					entry = checkbox;
+				} else {
+					TextEntry entryText = new TextEntry();
+					entryText.Text = option.Value.ToString();
+					entry = entryText;
+				}
 				entries[i] = entry;
-				table.Add (entry, 1, i);
+				table.Add(entry, 1, i);
 				i++;
 			}
 
@@ -321,16 +323,21 @@ namespace Baimp
 			contentBox.PackEnd(commentEntry);
 			d.Content = contentBox;
 
-			d.Buttons.Add (new DialogButton (Command.Cancel));
-			d.Buttons.Add (new DialogButton (Command.Apply));
+			d.Buttons.Add(new DialogButton(Command.Cancel));
+			d.Buttons.Add(new DialogButton(Command.Apply));
 
-			var r = d.Run (this.ParentWindow);
+			var r = d.Run(this.ParentWindow);
 
 			if (r.Id == Command.Apply.Id) {
 				i = 0;
-				foreach (Option option in pNode.algorithm.Options) {
+				foreach (BaseOption option in pNode.algorithm.Options) {
 					try {
-						option.Value = Convert.ChangeType( entries[i].Text, option.Value.GetType()) as IComparable;
+						if (option is OptionBool) {
+							option.Value = ((CheckBox) entries[i]).State == CheckBoxState.On;
+						} else {
+							option.Value = 
+								Convert.ChangeType(((TextEntry) entries[i]).Text, option.Value.GetType());
+						}
 					} catch (FormatException e) {
 						// TODO show error
 						Console.WriteLine(e);
@@ -340,7 +347,7 @@ namespace Baimp
 				pNode.userComment = commentEntry.Text;
 			}
 
-			d.Dispose ();
+			d.Dispose();
 		}
 
 		/// <summary>
@@ -358,7 +365,7 @@ namespace Baimp
 				return;
 			}
 
-			if (pNode.results[0].Item1.Length-1 < mNode.Position) {
+			if (pNode.results[0].Item1.Length - 1 < mNode.Position) {
 				return;
 			}
 				
@@ -611,7 +618,7 @@ namespace Baimp
 			}
 
 			PipelineNode node = GetNodeAt(args.Position, true);
-			if ( node != null) {
+			if (node != null) {
 				if (currentHoveredNode != node) {
 					if (currentHoveredNode != null) {
 						currentHoveredNode.OnMouseExited();
@@ -788,12 +795,12 @@ namespace Baimp
 		{
 			foreach (PipelineNode node in nodes) {
 				Rectangle nodeBound = node.bound;
-				if(withExtras) {
+				if (withExtras) {
 					nodeBound = node.BoundWithExtras;
 				}
 
 				if (node != ignoreNode &&
-					nodeBound.IntersectsWith(rectangle)) {
+				    nodeBound.IntersectsWith(rectangle)) {
 					return node;
 				}
 			}
@@ -850,10 +857,10 @@ namespace Baimp
 			}
 			set {
 				nodes = value;
-                foreach (PipelineNode pNode in nodes) {
-                    pNode.Parent = this;
-                    pNode.QueueRedraw += QueueRedraw;
-                }
+				foreach (PipelineNode pNode in nodes) {
+					pNode.Parent = this;
+					pNode.QueueRedraw += QueueRedraw;
+				}
 				QueueDraw();
 			}
 		}
