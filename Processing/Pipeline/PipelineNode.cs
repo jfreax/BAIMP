@@ -316,11 +316,15 @@ namespace Baimp
 
 		public override string ToString()
 		{
-			string name = algorithm.ShortName() + "(";
-			foreach (Option option in algorithm.Options) {
-				name += option.Value + ",";
+			string name = algorithm.ShortName();
+
+			if (algorithm.Output != null && algorithm.Output.Count >= 1) {
+				name += "(";
+				foreach (Option option in algorithm.Options) {
+					name += option.Value + ",";
+				}
+				name = name.TrimEnd(',') + ")";
 			}
-			name = name.TrimEnd(',') + ")";
 			return name;
 		}
 

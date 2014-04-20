@@ -128,6 +128,7 @@ namespace Baimp
 								arff += v.Value.Item2[i].Replace(',', '.') + ",";
 							}
 						} catch (Exception e) {
+							Console.WriteLine(e.Message);
 							arff += "?,";
 						}
 					} else {
