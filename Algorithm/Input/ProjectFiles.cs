@@ -20,7 +20,7 @@ namespace Baimp
 				typeof(TScan)
 			));
 
-			options.Add(new OptionBool("Mask only", true));
+			options.Add(new OptionBool("Masked only", true));
 
 			request.Add(RequestType.ScanCollection);
 		}
@@ -32,7 +32,7 @@ namespace Baimp
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
 			int size = scans.Count;
 
-			bool maskOnly = (bool) options[0].Value;
+			bool maskedOnly = (bool) options[0].Value;
 
 			int i = 0;
 			foreach (BaseScan scan in scans) {
@@ -41,12 +41,15 @@ namespace Baimp
 				}
 
 				IType[] data = new IType[3];
-				// TODO test available scan types
-				data[0] = new TScan(scan, "Intensity").Preload();
-				data[1] = new TScan(scan, "Topography").Preload();
-				data[2] = new TScan(scan, "Color").Preload();
+				if ((maskedOnly && scan.Mask.HasMask()) || !maskedOnly) {
+					// TODO test available scan types
+					data[0] = new TScan(scan, "Intensity", maskedOnly: maskedOnly).Preload();
+					data[1] = new TScan(scan, "Topography", maskedOnly: maskedOnly).Preload();
+					data[2] = new TScan(scan, "Color", maskedOnly: maskedOnly).Preload();
 
-				Yield(data, scan);
+					Yield(data, scan);
+				}
+
 				i++;
 
 				SetProgress((i * 100) / size);

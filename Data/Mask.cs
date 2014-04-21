@@ -16,10 +16,27 @@ namespace Baimp
 
 		private readonly BaseScan scan;
 		private XD.ImageBuilder maskBuilder;
+		private Bitmap bitmapCache = null;
 
 		public Mask(BaseScan scan)
 		{
 			this.scan = scan;
+		}
+
+		public bool HasMask()
+		{
+			return (bool) Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+				if (zipFile != null) {
+					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
+					if (maskEntry != null) {
+						return true;
+					}
+
+					return false;
+				}
+
+				return false;
+			}));
 		}
 
 		/// <summary>
@@ -35,15 +52,37 @@ namespace Baimp
 					if (maskEntry != null) {
 						Stream maskStream = zipFile.GetInputStream(maskEntry);
 						mask = XD.Image.FromStream(maskStream);
+						return true;
 					}
 
-					return true;
-				} else {
 					return false;
 				}
+
+				return false;
 			}));
 
 			return mask;
+		}
+
+		public Bitmap GetMaskAsBitmap()
+		{
+			if (bitmapCache == null) {
+				bitmapCache = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+					if (zipFile != null) {
+						ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
+						if (maskEntry != null) {
+							Stream maskStream = zipFile.GetInputStream(maskEntry);
+							return new Bitmap(Image.FromStream(maskStream));
+						}
+
+						return null;
+					}
+
+					return null;
+				})) as Bitmap;
+			}
+
+			return bitmapCache;
 		}
 
 		/// <summary>
@@ -176,6 +215,7 @@ namespace Baimp
 
 			maskBuilder.Dispose();
 			maskBuilder = null;
+			bitmapCache = null;
 
 			scan.NotifySaved("mask");
 		}

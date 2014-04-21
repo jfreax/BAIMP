@@ -86,9 +86,9 @@ namespace Baimp
 		private List<Metadata> metadata = new List<Metadata>();
 
 		/// <summary>
-		/// The masks.
+		/// The mask.
 		/// </summary>
-		private Mask masks;
+		private Mask mask;
 
 		/// <summary>
 		/// Needed for xml serializer.
@@ -108,7 +108,7 @@ namespace Baimp
 		virtual public void Initialize(string filePath, bool newImport = true)
 		{
 			this.filePath = filePath;
-			this.masks = new Mask(this);
+			this.mask = new Mask(this);
 
 			if (newImport) {
 				isInitialized = true;
@@ -405,7 +405,7 @@ namespace Baimp
 			HashSet<string> unsavedCopy = new HashSet<string>(unsaved);
 			foreach (string toSave in unsavedCopy) {
 				if (toSave == "mask") {
-					masks.Save();
+					mask.Save();
 				}
 			}
 			if (unsaved.Count > 0) {
@@ -512,9 +512,9 @@ namespace Baimp
 		}
 			
 		[XmlIgnore]
-		public Mask Masks {
+		public Mask Mask {
 			get {
-				return masks;
+				return mask;
 			}
 		}
 

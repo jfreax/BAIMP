@@ -2,6 +2,7 @@
 using Xwt;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 
 namespace Baimp
 {
@@ -10,10 +11,9 @@ namespace Baimp
 		BaseScan scan;
 		string scanType;
 		bool multipleUsage;
-
+		bool maskedOnly;
 		float[] rawData;
 		List<Bitmap> grayScale8bbp = new List<Bitmap>();
-
 		private Widget widget = null;
 
 		/// <summary>
@@ -24,11 +24,13 @@ namespace Baimp
 		/// <param name="multipleUsage">
 		/// If set to <c>true</c> every data retrieving will create a new copy.
 		/// </param>
-		public TScan(BaseScan scan, string scanType, bool multipleUsage = false)
+		/// <param name="maskedOnly">Return masked data only. Non masked entries are set to zero.</param>
+		public TScan(BaseScan scan, string scanType, bool multipleUsage = false, bool maskedOnly = false)
 		{
 			this.scan = scan;
 			this.scanType = scanType;
 			this.multipleUsage = multipleUsage;
+			this.maskedOnly = maskedOnly;
 		}
 
 		/// <summary>
@@ -42,7 +44,35 @@ namespace Baimp
 			get {
 				if (rawData == null) {
 					rawData = scan.GetAsArray(scanType);
+
+					if (maskedOnly) {
+						Bitmap mask = scan.Mask.GetMaskAsBitmap();
+
+						double ratioX = mask.Width / Size.Width;
+						double ratioY = mask.Height / Size.Height;
+
+
+						unsafe {
+							BitmapData bmpData = mask.LockBits(
+								                     new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
+								                     ImageLockMode.WriteOnly, mask.PixelFormat);
+
+							byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+
+							for (int y = 0; y < Size.Height; y++) {
+								for (int x = 0; x < Size.Width; x++) {
+									if (scan0[(int)((y * ratioY) * bmpData.Stride + (x * ratioX * 4))] == 0) {
+										rawData[(int) (y * Size.Width) + x] = 0.0f;
+									}
+								}
+							}
+
+							mask.UnlockBits(bmpData);
+						}
+					
+					}
 				}
+
 				if (multipleUsage) {
 					float[] copy = new float[rawData.Length];
 					rawData.CopyTo(copy, 0);
@@ -87,7 +117,7 @@ namespace Baimp
 		/// </summary>
 		public TScan Preload()
 		{
-			rawData = scan.GetAsArray(scanType);
+			rawData = Data;
 			return this;
 		}
 
@@ -101,7 +131,6 @@ namespace Baimp
 		{
 			return Data as object;
 		}
-
 
 		public Widget ToWidget()
 		{

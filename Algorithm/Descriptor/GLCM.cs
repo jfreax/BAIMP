@@ -52,6 +52,10 @@ namespace Baimp
 
 			float[] data = scan.Data;
 			float max = data.Max();
+			if (max == 0.0f) {
+				Console.WriteLine("ok");
+			}
+
 			unsafe {
 				fixed (float* ptrData = data) {
 					float* src = ptrData;

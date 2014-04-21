@@ -120,8 +120,12 @@ namespace Baimp
 
 								foreach (BaseOption option in pNode.InternOptions) {
 									var localOption = option;
-									BaseOption targetOption = pNode.algorithm.Options.Find((BaseOption o) => o.Name == localOption.Name);
-									targetOption.Value = Convert.ChangeType(option.Value, targetOption.Value.GetType()) as IComparable;
+									BaseOption targetOption = 
+										pNode.algorithm.Options.Find((BaseOption o) => o.Name == localOption.Name);
+									if (targetOption != null) {
+										targetOption.Value = 
+											Convert.ChangeType(option.Value, targetOption.Value.GetType());
+									}
 								}
 
 								foreach (MarkerNode mNode in pNode.mNodes) {
