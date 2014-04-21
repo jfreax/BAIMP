@@ -28,7 +28,6 @@ namespace Baimp
 
 		Preview.MyCallBack imageLoadedCallback = null;
 		public Dictionary<string, object> data = new Dictionary<string, object>();
-
 		/// <summary>Current image</summary>
 		private Image image;
 		private Image mask;
@@ -41,9 +40,7 @@ namespace Baimp
 		/// Is edit mode (to draw mask) active?
 		/// </summary>
 		bool isEditMode = false;
-
 		bool finishedImageLoading;
-
 		/// <summary>
 		/// Position of mouse pointer, Point.Zero if mouse exited view
 		/// </summary>
@@ -70,6 +67,7 @@ namespace Baimp
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
 				if (e.Changed.Equals("mask")) {
 					Mask = scan.Mask.GetMaskAsImage();
+					QueueDraw();
 				}
 			};
 
@@ -101,7 +99,7 @@ namespace Baimp
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
 				if (mask != null && ShowMask) {
-					ctx.DrawImage(mask, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
+					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 				}
 			}
 
@@ -204,8 +202,6 @@ namespace Baimp
 				pointer |= Pointer.Left;
 
 				if (isEditMode) {
-					scan.NotifyChange("mask");
-
 					Point positionInImage = new Point(args.X * scaleFactor.X, args.Y * scaleFactor.Y);
 					ImageBuilder ib = scan.Mask.GetMaskBuilder();
 					ib.Context.NewPath();
@@ -388,24 +384,21 @@ namespace Baimp
 			if (position.X > ib.Width || position.Y > ib.Height) {
 				return;
 			}
-
-
+				
+			ib.Context.Save();
 			if (unset) {
-				ib.Context.Save();
 				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
 				ib.Context.Clip();
 
-				double newX = Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
-				double newY = Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
+				int newX = (int) Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
+				int newY = (int) Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
 
 				Image i = image.WithBoxSize(scan.Size).ToBitmap().Crop(
-					          new Rectangle(newX, newY, pointerSize * 2, pointerSize * 2)
+					          newX, newY, pointerSize * 2, pointerSize * 2
 				          );
 
 				ib.Context.DrawImage(i, new Point(newX, newY));
 				ib.Context.Fill();
-				ib.Context.Restore();
-
 			} else {
 				ib.Context.SetLineWidth(pointerSize * 2);
 
@@ -418,9 +411,9 @@ namespace Baimp
 
 				ib.Context.MoveTo(position);
 			}
+			ib.Context.Restore();
 
-			Mask = scan.Mask.GetMaskAsImage();
-			QueueDraw();
+			scan.NotifyChange("mask");
 		}
 
 		/// <summary>
