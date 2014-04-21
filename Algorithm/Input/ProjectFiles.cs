@@ -32,6 +32,8 @@ namespace Baimp
 			ScanCollection scans = requestedData[RequestType.ScanCollection] as ScanCollection;
 			int size = scans.Count;
 
+			bool maskOnly = (bool) options[0].Value;
+
 			int i = 0;
 			foreach (BaseScan scan in scans) {
 				if (IsCanceled) {
