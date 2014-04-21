@@ -45,6 +45,7 @@ namespace Baimp
 		/// Position of mouse pointer, Point.Zero if mouse exited view
 		/// </summary>
 		Point mousePosition;
+		Point mousePositionStart;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
@@ -111,6 +112,14 @@ namespace Baimp
 				ctx.Arc(mousePosition.X, mousePosition.Y, pointerSize / scaleFactor.X, 0, 360);
 				ctx.SetColor(maskColor);
 				ctx.Fill();
+
+				if (mousePositionStart != Point.Zero) {
+					ctx.SetLineWidth(pointerSize);
+					ctx.SetColor(maskColor);
+					ctx.MoveTo(mousePosition);
+					ctx.LineTo(mousePositionStart);
+					ctx.Stroke();
+				}
 			}
 		}
 
@@ -201,7 +210,7 @@ namespace Baimp
 			case PointerButton.Left:
 				pointer |= Pointer.Left;
 
-				if (isEditMode) {
+				if (isEditMode && !Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
 					Point positionInImage = new Point(args.X * scaleFactor.X, args.Y * scaleFactor.Y);
 					ImageBuilder ib = scan.Mask.GetMaskBuilder();
 					ib.Context.NewPath();
@@ -213,6 +222,10 @@ namespace Baimp
 						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
 					);
 				}
+				if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
+					mousePositionStart = new Point(args.X, args.Y);
+				}
+
 				break;
 			case PointerButton.Right:
 				pointer |= Pointer.Right;
@@ -230,6 +243,20 @@ namespace Baimp
 				if (isEditMode) {
 					ImageBuilder ib = scan.Mask.GetMaskBuilder();
 					ib.Context.ClosePath();
+
+					if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
+						Point scaleFactor = new Point(
+							scan.Size.Width / image.Size.Width, 
+							scan.Size.Height / image.Size.Height);
+
+						Point start = 
+							new Point(mousePositionStart.X * scaleFactor.X, mousePositionStart.Y * scaleFactor.Y);
+						ib.Context.MoveTo(start);
+						SetMask(start);
+						SetMask(new Point(mousePosition.X * scaleFactor.X, mousePosition.Y * scaleFactor.Y));
+					}
+
+					mousePositionStart = Point.Zero;
 				}
 				break;
 			case PointerButton.Right:
@@ -241,7 +268,7 @@ namespace Baimp
 		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
 			mousePosition = new Point(args.X, args.Y);
-			if (isEditMode) {
+			if (isEditMode && !Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
 				Point scaleFactor = new Point(
 					                    scan.Size.Width / image.Size.Width, 
 					                    scan.Size.Height / image.Size.Height);
@@ -256,12 +283,17 @@ namespace Baimp
 
 				QueueDraw();
 			}
+
+			if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
+				QueueDraw();
+			}
 		}
 
 		protected override void OnMouseExited(EventArgs args)
 		{
 			pointer = Pointer.None;
 			mousePosition = Point.Zero;
+			mousePositionStart = Point.Zero;
 
 			if (isEditMode) {
 				ImageBuilder ib = scan.Mask.GetMaskBuilder();
