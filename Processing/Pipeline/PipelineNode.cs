@@ -320,7 +320,7 @@ namespace Baimp
 
 			if (algorithm.Output != null && algorithm.Output.Count >= 1) {
 				name += "(";
-				foreach (Option option in algorithm.Options) {
+				foreach (BaseOption option in algorithm.Options) {
 					name += option.Value + ",";
 				}
 				name = name.TrimEnd(',') + ")";
