@@ -331,7 +331,8 @@ namespace Baimp
 				}
 				ctx.Stroke();
 
-				MaskPosition.RemoveRange(0, MaskPosition.Count - bufferSize-1);
+				MaskPosition.RemoveRange(0, MaskPosition.Count - 1 - bufferSize);
+
 				scan.NotifyChange("mask");
 			}
 		}

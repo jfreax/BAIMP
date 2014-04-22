@@ -155,7 +155,7 @@ namespace Baimp
 					ctx.Fill();
 
 					if (mousePositionStart != Point.Zero) {
-						ctx.SetLineWidth(pointerSize);
+						ctx.SetLineWidth(pointerSize / 2);
 						ctx.SetColor(Mask.maskColor);
 						ctx.MoveTo(mousePosition);
 						ctx.LineTo(mousePositionStart);
@@ -264,7 +264,7 @@ namespace Baimp
 						Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Command)
 					);
 				}
-				if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
+				if (isEditMode && Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
 					mousePositionStart = new Point(args.X, args.Y);
 				}
 
@@ -288,7 +288,7 @@ namespace Baimp
 
 					scan.Mask.MaskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 
-					if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
+					if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift) && mousePositionStart != Point.Zero) {
 						Point scaleFactor = new Point(
 							                    scan.Size.Width / image.Size.Width, 
 							                    scan.Size.Height / image.Size.Height);
@@ -298,6 +298,7 @@ namespace Baimp
 						ib.Context.MoveTo(start);
 						SetMask(start);
 						SetMask(new Point(mousePosition.X * scaleFactor.X, mousePosition.Y * scaleFactor.Y));
+						scan.Mask.MaskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 					}
 
 					mousePositionStart = Point.Zero;
