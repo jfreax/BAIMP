@@ -107,12 +107,17 @@ namespace Baimp
 			}
 
 			controlbar.Clear();
+			TabButton cbOld = null;
 			foreach (string scanType in scanTypes) {
 				if (currentFiberTypes.Count == 0) {
 					currentFiberTypes.Add(scanType);
 				}
 
 				TabButton cb = new TabButton(scanType);
+				if (cbOld != null) {
+					cb.Previous = cbOld;
+				}
+				cbOld = cb;
 
 				if (currentFiberTypes.Contains(scanType)) {
 					cb.Active = true;
