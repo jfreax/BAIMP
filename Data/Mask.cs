@@ -263,6 +263,7 @@ namespace Baimp
 		/// </summary>
 		public void ResetMask()
 		{
+			MaskPosition.Clear();
 			if (maskBuilder != null) {
 				maskBuilder.Dispose();
 				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
@@ -339,7 +340,7 @@ namespace Baimp
 				}
 				ctx.Stroke();
 
-				MaskPosition.RemoveRange(0, MaskPosition.Count - 1 - bufferSize);
+				MaskPosition.RemoveRange(0, MaskPosition.Count - bufferSize);
 
 				scan.NotifyChange("mask");
 			}
