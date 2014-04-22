@@ -8,7 +8,7 @@ namespace Baimp
 	[Serializable]
 	public class MarkerEdge : Edge
 	{
-		private static Color color = Colors.Black.WithAlpha(0.2);
+		private static Color color = Colors.Black.WithAlpha(0.8);
 		/// <summary>
 		/// A number between 0 and 1.
 		/// 0.0 means, we clicked on the "from"-side of the edge
@@ -35,15 +35,20 @@ namespace Baimp
 		/// <param name="from">From.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
-			ctx.SetColor(color);
-			ctx.SetLineWidth(1.0);
 
 			Rectangle fromBound = from.Bounds;
 			Rectangle toBound = to.Bounds;
 
-			ctx.MoveTo(fromBound.Right, fromBound.Center.Y);
-			ctx.LineTo(toBound.Left, toBound.Center.Y);
+			ctx.SetColor(color);
+			ctx.SetLineWidth(8.0);
+			ctx.MoveTo(fromBound.Center.X, fromBound.Center.Y);
+			ctx.LineTo(toBound.Center.X, toBound.Center.Y);
+			ctx.Stroke();
 
+			ctx.SetColor(Color.FromBytes(123, 119, 230));
+			ctx.SetLineWidth(6.0);
+			ctx.MoveTo(fromBound.Center.X, fromBound.Center.Y);
+			ctx.LineTo(toBound.Center.X, toBound.Center.Y);
 			ctx.Stroke();
 		}
 

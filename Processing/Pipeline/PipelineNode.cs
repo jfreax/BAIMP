@@ -16,7 +16,7 @@ namespace Baimp
 		static readonly public Size NodeInOutSpace = new Size(8, 8);
 		static readonly public int NodeRadius = 2;
 		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252);
-		static readonly public Color NodeColorBorder = Color.FromBytes(202, 202, 202);
+		static readonly public Color NodeColorBorder = Color.FromBytes(222, 222, 222);
 		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static readonly public Color NodeColorGlow = Colors.SkyBlue.WithAlpha(0.4);
 		static readonly public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
@@ -129,8 +129,8 @@ namespace Baimp
 
 			// add widgets
 			if (!IsFinalNode()) {
-				icons["hide"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
-				icons["view"].Bounds = new Rectangle(10, 3, textHeight, textHeight);
+				icons["hide"].Bounds = new Rectangle(bound.Width - textHeight - 10, 3, textHeight, textHeight);
+				icons["view"].Bounds = new Rectangle(bound.Width - textHeight - 10, 3, textHeight, textHeight);
 
 				icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
 				icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
@@ -225,18 +225,26 @@ namespace Baimp
 		void DrawHeader(Context ctx)
 		{
 			TextLayout text = new TextLayout();
-			Point textOffset = new Point(0, 4);
+			Point textOffset = new Point(8, 4);
 
 			text.Text = algorithm.Headline();
-			if (text.GetSize().Width < NodeSize.Width) {
-				textOffset.X = (NodeSize.Width - text.GetSize().Width) * 0.5;
-			} else {
+			text.Font = text.Font.WithWeight(FontWeight.Semibold).WithSize(8.0).WithStretch(FontStretch.ExtraCondensed);
+			if (text.GetSize().Width >= NodeSize.Width) {
 				text.Width = NodeSize.Width;
 				text.Trimming = TextTrimming.WordElipsis;
 			}
 			Point textPosition = bound.Location.Offset(textOffset);
 
-			ctx.SetColor(Colors.Black);
+			// stroke under headline
+			contentOffset.X = 6;
+			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
+
+			ctx.RoundRectangle(bound.Left+1, bound.Top+1, bound.Width-2, contentOffset.Y, NodeRadius);
+			ctx.SetColor(Color.FromBytes(238, 238, 238));
+			ctx.Fill();
+
+			// text
+			ctx.SetColor(Color.FromBytes(32, 32, 32));
 			ctx.DrawTextLayout(text, textPosition);
 
 			// icons
@@ -248,16 +256,13 @@ namespace Baimp
 					);
 				}
 			}
+		
 
-			// stroke under headline
-			contentOffset.X = 6;
-			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
-
-			ctx.SetColor(NodeColorBorder);
-			ctx.MoveTo(bound.Location.Offset(contentOffset));
-			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
-			ctx.SetLineWidth(1.0);
-			ctx.Stroke();
+//			ctx.SetColor(NodeColorBorder);
+//			ctx.MoveTo(bound.Location.Offset(contentOffset));
+//			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
+//			ctx.SetLineWidth(1.0);
+//			ctx.Stroke();
 
 			text.Dispose();
 		}

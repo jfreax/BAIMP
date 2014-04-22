@@ -132,6 +132,23 @@ namespace Baimp
 				return;
 
 			base.OnDraw(ctx, dirtyRect);
+
+			// draw alle edges
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
+					if (!mNode.IsInput) {
+						mNode.DrawEdges(ctx);
+					}
+				}
+			}
+
+			// draw all markers
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
+					mNode.Draw(ctx);
+				}
+			}
+
 				
 			// draw all nodes
 			foreach (PipelineNode node in nodes) {
@@ -158,22 +175,7 @@ namespace Baimp
 				}
 			}
 				
-			// draw alle edges
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					if (!mNode.IsInput) {
-						mNode.DrawEdges(ctx);
-					}
-				}
-			}
 				
-			// draw all markers
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					mNode.Draw(ctx);
-				}
-			}
-
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode.Draw(ctx)) {
 					QueueDraw(lastSelectedNode.bound);

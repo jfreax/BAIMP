@@ -50,14 +50,17 @@ namespace Baimp
 			ctx.SetColor(PipelineNode.NodeColorBorder);
 
 			Rectangle bndTmp = Bounds;
-			ctx.SetLineWidth(1);
-			ctx.MoveTo(bndTmp.Left, bndTmp.Center.Y);
-			ctx.LineTo(bndTmp.Right, bndTmp.Center.Y);
-			ctx.Stroke();
 
 			if (IsInput) {
-				int inputBufferSize = inputData.Count;
+				ctx.SetColor(Colors.Black.WithAlpha(0.8));
+				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width, 0, 360);
+				ctx.Fill();
 
+				ctx.SetColor(Color.FromBytes(123, 119, 230));
+				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
+				ctx.Fill();
+
+				int inputBufferSize = inputData.Count;
 				List<Result> ihCopy;
 				lock (inputHistoryLock) {
 					ihCopy = new List<Result>(inputHistory);
@@ -90,6 +93,14 @@ namespace Baimp
 					ctx.DrawTextLayout(textLayout, inputbufferSizeLocation);
 				}
 			} else {
+				ctx.SetColor(Colors.Black.WithAlpha(0.8));
+				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width, 0, 360);
+				ctx.Fill();
+
+				ctx.SetColor(Color.FromBytes(123, 119, 230));
+				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
+				ctx.Fill();
+
 				if (parent.algorithm.Output[positionNo].IsFinal()) {
 					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
 					ctx.LineTo(bndTmp.Right, bndTmp.Bottom);
