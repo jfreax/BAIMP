@@ -270,13 +270,21 @@ namespace Baimp
 				scan.NotifyChange("mask");
 			}
 		}
-
-
-		private string MaskFilename()
+			
+		/// <summary>
+		/// Get the filename in save archive of this mask.
+		/// </summary>
+		/// <returns>The filename.</returns>
+		string MaskFilename()
 		{
 			return String.Format("masks/{0}.png", scan.Name);
 		}
 
+		/// <summary>
+		/// Renders new mask position.
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		/// <param name="bufferSize">Buffer size (entries that should not be rendered, used by undo function).</param>
 		public void FlushMaskPositions(XD.Context ctx, int bufferSize = 10)
 		{
 			bool first = true;
@@ -334,6 +342,19 @@ namespace Baimp
 				MaskPosition.RemoveRange(0, MaskPosition.Count - 1 - bufferSize);
 
 				scan.NotifyChange("mask");
+			}
+		}
+
+		/// <summary>
+		/// Undo the last added mask position.
+		/// </summary>
+		public void Undo()
+		{
+			for (int i = MaskPosition.Count-1; i >= 0; --i) {
+				if (MaskPosition[i].type != MaskEntryType.Space) {
+					MaskPosition.RemoveAt(i);
+					break;
+				}
 			}
 		}
 

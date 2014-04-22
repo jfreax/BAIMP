@@ -378,6 +378,20 @@ namespace Baimp
 			}
 		}
 
+		protected override void OnKeyPressed(KeyEventArgs args)
+		{
+			base.OnKeyPressed(args);
+
+			if (args.Modifiers.HasFlag(ModifierKeys.Command) || args.Modifiers.HasFlag(ModifierKeys.Control)) {
+				switch (args.Key) {
+				case Key.z:
+					scan.Mask.Undo();
+					QueueDraw();
+					break;
+				}
+			}
+		}
+
 		protected override void OnBoundsChanged()
 		{
 			base.OnBoundsChanged();
