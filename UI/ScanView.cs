@@ -18,6 +18,28 @@ namespace Baimp
 		ExtendedButton2 = 16
 	}
 
+	[Flags]
+	public enum MaskEntryType
+	{
+		Point = 0,
+		Delete = 1,
+		Space = 2
+	}
+
+	class MaskEntry
+	{
+		public Point position;
+		public MaskEntryType type;
+		public int pointerSize;
+
+		public MaskEntry(Point position, MaskEntryType type, int pointerSize)
+		{
+			this.position = position;
+			this.type = type;
+			this.pointerSize = pointerSize;
+		}
+	}
+
 	public class ScanView : Canvas
 	{
 		#region static member
@@ -46,6 +68,8 @@ namespace Baimp
 		/// </summary>
 		Point mousePosition;
 		Point mousePositionStart;
+		//List<Tuple<MaskEntryType, Point>> newMaskPositions = new List<Tuple<MaskEntryType, Point>>();
+		List<MaskEntry> maskPosition = new List<MaskEntry>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
@@ -100,25 +124,73 @@ namespace Baimp
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
 				if (mask != null && ShowMask) {
-					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
+					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)));
 				}
 			}
 
-			if (isEditMode && mousePosition != Point.Zero) {
+			if (isEditMode) {
 				Point scaleFactor = new Point(
 					                    scan.Size.Width / image.Size.Width, 
 					                    scan.Size.Height / image.Size.Height);
-
-				ctx.Arc(mousePosition.X, mousePosition.Y, pointerSize / scaleFactor.X, 0, 360);
 				ctx.SetColor(maskColor);
-				ctx.Fill();
 
-				if (mousePositionStart != Point.Zero) {
-					ctx.SetLineWidth(pointerSize);
-					ctx.SetColor(maskColor);
-					ctx.MoveTo(mousePosition);
-					ctx.LineTo(mousePositionStart);
-					ctx.Stroke();
+				foreach (MaskEntry p in maskPosition) {
+					switch (p.type) {
+					case MaskEntryType.Point:
+						ctx.SetLineWidth(p.pointerSize / scaleFactor.Y * 2);
+						ctx.LineTo(p.position.X / scaleFactor.X, p.position.Y / scaleFactor.Y);
+						ctx.Stroke();
+
+						ctx.Arc(
+							p.position.X / scaleFactor.X, p.position.Y / scaleFactor.Y,
+							p.pointerSize / scaleFactor.Y, 0, 360);
+						ctx.Fill();
+
+						ctx.MoveTo(p.position.X / scaleFactor.X, p.position.Y / scaleFactor.Y);
+						break;
+					case MaskEntryType.Space:
+						ctx.Stroke();
+						ctx.ClosePath();
+						break;
+					case MaskEntryType.Delete:
+						ctx.Arc(
+							p.position.X / scaleFactor.X, p.position.Y / scaleFactor.Y,
+							p.pointerSize / scaleFactor.Y, 0, 360);
+						ctx.Save();
+						ctx.Clip();
+						int newX = (int) Math.Min(Math.Max(
+							           p.position.X / scaleFactor.X - pointerSize / scaleFactor.Y, 0), scan.Size.Width);
+						int newY = (int) Math.Min(Math.Max(
+							           p.position.Y / scaleFactor.Y - pointerSize / scaleFactor.Y, 0), scan.Size.Height);
+
+						using (ImageBuilder ib = 
+							       new ImageBuilder((pointerSize / scaleFactor.Y * 2), (pointerSize / scaleFactor.Y * 2))) {
+							BitmapImage bi = ib.ToBitmap();
+							image.WithBoxSize(image.Size).ToBitmap().CopyArea(
+								newX, newY, 
+								(int) (pointerSize / scaleFactor.Y * 2), (int) (pointerSize / scaleFactor.Y * 2),
+								bi, 0, 0);
+							ctx.DrawImage(bi, new Point(newX, newY));
+						}
+						ctx.Restore();
+						ctx.ClosePath();
+						break;
+					}
+				}
+					
+				ctx.Stroke();
+
+				if (mousePosition != Point.Zero) {
+					ctx.Arc(mousePosition.X, mousePosition.Y, pointerSize / Math.Max(scaleFactor.X, scaleFactor.Y), 0, 360);
+					ctx.Fill();
+
+					if (mousePositionStart != Point.Zero) {
+						ctx.SetLineWidth(pointerSize);
+						ctx.SetColor(maskColor);
+						ctx.MoveTo(mousePosition);
+						ctx.LineTo(mousePositionStart);
+						ctx.Stroke();
+					}
 				}
 			}
 		}
@@ -242,12 +314,69 @@ namespace Baimp
 
 				if (isEditMode) {
 					ImageBuilder ib = scan.Mask.GetMaskBuilder();
-					ib.Context.ClosePath();
+
+					bool first = true;
+					if (maskPosition.Count > 12) {
+						ib.Context.SetColor(maskColor);
+						for (int i = 0; i < maskPosition.Count - 10; i++) {
+							switch (maskPosition[i].type) {
+							case MaskEntryType.Point:
+								ib.Context.SetLineWidth(maskPosition[i].pointerSize * 2);
+								if (first) {
+									first = false;
+									ib.Context.MoveTo(maskPosition[i].position);
+								} else {
+									ib.Context.LineTo(maskPosition[i].position);
+								}
+								ib.Context.Stroke();
+
+								ib.Context.Arc(
+									maskPosition[i].position.X, maskPosition[i].position.Y,
+									maskPosition[i].pointerSize, 0, 360);
+								ib.Context.Fill();
+
+								ib.Context.MoveTo(maskPosition[i].position);
+								break;
+							case MaskEntryType.Space:
+								ib.Context.Stroke();
+								ib.Context.ClosePath();
+								break;
+							case MaskEntryType.Delete:
+								ib.Context.Arc(
+									maskPosition[i].position.X, maskPosition[i].position.Y,
+									maskPosition[i].pointerSize, 0, 360);
+								ib.Context.Save();
+								ib.Context.Clip();
+								int newX = (int) Math.Min(Math.Max(
+									maskPosition[i].position.X - pointerSize, 0), scan.Size.Width);
+								int newY = (int) Math.Min(Math.Max(
+									maskPosition[i].position.Y - pointerSize, 0), scan.Size.Height);
+
+								using (ImageBuilder ibnew = 
+									new ImageBuilder(pointerSize * 2, pointerSize * 2)) {
+									BitmapImage bi = ibnew.ToBitmap();
+									image.WithBoxSize(scan.Size).ToBitmap().CopyArea(
+										newX, newY, pointerSize * 2, pointerSize * 2,
+										bi, 0, 0);
+									ib.Context.DrawImage(bi, new Point(newX, newY));
+								}
+								ib.Context.Restore();
+								ib.Context.ClosePath();
+								break;
+							}
+						}
+						ib.Context.Stroke();
+
+						maskPosition.RemoveRange(0, maskPosition.Count - 12);
+						scan.NotifyChange("mask");
+					}
+
+					maskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 
 					if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift)) {
 						Point scaleFactor = new Point(
-							scan.Size.Width / image.Size.Width, 
-							scan.Size.Height / image.Size.Height);
+							                    scan.Size.Width / image.Size.Width, 
+							                    scan.Size.Height / image.Size.Height);
 
 						Point start = 
 							new Point(mousePositionStart.X * scaleFactor.X, mousePositionStart.Y * scaleFactor.Y);
@@ -416,36 +545,38 @@ namespace Baimp
 			if (position.X > ib.Width || position.Y > ib.Height) {
 				return;
 			}
+
+			maskPosition.Add(new MaskEntry(position, unset ? MaskEntryType.Delete : MaskEntryType.Point, pointerSize));
 				
-			ib.Context.Save();
-			if (unset) {
-				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-				ib.Context.Clip();
+//			ib.Context.Save();
+//			if (unset) {
+//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+//				ib.Context.Clip();
+//
+//				int newX = (int) Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
+//				int newY = (int) Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
+//
+//				Image i = image.WithBoxSize(scan.Size).ToBitmap().Crop(
+//					          newX, newY, pointerSize * 2, pointerSize * 2
+//				          );
+//
+//				ib.Context.DrawImage(i, new Point(newX, newY));
+//				ib.Context.Fill();
+//			} else {
+//				ib.Context.SetLineWidth(pointerSize * 2);
+//
+//				ib.Context.SetColor(maskColor);
+//				ib.Context.LineTo(position);
+//				ib.Context.Stroke();
+//
+//				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
+//				ib.Context.Fill();
+//
+//				ib.Context.MoveTo(position);
+//			}
+//			ib.Context.Restore();
 
-				int newX = (int) Math.Min(Math.Max(position.X - pointerSize, 0), scan.Size.Width);
-				int newY = (int) Math.Min(Math.Max(position.Y - pointerSize, 0), scan.Size.Height);
-
-				Image i = image.WithBoxSize(scan.Size).ToBitmap().Crop(
-					          newX, newY, pointerSize * 2, pointerSize * 2
-				          );
-
-				ib.Context.DrawImage(i, new Point(newX, newY));
-				ib.Context.Fill();
-			} else {
-				ib.Context.SetLineWidth(pointerSize * 2);
-
-				ib.Context.SetColor(maskColor);
-				ib.Context.LineTo(position);
-				ib.Context.Stroke();
-
-				ib.Context.Arc(position.X, position.Y, pointerSize, 0, 360);
-				ib.Context.Fill();
-
-				ib.Context.MoveTo(position);
-			}
-			ib.Context.Restore();
-
-			scan.NotifyChange("mask");
+//			scan.NotifyChange("mask");
 		}
 
 		/// <summary>
