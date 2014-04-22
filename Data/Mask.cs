@@ -285,7 +285,7 @@ namespace Baimp
 		/// </summary>
 		/// <param name="ctx">Context.</param>
 		/// <param name="bufferSize">Buffer size (entries that should not be rendered, used by undo function).</param>
-		public void FlushMaskPositions(XD.Context ctx, int bufferSize = 10)
+		public void FlushMaskPositions(XD.Context ctx, int bufferSize = 30)
 		{
 			bool first = true;
 			if (MaskPosition.Count >= bufferSize) {

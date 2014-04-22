@@ -158,7 +158,7 @@ namespace Baimp
 			return ret;
 		}
 
-		private void DrawBackground(Context ctx)
+		void DrawBackground(Context ctx)
 		{
 			// draw shadow
 			ctx.RoundRectangle(bound.Inflate(-1, -1).Offset(1, 3), NodeRadius);
@@ -184,7 +184,7 @@ namespace Baimp
 			}
 		}
 
-		private void DrawProgress(Context ctx)
+		void DrawProgress(Context ctx)
 		{
 			int threadsRunning = progress.Keys.Count;
 
@@ -220,12 +220,9 @@ namespace Baimp
 			foreach (int removeID in toRemove) {
 				progress.Remove(removeID);
 			}
-
-			// input / output buffer
-
 		}
 
-		private void DrawHeader(Context ctx)
+		void DrawHeader(Context ctx)
 		{
 			TextLayout text = new TextLayout();
 			Point textOffset = new Point(0, 4);
@@ -323,7 +320,9 @@ namespace Baimp
 				foreach (BaseOption option in algorithm.Options) {
 					name += option.Value + ",";
 				}
-				name = name.TrimEnd(',') + ")";
+				if (name != null) {
+					name = name.TrimEnd(',') + ")";
+				}
 			}
 			return name;
 		}

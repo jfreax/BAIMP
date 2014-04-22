@@ -112,9 +112,7 @@ namespace Baimp
 					currentFiberTypes.Add(scanType);
 				}
 
-				ToggleButton cb = new ToggleButton();
-				cb.Style = ButtonStyle.Flat;
-				cb.Label = scanType;
+				TabButton cb = new TabButton(scanType);
 
 				if (currentFiberTypes.Contains(scanType)) {
 					cb.Active = true;

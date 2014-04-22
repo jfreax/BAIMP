@@ -160,6 +160,7 @@
     <Compile Include="Data\Export\IExporter.cs" />
     <Compile Include="Option\OptionBool.cs" />
     <Compile Include="Option\BaseOption.cs" />
+    <Compile Include="UI\Widget\TabButton.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
