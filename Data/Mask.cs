@@ -10,13 +10,43 @@ using System.Threading.Tasks;
 
 namespace Baimp
 {
+	[Flags]
+	public enum MaskEntryType
+	{
+		Point = 0,
+		Delete = 1,
+		Space = 2
+	}
+
+	public class MaskEntry
+	{
+		public Xwt.Point position;
+		public MaskEntryType type;
+		public int pointerSize;
+
+		public MaskEntry(Xwt.Point position, MaskEntryType type, int pointerSize)
+		{
+			this.position = position;
+			this.type = type;
+			this.pointerSize = pointerSize;
+		}
+	}
+
 	public class Mask
 	{
+		#region static member
+
+		public static Xwt.Drawing.Color maskColor = XD.Colors.DarkBlue;
+
+		#endregion
+
 		public delegate void ImageLoadedCallback(XD.Image image);
 
-		private readonly BaseScan scan;
-		private XD.ImageBuilder maskBuilder;
-		private Bitmap bitmapCache = null;
+		readonly BaseScan scan;
+		XD.ImageBuilder maskBuilder;
+		Bitmap bitmapCache;
+
+		public readonly List<MaskEntry> MaskPosition = new List<MaskEntry>();
 
 		public Mask(BaseScan scan)
 		{
@@ -139,16 +169,19 @@ namespace Baimp
 		/// </summary>
 		public unsafe void Save()
 		{
+			XD.ImageBuilder mb = GetMaskBuilder();
+			FlushMaskPositions(mb.Context, 0);
+
 			MemoryStream outStream = new MemoryStream();
 
-			XD.BitmapImage mask = GetMaskBuilder().ToBitmap();
-			XD.Color maskColor = ScanView.maskColor.WithAlpha(1.0);
+			XD.BitmapImage mask = mb.ToBitmap();
+			XD.Color maskColorFA = maskColor.WithAlpha(1.0);
 
 			if (MainClass.toolkitType == ToolkitType.Gtk) {
 				Parallel.For(0, (int) mask.Height, new Action<int>(y => {
 					for (int x = 0; x < mask.Width; x++) {
 						XD.Color color = mask.GetPixel(x, y);
-						if (color.WithAlpha(1.0) == maskColor) {
+						if (color.WithAlpha(1.0) == maskColorFA) {
 							mask.SetPixel(x, y, color.WithAlpha(0.6));
 						} else {
 							mask.SetPixel(x, y, XD.Colors.Transparent);
@@ -179,9 +212,9 @@ namespace Baimp
 						scan0++;
 						XD.Color color = XD.Color.FromBytes(r, g, b);
 
-						if ((int) (color.Red * 10) == (int) (maskColor.Red * 10) &&
-							(int) (color.Green * 10) == (int) (maskColor.Green * 10) &&
-							(int) (color.Blue * 10) == (int) (maskColor.Blue * 10)) {
+						if ((int) (color.Red * 10) == (int) (maskColorFA.Red * 10) &&
+							(int) (color.Green * 10) == (int) (maskColorFA.Green * 10) &&
+							(int) (color.Blue * 10) == (int) (maskColorFA.Blue * 10)) {
 							*scan0 = 153; // 60% alpha
 						} else {
 							*(scan0 - 3) = 0;
@@ -215,7 +248,11 @@ namespace Baimp
 
 			maskBuilder.Dispose();
 			maskBuilder = null;
-			bitmapCache = null;
+
+			if (bitmapCache != null) {
+				bitmapCache.Dispose();
+				bitmapCache = null;
+			}
 
 			scan.NotifySaved("mask");
 		}
@@ -239,6 +276,74 @@ namespace Baimp
 		{
 			return String.Format("masks/{0}.png", scan.Name);
 		}
+
+		public void FlushMaskPositions(XD.Context ctx, int bufferSize = 10)
+		{
+			bool first = true;
+			if (MaskPosition.Count >= bufferSize) {
+				ctx.SetColor(maskColor);
+				for (int i = 0; i < MaskPosition.Count - bufferSize; i++) {
+					switch (MaskPosition[i].type) {
+					case MaskEntryType.Point:
+						ctx.SetLineWidth(MaskPosition[i].pointerSize * 2);
+						if (first) {
+							first = false;
+							ctx.MoveTo(MaskPosition[i].position);
+						} else {
+							ctx.LineTo(MaskPosition[i].position);
+						}
+						ctx.Stroke();
+
+						ctx.Arc(
+							MaskPosition[i].position.X, MaskPosition[i].position.Y,
+							MaskPosition[i].pointerSize, 0, 360);
+						ctx.Fill();
+
+						ctx.MoveTo(MaskPosition[i].position);
+						break;
+					case MaskEntryType.Space:
+						ctx.Stroke();
+						ctx.ClosePath();
+						break;
+					case MaskEntryType.Delete:
+						ctx.Arc(
+							MaskPosition[i].position.X, MaskPosition[i].position.Y,
+							MaskPosition[i].pointerSize, 0, 360);
+						ctx.Save();
+						ctx.Clip();
+						int newX = (int) Math.Min(Math.Max(
+							MaskPosition[i].position.X - MaskPosition[i].pointerSize, 0), scan.Size.Width);
+						int newY = (int) Math.Min(Math.Max(
+							MaskPosition[i].position.Y - MaskPosition[i].pointerSize, 0), scan.Size.Height);
+
+						using (XD.ImageBuilder ibnew = 
+							new XD.ImageBuilder(MaskPosition[i].pointerSize * 2, MaskPosition[i].pointerSize * 2)) {
+							XD.BitmapImage bi = ibnew.ToBitmap();
+							scan.GetAsImage(CurrentScanType, false).WithBoxSize(scan.Size).ToBitmap().CopyArea(
+								newX, newY, MaskPosition[i].pointerSize * 2, MaskPosition[i].pointerSize * 2,
+								bi, 0, 0);
+							ctx.DrawImage(bi, new Xwt.Point(newX, newY));
+						}
+						ctx.Restore();
+						ctx.ClosePath();
+						break;
+					}
+				}
+				ctx.Stroke();
+
+				MaskPosition.RemoveRange(0, MaskPosition.Count - bufferSize-1);
+				scan.NotifyChange("mask");
+			}
+		}
+
+		#region Properties
+
+		public string CurrentScanType {
+			get;
+			set;
+		}
+
+		#endregion
 	}
 }
 
