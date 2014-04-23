@@ -38,17 +38,29 @@ namespace Baimp
 		{
 			MarkerNode toNode = to as MarkerNode;
 			if (toNode != null) {
-				ctx.SetColor(from.NodeColor.BlendWith(toNode.NodeColor, 0.5));
-				ctx.SetLineWidth(5.0);
 
-				ComputeStroke(ctx, from).Stroke();
+				ComputeStroke(ctx, from, new Point(2.5, 2.5));
+
+				ctx.SetLineWidth(4.5);
+				ctx.SetColor(Colors.DimGray.WithAlpha(0.3));
+				ctx.Stroke();
+
+				ComputeStroke(ctx, from);
+
+				ctx.SetLineWidth(6);
+				ctx.SetColor(Colors.DimGray.WithAlpha(0.7));
+				ctx.StrokePreserve();
+
+				ctx.SetLineWidth(4.0);
+				ctx.SetColor(from.NodeColor.BlendWith(toNode.NodeColor, 0.5).WithAlpha(1.0));
+				ctx.Stroke();
 			}
 		}
 
-		public Context ComputeStroke(Context ctx, MarkerNode from)
+		public Context ComputeStroke(Context ctx, MarkerNode from, Point offset = default(Point))
 		{
-			Rectangle fromBound = from.Bounds;
-			Rectangle toBound = to.Bounds;
+			Rectangle fromBound = from.Bounds.Offset(offset);
+			Rectangle toBound = to.Bounds.Offset(offset);
 
 			ctx.MoveTo(fromBound.Center.X, fromBound.Center.Y);
 
