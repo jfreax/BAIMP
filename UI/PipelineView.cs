@@ -921,7 +921,7 @@ namespace Baimp
 		/// Translates all nodes by given offset.
 		/// </summary>
 		/// <param name="offset">Offset.</param>
-		private void TranslateAllNodesBy(Point offset)
+		void TranslateAllNodesBy(Point offset)
 		{
 			foreach (PipelineNode node in nodes) {
 				node.bound = node.bound.Offset(offset);
@@ -929,7 +929,7 @@ namespace Baimp
 			}
 		}
 
-		private void EmitDataChanged()
+		void EmitDataChanged()
 		{
 			if (dataChanged != null) {
 				dataChanged(this, new SaveStateEventArgs(false));
@@ -937,18 +937,6 @@ namespace Baimp
 		}
 
 		#endregion
-
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			if (popupWindow != null) {
-				if (popupWindow.Content != null) {
-					popupWindow.Content.Dispose();
-				}
-
-				popupWindow.Dispose();
-			}
-		}
 	}
 }
 
