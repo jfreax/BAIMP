@@ -242,9 +242,11 @@ namespace Baimp
 			// icons
 			foreach (var icon in icons) {
 				if (icon.Value.Visible) {
+					icon.Value.Bounds = 
+						new Rectangle(bound.Width - icon.Value.Bounds.Width - 10, 3, icon.Value.Bounds.Width, icon.Value.Bounds.Height);
 					ctx.DrawImage(
 						icon.Value.Image.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-						bound.Location.Offset(bound.Width - icon.Value.Bounds.Width - 10, 3)
+						bound.Location.Offset(icon.Value.Bounds.Location)
 					);
 				}
 			}
