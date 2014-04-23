@@ -12,47 +12,40 @@ namespace Baimp
 		#region static
 
 		static readonly public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
-		static readonly public Size NodeSize = new Size(200, 40);
+		static readonly public double NodeTextMargin = 24;
+		static readonly public Size AbsMinNodeSize = new Size(80, 20);
+		static readonly public Size AbsMaxNodeSize = new Size(400, 120);
 		static readonly public Size NodeInOutSpace = new Size(8, 8);
 		static readonly public int NodeRadius = 2;
 		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252, 230);
 		static readonly public Color NodeColorBorder = Color.FromBytes(222, 222, 222);
 		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static readonly public Color NodeColorGlow = Colors.SkyBlue.WithAlpha(0.4);
-		static readonly public Color NodeColorProgress  = Color.FromBytes(190, 200, 250);
+		static readonly public Color NodeColorProgress = Color.FromBytes(190, 200, 250);
 
 		#endregion
 
 		Dictionary<int, int> progress = new Dictionary<int, int>();
-
 		[XmlIgnore]
 		Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
-
 		[XmlIgnore]
 		PipelineView parent;
-
 		[XmlIgnore]
 		public Point contentOffset = Point.Zero;
-
 		[XmlIgnore]
 		public BaseAlgorithm algorithm;
-
 		[XmlIgnore]
-		public Rectangle bound = new Rectangle(Point.Zero, NodeSize);
-
+		public Rectangle bound = new Rectangle(Point.Zero, AbsMinNodeSize);
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
-
 		/// <summary>
 		/// Should results from this node be saved?
 		/// </summary>
 		bool saveResult;
-
 		/// <summary>
 		/// True, if mouse is currently over this node
 		/// </summary>
 		bool hover;
-
 		/// <summary>
 		/// Reference to all results + their input data.
 		/// Is filled only, if user wants to save them.
@@ -62,13 +55,11 @@ namespace Baimp
 		/// </summary>
 		[XmlIgnore]
 		public List<Tuple<IType[], Result[]>> results = new List<Tuple<IType[], Result[]>>();
-
 		/// <summary>
 		/// Comments from user
 		/// </summary>
 		[XmlElement("comment")]
 		public string userComment = string.Empty;
-
 
 		#region initialize
 
@@ -76,13 +67,14 @@ namespace Baimp
 		/// Empty constructur for xml serialization.
 		/// Do not use!
 		/// </summary>
-		public PipelineNode() {
+		public PipelineNode()
+		{
 			icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.hide.png")));
 			icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.view.png")));
 
 			SaveResult = false;
 
-            InitializeWidgets();
+			InitializeWidgets();
 		}
 
 		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
@@ -129,8 +121,8 @@ namespace Baimp
 
 			// add widgets
 			if (!IsFinalNode()) {
-				icons["hide"].Bounds = new Rectangle(bound.Width - textHeight - 10, 3, textHeight, textHeight);
-				icons["view"].Bounds = new Rectangle(bound.Width - textHeight - 10, 3, textHeight, textHeight);
+				icons["hide"].Bounds = new Rectangle(0, 0, textHeight, textHeight);
+				icons["view"].Bounds = new Rectangle(0, 0, textHeight, textHeight);
 
 				icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
 				icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
@@ -177,7 +169,7 @@ namespace Baimp
 			ctx.Fill();
 
 			if (hover) { // draw glow
-				ctx.RoundRectangle(bound.Inflate(1, 1), NodeRadius*2);
+				ctx.RoundRectangle(bound.Inflate(1, 1), NodeRadius * 2);
 				ctx.SetColor(NodeColorGlow);
 				ctx.SetLineWidth(1);
 				ctx.Stroke();
@@ -229,8 +221,8 @@ namespace Baimp
 
 			text.Text = algorithm.Headline();
 			text.Font = text.Font.WithWeight(FontWeight.Semibold).WithSize(8.0).WithStretch(FontStretch.ExtraCondensed);
-			if (text.GetSize().Width >= NodeSize.Width) {
-				text.Width = NodeSize.Width;
+			if (text.GetSize().Width >= AbsMaxNodeSize.Width - text.GetSize().Height * 2) {
+				text.Width = AbsMaxNodeSize.Width;
 				text.Trimming = TextTrimming.WordElipsis;
 			}
 			Point textPosition = bound.Location.Offset(textOffset);
@@ -239,7 +231,7 @@ namespace Baimp
 			contentOffset.X = 6;
 			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
 
-			ctx.RoundRectangle(bound.Left+1, bound.Top+1, bound.Width-2, contentOffset.Y, NodeRadius);
+			ctx.RoundRectangle(bound.Left + 1, bound.Top + 1, bound.Width - 2, contentOffset.Y, NodeRadius);
 			ctx.SetColor(Color.FromBytes(222, 222, 222, 110));
 			ctx.Fill();
 
@@ -252,7 +244,7 @@ namespace Baimp
 				if (icon.Value.Visible) {
 					ctx.DrawImage(
 						icon.Value.Image.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
-						bound.Location.Offset(icon.Value.Bounds.Location)
+						bound.Location.Offset(bound.Width - icon.Value.Bounds.Width - 10, 3)
 					);
 				}
 			}
@@ -260,11 +252,14 @@ namespace Baimp
 			text.Dispose();
 		}
 
-		private bool DrawBody(Context ctx)
+		bool DrawBody(Context ctx)
 		{
 			bool ret = false;
 			TextLayout text = new TextLayout();
 			ctx.SetColor(Colors.Black);
+
+			double inputMaxWidth = 0.0;
+			double outputMaxWidth = 0.0;
 
 			foreach (MarkerNode mNode in mNodes) {
 				text.Text = mNode.compatible.ToString();
@@ -272,17 +267,29 @@ namespace Baimp
 				Point pos = mNode.Bounds.Location;
 				if (mNode.IsInput) {
 					pos.X = mNode.Bounds.Right + contentOffset.X;
+					if (pos.X - bound.X + text.GetSize().Width > inputMaxWidth) {
+						inputMaxWidth = pos.X - bound.X + text.GetSize().Width;
+					}
 				} else {
 					pos.X = mNode.Bounds.Left - contentOffset.X - text.GetSize().Width;
+					if (bound.Right - pos.X > outputMaxWidth) {
+						outputMaxWidth = bound.Right - pos.X;
+					}
 				}
 				ctx.DrawTextLayout(text, pos);
 				ctx.Stroke();
 
-				// resize widget if necessary
+				// resize height of widget if necessary
 				if (pos.Y + mNode.Height + NodeInOutSpace.Height > bound.Bottom) {
 					bound.Bottom = pos.Y + mNode.Height + NodeInOutSpace.Height;
 					ret = true;
 				}
+			}
+
+			// resize width 
+			if (inputMaxWidth + outputMaxWidth + NodeTextMargin > bound.Width) {
+				bound.Width = inputMaxWidth + outputMaxWidth + NodeTextMargin;
+				ret = true;
 			}
 
 			text.Dispose();
@@ -462,7 +469,8 @@ namespace Baimp
 
 		#region custom events
 
-		private void Redraw() {
+		private void Redraw()
+		{
 			if (queueRedraw != null) {
 				queueRedraw(this, null);
 			}
@@ -608,6 +616,7 @@ namespace Baimp
 				InitializeWidgets();
 			}
 		}
+
 		#endregion
 	}
 }

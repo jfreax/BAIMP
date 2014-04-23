@@ -404,7 +404,7 @@ namespace Baimp
 			try {
 				string algoType = args.Data.GetValue(TransferDataType.Text).ToString();
 
-				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(args.Position, PipelineNode.NodeSize));
+				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(args.Position, PipelineNode.AbsMinNodeSize));
 				node.QueueRedraw += QueueRedraw;
 
 				SetNodePosition(node);
