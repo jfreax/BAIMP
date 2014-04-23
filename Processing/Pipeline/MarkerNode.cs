@@ -9,29 +9,25 @@ namespace Baimp
 {
 	public class MarkerNode : Node
 	{
+		static Random randomGenerator = new Random();
 		static readonly public double NodeInOutMarkerSize = 10;
 		static readonly public int NodeInOutSpace = 18;
-
 		/// <summary>
 		/// 
 		/// </summary>
 		[XmlIgnore]
 		public Compatible compatible;
-
 		/// <summary>
 		/// Reference to parent pipeline node.
 		/// </summary>
 		[XmlIgnore]
 		public PipelineNode parent;
-
 		int positionNo;
 		ConcurrentQueue<Result> inputData = new ConcurrentQueue<Result>();
 		List<Result> inputHistory = new List<Result>();
 		object inputHistoryLock = new object();
-
 		/// <summary>Temp variable to store rendering text</summary>
 		TextLayout textLayout = new TextLayout();
-
 		/// <summary>
 		/// Color of this node.
 		/// </summary>
@@ -109,21 +105,21 @@ namespace Baimp
 			} else {
 				// if this is a final node
 				if (parent.algorithm.Output[positionNo].IsFinal()) {
-					ctx.MoveTo(bndTmp.Right+4, bndTmp.Top);
-					ctx.LineTo(bndTmp.Right+4, bndTmp.Bottom);
+					ctx.MoveTo(bndTmp.Right + 4, bndTmp.Top);
+					ctx.LineTo(bndTmp.Right + 4, bndTmp.Bottom);
 					ctx.Stroke();
 
 					// draw output size on end nodes (= number of features
 					if (parent.results != null &&
-						parent.results.Count > 0 &&
-						parent.results[0].Item1 != null &&
-						parent.results[0].Item1.Length-1 >= Position) {
+					    parent.results.Count > 0 &&
+					    parent.results[0].Item1 != null &&
+					    parent.results[0].Item1.Length - 1 >= Position) {
 
 						textLayout.Text = parent.results.Count.ToString();
 						double textWidth = textLayout.GetSize().Width;
 						double textHeight = textLayout.GetSize().Height;
 						Point outputbufferSizeLocation = 
-							Bounds.Location.Offset(Bounds.Width*1.8, 0);
+							Bounds.Location.Offset(Bounds.Width * 1.8, 0);
 
 						ctx.Arc(
 							outputbufferSizeLocation.X + textWidth / 2,
@@ -249,7 +245,7 @@ namespace Baimp
 			get {
 				return new Rectangle(
 					new Point(
-						IsInput ? parent.bound.Left + 8: parent.bound.Right - NodeInOutMarkerSize - 8,
+						IsInput ? parent.bound.Left + 8 : parent.bound.Right - NodeInOutMarkerSize - 8,
 						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
 					), new Size(Height, Height)
 				);
@@ -283,12 +279,11 @@ namespace Baimp
 		public Color NodeColor {
 			get {
 				if (color == default(Color)) {
-					Random rnd = new Random();
-					UInt32 c = ColorList[rnd.Next(ColorList.Length)];
+					UInt32 c = ColorList[randomGenerator.Next(ColorList.Length)];
 					byte red = (byte) ((c >> 16) & 0xFF);
 					byte green = (byte) ((c >> 8) & 0xFF);
 					byte blue = (byte) (c & 0xFF);
-					color = Color.FromBytes(red, green, blue, 180);
+					color = Color.FromBytes(red, green, blue, 220);
 				}
 				return color;
 			}

@@ -8,8 +8,8 @@ namespace Baimp
 	[Serializable]
 	public class MarkerEdge : Edge
 	{
-		static Color color = Color.FromBytes(123, 119, 230);
 		const double absMinLength = 23;
+
 		/// <summary>
 		/// A number between 0 and 1.
 		/// 0.0 means, we clicked on the "from"-side of the edge
@@ -36,10 +36,13 @@ namespace Baimp
 		/// <param name="from">From.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
-			ctx.SetColor(from.NodeColor);
-			ctx.SetLineWidth(5.0);
+			MarkerNode toNode = to as MarkerNode;
+			if (toNode != null) {
+				ctx.SetColor(from.NodeColor.BlendWith(toNode.NodeColor, 0.5));
+				ctx.SetLineWidth(5.0);
 
-			ComputeStroke(ctx, from).Stroke();
+				ComputeStroke(ctx, from).Stroke();
+			}
 		}
 
 		public Context ComputeStroke(Context ctx, MarkerNode from)
