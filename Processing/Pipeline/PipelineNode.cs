@@ -273,7 +273,7 @@ namespace Baimp
 				if (mNode.IsInput) {
 					pos.X = mNode.Bounds.Right + contentOffset.X;
 				} else {
-					pos.X = bound.Right - contentOffset.X - text.GetSize().Width;
+					pos.X = mNode.Bounds.Left - contentOffset.X - text.GetSize().Width;
 				}
 				ctx.DrawTextLayout(text, pos);
 				ctx.Stroke();
