@@ -20,21 +20,30 @@ namespace Baimp
 	public class PipelineView : Canvas
 	{
 		static int globalId = 0;
+
 		ScrollView scrollview;
 		List<PipelineNode> nodes;
 		Point nodeToMoveOffset = Point.Zero;
 		MarkerNode connectNodesStartMarker;
 		Point connectNodesEnd;
 		Point mousePosition = Point.Zero;
-		PipelineNode lastSelectedNode = null;
-		PipelineNode currentHoveredNode = null;
-		Tuple<MarkerNode, MarkerEdge> lastSelectedEdge = null;
+		PipelineNode lastSelectedNode;
+		PipelineNode currentHoveredNode;
+		Tuple<MarkerNode, MarkerEdge> lastSelectedEdge;
 		MouseAction mouseAction = MouseAction.None;
 		MouseMover mouseMover;
 		CancellationTokenSource cancelRequest;
 		CursorType oldCursor;
+
+		/// <summary>
+		/// True if redraw is already queued.
+		/// </summary>
 		bool redrawQueued;
-		Window popupWindow = new Window();
+
+		/// <summary>
+		/// /Window to show results in.*/
+		/// </summary>
+		readonly Window popupWindow = new Window();
 
 		#region initialize
 
@@ -304,7 +313,7 @@ namespace Baimp
 			foreach (BaseOption option in pNode.algorithm.Options) {
 				table.Add(new Label(option.Name), 0, i);
 
-				Widget entry = null;
+				Widget entry;
 				if (option is OptionBool) {
 					CheckBox checkbox = new CheckBox();
 					checkbox.State = (bool) option.Value ? CheckBoxState.On : CheckBoxState.Off;

@@ -11,7 +11,7 @@ namespace Baimp
 	{
 		#region static
 
-		static readonly public WidgetSpacing NodeMargin = new WidgetSpacing(2, 2, 2, 2);
+		static readonly public WidgetSpacing NodeMargin = new WidgetSpacing(0, 6, 0, 6);
 		static readonly public double NodeTextMargin = 24;
 		static readonly public Size AbsMinNodeSize = new Size(80, 20);
 		static readonly public Size AbsMaxNodeSize = new Size(400, 120);
