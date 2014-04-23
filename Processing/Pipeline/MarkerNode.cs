@@ -60,13 +60,13 @@ namespace Baimp
 
 			ctx.RoundRectangle(bndTmp.Inflate(-1, -1), 3);
 			LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Bottom);
-			g.AddColorStop(0, Colors.Black.BlendWith(Color.FromBytes(123, 119, 230), 0.7));
-			g.AddColorStop(1, Color.FromBytes(123, 119, 230));
+			g.AddColorStop(0, Colors.Black.BlendWith(NodeColor, 0.7));
+			g.AddColorStop(1, NodeColor);
 			ctx.Pattern = g;
 			ctx.Fill();
 
 			ctx.RoundRectangle(bndTmp.Inflate(-2, -2), 2);
-			ctx.SetColor(Color.FromBytes(123, 119, 230));
+			ctx.SetColor(NodeColor);
 			ctx.Fill();
 
 			if (IsInput) {
