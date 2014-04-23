@@ -53,22 +53,22 @@ namespace Baimp
 			double horizontalSpace = Math.Abs(fromBound.Center.X - toBound.Center.X);
 			double verticalSpace = Math.Abs(fromBound.Center.Y - toBound.Center.Y);
 
-			bool isStraight = false;
-
 			double minLength = absMinLength;
 			if (horizontalSpace > verticalSpace) {
 				minLength = Math.Max((horizontalSpace - verticalSpace) / 2, absMinLength);
 			}
 			if (verticalSpace > (horizontalSpace - 2 * minLength)) {
 				minLength = horizontalSpace / 2;
-				isStraight = true;
 			}
 
-			if (isStraight && minLength > absMinLength) {
-				ctx.LineTo(fromBound.Center.X + absMinLength, fromBound.Center.Y);
-				double minSpace = Math.Min(horizontalSpace - absMinLength, verticalSpace);
+			if (verticalSpace > (horizontalSpace - minLength) &&
+				minLength > absMinLength) {
+				double minSpace = Math.Min(horizontalSpace - absMinLength, verticalSpace + absMinLength);
 				int verticalNeg = fromBound.Center.Y - toBound.Center.Y < 0 ? 1 : -1;
-				ctx.LineTo(fromBound.Center.X + minSpace, fromBound.Center.Y + ((minSpace - absMinLength) * verticalNeg));
+
+				ctx.LineTo(fromBound.Center.X + absMinLength, fromBound.Center.Y);
+				ctx.LineTo(fromBound.Center.X + minSpace/2, fromBound.Center.Y + ((minSpace/2 - absMinLength) * verticalNeg));
+				ctx.LineTo(fromBound.Center.X + minSpace/2, toBound.Center.Y - minSpace/2 * verticalNeg);
 				ctx.LineTo(fromBound.Center.X + minSpace, toBound.Center.Y);
 				ctx.LineTo(toBound.Center.X, toBound.Center.Y);
 

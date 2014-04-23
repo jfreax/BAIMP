@@ -51,30 +51,18 @@ namespace Baimp
 
 			Rectangle bndTmp = Bounds;
 
-//			ctx.SetColor(Colors.White.WithAlpha(0.8));
-//			ctx.RoundRectangle(bndTmp, 3);
-//			//ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width, 0, 360);
-//			ctx.Fill();
-
 			ctx.RoundRectangle(bndTmp.Inflate(-1, -1), 3);
-			LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Top);
+			LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Bottom);
 			g.AddColorStop(0, Colors.Black.BlendWith(Color.FromBytes(123, 119, 230), 0.7));
 			g.AddColorStop(1, Color.FromBytes(123, 119, 230));
 			ctx.Pattern = g;
 			ctx.Fill();
-
 
 			ctx.RoundRectangle(bndTmp.Inflate(-2, -2), 2);
 			ctx.SetColor(Color.FromBytes(123, 119, 230));
 			ctx.Fill();
 
 			if (IsInput) {
-
-
-//				ctx.SetColor(Color.FromBytes(123, 119, 230));
-//				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
-//				ctx.Fill();
-
 				int inputBufferSize = inputData.Count;
 				List<Result> ihCopy;
 				lock (inputHistoryLock) {
@@ -108,17 +96,10 @@ namespace Baimp
 					ctx.DrawTextLayout(textLayout, inputbufferSizeLocation);
 				}
 			} else {
-//				ctx.SetColor(Colors.Black.WithAlpha(0.8));
-//				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width, 0, 360);
-//				ctx.Fill();
-//
-//				ctx.SetColor(Color.FromBytes(123, 119, 230));
-//				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
-//				ctx.Fill();
-
+				// if this is a final node
 				if (parent.algorithm.Output[positionNo].IsFinal()) {
-					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
-					ctx.LineTo(bndTmp.Right, bndTmp.Bottom);
+					ctx.MoveTo(bndTmp.Right+4, bndTmp.Top);
+					ctx.LineTo(bndTmp.Right+4, bndTmp.Bottom);
 					ctx.Stroke();
 
 					// draw output size on end nodes (= number of features
