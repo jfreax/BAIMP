@@ -36,18 +36,17 @@ namespace Baimp
 		/// <param name="from">From.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
+			ctx.SetColor(color);
+			ctx.SetLineWidth(5.0);
 
+			ComputeStroke(ctx, from).Stroke();
+		}
+
+		public Context ComputeStroke(Context ctx, MarkerNode from)
+		{
 			Rectangle fromBound = from.Bounds;
 			Rectangle toBound = to.Bounds;
 
-//			ctx.SetColor(color);
-//			ctx.SetLineWidth(6.0);
-//			ctx.MoveTo(fromBound.Center.X, fromBound.Center.Y);
-//			ctx.LineTo(toBound.Center.X, toBound.Center.Y);
-//			ctx.Stroke();
-
-			ctx.SetColor(color);
-			ctx.SetLineWidth(5.0);
 			ctx.MoveTo(fromBound.Center.X, fromBound.Center.Y);
 
 			double horizontalSpace = Math.Abs(fromBound.Center.X - toBound.Center.X);
@@ -60,9 +59,9 @@ namespace Baimp
 			if (verticalSpace > (horizontalSpace - 2 * minLength)) {
 				minLength = horizontalSpace / 2;
 			}
-				
+
 			if (verticalSpace > (horizontalSpace - minLength) &&
-			    minLength > absMinLength) {
+				minLength > absMinLength) {
 				double minSpace = Math.Min(horizontalSpace - absMinLength, verticalSpace + absMinLength);
 				int verticalNeg = fromBound.Center.Y - toBound.Center.Y < 0 ? 1 : -1;
 
@@ -85,7 +84,7 @@ namespace Baimp
 				ctx.LineTo(toBound.Center.X, toBound.Center.Y);
 			}
 
-			ctx.Stroke();
+			return ctx;
 		}
 
 		#region implemented abstract members of Edge

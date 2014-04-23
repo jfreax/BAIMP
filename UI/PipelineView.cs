@@ -741,7 +741,7 @@ namespace Baimp
 		/// Gets the edge at position.
 		/// </summary>
 		/// <param name="position">Position.</param>
-		private Tuple<MarkerNode, MarkerEdge> GetEdgeAt(Point position)
+		Tuple<MarkerNode, MarkerEdge> GetEdgeAt(Point position)
 		{
 			const double epsilon = 4.0;
 
@@ -750,18 +750,23 @@ namespace Baimp
 					if (!mNode.IsInput) {
 						foreach (Edge e in mNode.Edges) {
 							MarkerEdge edge = (MarkerEdge) e;
-							Point from = mNode.Bounds.Center;
-							Point to = edge.to.Bounds.Center;
-
-							double segmentLengthSqr = (to.X - from.X) * (to.X - from.X) + (to.Y - from.Y) * (to.Y - from.Y);
-							double r = ((position.X - from.X) * (to.X - from.X) + (position.Y - from.Y) * (to.Y - from.Y)) / segmentLengthSqr;
-							if (r < 0 || r > 1) {
-								continue;
-							}
-							double sl = ((from.Y - position.Y) * (to.X - from.X) - (from.X - position.X) * (to.Y - from.Y)) / Math.Sqrt(segmentLengthSqr);
-							if (-epsilon <= sl && sl <= epsilon) {
-								edge.r = r;
-								return new Tuple<MarkerNode, MarkerEdge>(mNode, edge);
+							using (ImageBuilder ib = new ImageBuilder(Bounds.Width, Bounds.Height)) {
+								ib.Context.SetLineWidth(12);
+								edge.ComputeStroke(ib.Context, mNode);
+								if (ib.Context.IsPointInStroke(position)) {
+									double fromDist = 
+										Math.Pow(mNode.Bounds.Center.X - position.X, 2) + 
+										Math.Pow(mNode.Bounds.Center.Y - position.Y, 2);
+									double toDist = 
+										Math.Pow(edge.to.Bounds.Center.X - position.X, 2) + 
+										Math.Pow(edge.to.Bounds.Center.Y - position.Y, 2);
+									if (fromDist < toDist) {
+										edge.r = 0;
+									} else {
+										edge.r = 1;
+									}
+									return new Tuple<MarkerNode, MarkerEdge>(mNode, edge);
+								}
 							}
 						}
 					}
