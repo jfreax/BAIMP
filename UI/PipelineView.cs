@@ -157,8 +157,8 @@ namespace Baimp
 					QueueDraw();
 				}
 			}
-				
-			// draw alle edges
+
+			// draw all edges
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
 					if (!mNode.IsInput) {
@@ -166,14 +166,14 @@ namespace Baimp
 					}
 				}
 			}
-				
+
 			// draw all markers
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
 					mNode.Draw(ctx);
 				}
-			}
-
+			}	
+				
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode.Draw(ctx)) {
 					QueueDraw(lastSelectedNode.bound);
