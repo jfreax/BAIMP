@@ -876,10 +876,23 @@ namespace Baimp
 			}
 			set {
 				nodes = value;
+				double minX = double.MinValue;
+				double minY = double.MinValue;
 				foreach (PipelineNode pNode in nodes) {
 					pNode.Parent = this;
 					pNode.QueueRedraw += QueueRedraw;
+
+					// to normalize position
+					if (pNode.bound.X > minX) {
+						minX = pNode.bound.X;
+					}
+					if (pNode.bound.Y > minY) {
+						minY = pNode.bound.Y;
+					}
 				}
+
+				TranslateAllNodesBy(new Point(-minX, -minY));
+
 				QueueDraw();
 			}
 		}
