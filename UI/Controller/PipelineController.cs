@@ -40,7 +40,7 @@ namespace Baimp
 			} else {
 				foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 					PipelineView newPipeline = new PipelineView();
-					newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
+					newPipeline.Initialize(pipelineScroller, wrapper.pNodes, wrapper.scrollX, wrapper.scrollY);
 					newPipeline.PipelineName = wrapper.name;
 					pipelines.Add(newPipeline.PipelineName, newPipeline);
 				}
@@ -169,7 +169,7 @@ namespace Baimp
 
 						foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
 							PipelineView newPipeline = new PipelineView();
-							newPipeline.Initialize(pipelineScroller, wrapper.pNodes);
+							newPipeline.Initialize(pipelineScroller, wrapper.pNodes, wrapper.scrollX, wrapper.scrollY);
 							newPipeline.PipelineName = wrapper.name;
 							pipelines.Add(newPipeline.PipelineName, newPipeline);
 

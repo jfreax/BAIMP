@@ -54,7 +54,7 @@ namespace Baimp
 		/// <param name="callback">Function to run.</param>
 		public static object RequestZipAccess(ZipUsageCallback callback)
 		{
-			object ret = true;
+			object ret;
 			lock (zipFileAccess) {
 				if (!string.IsNullOrEmpty(ProjectFile)) {
 					ZipFile zipFile;
@@ -237,7 +237,7 @@ namespace Baimp
 			// prepare data
 			LoadedPipelines.Clear();
 			foreach (PipelineView pipeline in pipelines.Values) {
-				PipelineNodeWrapper wrapper = new PipelineNodeWrapper(pipeline.PipelineName, pipeline.Nodes);
+				PipelineNodeWrapper wrapper = new PipelineNodeWrapper(pipeline);
 				LoadedPipelines.Add(wrapper);
 				foreach (PipelineNode pNode in pipeline.Nodes) {
 					pNode.InternOptions = pNode.algorithm.Options;
@@ -320,7 +320,7 @@ namespace Baimp
 
                 if (reset) {
 					LoadedPipelines = new List<PipelineNodeWrapper>();
-					LoadedPipelines.Add(new PipelineNodeWrapper("Master", null));
+					LoadedPipelines.Add(new PipelineNodeWrapper("Master"));
 
                     scanCollection.Clear();
                     if (projectChanged != null)
@@ -477,12 +477,29 @@ namespace Baimp
 		[XmlAttribute("name")]
 		public string name;
 
+		[XmlAttribute("scrollX")]
+		public double scrollX;
+
+		[XmlAttribute("scrollY")]
+		public double scrollY;
+
+		readonly PipelineView pipeline;
+
 		public PipelineNodeWrapper() {}
 
-		public PipelineNodeWrapper(string pipelineName, List<PipelineNode> nodes)
+		public PipelineNodeWrapper(string name)
 		{
-			name = pipelineName;
-			pNodes = nodes;
+			this.name = name;
+		}
+
+		public PipelineNodeWrapper(PipelineView pipeline)
+		{
+			this.pipeline = pipeline;
+			name = pipeline.PipelineName;
+			pNodes = pipeline.Nodes;
+
+			scrollX = pipeline.Scrollview.HorizontalScrollControl.Value;
+			scrollY = pipeline.Scrollview.VerticalScrollControl.Value;
 		}
 	}
 }

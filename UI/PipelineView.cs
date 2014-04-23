@@ -20,7 +20,6 @@ namespace Baimp
 	public class PipelineView : Canvas
 	{
 		static int globalId = 0;
-
 		ScrollView scrollview;
 		List<PipelineNode> nodes;
 		Point nodeToMoveOffset = Point.Zero;
@@ -45,6 +44,12 @@ namespace Baimp
 		/// </summary>
 		readonly Window popupWindow = new Window();
 
+		/// <summary>
+		/// Initial scroll position.
+		/// Set when this pipeline was loaded from file.
+		/// </summary>
+		Point initialScrollPosition = Point.Zero;
+
 		#region initialize
 
 		public PipelineView()
@@ -58,9 +63,25 @@ namespace Baimp
 		/// </summary>
 		/// <param name="scrollview">Parent scrollview</param>
 		/// <param name="loadedNodes">Add already loaded nodes to this new instance</param>
-		public void Initialize(ScrollView scrollview, List<PipelineNode> loadedNodes = null)
+		/// <param name="scrollX">Initial scrollbar position horizontal</param>
+		/// <param name="scrollY">Initial scrollbar position vertical</param>
+		public void Initialize(ScrollView scrollview, 
+			List<PipelineNode> loadedNodes = null, double scrollX = 0.0, double scrollY = 0.0)
 		{
 			this.scrollview = scrollview;
+			scrollview.HorizontalScrollControl.Value = scrollX;
+			scrollview.VerticalScrollControl.Value = scrollY;
+
+			// Workaround!
+			// scrollview gets set to zero from xwt multiple times on widget loading 
+			scrollview.HorizontalScrollControl.ValueChanged += delegate {
+				if (scrollview.HorizontalScrollControl.Value > 1.0 &&
+					scrollview.HorizontalScrollControl.Value != scrollX) {
+					initialScrollPosition = Point.Zero;
+				}
+			};
+
+			initialScrollPosition = new Point(scrollX, scrollY);
 
 			this.SetDragDropTarget(TransferDataType.Text);
 			this.BackgroundColor = Colors.WhiteSmoke;
@@ -142,6 +163,7 @@ namespace Baimp
 
 			base.OnDraw(ctx, dirtyRect);
 
+			bool redraw = false;
 
 			// draw all edges
 			foreach (PipelineNode pNode in nodes) {
@@ -157,6 +179,7 @@ namespace Baimp
 				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
 					if (node.bound.IntersectsWith(dirtyRect)) {
 						if (node.Draw(ctx)) {
+							redraw = true;
 							QueueDraw(node.bound);
 						}
 					}
@@ -173,6 +196,7 @@ namespace Baimp
 				Point offset = new Point(Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
 				if (offset != Point.Zero) {
 					TranslateAllNodesBy(offset);
+					redraw = true;
 					QueueDraw();
 				}
 			}
@@ -187,6 +211,7 @@ namespace Baimp
 			// draw selected node last
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode.Draw(ctx)) {
+					redraw = true;
 					QueueDraw(lastSelectedNode.bound);
 				}
 				foreach (MarkerNode mNode in lastSelectedNode.mNodes) {
@@ -196,7 +221,6 @@ namespace Baimp
 
 			// update things
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
-
 				// move scrollbar
 				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
 
@@ -230,7 +254,13 @@ namespace Baimp
 				ctx.Stroke();
 			}
 
-			redrawQueued = false;
+			redrawQueued = redraw;
+
+			if (!initialScrollPosition.IsEmpty && !redraw && 
+				(scrollview.HorizontalScrollControl.Value < 1.0 || scrollview.VerticalScrollControl.Value < 1.0)) {
+				scrollview.HorizontalScrollControl.Value = initialScrollPosition.X;
+				scrollview.VerticalScrollControl.Value = initialScrollPosition.Y;
+			}
 		}
 
 		void QueueRedraw(object sender, EventArgs e)
@@ -439,6 +469,7 @@ namespace Baimp
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
 			popupWindow.Hide();
+			initialScrollPosition = Point.Zero;
 
 			PipelineNode node = GetNodeAt(args.Position, true);
 
@@ -687,6 +718,12 @@ namespace Baimp
 			}
 		}
 
+		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
+		{
+			base.OnMouseScrolled(args);
+			initialScrollPosition = Point.Zero;
+		}
+
 		#endregion
 
 		#region getter and setter
@@ -764,10 +801,10 @@ namespace Baimp
 								edge.ComputeStroke(ib.Context, mNode);
 								if (ib.Context.IsPointInStroke(position)) {
 									double fromDist = 
-										Math.Pow(mNode.Bounds.Center.X - position.X, 2) + 
+										Math.Pow(mNode.Bounds.Center.X - position.X, 2) +
 										Math.Pow(mNode.Bounds.Center.Y - position.Y, 2);
 									double toDist = 
-										Math.Pow(edge.to.Bounds.Center.X - position.X, 2) + 
+										Math.Pow(edge.to.Bounds.Center.X - position.X, 2) +
 										Math.Pow(edge.to.Bounds.Center.Y - position.Y, 2);
 									if (fromDist < toDist) {
 										edge.r = 0;
@@ -876,23 +913,11 @@ namespace Baimp
 			}
 			set {
 				nodes = value;
-				double minX = double.MinValue;
-				double minY = double.MinValue;
 				foreach (PipelineNode pNode in nodes) {
 					pNode.Parent = this;
 					pNode.QueueRedraw += QueueRedraw;
-
-					// to normalize position
-					if (pNode.bound.X > minX) {
-						minX = pNode.bound.X;
-					}
-					if (pNode.bound.Y > minY) {
-						minY = pNode.bound.Y;
-					}
 				}
-
-				TranslateAllNodesBy(new Point(-minX, -minY));
-
+					
 				QueueDraw();
 			}
 		}
@@ -907,6 +932,7 @@ namespace Baimp
 			get;
 			set;
 		}
+ 
 
 		#endregion
 
