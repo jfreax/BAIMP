@@ -33,23 +33,19 @@ namespace Baimp
 		MouseMover mouseMover;
 		CancellationTokenSource cancelRequest;
 		CursorType oldCursor;
-
 		/// <summary>
 		/// True if redraw is already queued.
 		/// </summary>
 		bool redrawQueued;
-
 		/// <summary>
 		/// /Window to show results in.*/
 		/// </summary>
 		readonly Window popupWindow = new Window();
-
 		/// <summary>
 		/// Initial scroll position.
 		/// Set when this pipeline was loaded from file.
 		/// </summary>
 		Point initialScrollPosition = Point.Zero;
-
 		double scaleFactor = 1.0;
 
 		#region initialize
@@ -68,17 +64,20 @@ namespace Baimp
 		/// <param name="scrollX">Initial scrollbar position horizontal</param>
 		/// <param name="scrollY">Initial scrollbar position vertical</param>
 		public void Initialize(ScrollView scrollview, 
-			List<PipelineNode> loadedNodes = null, double scrollX = 0.0, double scrollY = 0.0)
+		                       List<PipelineNode> loadedNodes = null, double scrollX = 0.0, double scrollY = 0.0)
 		{
 			this.scrollview = scrollview;
 			scrollview.HorizontalScrollControl.Value = scrollX;
 			scrollview.VerticalScrollControl.Value = scrollY;
 
+			scrollview.VerticalScrollControl.ValueChanged += QueueRedraw;
+			scrollview.HorizontalScrollControl.ValueChanged += QueueRedraw;
+
 			// Workaround!
 			// scrollview gets set to zero from xwt multiple times on widget loading 
 			scrollview.HorizontalScrollControl.ValueChanged += delegate {
 				if (scrollview.HorizontalScrollControl.Value > 1.0 &&
-					scrollview.HorizontalScrollControl.Value != scrollX) {
+				    scrollview.HorizontalScrollControl.Value != scrollX) {
 					initialScrollPosition = Point.Zero;
 				}
 			};
@@ -103,6 +102,8 @@ namespace Baimp
 			popupWindow.Padding = 2;
 
 			InitializeContextMenus();
+
+			ShowMiniMap = true;
 		}
 
 		private Menu contextMenuEdge;
@@ -165,36 +166,37 @@ namespace Baimp
 
 			base.OnDraw(ctx, dirtyRect);
 
-			bool redraw = false;
-
 			// apply scale factor
-			ctx.Scale(scaleFactor, scaleFactor);
 			dirtyRect.X /= scaleFactor;
 			dirtyRect.Y /= scaleFactor;
 			dirtyRect.Width /= scaleFactor;
 			dirtyRect.Height /= scaleFactor;
 
-			// draw all edges
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					if (!mNode.IsInput) {
-						mNode.DrawEdges(ctx);
-					}
+			// actual drawing
+			bool redraw = Draw(ctx, dirtyRect, scaleFactor);
+
+			// draw minimap
+			if (ShowMiniMap && MinWidth > 0 && MinHeight > 0) {
+				Point size = new Point(180.0, 180.0 * (MinHeight / MinWidth));
+				using (ImageBuilder ib = new ImageBuilder(size.X, size.Y)) {
+					double minimapScale = Math.Min(size.X / MinWidth, size.Y / MinHeight);
+					Point minimapPosition = 
+						new Point(
+							scrollview.HorizontalScrollControl.Value + scrollview.HorizontalScrollControl.PageSize - size.X - 16, 
+							scrollview.VerticalScrollControl.Value + 16);
+
+					ctx.RoundRectangle(minimapPosition, size.X, size.Y, 6);
+					ctx.SetColor(Colors.LightGray.WithAlpha(0.4));
+					ctx.Fill();
+				
+					Draw(ib.Context, new Rectangle(0, 0, MinWidth, MinHeight), minimapScale);
+					ctx.DrawImage(ib.ToVectorImage(), minimapPosition);
+					//ctx.Fill();
 				}
 			}
-				
-			// draw all nodes
+
+			// set canvas min size
 			foreach (PipelineNode node in nodes) {
-				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
-					if (node.bound.IntersectsWith(dirtyRect) || !initialScrollPosition.IsEmpty) {
-						if (node.Draw(ctx)) {
-							redraw = true;
-							QueueDraw(node.bound);
-						}
-					}
-				}
-					
-				// set canvas min size
 				Rectangle boundwe = node.BoundWithExtras;
 				if (boundwe.Right * scaleFactor > MinWidth) {
 					MinWidth = boundwe.Right * scaleFactor + PipelineNode.NodeMargin.Right;
@@ -207,24 +209,6 @@ namespace Baimp
 					TranslateAllNodesBy(offset);
 					redraw = true;
 					QueueDraw();
-				}
-			}
-
-			// draw all markers
-			foreach (PipelineNode pNode in nodes) {
-				foreach (MarkerNode mNode in pNode.mNodes) {
-					mNode.Draw(ctx);
-				}
-			}
-				
-			// draw selected node last
-			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
-				if (lastSelectedNode.Draw(ctx)) {
-					redraw = true;
-					QueueDraw(lastSelectedNode.bound);
-				}
-				foreach (MarkerNode mNode in lastSelectedNode.mNodes) {
-					mNode.Draw(ctx);
 				}
 			}
 
@@ -271,19 +255,68 @@ namespace Baimp
 			redrawQueued = redraw;
 
 			// initial scroll position
-			if (!initialScrollPosition.IsEmpty && !redraw && 
-				(scrollview.HorizontalScrollControl.Value < 1.0 || scrollview.VerticalScrollControl.Value < 1.0)) {
+			if (!initialScrollPosition.IsEmpty && !redraw &&
+			    (scrollview.HorizontalScrollControl.Value < 1.0 || scrollview.VerticalScrollControl.Value < 1.0)) {
 				scrollview.HorizontalScrollControl.Value = 
 					Math.Min(
-						initialScrollPosition.X,
-						scrollview.HorizontalScrollControl.UpperValue - scrollview.HorizontalScrollControl.PageSize
-					);
+					initialScrollPosition.X,
+					scrollview.HorizontalScrollControl.UpperValue - scrollview.HorizontalScrollControl.PageSize
+				);
 				scrollview.VerticalScrollControl.Value = 
 					Math.Min(
-						initialScrollPosition.Y,
-						scrollview.VerticalScrollControl.UpperValue - scrollview.VerticalScrollControl.PageSize
-					);
+					initialScrollPosition.Y,
+					scrollview.VerticalScrollControl.UpperValue - scrollview.VerticalScrollControl.PageSize
+				);
 			}
+		}
+
+		bool Draw(Context ctx, Rectangle dirtyRect, double scale)
+		{
+			bool redraw = false;
+			ctx.Save();
+			ctx.Scale(scale, scale);
+
+			// draw all edges
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
+					if (!mNode.IsInput) {
+						mNode.DrawEdges(ctx);
+					}
+				}
+			}
+
+			// draw all nodes
+			foreach (PipelineNode node in nodes) {
+				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
+					if (node.bound.IntersectsWith(dirtyRect) || !initialScrollPosition.IsEmpty) {
+						if (node.Draw(ctx)) {
+							redraw = true;
+							QueueDraw(node.bound);
+						}
+					}
+				}
+			}
+
+			// draw all markers
+			foreach (PipelineNode pNode in nodes) {
+				foreach (MarkerNode mNode in pNode.mNodes) {
+					mNode.Draw(ctx);
+				}
+			}
+
+			// draw selected node last
+			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
+				if (lastSelectedNode.Draw(ctx)) {
+					redraw = true;
+					QueueDraw(lastSelectedNode.bound);
+				}
+				foreach (MarkerNode mNode in lastSelectedNode.mNodes) {
+					mNode.Draw(ctx);
+				}
+			}
+
+			ctx.Restore();
+			return redraw;
 		}
 
 		void QueueRedraw(object sender = null, EventArgs e = null)
@@ -460,7 +493,6 @@ namespace Baimp
 			scaleFactor *= d;
 			QueueRedraw();
 		}
-
 
 		#endregion
 
@@ -990,7 +1022,11 @@ namespace Baimp
 			get;
 			set;
 		}
- 
+
+		public bool ShowMiniMap {
+			get;
+			set;
+		}
 
 		#endregion
 
