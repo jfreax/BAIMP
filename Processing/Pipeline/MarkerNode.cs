@@ -9,7 +9,7 @@ namespace Baimp
 {
 	public class MarkerNode : Node
 	{
-		static readonly public int NodeInOutMarkerSize = 10;
+		static readonly public double NodeInOutMarkerSize = 10;
 		static readonly public int NodeInOutSpace = 18;
 
 		[XmlIgnore]
@@ -30,7 +30,7 @@ namespace Baimp
 		{
 		}
 
-		public MarkerNode(PipelineNode parent, Compatible compatible, int positionNo, bool isInput)
+		public MarkerNode(PipelineNode parent, Compatible compatible, int positionNo, bool isInput) : this()
 		{
 			this.parent = parent;
 			this.compatible = compatible;
@@ -51,14 +51,29 @@ namespace Baimp
 
 			Rectangle bndTmp = Bounds;
 
-			if (IsInput) {
-				ctx.SetColor(Colors.Black.WithAlpha(0.8));
-				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width, 0, 360);
-				ctx.Fill();
+//			ctx.SetColor(Colors.White.WithAlpha(0.8));
+//			ctx.RoundRectangle(bndTmp, 3);
+//			//ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width, 0, 360);
+//			ctx.Fill();
 
-				ctx.SetColor(Color.FromBytes(123, 119, 230));
-				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
-				ctx.Fill();
+			ctx.RoundRectangle(bndTmp.Inflate(-1, -1), 3);
+			LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Top);
+			g.AddColorStop(0, Colors.Black.BlendWith(Color.FromBytes(123, 119, 230), 0.7));
+			g.AddColorStop(1, Color.FromBytes(123, 119, 230));
+			ctx.Pattern = g;
+			ctx.Fill();
+
+
+			ctx.RoundRectangle(bndTmp.Inflate(-2, -2), 2);
+			ctx.SetColor(Color.FromBytes(123, 119, 230));
+			ctx.Fill();
+
+			if (IsInput) {
+
+
+//				ctx.SetColor(Color.FromBytes(123, 119, 230));
+//				ctx.Arc(bndTmp.Right, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
+//				ctx.Fill();
 
 				int inputBufferSize = inputData.Count;
 				List<Result> ihCopy;
@@ -93,13 +108,13 @@ namespace Baimp
 					ctx.DrawTextLayout(textLayout, inputbufferSizeLocation);
 				}
 			} else {
-				ctx.SetColor(Colors.Black.WithAlpha(0.8));
-				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width, 0, 360);
-				ctx.Fill();
-
-				ctx.SetColor(Color.FromBytes(123, 119, 230));
-				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
-				ctx.Fill();
+//				ctx.SetColor(Colors.Black.WithAlpha(0.8));
+//				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width, 0, 360);
+//				ctx.Fill();
+//
+//				ctx.SetColor(Color.FromBytes(123, 119, 230));
+//				ctx.Arc(bndTmp.Left, bndTmp.Center.Y, bndTmp.Width-1, 0, 360);
+//				ctx.Fill();
 
 				if (parent.algorithm.Output[positionNo].IsFinal()) {
 					ctx.MoveTo(bndTmp.Right, bndTmp.Top);
@@ -242,9 +257,9 @@ namespace Baimp
 			get {
 				return new Rectangle(
 					new Point(
-						IsInput ? parent.bound.Left - NodeInOutMarkerSize : parent.bound.Right,
+						IsInput ? parent.bound.Left + 8: parent.bound.Right - NodeInOutMarkerSize - 8,
 						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
-					), new Size(NodeInOutMarkerSize, Height)
+					), new Size(Height, Height)
 				);
 			}
 

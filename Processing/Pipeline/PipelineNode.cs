@@ -15,7 +15,7 @@ namespace Baimp
 		static readonly public Size NodeSize = new Size(200, 40);
 		static readonly public Size NodeInOutSpace = new Size(8, 8);
 		static readonly public int NodeRadius = 2;
-		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252);
+		static readonly public Color NodeColor = Color.FromBytes(252, 252, 252, 230);
 		static readonly public Color NodeColorBorder = Color.FromBytes(222, 222, 222);
 		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static readonly public Color NodeColorGlow = Colors.SkyBlue.WithAlpha(0.4);
@@ -235,12 +235,12 @@ namespace Baimp
 			}
 			Point textPosition = bound.Location.Offset(textOffset);
 
-			// stroke under headline
+			// headline background
 			contentOffset.X = 6;
 			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
 
 			ctx.RoundRectangle(bound.Left+1, bound.Top+1, bound.Width-2, contentOffset.Y, NodeRadius);
-			ctx.SetColor(Color.FromBytes(238, 238, 238));
+			ctx.SetColor(Color.FromBytes(222, 222, 222, 110));
 			ctx.Fill();
 
 			// text
@@ -256,13 +256,6 @@ namespace Baimp
 					);
 				}
 			}
-		
-
-//			ctx.SetColor(NodeColorBorder);
-//			ctx.MoveTo(bound.Location.Offset(contentOffset));
-//			ctx.LineTo(bound.Right - 6, contentOffset.Y + bound.Location.Y);
-//			ctx.SetLineWidth(1.0);
-//			ctx.Stroke();
 
 			text.Dispose();
 		}
