@@ -60,17 +60,24 @@ namespace Baimp
 			if (verticalSpace > (horizontalSpace - 2 * minLength)) {
 				minLength = horizontalSpace / 2;
 			}
-
+				
 			if (verticalSpace > (horizontalSpace - minLength) &&
-				minLength > absMinLength) {
+			    minLength > absMinLength) {
 				double minSpace = Math.Min(horizontalSpace - absMinLength, verticalSpace + absMinLength);
 				int verticalNeg = fromBound.Center.Y - toBound.Center.Y < 0 ? 1 : -1;
 
-				ctx.LineTo(fromBound.Center.X + absMinLength, fromBound.Center.Y);
-				ctx.LineTo(fromBound.Center.X + minSpace/2, fromBound.Center.Y + ((minSpace/2 - absMinLength) * verticalNeg));
-				ctx.LineTo(fromBound.Center.X + minSpace/2, toBound.Center.Y - minSpace/2 * verticalNeg);
-				ctx.LineTo(fromBound.Center.X + minSpace, toBound.Center.Y);
-				ctx.LineTo(toBound.Center.X, toBound.Center.Y);
+				ctx.LineTo(fromBound.Center.X + absMinLength, fromBound.Center.Y); // fromNode-
+				if (minSpace / 2 - absMinLength > 0) {
+					// \
+					ctx.LineTo(fromBound.Center.X + minSpace / 2, fromBound.Center.Y + ((minSpace / 2 - absMinLength) * verticalNeg));
+				} 
+				if (minSpace / 2 - absMinLength > -minSpace / 2) {
+					ctx.LineTo(fromBound.Center.X + Math.Max(minSpace / 2, absMinLength), toBound.Center.Y - minSpace / 2 * verticalNeg); // |
+					ctx.LineTo(fromBound.Center.X + Math.Max(minSpace, absMinLength), toBound.Center.Y); // \
+				} else {
+					ctx.LineTo(fromBound.Center.X + absMinLength, toBound.Center.Y); // |
+				}
+				ctx.LineTo(toBound.Center.X, toBound.Center.Y); // -toNode
 
 			} else {
 				ctx.LineTo(fromBound.Center.X + minLength, fromBound.Center.Y);
