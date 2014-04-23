@@ -36,7 +36,7 @@ namespace Baimp
 		/// <param name="from">From.</param>
 		public void Draw(Context ctx, MarkerNode from)
 		{
-			ctx.SetColor(color);
+			ctx.SetColor(from.NodeColor);
 			ctx.SetLineWidth(5.0);
 
 			ComputeStroke(ctx, from).Stroke();
