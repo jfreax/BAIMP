@@ -50,6 +50,8 @@ namespace Baimp
 		/// </summary>
 		Point initialScrollPosition = Point.Zero;
 
+		double scaleFactor = 1.0;
+
 		#region initialize
 
 		public PipelineView()
@@ -165,6 +167,13 @@ namespace Baimp
 
 			bool redraw = false;
 
+			// apply scale factor
+			ctx.Scale(scaleFactor, scaleFactor);
+			dirtyRect.X /= scaleFactor;
+			dirtyRect.Y /= scaleFactor;
+			dirtyRect.Width /= scaleFactor;
+			dirtyRect.Height /= scaleFactor;
+
 			// draw all edges
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
@@ -187,11 +196,11 @@ namespace Baimp
 					
 				// set canvas min size
 				Rectangle boundwe = node.BoundWithExtras;
-				if (boundwe.Right > MinWidth) {
-					MinWidth = boundwe.Right + PipelineNode.NodeMargin.Right;
+				if (boundwe.Right * scaleFactor > MinWidth) {
+					MinWidth = boundwe.Right * scaleFactor + PipelineNode.NodeMargin.Right;
 				}
-				if (boundwe.Bottom > MinHeight) {
-					MinHeight = boundwe.Bottom + PipelineNode.NodeMargin.Bottom;
+				if (boundwe.Bottom * scaleFactor > MinHeight) {
+					MinHeight = boundwe.Bottom * scaleFactor + PipelineNode.NodeMargin.Bottom;
 				}
 				Point offset = new Point(Math.Max(0, -boundwe.Left), Math.Max(0, -boundwe.Top));
 				if (offset != Point.Zero) {
@@ -223,9 +232,13 @@ namespace Baimp
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				// move scrollbar
 				Rectangle boundwe = lastSelectedNode.BoundWithExtras;
+				boundwe.X *= scaleFactor;
+				boundwe.Y *= scaleFactor;
+				boundwe.Height *= scaleFactor;
+				boundwe.Width *= scaleFactor;
 
 				double viewportRight = scrollview.HorizontalScrollControl.Value + scrollview.Size.Width;
-				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5;
+				double offsetH = (nodeToMoveOffset.X + boundwe.Width) * 0.5 / scaleFactor;
 				if (boundwe.Right - offsetH > viewportRight) {
 					scrollview.HorizontalScrollControl.Value += boundwe.Right - offsetH - viewportRight; 
 				} else if (boundwe.Left + offsetH < scrollview.HorizontalScrollControl.Value) {
@@ -254,8 +267,10 @@ namespace Baimp
 				ctx.Stroke();
 			}
 
+			// set redraw finish?
 			redrawQueued = redraw;
 
+			// initial scroll position
 			if (!initialScrollPosition.IsEmpty && !redraw && 
 				(scrollview.HorizontalScrollControl.Value < 1.0 || scrollview.VerticalScrollControl.Value < 1.0)) {
 				scrollview.HorizontalScrollControl.Value = initialScrollPosition.X;
@@ -263,7 +278,7 @@ namespace Baimp
 			}
 		}
 
-		void QueueRedraw(object sender, EventArgs e)
+		void QueueRedraw(object sender = null, EventArgs e = null)
 		{
 			if (!redrawQueued) {
 				redrawQueued = true;
@@ -331,7 +346,7 @@ namespace Baimp
 		/// Opens the option window.
 		/// </summary>
 		/// <param name="pNode">Pipeline node for which the option should be shown.</param>
-		private void OpenOptionWindow(PipelineNode pNode)
+		void OpenOptionWindow(PipelineNode pNode)
 		{
 			Dialog d = new Dialog();
 			d.Title = String.Format("Option for \"{0}\"", pNode.algorithm);
@@ -398,7 +413,7 @@ namespace Baimp
 		/// Shows popover window with results.
 		/// </summary>
 		/// <param name="mNode">M node.</param>
-		private void ShowResultPopover(MarkerNode mNode)
+		void ShowResultPopover(MarkerNode mNode)
 		{
 			if (mNode.IsInput) {
 				return;
@@ -428,6 +443,17 @@ namespace Baimp
 
 		}
 
+		/// <summary>
+		/// Scale view.
+		/// </summary>
+		/// <param name="d">D.</param>
+		public void Scale(double d)
+		{
+			scaleFactor *= d;
+			QueueRedraw();
+		}
+
+
 		#endregion
 
 		#region drag and drop
@@ -439,11 +465,16 @@ namespace Baimp
 
 		protected override void OnDragDrop(DragEventArgs args)
 		{
+			Point position = args.Position;
+			position.X /= scaleFactor;
+			position.Y /= scaleFactor;
+
 			args.Success = true;
 			try {
 				string algoType = args.Data.GetValue(TransferDataType.Text).ToString();
 
-				PipelineNode node = new PipelineNode(this, algoType, new Rectangle(args.Position, PipelineNode.AbsMinNodeSize));
+				PipelineNode node = 
+					new PipelineNode(this, algoType, new Rectangle(position, PipelineNode.AbsMinNodeSize));
 				node.QueueRedraw += QueueRedraw;
 
 				SetNodePosition(node);
@@ -468,15 +499,19 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			Point position = args.Position;
+			position.X /= scaleFactor;
+			position.Y /= scaleFactor;
+
 			popupWindow.Hide();
 			initialScrollPosition = Point.Zero;
 
-			PipelineNode node = GetNodeAt(args.Position, true);
+			PipelineNode node = GetNodeAt(position, true);
 
 			if (node != null) {
 				ButtonEventArgs nodeArgs = new ButtonEventArgs();
-				nodeArgs.X = args.X - node.bound.Location.X;
-				nodeArgs.Y = args.Y - node.bound.Location.Y;
+				nodeArgs.X = position.X - node.bound.Location.X;
+				nodeArgs.Y = position.Y - node.bound.Location.Y;
 				nodeArgs.Button = args.Button;
 				nodeArgs.MultiplePress = args.MultiplePress;
 				if (node.OnButtonPressed(nodeArgs)) {
@@ -494,15 +529,15 @@ namespace Baimp
 						break;
 					} else {
 						
-						MarkerNode mNode = node.GetMarkerNodeAt(args.Position);
+						MarkerNode mNode = node.GetMarkerNodeAt(position);
 						if (mNode != null && !mNode.compatible.IsFinal()) {
 							connectNodesStartMarker = mNode;
 							mouseAction |= MouseAction.AddEdge | MouseAction.AddEdgeNew;
 						} else {
-							if (node.bound.Contains(args.Position)) {
+							if (node.bound.Contains(position)) {
 								nodeToMoveOffset = new Point(
-									node.bound.Location.X - args.Position.X,
-									node.bound.Location.Y - args.Position.Y
+									node.bound.Location.X - position.X,
+									node.bound.Location.Y - position.Y
 								);
 								lastSelectedNode = node;
 								mouseAction |= MouseAction.MoveNode;
@@ -510,7 +545,7 @@ namespace Baimp
 						}
 					}
 				} else {
-					Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt(args.Position);
+					Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt(position);
 					if (edge != null) { // clicked on edge
 						if (edge.Item2.r >= 0.5) {
 							connectNodesStartMarker = edge.Item1;
@@ -527,11 +562,11 @@ namespace Baimp
 				break;
 
 			case PointerButton.Right:
-				lastSelectedEdge = GetEdgeAt(args.Position);
+				lastSelectedEdge = GetEdgeAt(position);
 				if (lastSelectedEdge != null) {
 					contextMenuEdge.Popup();
 				} else {
-					PipelineNode nodeRight = GetNodeAt(args.Position, true);
+					PipelineNode nodeRight = GetNodeAt(position, true);
 					if (nodeRight != null) {
 						lastSelectedNode = nodeRight;
 						if (lastSelectedNode.algorithm.options.Count > 0) {
@@ -557,7 +592,11 @@ namespace Baimp
 
 		protected override void OnButtonReleased(ButtonEventArgs args)
 		{
-			MarkerNode mNode = GetInOutMarkerAt(args.Position, PipelineNode.NodeInOutSpace);
+			Point position = args.Position;
+			position.X /= scaleFactor;
+			position.Y /= scaleFactor;
+
+			MarkerNode mNode = GetInOutMarkerAt(position, PipelineNode.NodeInOutSpace);
 			bool actionedLeft = false;
 
 			switch (args.Button) {
@@ -632,29 +671,33 @@ namespace Baimp
 
 		protected override void OnMouseMoved(MouseMovedEventArgs args)
 		{
-			mousePosition = args.Position;
+			Point position = args.Position;
+			position.X /= scaleFactor;
+			position.Y /= scaleFactor;
+
+			mousePosition = position;
 
 			if (mouseAction.HasFlag(MouseAction.MoveNode)) {
 				if (lastSelectedNode != null) {
-					lastSelectedNode.bound.Location = args.Position.Offset(nodeToMoveOffset);
+					lastSelectedNode.bound.Location = position.Offset(nodeToMoveOffset);
 					lastSelectedNode.OnMove(null);
 					QueueDraw();
 				}
 			}
 			if (mouseAction.HasFlag(MouseAction.AddEdge) || mouseAction.HasFlag(MouseAction.MoveEdge)) {
 				mouseAction &= ~MouseAction.AddEdgeNew;
-				MarkerNode mNode = GetInOutMarkerAt(args.Position, PipelineNode.NodeInOutSpace);
+				MarkerNode mNode = GetInOutMarkerAt(position, PipelineNode.NodeInOutSpace);
 				if (mNode != null && mNode.Match(connectNodesStartMarker)) {
 					connectNodesEnd = new Point(mNode.IsInput ? mNode.Bounds.Left : mNode.Bounds.Right, mNode.Bounds.Center.Y);
 				} else {
-					connectNodesEnd = args.Position;
+					connectNodesEnd = position;
 				}
 
 				QueueDraw();
 			}
 
 			if (!mouseAction.HasFlag(MouseAction.MoveNode)) {
-				MarkerNode mNode = GetInOutMarkerAt(args.Position);
+				MarkerNode mNode = GetInOutMarkerAt(position);
 				if (mNode != null) {
 					TooltipText = mNode.compatible + "\n" + mNode.compatible.Type;
 				} else {
@@ -662,7 +705,7 @@ namespace Baimp
 				}
 			}
 
-			PipelineNode node = GetNodeAt(args.Position, true);
+			PipelineNode node = GetNodeAt(position, true);
 			if (node != null) {
 				if (currentHoveredNode != node) {
 					if (currentHoveredNode != null) {
@@ -720,8 +763,15 @@ namespace Baimp
 
 		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
 		{
-			base.OnMouseScrolled(args);
+			//base.OnMouseScrolled(args);
 			initialScrollPosition = Point.Zero;
+
+			if (args.Direction == ScrollDirection.Down) {
+				Scale(0.9);
+			} else {
+				Scale(1.1);
+			}
+			args.Handled = true;
 		}
 
 		#endregion

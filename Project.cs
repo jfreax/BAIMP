@@ -483,8 +483,6 @@ namespace Baimp
 		[XmlAttribute("scrollY")]
 		public double scrollY;
 
-		readonly PipelineView pipeline;
-
 		public PipelineNodeWrapper() {}
 
 		public PipelineNodeWrapper(string name)
@@ -494,7 +492,6 @@ namespace Baimp
 
 		public PipelineNodeWrapper(PipelineView pipeline)
 		{
-			this.pipeline = pipeline;
 			name = pipeline.PipelineName;
 			pNodes = pipeline.Nodes;
 
