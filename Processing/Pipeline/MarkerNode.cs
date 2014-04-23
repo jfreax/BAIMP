@@ -58,15 +58,19 @@ namespace Baimp
 
 			Rectangle bndTmp = Bounds;
 
-			ctx.RoundRectangle(bndTmp.Inflate(-1, -1), 3);
-			LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Bottom);
-			g.AddColorStop(0, Colors.Black.BlendWith(NodeColor, 0.7));
-			g.AddColorStop(1, NodeColor);
-			ctx.Pattern = g;
-			ctx.Fill();
-
 			ctx.RoundRectangle(bndTmp.Inflate(-2, -2), 2);
-			ctx.SetColor(NodeColor);
+			if (compatible.IsFinal()) {
+				ctx.SetColor(Colors.LightGray);
+			} else {
+				ctx.RoundRectangle(bndTmp.Inflate(-1, -1), 3);
+				LinearGradient g = new LinearGradient(bndTmp.Left, bndTmp.Top, bndTmp.Right, bndTmp.Bottom);
+				g.AddColorStop(0, Colors.Black.BlendWith(NodeColor, 0.7));
+				g.AddColorStop(1, NodeColor);
+				ctx.Pattern = g;
+				ctx.Fill();
+
+				ctx.SetColor(NodeColor);
+			}
 			ctx.Fill();
 
 			if (IsInput) {
