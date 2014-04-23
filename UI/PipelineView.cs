@@ -186,7 +186,7 @@ namespace Baimp
 			// draw all nodes
 			foreach (PipelineNode node in nodes) {
 				if (!mouseAction.HasFlag(MouseAction.MoveNode) || node != lastSelectedNode) {
-					if (node.bound.IntersectsWith(dirtyRect)) {
+					if (node.bound.IntersectsWith(dirtyRect) || !initialScrollPosition.IsEmpty) {
 						if (node.Draw(ctx)) {
 							redraw = true;
 							QueueDraw(node.bound);
@@ -273,8 +273,16 @@ namespace Baimp
 			// initial scroll position
 			if (!initialScrollPosition.IsEmpty && !redraw && 
 				(scrollview.HorizontalScrollControl.Value < 1.0 || scrollview.VerticalScrollControl.Value < 1.0)) {
-				scrollview.HorizontalScrollControl.Value = initialScrollPosition.X;
-				scrollview.VerticalScrollControl.Value = initialScrollPosition.Y;
+				scrollview.HorizontalScrollControl.Value = 
+					Math.Min(
+						initialScrollPosition.X,
+						scrollview.HorizontalScrollControl.UpperValue - scrollview.HorizontalScrollControl.PageSize
+					);
+				scrollview.VerticalScrollControl.Value = 
+					Math.Min(
+						initialScrollPosition.Y,
+						scrollview.VerticalScrollControl.UpperValue - scrollview.VerticalScrollControl.PageSize
+					);
 			}
 		}
 
