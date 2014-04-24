@@ -69,15 +69,10 @@ namespace Baimp
 		/// </summary>
 		public PipelineNode()
 		{
-			icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.hide.png")));
-			icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.view.png")));
-
-			SaveResult = false;
-
-			InitializeWidgets();
+			Initialize();
 		}
 
-		public PipelineNode(PipelineView parent, string algoType, Rectangle bound) : this()
+		public PipelineNode(PipelineView parent, string algoType, Rectangle bound)
 		{
 			this.parent = parent;
 			mNodes = new List<MarkerNode>();
@@ -94,12 +89,27 @@ namespace Baimp
 				this.Add(new MarkerNode(this, c, i, false));
 				i++;
 			}
+
+			Initialize();
+		}
+
+		public void Initialize()
+		{
+			if (!IsFinalNode()) {
+				icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.hide.png")));
+				icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.view.png")));
+			}
+
+			SaveResult = false;
+
+
+			InitializeWidgets();
 		}
 
 		/// <summary>
 		/// Call only, if mNodes are set from outside
 		/// </summary>
-		public void Initialize()
+		public void InitializeNodes()
 		{
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
@@ -540,6 +550,7 @@ namespace Baimp
 			set {
 				Type algoType = Type.GetType(value);
 				algorithm = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
+				SaveResult = saveResult; // to update data
 			}
 		}
 
@@ -570,6 +581,8 @@ namespace Baimp
 			set {
 				if (IsFinalNode()) {
 					saveResult = true;
+					icons["hide"].Visible = false;
+					icons["view"].Visible = false;
 				} else {
 					saveResult = value;
 					if (saveResult) {

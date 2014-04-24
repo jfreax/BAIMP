@@ -85,7 +85,7 @@ namespace Baimp
 			if (Type.IsGenericType) {
 				Type genericType = Type.GetGenericTypeDefinition();
 				if (genericType == typeof(TFeatureList<int>).GetGenericTypeDefinition() ||
-				   genericType == typeof(TFeature<int>).GetGenericTypeDefinition()) {
+				    genericType == typeof(TFeature<int>).GetGenericTypeDefinition()) {
 
 					return true;
 				}

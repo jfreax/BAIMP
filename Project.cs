@@ -116,7 +116,7 @@ namespace Baimp
 						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
 						foreach (PipelineNodeWrapper wrapper in LoadedPipelines) {
 							foreach (PipelineNode pNode in wrapper.pNodes) {
-								pNode.Initialize();
+								pNode.InitializeNodes();
 
 								foreach (BaseOption option in pNode.InternOptions) {
 									var localOption = option;

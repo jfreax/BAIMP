@@ -9,6 +9,7 @@ namespace Baimp
 		public LightImageWidget(Image image)
 		{
 			this.Image = image;
+			Visible = false;
 		}
 
 		public void OnButtonPressed(object sender, ButtonEventArgs e)
