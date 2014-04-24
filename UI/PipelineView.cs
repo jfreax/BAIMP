@@ -491,6 +491,13 @@ namespace Baimp
 		public void Scale(double d)
 		{
 			scaleFactor *= d;
+			if (scaleFactor > 1.5) {
+				scaleFactor = 1.5;
+			}
+			if (scaleFactor < 0.3) {
+				scaleFactor = 0.3;
+			}
+
 			QueueRedraw();
 		}
 
