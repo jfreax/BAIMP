@@ -178,10 +178,18 @@ namespace Baimp
 			XD.Color maskColorFA = maskColor.WithAlpha(1.0);
 
 			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				Parallel.For(0, (int) mask.Height, new Action<int>(y => {
-					for (int x = 0; x < mask.Width; x++) {
-						XD.Color color = mask.GetPixel(x, y);
-						if (color.WithAlpha(1.0) == maskColorFA) {
+				Parallel.For(1, (int) mask.Height-1, new Action<int>(y => {
+					for (int x = 1; x < mask.Width-1; x++) {
+						XD.Color color = mask.GetPixel(x, y).WithAlpha(1.0);
+						XD.Color color2 = mask.GetPixel(x+1, y).WithAlpha(1.0);
+						XD.Color color3 = mask.GetPixel(x-1, y).WithAlpha(1.0);
+						XD.Color color4 = mask.GetPixel(x, y+1).WithAlpha(1.0);
+						XD.Color color5 = mask.GetPixel(x, y-1).WithAlpha(1.0);
+						if (color == maskColorFA ||
+							color2 == maskColorFA ||
+							color3 == maskColorFA ||
+							color4 == maskColorFA ||
+							color5 == maskColorFA) {
 							mask.SetPixel(x, y, color.WithAlpha(0.6));
 						} else {
 							mask.SetPixel(x, y, XD.Colors.Transparent);
