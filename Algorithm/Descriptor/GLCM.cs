@@ -52,34 +52,29 @@ namespace Baimp
 
 			float[] data = scan.Data;
 			float max = data.Max();
-			if (max == 0.0f) {
-				Console.WriteLine("ok");
-			}
 
-			unsafe {
-				fixed (float* ptrData = data) {
-					float* src = ptrData;
+			if (max > 0.0) {
+				unsafe {
+					fixed (float* ptrData = data) {
+						float* src = ptrData;
 
-					int oldProgress = 0;
-					for (int y = startY; y < endY; y++) {
-						for (int x = startX; x < endX; x++, src++) {
-							int posWithOffset = ((y + dy) * width) + (x + dx);
+						int oldProgress = 0;
+						for (int y = startY; y < endY; y++) {
+							for (int x = startX; x < endX; x++, src++) {
+								int posWithOffset = ((y + dy) * width) + (x + dx);
 
-							int fromValue = (int) ((*src / max) * p);
-							int toValue = (int) ((data[posWithOffset] / max) * p);
-							try {
+								int fromValue = (int) ((*src / max) * p);
+								int toValue = (int) ((data[posWithOffset] / max) * p);
 								matrix[fromValue, toValue] += increment;
-							} catch (Exception e) {
-								Console.WriteLine(e);
+
 							}
+							src += offset;
 
-						}
-						src += offset;
-
-						int progress = (int) (y * 100.0) / height;
-						if (progress - oldProgress > 10) {
-							oldProgress = progress;
-							SetProgress(progress);
+							int progress = (int) (y * 100.0) / height;
+							if (progress - oldProgress > 10) {
+								oldProgress = progress;
+								SetProgress(progress);
+							}
 						}
 					}
 				}
