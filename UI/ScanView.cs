@@ -94,7 +94,7 @@ namespace Baimp
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
 				if (mask != null && ShowMask) {
-					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)));
+					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)), 0.6);
 				}
 			}
 

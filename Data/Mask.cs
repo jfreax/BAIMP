@@ -129,7 +129,7 @@ namespace Baimp
 
 					XD.Image mask = LoadMask();
 					if (mask != null) {
-						maskBuilder.Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero, 0.6);
+						maskBuilder.Context.DrawImage(mask.WithBoxSize(scan.Size), Xwt.Point.Zero);
 					}
 			}
 				
@@ -163,80 +163,24 @@ namespace Baimp
 			});
 		}
 			
-
 		/// <summary>
 		/// Saves the mask.
 		/// </summary>
 		public unsafe void Save()
 		{
-			XD.ImageBuilder mb = GetMaskBuilder();
-			FlushMaskPositions(mb.Context, 0);
-
 			MemoryStream outStream = new MemoryStream();
 
-			XD.BitmapImage mask = mb.ToBitmap();
-			XD.Color maskColorFA = maskColor.WithAlpha(1.0);
+			using (XD.ImageBuilder mb = GetMaskBuilder()) {
+				FlushMaskPositions(mb.Context, 0);
 
-			if (MainClass.toolkitType == ToolkitType.Gtk) {
-				Parallel.For(1, (int) mask.Height-1, new Action<int>(y => {
-					for (int x = 1; x < mask.Width-1; x++) {
-						XD.Color color = mask.GetPixel(x, y).WithAlpha(1.0);
-						XD.Color color2 = mask.GetPixel(x+1, y).WithAlpha(1.0);
-						XD.Color color3 = mask.GetPixel(x-1, y).WithAlpha(1.0);
-						XD.Color color4 = mask.GetPixel(x, y+1).WithAlpha(1.0);
-						XD.Color color5 = mask.GetPixel(x, y-1).WithAlpha(1.0);
-						if (color == maskColorFA ||
-							color2 == maskColorFA ||
-							color3 == maskColorFA ||
-							color4 == maskColorFA ||
-							color5 == maskColorFA) {
-							mask.SetPixel(x, y, color.WithAlpha(0.6));
-						} else {
-							mask.SetPixel(x, y, XD.Colors.Transparent);
-						}
-					}
-				}));
+				using (XD.ImageBuilder outIb = new XD.ImageBuilder(mb.Width, mb.Height)) {
+					XD.BitmapImage mask = mb.ToBitmap();
+					outIb.Context.DrawImage(mask, new Xwt.Point(0, 0));
+					outIb.Context.DrawImage(mask, new Xwt.Point(1, 1));
+					outIb.Context.DrawImage(mask, new Xwt.Point(-1, -1));
 
-				mask.Save(outStream, XD.ImageFileType.Png);
-			} else {
-				using (MemoryStream ms = new MemoryStream()) {
-					mask.Save(ms, XD.ImageFileType.Png);
-					ms.Seek(0, SeekOrigin.Begin);
-
-					Bitmap maskBitmap = new Bitmap(ms);
-
-					BitmapData bmpData = maskBitmap.LockBits(
-						new System.Drawing.Rectangle(0, 0, (int) scan.Size.Width, (int) scan.Size.Height),
-						ImageLockMode.ReadWrite, maskBitmap.PixelFormat);
-
-					byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
-					int len = (int) scan.Size.Width * (int) scan.Size.Height;
-					for (int i = 0; i < len; ++i) {
-						byte b = *scan0;
-						scan0++;
-						byte g = *scan0;
-						scan0++;
-						byte r = *scan0;
-						scan0++;
-						XD.Color color = XD.Color.FromBytes(r, g, b);
-
-						if ((int) (color.Red * 10) == (int) (maskColorFA.Red * 10) &&
-							(int) (color.Green * 10) == (int) (maskColorFA.Green * 10) &&
-							(int) (color.Blue * 10) == (int) (maskColorFA.Blue * 10)) {
-							*scan0 = 153; // 60% alpha
-						} else {
-							*(scan0 - 3) = 0;
-							*(scan0 - 2) = 0;
-							*(scan0 - 1) = 0;
-							*(scan0) = 0;
-						}
-
-						scan0++;
-					}
-
-					maskBitmap.UnlockBits(bmpData);
-					maskBitmap.Save(outStream, ImageFormat.Png);
-					maskBitmap.Dispose();
+					mask = outIb.ToBitmap();
+					mask.Save(outStream, XD.ImageFileType.Png);
 				}
 			}
 
@@ -264,7 +208,6 @@ namespace Baimp
 
 			scan.NotifySaved("mask");
 		}
-
 
 		/// <summary>
 		/// Resets mask data
