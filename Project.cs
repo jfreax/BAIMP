@@ -14,17 +14,14 @@ namespace Baimp
 	public class Project
 	{
 		public delegate object ZipUsageCallback(ZipFile zipFile);
+
 		private static Object zipFileAccess = new Object();
-
 		public readonly static int MaxLastOpenedProject = 5;
-
 		[XmlArray("scans")]
 		[XmlArrayItem("scan")]
 		public ScanCollection scanCollection;
-
 		[XmlAttribute]
 		public int version = 3;
-
 		[XmlIgnore]
 		bool pipelineRunning;
 
@@ -54,20 +51,28 @@ namespace Baimp
 		/// <param name="callback">Function to run.</param>
 		public static object RequestZipAccess(ZipUsageCallback callback)
 		{
-			object ret;
+			object ret = null;
 			lock (zipFileAccess) {
 				if (!string.IsNullOrEmpty(ProjectFile)) {
-					ZipFile zipFile;
-					if (File.Exists(ProjectFile)) {
-						zipFile = new ZipFile(ProjectFile);
-					} else {
-						zipFile = ZipFile.Create(ProjectFile);
-						zipFile.CommitUpdate();
-						zipFile.Close();
-						zipFile = new ZipFile(ProjectFile);
-					}
-					using (zipFile) {
-						ret = callback(zipFile);
+					try {
+						ZipFile zipFile;
+						if (File.Exists(ProjectFile)) {
+							zipFile = new ZipFile(ProjectFile);
+						} else {
+							zipFile = ZipFile.Create(ProjectFile);
+							zipFile.CommitUpdate();
+							zipFile.Close();
+							zipFile = new ZipFile(ProjectFile);
+						}
+						using (zipFile) {
+							ret = callback(zipFile);
+						}
+					} catch (Exception e) {
+						Console.WriteLine(e.Message);
+						Console.WriteLine(e.StackTrace);
+						if (e.InnerException != null) {
+							Console.WriteLine(e.InnerException.Message);
+						}
 					}
 
 				} else {
@@ -161,7 +166,7 @@ namespace Baimp
 					}
 				}));
 
-				if(!ret) {
+				if (!ret) {
 					return false;
 				}
 			} else {
@@ -318,16 +323,15 @@ namespace Baimp
 					zipFile.Close();
 				}
 
-                if (reset) {
+				if (reset) {
 					LoadedPipelines = new List<PipelineNodeWrapper>();
 					LoadedPipelines.Add(new PipelineNodeWrapper("Master"));
 
-                    scanCollection.Clear();
-                    if (projectChanged != null)
-                    {
-                        projectChanged(this, new ProjectChangedEventArgs(true));
-                    }
-                }
+					scanCollection.Clear();
+					if (projectChanged != null) {
+						projectChanged(this, new ProjectChangedEventArgs(true));
+					}
+				}
 
 				return true;
 			}
@@ -473,17 +477,16 @@ namespace Baimp
 		[XmlArray("pipeline")]
 		[XmlArrayItem("node")]
 		public List<PipelineNode> pNodes;
-
 		[XmlAttribute("name")]
 		public string name;
-
 		[XmlAttribute("scrollX")]
 		public double scrollX;
-
 		[XmlAttribute("scrollY")]
 		public double scrollY;
 
-		public PipelineNodeWrapper() {}
+		public PipelineNodeWrapper()
+		{
+		}
 
 		public PipelineNodeWrapper(string name)
 		{
