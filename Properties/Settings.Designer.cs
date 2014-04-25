@@ -70,6 +70,18 @@ namespace Baimp {
                 this["WindowLocationY"] = value;
             }
         }
+
+		[global::System.Configuration.UserScopedSettingAttribute()]
+		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+		[global::System.Configuration.DefaultSettingValueAttribute("25")]
+		public double FileTreePreviewPosition {
+			get {
+				return ((double)(this["FileTreePreviewPosition"]));
+			}
+			set {
+				this["FileTreePreviewPosition"] = value;
+			}
+		}
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

@@ -220,7 +220,7 @@ namespace Baimp
 		/// <summary>
 		/// Initializes all event handlers.
 		/// </summary>
-		private void InitializeEvents()
+		void InitializeEvents()
 		{
 			// initialize global events
 			//CloseRequested += HandleCloseRequested;
@@ -265,6 +265,14 @@ namespace Baimp
 
 			// global key events
 			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
+		}
+
+		protected override void OnShown()
+		{
+			base.OnShown();
+
+			// Restore positions
+			splitFiletree_Preview.PositionFraction = Settings.Default.FileTreePreviewPosition;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -353,6 +361,8 @@ namespace Baimp
 			// Copy window size to app settings
 			Settings.Default.WindowSizeWidth = Size.Width;
 			Settings.Default.WindowSizeHeight = Size.Height;
+
+			Settings.Default.FileTreePreviewPosition = splitFiletree_Preview.PositionFraction;
 
 			// Save settings
 			Settings.Default.Save();

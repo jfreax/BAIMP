@@ -14,6 +14,9 @@
     <Setting Name="WindowLocationY" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="FileTreePreviewPosition" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">25</Value>
+    </Setting>
     <Setting Name="LastOpenedProjects" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
