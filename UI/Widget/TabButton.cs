@@ -8,12 +8,15 @@ namespace Baimp
 	{
 		readonly TextLayout text = new TextLayout();
 		Color deactiveColor = Color.FromBytes(208, 208, 208);
-		Color activeColor = Colors.LightSlateGray;
+		Color activeColor = Color.FromBytes (159, 176, 193);
 		Color borderColor = Color.FromBytes(182, 182, 182);
 		Color deactiveTextColor = Color.FromBytes(64, 64, 64);
 		WidgetSpacing padding;
 		TabButton previous;
 		TabButton next;
+
+		Distance lean;
+		bool active;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.TabButton"/> class.
@@ -25,6 +28,8 @@ namespace Baimp
 
 			Managed = false;
 			Multiple = true;
+
+			Lean = new Distance(5, 5);
 		}
 
 		/// <summary>
@@ -46,26 +51,30 @@ namespace Baimp
 		{
 			base.OnDraw(ctx, dirtyRect);
 
-			const int lean = 5;
-
 			ctx.SetLineWidth(1.0);
 
 			// background
 			if (previous != null) {
 				ctx.SetColor(previous.Active ? activeColor : deactiveColor);
 				if (Multiple) {
-					ctx.Rectangle(0, 0, lean * 2, Size.Height);
+					ctx.Rectangle(0, 0, Lean.Dx * 2, Size.Height);
 					ctx.Fill();
 
 					ctx.SetColor(borderColor);
 					ctx.MoveTo(0, 0);
-					ctx.LineTo(lean * 2, 0);
+					ctx.LineTo(Lean.Dx * 2, 0);
 					ctx.Stroke();
 				} else {
 					ctx.MoveTo(0, 0);
-					ctx.CurveTo(0, 0, lean, 0, lean, lean);
-					ctx.LineTo(lean, Size.Height - lean);
-					ctx.CurveTo(lean, Size.Height - lean, lean, Size.Height + 0.5, lean * 2, Size.Height + 0.5);
+					ctx.CurveTo(
+						0, 0,
+						Lean.Dx, 0,
+						Lean.Dx, Lean.Dy);
+					ctx.LineTo(Lean.Dx, Size.Height - Lean.Dy);
+					ctx.CurveTo(
+						Lean.Dx, Size.Height - Lean.Dy,
+						Lean.Dx, Size.Height + 0.5,
+						Lean.Dx * 2, Size.Height + 0.5);
 					ctx.LineTo(0, Size.Height);
 
 					ctx.FillPreserve();
@@ -77,18 +86,30 @@ namespace Baimp
 
 			if (previous == null || Multiple || !previous.Active) {
 				ctx.MoveTo(0, Size.Height + 0.5);
-				ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+				ctx.CurveTo(
+					0, Size.Height + 0.5,
+					Lean.Dx, Size.Height + 0.5,
+					Lean.Dx, Size.Height - Lean.Dy);
 			} else {
-				ctx.MoveTo(lean, Size.Height-lean);
+				ctx.MoveTo(Lean.Dx, Size.Height - Lean.Dy);
 			}
-			ctx.LineTo(lean, lean);
-			ctx.CurveTo(lean, lean, lean, 0, lean * 2, 0);
+			ctx.LineTo(Lean.Dx, Lean.Dy);
+			ctx.CurveTo(
+				Lean.Dx, Lean.Dy,
+				Lean.Dx, 0,
+				Lean.Dx * 2, 0);
 	
 			if (next == null) {
-				ctx.LineTo(Size.Width - (lean * 2), 0);
-				ctx.CurveTo(Size.Width - (lean * 2), 0, Size.Width - lean, 0, Size.Width - lean, lean);
-				ctx.LineTo(Size.Width - lean, Size.Height - lean);
-				ctx.CurveTo(Size.Width - lean, Size.Height - lean, Size.Width - lean, Size.Height, Size.Width, Size.Height);
+				ctx.LineTo(Size.Width - (Lean.Dx * 2), 0);
+				ctx.CurveTo(
+					Size.Width - (Lean.Dx * 2), 0,
+					Size.Width - Lean.Dx, 0,
+					Size.Width - Lean.Dx, Lean.Dy);
+				ctx.LineTo(Size.Width - Lean.Dx, Size.Height - Lean.Dy);
+				ctx.CurveTo(
+					Size.Width - Lean.Dx, Size.Height - Lean.Dy, 
+					Size.Width - Lean.Dx, Size.Height,
+					Size.Width, Size.Height);
 			} else {
 				ctx.LineTo(Size.Width, 0);
 				ctx.LineTo(Size.Width, Size.Height);
@@ -100,19 +121,31 @@ namespace Baimp
 			// border
 			if (previous == null || Multiple || !previous.Active) {
 				ctx.MoveTo(0, Size.Height + 0.5);
-				ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+				ctx.CurveTo(
+					0, Size.Height + 0.5,
+					Lean.Dx, Size.Height + 0.5,
+					Lean.Dx, Size.Height - Lean.Dy);
 			} else {
-				ctx.MoveTo(lean, Size.Height + 0.5 - lean);
+				ctx.MoveTo(Lean.Dx, Size.Height + 0.5 - Lean.Dy);
 			}
 
-			ctx.LineTo(lean, lean);
-			ctx.CurveTo(lean, lean, lean, 0, lean * 2, 0);
+			ctx.LineTo(Lean.Dx, Lean.Dy);
+			ctx.CurveTo(
+				Lean.Dx, Lean.Dy,
+				Lean.Dx, 0, 
+				Lean.Dx * 2, 0);
 
 			if (next == null) {
-				ctx.LineTo(Size.Width - (lean * 2), 0);
-				ctx.CurveTo(Size.Width - (lean * 2), 0, Size.Width - lean, 0, Size.Width - lean, lean);
-				ctx.LineTo(Size.Width - lean, Size.Height - lean);
-				ctx.CurveTo(Size.Width - lean, Size.Height - lean, Size.Width - lean, Size.Height + 0.5, Size.Width, Size.Height + 0.5);
+				ctx.LineTo(Size.Width - (Lean.Dx * 2), 0);
+				ctx.CurveTo(
+					Size.Width - (Lean.Dx * 2), 0,
+					Size.Width - Lean.Dx, 0,
+					Size.Width - Lean.Dx, Lean.Dy);
+				ctx.LineTo(Size.Width - Lean.Dx, Size.Height - Lean.Dy);
+				ctx.CurveTo(
+					Size.Width - Lean.Dx, Size.Height - Lean.Dy,
+					Size.Width - Lean.Dx, Size.Height + 0.5,
+					Size.Width, Size.Height + 0.5);
 			} else {
 				ctx.LineTo(Size.Width, 0);
 			}
@@ -122,14 +155,17 @@ namespace Baimp
 
 			// text
 			ctx.SetColor(Active ? Colors.AliceBlue : deactiveTextColor);
-			ctx.DrawTextLayout(text, new Point(padding.Left, padding.Top));
+			ctx.DrawTextLayout(text, new Point(padding.Left + Lean.Dx + 2, padding.Top));
 
 		}
 
 		protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
 		{
 			Size size = text.GetSize();
-			size.Width += padding.HorizontalSpacing;
+			size.Width += padding.HorizontalSpacing + Lean.Dx + 2;
+			if (next == null) {
+				size.Width += Lean.Dx + 2;
+			}
 			size.Height += padding.VerticalSpacing;
 			return size;
 		}
@@ -195,7 +231,22 @@ namespace Baimp
 			}
 		}
 
-		bool active;
+		public Distance Lean {
+			get {
+				return lean;
+			}
+			set {
+				lean = value;
+				if (next != null) {
+					padding = new WidgetSpacing(Lean.Dx, 0, 0, 0);
+				} else {
+					padding = new WidgetSpacing(Lean.Dx, 0, Lean.Dx, 0);
+				}
+
+				OnPreferredSizeChanged();
+				QueueDraw();
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="Baimp.TabButton"/> is active.
@@ -244,10 +295,11 @@ namespace Baimp
 			set {
 				next = value;
 				if (next != null) {
-					padding = new WidgetSpacing(8, 0, 0, 0);
+					padding = new WidgetSpacing(Lean.Dx, 0, 0, 0);
 				} else {
-					padding = new WidgetSpacing(8, 0, 8, 0);
+					padding = new WidgetSpacing(Lean.Dx, 0, Lean.Dx, 0);
 				}
+				OnBoundsChanged();
 			}
 		}
 

@@ -6,11 +6,20 @@ namespace Baimp
 {
 	public class CustomTabHost : HBox
 	{
+		int selectedIndex = -1;
+		Distance lean;
+
+
 		public CustomTabHost() : base()
 		{
 			Spacing = 0;
+			Lean = new Distance(10, 14);
 		}
 
+		/// <summary>
+		/// Add the specified button.
+		/// </summary>
+		/// <param name="button">Button.</param>
 		public void Add(TabButton button)
 		{
 			if (selectedIndex == -1) {
@@ -20,17 +29,25 @@ namespace Baimp
 
 			button.Managed = true;
 			button.Multiple = false;
+			button.Lean = Lean;
 			button.Toggled += OnButtonToggled;
 			button.Previous = Children.LastOrDefault() as TabButton;
 
 			PackStart(button);
 		}
 
+		/// <summary>
+		/// Add a new button with the given name.
+		/// </summary>
+		/// <param name="name">Name.</param>
 		public void Add(string name)
 		{
 			Add (new TabButton(name));
 		}
 
+		/// <summary>
+		/// Remove all tabs.
+		/// </summary>
 		public new void Clear()
 		{
 			base.Clear();
@@ -70,7 +87,10 @@ namespace Baimp
 
 		#region Properties
 
-		int selectedIndex = -1;
+		/// <summary>
+		/// Gets or sets the index of the selected button.
+		/// </summary>
+		/// <value>The index of the selected.</value>
 		public int SelectedIndex {
 			get {
 				return selectedIndex;
@@ -93,12 +113,28 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the selected item.
+		/// </summary>
+		/// <value>The selected item.</value>
 		public TabButton SelectedItem {
 			get {
 				return Children.ElementAt(SelectedIndex) as TabButton;
 			}
 			set {
 				SelectedIndex = Children.ToList().IndexOf(value);
+			}
+		}
+
+		public Distance Lean {
+			get {
+				return lean;
+			}
+			set {
+				lean = value;
+				foreach (TabButton child in Children.OfType<TabButton>()) {
+					child.Lean = lean;
+				}
 			}
 		}
 
