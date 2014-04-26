@@ -212,10 +212,12 @@ namespace Baimp
 					Next.Active = true;
 				}
 			} else if (Previous != null) {
-				if (Next != null) {
-					Next.Active = true;
-				} else {
-					Previous.Active = true;
+				if (Active) {
+					if (Next != null) {
+						Next.Active = true;
+					} else {
+						Previous.Active = true;
+					}
 				}
 				Previous.Next = Next;
 			}
