@@ -69,7 +69,7 @@ namespace Baimp
 		{
 			TabButton button = sender as TabButton;
 
-			if (button != null) {
+			if (button != null && SelectedItem != button) {
 				SelectedItem = button;
 
 				if (selectionChangedEvent != null) {
