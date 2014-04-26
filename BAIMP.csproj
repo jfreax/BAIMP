@@ -161,6 +161,7 @@
     <Compile Include="Option\OptionBool.cs" />
     <Compile Include="Option\BaseOption.cs" />
     <Compile Include="UI\Widget\TabButton.cs" />
+    <Compile Include="UI\Widget\CustomTabHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

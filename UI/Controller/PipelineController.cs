@@ -9,10 +9,12 @@ namespace Baimp
 	{
 		VBox pipelineShelf;
 		HBox controllbar;
+		VBox splitControllTab_pipelineScroller;
+		CustomTabHost tabHost;
+
 		Project project;
 		ScrollView pipelineScroller;
 		AlgorithmTreeView algorithm;
-		ComboBox projectMap;
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
 
@@ -49,6 +51,9 @@ namespace Baimp
 
 			this.project = project;
 
+			InitializeControllerbar();
+			splitControllTab_pipelineScroller.PackEnd(pipelineScroller, true, true);
+
 			algorithm = new AlgorithmTreeView();
 			algorithm.MinWidth = 200;
 
@@ -59,21 +64,21 @@ namespace Baimp
 			splitPipeline_Algorithm.Panel1.Content = splitAlgorithm_Controller;
 			splitPipeline_Algorithm.Panel1.Resize = false;
 			splitPipeline_Algorithm.Panel1.Shrink = false;
-			splitPipeline_Algorithm.Panel2.Content = pipelineScroller;
+			splitPipeline_Algorithm.Panel2.Content = splitControllTab_pipelineScroller;
 			splitPipeline_Algorithm.Panel2.Resize = true;
 			splitPipeline_Algorithm.Panel2.Shrink = false;
 
 
 			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
-			splitAlgorithm_Controller.PackStart(InitializeControllerbar());
+			splitAlgorithm_Controller.PackStart(controllbar);
 			InitializeEvents();
 		}
 
 		/// <summary>
-		/// Initializes the controllerbar.
+		/// Initializes the controll bars.
 		/// </summary>
-		private HBox InitializeControllerbar()
+		void InitializeControllerbar()
 		{
 			controllbar = new HBox();
 			playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
@@ -99,10 +104,15 @@ namespace Baimp
 
 			controllbar.PackStart(playStopButtonPlacement, false, margin: 0.0);
 
-			ReloadProjectMap();
+			// tab bar
+			splitControllTab_pipelineScroller = new VBox();
+			splitControllTab_pipelineScroller.Spacing = 0;
+			tabHost = new CustomTabHost();
+			tabHost.HeightRequest = 24;
+			splitControllTab_pipelineScroller.PackStart(tabHost, false, false);
 
-			
-			return controllbar;
+
+			ReloadProjectMap();
 		}
 
 		/// <summary>
@@ -140,22 +150,24 @@ namespace Baimp
 		/// </summary>
 		private void ReloadProjectMap()
 		{
-			if (projectMap == null) {
-				projectMap = new ComboBox();
-				controllbar.PackStart(projectMap, false, false);
-			} else {
-				projectMap.SelectionChanged -= OnProjectMapSelectionChanged;
-			}
-				
-			projectMap.Items.Clear();
-			foreach (PipelineView pView in pipelines.Values) {
-				projectMap.Items.Add(pView.PipelineName);
-			}
-			projectMap.Items.Add("Add new worksheet...");
-			projectMap.SelectedIndex = 0;
-			projectMap.MinWidth = 100;
+			tabHost.SelectionChanged -= OnProjectMapSelectionChanged;
 
-			projectMap.SelectionChanged += OnProjectMapSelectionChanged;
+//			if (projectMap == null) {
+//				projectMap = new ComboBox();
+//				controllbar.PackStart(projectMap, false, false);
+//			} else {
+//				projectMap.SelectionChanged -= OnProjectMapSelectionChanged;
+//			}
+//				
+//			projectMap.Items.Clear();
+			tabHost.Clear();
+			foreach (PipelineView pView in pipelines.Values) {
+				tabHost.Add(pView.PipelineName);
+			}
+			//tabHost.Add("Add new worksheet...");
+			tabHost.SelectedIndex = 0;
+
+			tabHost.SelectionChanged += OnProjectMapSelectionChanged;
 		}
 
 		#region events
@@ -193,24 +205,24 @@ namespace Baimp
 
 		public void OnProjectMapSelectionChanged(object sender, EventArgs e)
 		{
-			if (projectMap.SelectedIndex == projectMap.Items.Count - 1) {
-				Tuple<Command, string> ret = WorksheetNameDialog();
-				Command r = ret.Item1;
-				if (r != null && r.Id == Command.Ok.Id) {
-					PipelineView newPipeline = new PipelineView();
-					newPipeline.Initialize(pipelineScroller);
-					newPipeline.PipelineName = ret.Item2;
-					pipelines.Add(newPipeline.PipelineName, newPipeline);
-					CurrentPipeline = newPipeline;
-
-					projectMap.Items.Insert(projectMap.Items.Count - 1, newPipeline.PipelineName);
-					projectMap.SelectedIndex = projectMap.Items.Count - 2;
-				} else {
-					int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
-					projectMap.SelectedIndex = idx;
-				}
-			} else if (projectMap.SelectedItem != null) {
-				CurrentPipeline = pipelines[projectMap.SelectedItem as string];
+//			if (projectMap.SelectedIndex == projectMap.Items.Count - 1) {
+//				Tuple<Command, string> ret = WorksheetNameDialog();
+//				Command r = ret.Item1;
+//				if (r != null && r.Id == Command.Ok.Id) {
+//					PipelineView newPipeline = new PipelineView();
+//					newPipeline.Initialize(pipelineScroller);
+//					newPipeline.PipelineName = ret.Item2;
+//					pipelines.Add(newPipeline.PipelineName, newPipeline);
+//					CurrentPipeline = newPipeline;
+//
+//					projectMap.Items.Insert(projectMap.Items.Count - 1, newPipeline.PipelineName);
+//					projectMap.SelectedIndex = projectMap.Items.Count - 2;
+//				} else {
+//					int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
+//					projectMap.SelectedIndex = idx;
+//				}
+			if (tabHost.SelectedItem != null) {
+				CurrentPipeline = pipelines[tabHost.SelectedItem.Label];
 			}
 		}
 
@@ -271,10 +283,11 @@ namespace Baimp
 				pipelines.Add(ret.Item2, CurrentPipeline);
 				CurrentPipeline.PipelineName = ret.Item2;
 
-				int idx = projectMap.SelectedIndex;
-				projectMap.Items.RemoveAt(projectMap.SelectedIndex);
-				projectMap.Items.Insert(idx, ret.Item2);
-				projectMap.SelectedIndex = idx;
+				// TODO
+//				int idx = projectMap.SelectedIndex;
+//				projectMap.Items.RemoveAt(projectMap.SelectedIndex);
+//				projectMap.Items.Insert(idx, ret.Item2);
+//				projectMap.SelectedIndex = idx;
 			}
 		}
 

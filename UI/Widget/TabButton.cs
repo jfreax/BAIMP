@@ -20,6 +20,8 @@ namespace Baimp
 		{
 			Previous = null;
 			Next = null;
+
+			Managed = false;
 		}
 
 		public TabButton(string label) : this()
@@ -112,7 +114,9 @@ namespace Baimp
 
 			switch (args.Button) {
 			case PointerButton.Left:
-				Active = !Active;
+				if (!Managed) {
+					Active = !Active;
+				}
 				if (toggleEvent != null) {
 					toggleEvent(this, EventArgs.Empty);
 				}
@@ -156,13 +160,19 @@ namespace Baimp
 			}
 		}
 
+		bool active;
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="Baimp.TabButton"/> is active.
 		/// </summary>
 		/// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
 		public bool Active {
-			get;
-			set;
+			get {
+				return active;
+			}
+			set {
+				active = value;
+				QueueDraw();
+			}
 		}
 
 		public TabButton Previous {
@@ -191,6 +201,15 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="Baimp.TabButton"/> is managed by a
+		/// <see cref="Baimp.CustomTabHost"/>.
+		/// </summary>
+		/// <value><c>true</c> if managed; otherwise, <c>false</c>.</value>
+		public bool Managed {
+			get;
+			set;
+		}
 
 		#endregion
 	}
