@@ -533,8 +533,9 @@ namespace Baimp
 				EmitDataChanged();
 				this.QueueDraw();
 
-			} catch (Exception exception) {
-				Console.WriteLine(exception.Message);
+			} catch (Exception e) {
+				Console.WriteLine(e.StackTrace);
+				Console.WriteLine(e.Message);
 				args.Success = false;
 			}
 		}

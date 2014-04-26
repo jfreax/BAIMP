@@ -76,6 +76,9 @@ namespace Baimp
 		{
 			this.parent = parent;
 			mNodes = new List<MarkerNode>();
+
+			Initialize();
+
 			AlgorithmType = algoType;
 			this.bound = bound;
 
@@ -90,7 +93,6 @@ namespace Baimp
 				i++;
 			}
 
-			Initialize();
 		}
 
 		public void Initialize()
