@@ -37,7 +37,7 @@ namespace Baimp
 			button.Previous = Children.LastOrDefault() as TabButton;
 
 			button.Toggled += OnButtonToggled;
-			button.Closed += OnTabClosed;
+			button.Closed += OnTabClose;
 
 			PackStart(button);
 		}
@@ -79,11 +79,11 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Raises when one tab was closed.
+		/// Raises when one tab should be closed.
 		/// </summary>
 		/// <param name="sender">Tab.</param>
 		/// <param name="e">Event arguments.</param>
-		void OnTabClosed(object sender, EventArgs e)
+		void OnTabClose(object sender, CloseEventArgs e)
 		{
 			TabButton button = sender as TabButton;
 
@@ -91,14 +91,15 @@ namespace Baimp
 				if (SelectedIndex == Children.Count() - 1) {
 					SelectedIndex -= 1;
 				}
-
-				Remove(button);
-
+					
 				if (tabClosedEvent != null) {
 					tabClosedEvent(sender, e);
 				}
 
-				button.Dispose();
+				if (e.Close) {
+					Remove(button);
+					button.Dispose();
+				}
 			}
 		}
 
@@ -118,12 +119,12 @@ namespace Baimp
 			}
 		}
 
-		EventHandler<EventArgs> tabClosedEvent;
+		EventHandler<CloseEventArgs> tabClosedEvent;
 
 		/// <summary>
 		/// Occurs when a tab was closed.
 		/// </summary>
-		public event EventHandler<EventArgs> TabClosed {
+		public event EventHandler<CloseEventArgs> TabClosed {
 			add {
 				tabClosedEvent += value;
 			}

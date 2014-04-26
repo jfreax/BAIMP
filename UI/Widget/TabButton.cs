@@ -197,7 +197,7 @@ namespace Baimp
 			padding = new WidgetSpacing(padding.Left, (Size.Height - text.GetSize().Height) / 2, padding.Right, 0);
 		}
 
-		void OnTabClosed(object sender, EventArgs e)
+		void OnTabClosed(object sender, CloseEventArgs e)
 		{
 			if (closeEvent != null) {
 				closeEvent(sender, e);
@@ -238,7 +238,7 @@ namespace Baimp
 				                        );
 
 				if (closeRegion.Contains(args.Position)) {
-					OnTabClosed(this, EventArgs.Empty);
+					OnTabClosed(this, new CloseEventArgs());
 				} else {
 					if (!Managed) {
 						Active = !Active;
@@ -282,13 +282,13 @@ namespace Baimp
 			}
 		}
 
-		EventHandler<EventArgs> closeEvent;
+		EventHandler<CloseEventArgs> closeEvent;
 
 		/// <summary>
 		/// Occurs when the close button was pressed.
 		/// Only available if closeable is set to true.
 		/// </summary>
-		public event EventHandler<EventArgs> Closed {
+		public event EventHandler<CloseEventArgs> Closed {
 			add {
 				closeEvent += value;
 			}

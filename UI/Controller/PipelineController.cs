@@ -112,17 +112,33 @@ namespace Baimp
 			tabHost.Closeable = true;
 			tabHost.HeightRequest = 24;
 
-			tabHost.TabClosed += delegate(object sender, EventArgs e) {
+			tabHost.TabClosed += delegate(object sender, CloseEventArgs e) {
 				TabButton button = sender as TabButton;
 				if (button != null) {
-					pipelines.Remove(button.Label);
+					Dialog d = new Dialog();
+					d.Title = "Remove worksheet";
 
-					PipelineView nextPipeline;
-					pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);
+					d.Content = new Label(string.Format("Remove worksheet \"{0}\"?", button.Label));
+					d.Buttons.Add(new DialogButton("Remove", Command.Ok));
+					d.Buttons.Add(new DialogButton(Command.Cancel));
 
-					if (nextPipeline != null) {
-						CurrentPipeline = nextPipeline;
+					Command r = d.Run();
+					if (r.Id == Command.Ok.Id) {
+						pipelines.Remove(button.Label);
+
+						PipelineView nextPipeline;
+						pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);
+
+						if (nextPipeline != null) {
+							CurrentPipeline = nextPipeline;
+						}
+
+						e.Close = true;
+					} else {
+						e.Close = false;
 					}
+
+					d.Dispose();
 				}
 			};
 
@@ -229,22 +245,6 @@ namespace Baimp
 
 		public void OnProjectMapSelectionChanged(object sender, EventArgs e)
 		{
-//			if (projectMap.SelectedIndex == projectMap.Items.Count - 1) {
-//				Tuple<Command, string> ret = WorksheetNameDialog();
-//				Command r = ret.Item1;
-//				if (r != null && r.Id == Command.Ok.Id) {
-//					PipelineView newPipeline = new PipelineView();
-//					newPipeline.Initialize(pipelineScroller);
-//					newPipeline.PipelineName = ret.Item2;
-//					pipelines.Add(newPipeline.PipelineName, newPipeline);
-//					CurrentPipeline = newPipeline;
-//
-//					projectMap.Items.Insert(projectMap.Items.Count - 1, newPipeline.PipelineName);
-//					projectMap.SelectedIndex = projectMap.Items.Count - 2;
-//				} else {
-//					int idx = projectMap.Items.IndexOf(CurrentPipeline.PipelineName);
-//					projectMap.SelectedIndex = idx;
-//				}
 			if (tabHost.SelectedItem != null) {
 				CurrentPipeline = pipelines[tabHost.SelectedItem.Label];
 			}

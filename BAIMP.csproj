@@ -162,6 +162,7 @@
     <Compile Include="Option\BaseOption.cs" />
     <Compile Include="UI\Widget\TabButton.cs" />
     <Compile Include="UI\Widget\CustomTabHost.cs" />
+    <Compile Include="Event\CloseEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
