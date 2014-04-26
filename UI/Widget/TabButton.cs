@@ -12,23 +12,36 @@ namespace Baimp
 		Color borderColor = Color.FromBytes(182, 182, 182);
 		Color deactiveTextColor = Color.FromBytes(64, 64, 64);
 		WidgetSpacing padding;
-
 		TabButton previous;
 		TabButton next;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.TabButton"/> class.
+		/// </summary>
 		public TabButton()
 		{
 			Previous = null;
 			Next = null;
 
 			Managed = false;
+			Multiple = true;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.TabButton"/> class
+		/// and sets the label.
+		/// </summary>
+		/// <param name="label">Label.</param>
 		public TabButton(string label) : this()
 		{
 			Label = label;
 		}
 
+		/// <summary>
+		/// Raises the draw event.
+		/// </summary>
+		/// <param name="ctx">Context.</param>
+		/// <param name="dirtyRect">Dirty rect.</param>
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 		{
 			base.OnDraw(ctx, dirtyRect);
@@ -40,17 +53,34 @@ namespace Baimp
 			// background
 			if (previous != null) {
 				ctx.SetColor(previous.Active ? activeColor : deactiveColor);
-				ctx.Rectangle(0, 0, lean*2, Size.Height);
-				ctx.Fill();
+				if (Multiple) {
+					ctx.Rectangle(0, 0, lean * 2, Size.Height);
+					ctx.Fill();
 
-				ctx.SetColor(borderColor);
-				ctx.MoveTo(0, 0);
-				ctx.LineTo(lean*2, 0);
-				ctx.Stroke();
+					ctx.SetColor(borderColor);
+					ctx.MoveTo(0, 0);
+					ctx.LineTo(lean * 2, 0);
+					ctx.Stroke();
+				} else {
+					ctx.MoveTo(0, 0);
+					ctx.CurveTo(0, 0, lean, 0, lean, lean);
+					ctx.LineTo(lean, Size.Height - lean);
+					ctx.CurveTo(lean, Size.Height - lean, lean, Size.Height + 0.5, lean * 2, Size.Height + 0.5);
+					ctx.LineTo(0, Size.Height);
+
+					ctx.FillPreserve();
+
+					ctx.SetColor(borderColor);
+					ctx.Stroke();
+				}
 			}
-				
-			ctx.MoveTo(0, Size.Height + 0.5);
-			ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+
+			if (previous == null || Multiple || !previous.Active) {
+				ctx.MoveTo(0, Size.Height + 0.5);
+				ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+			} else {
+				ctx.MoveTo(lean, Size.Height-lean);
+			}
 			ctx.LineTo(lean, lean);
 			ctx.CurveTo(lean, lean, lean, 0, lean * 2, 0);
 	
@@ -68,8 +98,13 @@ namespace Baimp
 			ctx.Fill();
 
 			// border
-			ctx.MoveTo(0, Size.Height + 0.5);
-			ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+			if (previous == null || Multiple || !previous.Active) {
+				ctx.MoveTo(0, Size.Height + 0.5);
+				ctx.CurveTo(0, Size.Height + 0.5, lean, Size.Height + 0.5, lean, Size.Height - lean);
+			} else {
+				ctx.MoveTo(lean, Size.Height + 0.5 - lean);
+			}
+
 			ctx.LineTo(lean, lean);
 			ctx.CurveTo(lean, lean, lean, 0, lean * 2, 0);
 
@@ -131,7 +166,7 @@ namespace Baimp
 		EventHandler<EventArgs> toggleEvent;
 
 		/// <summary>
-		/// Occurs when scan data changed
+		/// Occurs when the active status of this button changed
 		/// </summary>
 		public event EventHandler<EventArgs> Toggled {
 			add {
@@ -161,6 +196,7 @@ namespace Baimp
 		}
 
 		bool active;
+
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="Baimp.TabButton"/> is active.
 		/// </summary>
@@ -175,6 +211,13 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Reference to previous button of th same group
+		/// </summary>
+		/// <value>The previous button.</value>
+		/// <remarks>
+		/// Is normally set by <see cref="Baimp.CustomTabHost"/>, so don't mess with this.
+		/// </remarks>
 		public TabButton Previous {
 			get {
 				return previous;
@@ -187,6 +230,13 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Reference to the next button of the same group.
+		/// </summary>
+		/// <value>The next button.</value>
+		/// <remarks>
+		/// Is normally set by <see cref="Baimp.CustomTabHost"/>, so don't mess with this.
+		/// </remarks>
 		public TabButton Next {
 			get {
 				return next;
@@ -207,6 +257,15 @@ namespace Baimp
 		/// </summary>
 		/// <value><c>true</c> if managed; otherwise, <c>false</c>.</value>
 		public bool Managed {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Can multiple button of one group be selected at the same time?
+		/// </summary>
+		/// <value><c>true</c> if multiple selectable; otherwise, <c>false</c>.</value>
+		public bool Multiple {
 			get;
 			set;
 		}

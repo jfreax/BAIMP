@@ -19,6 +19,7 @@ namespace Baimp
 			}
 
 			button.Managed = true;
+			button.Multiple = false;
 			button.Toggled += OnButtonToggled;
 			button.Previous = Children.LastOrDefault() as TabButton;
 
