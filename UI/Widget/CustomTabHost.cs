@@ -88,6 +88,10 @@ namespace Baimp
 			TabButton button = sender as TabButton;
 
 			if (button != null && (CanCloseAll || Children.Count() > 1)) {
+				if (SelectedIndex == Children.Count() - 1) {
+					SelectedIndex -= 1;
+				}
+
 				Remove(button);
 
 				if (tabClosedEvent != null) {

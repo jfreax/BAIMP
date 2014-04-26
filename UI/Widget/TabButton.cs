@@ -231,13 +231,6 @@ namespace Baimp
 
 			switch (args.Button) {
 			case PointerButton.Left:
-				if (!Managed) {
-					Active = !Active;
-				}
-				if (toggleEvent != null) {
-					toggleEvent(this, EventArgs.Empty);
-				}
-
 				Rectangle closeRegion = new Rectangle(
 					                        Size.Width - closeNormal.Width - (next == null ? padding.Right + Lean.Dx : 0), 
 					                        (Size.Height - closeNormal.Height) / 2,
@@ -246,6 +239,13 @@ namespace Baimp
 
 				if (closeRegion.Contains(args.Position)) {
 					OnTabClosed(this, EventArgs.Empty);
+				} else {
+					if (!Managed) {
+						Active = !Active;
+					}
+					if (toggleEvent != null) {
+						toggleEvent(this, EventArgs.Empty);
+					}
 				}
 
 				break;
