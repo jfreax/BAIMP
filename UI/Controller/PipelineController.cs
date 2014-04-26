@@ -56,11 +56,8 @@ namespace Baimp
 			algorithm = new AlgorithmTreeView();
 			algorithm.MinWidth = 200;
 
-			VBox splitAlgorithm_Controller = new VBox();
-			splitAlgorithm_Controller.PackEnd(algorithm, true);
-
 			HPaned splitPipeline_Algorithm = new HPaned();
-			splitPipeline_Algorithm.Panel1.Content = splitAlgorithm_Controller;
+			splitPipeline_Algorithm.Panel1.Content = algorithm;
 			splitPipeline_Algorithm.Panel1.Resize = false;
 			splitPipeline_Algorithm.Panel1.Shrink = false;
 			splitPipeline_Algorithm.Panel2.Content = splitControllTab_pipelineScroller;
@@ -70,7 +67,6 @@ namespace Baimp
 
 			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
-			//splitAlgorithm_Controller.PackStart(controllbar);
 			InitializeEvents();
 		}
 
