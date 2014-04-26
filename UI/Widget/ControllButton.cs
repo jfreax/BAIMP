@@ -85,11 +85,17 @@ namespace Baimp
 			return Size;
 		}
 
+		/// <summary>
+		/// Disable this button.
+		/// </summary>
 		public void Disable()
 		{
 			isDisabled = true;
 		}
 
+		/// <summary>
+		/// Enable this button.
+		/// </summary>
 		public void Enable()
 		{
 			isDisabled = false;

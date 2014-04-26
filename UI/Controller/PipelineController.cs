@@ -112,35 +112,7 @@ namespace Baimp
 			tabHost.Closeable = true;
 			tabHost.HeightRequest = 24;
 
-			tabHost.TabClosed += delegate(object sender, CloseEventArgs e) {
-				TabButton button = sender as TabButton;
-				if (button != null) {
-					Dialog d = new Dialog();
-					d.Title = "Remove worksheet";
-
-					d.Content = new Label(string.Format("Remove worksheet \"{0}\"?", button.Label));
-					d.Buttons.Add(new DialogButton("Remove", Command.Ok));
-					d.Buttons.Add(new DialogButton(Command.Cancel));
-
-					Command r = d.Run();
-					if (r.Id == Command.Ok.Id) {
-						pipelines.Remove(button.Label);
-
-						PipelineView nextPipeline;
-						pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);
-
-						if (nextPipeline != null) {
-							CurrentPipeline = nextPipeline;
-						}
-
-						e.Close = true;
-					} else {
-						e.Close = false;
-					}
-
-					d.Dispose();
-				}
-			};
+			tabHost.TabClose += OnTabClose;
 
 			controllbar.PackStart(tabHost, false, WidgetPlacement.End, WidgetPlacement.Start);
 
@@ -243,6 +215,11 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Gets called when worksheet selection should change.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event arguments.</param>
 		public void OnProjectMapSelectionChanged(object sender, EventArgs e)
 		{
 			if (tabHost.SelectedItem != null) {
@@ -250,6 +227,11 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Get called when a new worksheet should be added.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event arguments.</param>
 		void OnWorksheetAdd(object sender, EventArgs e)
 		{
 			Tuple<Command, string> ret = WorksheetNameDialog();
@@ -263,6 +245,42 @@ namespace Baimp
 
 				tabHost.Add(newPipeline.PipelineName);
 				tabHost.SelectedIndex = tabHost.Count - 1;
+			}
+		}
+
+		/// <summary>
+		/// Gets called when a worksheet tab was closed.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event arguments.</param>
+		void OnTabClose(object sender, CloseEventArgs e)
+		{
+			TabButton button = sender as TabButton;
+			if (button != null) {
+				Dialog d = new Dialog();
+				d.Title = "Remove worksheet";
+
+				d.Content = new Label(string.Format("Remove worksheet \"{0}\"?", button.Label));
+				d.Buttons.Add(new DialogButton("Remove", Command.Ok));
+				d.Buttons.Add(new DialogButton(Command.Cancel));
+
+				Command r = d.Run();
+				if (r.Id == Command.Ok.Id) {
+					pipelines.Remove(button.Label);
+
+					PipelineView nextPipeline;
+					pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);
+
+					if (nextPipeline != null) {
+						CurrentPipeline = nextPipeline;
+					}
+
+					e.Close = true;
+				} else {
+					e.Close = false;
+				}
+
+				d.Dispose();
 			}
 		}
 
@@ -333,6 +351,10 @@ namespace Baimp
 
 		#region properties
 
+		/// <summary>
+		/// Gets or sets the current shown pipeline.
+		/// </summary>
+		/// <value>The current pipeline.</value>
 		public PipelineView CurrentPipeline {
 			get {
 				return currentPipeline;
@@ -349,6 +371,10 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Collection of all worksheets.
+		/// </summary>
+		/// <value>The pipelines.</value>
 		public PipelineCollection Pipelines {
 			get {
 				return pipelines;

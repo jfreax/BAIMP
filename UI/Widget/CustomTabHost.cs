@@ -124,7 +124,7 @@ namespace Baimp
 		/// <summary>
 		/// Occurs when a tab was closed.
 		/// </summary>
-		public event EventHandler<CloseEventArgs> TabClosed {
+		public event EventHandler<CloseEventArgs> TabClose {
 			add {
 				tabClosedEvent += value;
 			}
@@ -146,10 +146,6 @@ namespace Baimp
 				return selectedIndex;
 			}
 			set {
-				if (selectedIndex == value) {
-//					return;
-				}
-
 				TabButton oldButton = Children.ElementAt(selectedIndex) as TabButton;
 				if (oldButton != null) {
 					oldButton.Active = false;
@@ -213,6 +209,10 @@ namespace Baimp
 			set;
 		}
 
+		/// <summary>
+		/// Number of tabs.
+		/// </summary>
+		/// <value>The count.</value>
 		public int Count {
 			get {
 				return Children.Count();

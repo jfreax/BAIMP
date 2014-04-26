@@ -46,6 +46,9 @@ namespace Baimp
 		/// Set when this pipeline was loaded from file.
 		/// </summary>
 		Point initialScrollPosition = Point.Zero;
+		/// <summary>
+		/// Current scale (zoom) factor.
+		/// </summary>
 		double scaleFactor = 1.0;
 
 		#region initialize

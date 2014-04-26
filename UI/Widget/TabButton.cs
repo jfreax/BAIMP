@@ -426,6 +426,10 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Mouse hover status.
+		/// </summary>
+		/// <value><c>true</c> if hovered; otherwise, <c>false</c>.</value>
 		bool Hovered {
 			get {
 				return hovered;
