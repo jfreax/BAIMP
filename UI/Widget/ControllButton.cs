@@ -13,9 +13,9 @@ namespace Baimp
 
 		Image icon;
 
-		bool isDisabled = false;
-		bool isHover = false;
-		bool isPressed = false;
+		bool isDisabled;
+		bool isHover;
+		bool isPressed;
 
 		public ControllButton(Image icon)
 		{
@@ -97,7 +97,7 @@ namespace Baimp
 			isHover = false;
 		}
 
-		public Size Size {
+		public new Size Size {
 			get;
 			set;
 		}

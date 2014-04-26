@@ -146,7 +146,7 @@ namespace Baimp
 			}
 			set {
 				if (selectedIndex == value) {
-					return;
+//					return;
 				}
 
 				TabButton oldButton = Children.ElementAt(selectedIndex) as TabButton;
@@ -210,6 +210,12 @@ namespace Baimp
 		public bool CanCloseAll {
 			get;
 			set;
+		}
+
+		public int Count {
+			get {
+				return Children.Count();
+			}
 		}
 
 		#endregion

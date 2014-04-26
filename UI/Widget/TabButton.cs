@@ -343,6 +343,10 @@ namespace Baimp
 			set {
 				active = value;
 				QueueDraw();
+
+				if (next != null) {
+					next.QueueDraw();
+				}
 			}
 		}
 

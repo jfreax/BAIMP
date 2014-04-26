@@ -128,6 +128,19 @@ namespace Baimp
 
 			controllbar.PackStart(tabHost, false, WidgetPlacement.End, WidgetPlacement.Start);
 
+			// tab add worksheet 
+			ImageView addWorksheet = new ImageView();
+			addWorksheet.Image = Image.FromResource("Baimp.Resources.btAdd.png").WithBoxSize(14);
+			addWorksheet.MouseEntered += delegate {
+				addWorksheet.Image = addWorksheet.Image.WithAlpha(0.8);
+			};
+			addWorksheet.MouseExited += delegate {
+				addWorksheet.Image = addWorksheet.Image.WithAlpha(1.0);
+			};
+			addWorksheet.ButtonPressed += OnWorksheetAdd;
+
+			controllbar.PackStart(addWorksheet, false, WidgetPlacement.Center, WidgetPlacement.Start);
+
 			splitControllTab_pipelineScroller = new VBox();
 			splitControllTab_pipelineScroller.Spacing = 0;
 			splitControllTab_pipelineScroller.PackStart(controllbar, false, margin: 0.0);
@@ -234,6 +247,22 @@ namespace Baimp
 //				}
 			if (tabHost.SelectedItem != null) {
 				CurrentPipeline = pipelines[tabHost.SelectedItem.Label];
+			}
+		}
+
+		void OnWorksheetAdd(object sender, EventArgs e)
+		{
+			Tuple<Command, string> ret = WorksheetNameDialog();
+			Command r = ret.Item1;
+			if (r != null && r.Id == Command.Ok.Id) {
+				PipelineView newPipeline = new PipelineView();
+				newPipeline.Initialize(pipelineScroller);
+				newPipeline.PipelineName = ret.Item2;
+				pipelines.Add(newPipeline.PipelineName, newPipeline);
+				CurrentPipeline = newPipeline;
+
+				tabHost.Add(newPipeline.PipelineName);
+				tabHost.SelectedIndex = tabHost.Count - 1;
 			}
 		}
 

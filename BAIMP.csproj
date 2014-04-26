@@ -239,5 +239,6 @@
     <EmbeddedResource Include="Resources\btClose.png" />
     <EmbeddedResource Include="Resources\pindown.png" />
     <EmbeddedResource Include="Resources\pinup.png" />
+    <EmbeddedResource Include="Resources\btAdd.png" />
   </ItemGroup>
 </Project>
