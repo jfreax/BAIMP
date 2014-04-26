@@ -341,11 +341,7 @@ namespace Baimp
 				pipelines.Add(ret.Item2, CurrentPipeline);
 				CurrentPipeline.PipelineName = ret.Item2;
 
-				// TODO
-//				int idx = projectMap.SelectedIndex;
-//				projectMap.Items.RemoveAt(projectMap.SelectedIndex);
-//				projectMap.Items.Insert(idx, ret.Item2);
-//				projectMap.SelectedIndex = idx;
+				tabHost.SelectedItem.Label = ret.Item2;
 			}
 		}
 
