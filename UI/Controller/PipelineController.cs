@@ -8,7 +8,6 @@ namespace Baimp
 	public class PipelineController : IDisposable
 	{
 		VBox pipelineShelf;
-		HBox controllbar;
 		VBox splitControllTab_pipelineScroller;
 		CustomTabHost tabHost;
 
@@ -71,7 +70,7 @@ namespace Baimp
 
 			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
-			splitAlgorithm_Controller.PackStart(controllbar);
+			//splitAlgorithm_Controller.PackStart(controllbar);
 			InitializeEvents();
 		}
 
@@ -80,8 +79,10 @@ namespace Baimp
 		/// </summary>
 		void InitializeControllerbar()
 		{
-			controllbar = new HBox();
+			HBox controllbar = new HBox();
+			controllbar.Spacing = 0;
 			playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
+			playButton.Size = new Size(24, 24);
 			playButton.TooltipText = "Execute pipeline";
 
 			playButton.ButtonPressed += delegate {
@@ -92,6 +93,7 @@ namespace Baimp
 			};
 
 			stopButton = new ControllButton(Image.FromResource("Baimp.Resources.icoStop-Normal.png"));
+			stopButton.Size = playButton.Size;
 			stopButton.TooltipText = "Stop pipeline execution";
 			stopButton.ButtonPressed += delegate {
 				currentPipeline.StopExecution();
@@ -102,15 +104,17 @@ namespace Baimp
 			playStopButtonPlacement = new FrameBox();
 			playStopButtonPlacement.Content = playButton;
 
-			controllbar.PackStart(playStopButtonPlacement, false, margin: 0.0);
+			controllbar.PackStart(
+				playStopButtonPlacement, false, WidgetPlacement.Center, WidgetPlacement.Center, 8);
 
 			// tab bar
-			splitControllTab_pipelineScroller = new VBox();
-			splitControllTab_pipelineScroller.Spacing = 0;
 			tabHost = new CustomTabHost();
 			tabHost.HeightRequest = 24;
-			splitControllTab_pipelineScroller.PackStart(tabHost, false, false);
+			controllbar.PackStart(tabHost, false, WidgetPlacement.End, WidgetPlacement.Start);
 
+			splitControllTab_pipelineScroller = new VBox();
+			splitControllTab_pipelineScroller.Spacing = 0;
+			splitControllTab_pipelineScroller.PackStart(controllbar, false, margin: 0.0);
 
 			ReloadProjectMap();
 		}
@@ -148,23 +152,14 @@ namespace Baimp
 		/// <summary>
 		/// Reloads the project map combobox
 		/// </summary>
-		private void ReloadProjectMap()
+		void ReloadProjectMap()
 		{
 			tabHost.SelectionChanged -= OnProjectMapSelectionChanged;
 
-//			if (projectMap == null) {
-//				projectMap = new ComboBox();
-//				controllbar.PackStart(projectMap, false, false);
-//			} else {
-//				projectMap.SelectionChanged -= OnProjectMapSelectionChanged;
-//			}
-//				
-//			projectMap.Items.Clear();
 			tabHost.Clear();
 			foreach (PipelineView pView in pipelines.Values) {
 				tabHost.Add(pView.PipelineName);
 			}
-			//tabHost.Add("Add new worksheet...");
 			tabHost.SelectedIndex = 0;
 
 			tabHost.SelectionChanged += OnProjectMapSelectionChanged;

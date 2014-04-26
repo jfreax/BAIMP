@@ -20,6 +20,7 @@ namespace Baimp
 		public ControllButton(Image icon)
 		{
 			this.icon = icon;
+			Size = bgNormal.Size;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -27,19 +28,19 @@ namespace Baimp
 			base.OnDraw(ctx, dirtyRect);
 
 			if (isDisabled) {
-				ctx.DrawImage(bgDisabled, Point.Zero);
+				ctx.DrawImage(bgDisabled.WithBoxSize(Size), Point.Zero);
 			} else if (isPressed) {
-				ctx.DrawImage(bgPressed, Point.Zero);
+				ctx.DrawImage(bgPressed.WithBoxSize(Size), Point.Zero);
 			} else if (isHover) {
-				ctx.DrawImage(bgHover, Point.Zero);
+				ctx.DrawImage(bgHover.WithBoxSize(Size), Point.Zero);
 			} else {
-				ctx.DrawImage(bgNormal, Point.Zero);
+				ctx.DrawImage(bgNormal.WithBoxSize(Size), Point.Zero);
 			}
 
 			if (isDisabled) {
-				ctx.DrawImage(icon.WithAlpha(0.6), Point.Zero);
+				ctx.DrawImage(icon.WithBoxSize(Size).WithAlpha(0.6), Point.Zero);
 			} else {
-				ctx.DrawImage(icon, Point.Zero);
+				ctx.DrawImage(icon.WithBoxSize(Size), Point.Zero);
 			}
 		}
 
@@ -81,7 +82,7 @@ namespace Baimp
 
 		protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
 		{
-			return bgNormal.Size;
+			return Size;
 		}
 
 		public void Disable()
@@ -94,6 +95,11 @@ namespace Baimp
 			isDisabled = false;
 			isPressed = false;
 			isHover = false;
+		}
+
+		public Size Size {
+			get;
+			set;
 		}
 	}
 }
