@@ -241,5 +241,7 @@
     <EmbeddedResource Include="Resources\icoStop-Normal.png" />
     <EmbeddedResource Include="Resources\icoMonochrome-Normal.png" />
     <EmbeddedResource Include="Resources\icoMask-Normal.png" />
+    <EmbeddedResource Include="Resources\btClose-Selected.png" />
+    <EmbeddedResource Include="Resources\btClose.png" />
   </ItemGroup>
 </Project>

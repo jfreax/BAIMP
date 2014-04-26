@@ -6,17 +6,22 @@ namespace Baimp
 {
 	public class TabButton : Canvas
 	{
+		static readonly Image closeNormal = 
+			Image.FromResource("Baimp.Resources.btClose.png").WithBoxSize(14.0);
+		static readonly Image closeSelected = 
+			Image.FromResource("Baimp.Resources.btClose-Selected.png").WithBoxSize(14.0);
 		readonly TextLayout text = new TextLayout();
 		Color deactiveColor = Color.FromBytes(208, 208, 208);
-		Color activeColor = Color.FromBytes (159, 176, 193);
+		Color activeColor = Color.FromBytes(159, 176, 193);
 		Color borderColor = Color.FromBytes(182, 182, 182);
 		Color deactiveTextColor = Color.FromBytes(64, 64, 64);
 		WidgetSpacing padding;
 		TabButton previous;
 		TabButton next;
-
 		Distance lean;
 		bool active;
+		bool closeable;
+		bool hovered;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.TabButton"/> class.
@@ -28,6 +33,7 @@ namespace Baimp
 
 			Managed = false;
 			Multiple = true;
+			Closeable = false;
 
 			Lean = new Distance(5, 5);
 		}
@@ -157,6 +163,15 @@ namespace Baimp
 			ctx.SetColor(Active ? Colors.AliceBlue : deactiveTextColor);
 			ctx.DrawTextLayout(text, new Point(padding.Left + Lean.Dx + 2, padding.Top));
 
+			// close button
+			if (Closeable) {
+				ctx.DrawImage(Hovered ? closeSelected : closeNormal, 
+					new Point(
+						Size.Width - closeNormal.Width - (next == null ? padding.Right + Lean.Dx : 0), 
+						(Size.Height - closeNormal.Height) / 2
+					)
+				);
+			}
 		}
 
 		protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
@@ -166,6 +181,11 @@ namespace Baimp
 			if (next == null) {
 				size.Width += Lean.Dx + 2;
 			}
+
+			if (Closeable) {
+				size.Width += closeNormal.Width;
+			}
+
 			size.Height += padding.VerticalSpacing;
 			return size;
 		}
@@ -175,6 +195,32 @@ namespace Baimp
 			base.OnBoundsChanged();
 
 			padding = new WidgetSpacing(padding.Left, (Size.Height - text.GetSize().Height) / 2, padding.Right, 0);
+		}
+
+		void OnTabClosed(object sender, EventArgs e)
+		{
+			if (closeEvent != null) {
+				closeEvent(sender, e);
+			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (Next != null) {
+				Next.Previous = previous;
+				if (Active) {
+					Next.Active = true;
+				}
+			} else if (Previous != null) {
+				if (Next != null) {
+					Next.Active = true;
+				} else {
+					Previous.Active = true;
+				}
+				Previous.Next = Next;
+			}
+
+			base.Dispose(disposing);
 		}
 
 		#region Mouse events
@@ -191,8 +237,31 @@ namespace Baimp
 				if (toggleEvent != null) {
 					toggleEvent(this, EventArgs.Empty);
 				}
+
+				Rectangle closeRegion = new Rectangle(
+					                        Size.Width - closeNormal.Width - (next == null ? padding.Right + Lean.Dx : 0), 
+					                        (Size.Height - closeNormal.Height) / 2,
+					                        closeNormal.Width, closeNormal.Height
+				                        );
+
+				if (closeRegion.Contains(args.Position)) {
+					OnTabClosed(this, EventArgs.Empty);
+				}
+
 				break;
 			}
+		}
+
+		protected override void OnMouseEntered(EventArgs args)
+		{
+			base.OnMouseEntered(args);
+			Hovered = true;
+		}
+
+		protected override void OnMouseExited(EventArgs args)
+		{
+			base.OnMouseExited(args);
+			Hovered = false;
 		}
 
 		#endregion
@@ -210,6 +279,21 @@ namespace Baimp
 			}
 			remove {
 				toggleEvent -= value;
+			}
+		}
+
+		EventHandler<EventArgs> closeEvent;
+
+		/// <summary>
+		/// Occurs when the close button was pressed.
+		/// Only available if closeable is set to true.
+		/// </summary>
+		public event EventHandler<EventArgs> Closed {
+			add {
+				closeEvent += value;
+			}
+			remove {
+				closeEvent -= value;
 			}
 		}
 
@@ -320,6 +404,30 @@ namespace Baimp
 		public bool Multiple {
 			get;
 			set;
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="Baimp.TabButton"/> closeable.
+		/// </summary>
+		/// <value><c>true</c> if closeable; otherwise, <c>false</c>.</value>
+		public bool Closeable {
+			get {
+				return closeable;
+			}
+			set {
+				closeable = value;
+				OnPreferredSizeChanged();
+			}
+		}
+
+		bool Hovered {
+			get {
+				return hovered;
+			}
+			set {
+				hovered = value;
+				QueueDraw();
+			}
 		}
 
 		#endregion

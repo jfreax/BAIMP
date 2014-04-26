@@ -12,7 +12,7 @@ namespace Baimp
 		CustomTabHost tabHost;
 
 		Project project;
-		ScrollView pipelineScroller;
+		readonly ScrollView pipelineScroller;
 		AlgorithmTreeView algorithm;
 		PipelineCollection pipelines = new PipelineCollection();
 		PipelineView currentPipeline;
@@ -109,7 +109,23 @@ namespace Baimp
 
 			// tab bar
 			tabHost = new CustomTabHost();
+			tabHost.Closeable = true;
 			tabHost.HeightRequest = 24;
+
+			tabHost.TabClosed += delegate(object sender, EventArgs e) {
+				TabButton button = sender as TabButton;
+				if (button != null) {
+					pipelines.Remove(button.Label);
+
+					PipelineView nextPipeline;
+					pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);
+
+					if (nextPipeline != null) {
+						CurrentPipeline = nextPipeline;
+					}
+				}
+			};
+
 			controllbar.PackStart(tabHost, false, WidgetPlacement.End, WidgetPlacement.Start);
 
 			splitControllTab_pipelineScroller = new VBox();
