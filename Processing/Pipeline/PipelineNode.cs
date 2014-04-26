@@ -96,8 +96,8 @@ namespace Baimp
 		public void Initialize()
 		{
 			if (!IsFinalNode()) {
-				icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.hide.png")));
-				icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.view.png")));
+				icons.Add("hide", new LightImageWidget(Image.FromResource("Baimp.Resources.pinup.png")));
+				icons.Add("view", new LightImageWidget(Image.FromResource("Baimp.Resources.pindown.png")));
 			}
 
 			SaveResult = false;

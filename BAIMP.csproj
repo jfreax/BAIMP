@@ -215,12 +215,6 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\hide.png" />
-    <EmbeddedResource Include="Resources\view.png" />
-    <EmbeddedResource Include="Resources\hide%402x.png" />
-    <EmbeddedResource Include="Resources\hide%404x.png" />
-    <EmbeddedResource Include="Resources\view%402x.png" />
-    <EmbeddedResource Include="Resources\view%404x.png" />
     <EmbeddedResource Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -243,5 +237,7 @@
     <EmbeddedResource Include="Resources\icoMask-Normal.png" />
     <EmbeddedResource Include="Resources\btClose-Selected.png" />
     <EmbeddedResource Include="Resources\btClose.png" />
+    <EmbeddedResource Include="Resources\pindown.png" />
+    <EmbeddedResource Include="Resources\pinup.png" />
   </ItemGroup>
 </Project>
