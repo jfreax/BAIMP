@@ -35,7 +35,6 @@ namespace Baimp
 		float[] rawData;
 		List<Bitmap> grayScale8bbp = new List<Bitmap>();
 		Widget widget;
-
 		Xwt.Size explicitSize = Xwt.Size.Zero;
 
 		/// <summary>
@@ -84,13 +83,13 @@ namespace Baimp
 						unsafe {
 							BitmapData bmpData = mask.LockBits(
 								                     new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
-								                     ImageLockMode.WriteOnly, mask.PixelFormat);
+								                     ImageLockMode.ReadOnly, mask.PixelFormat);
 
 							byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 
 							for (int y = 0; y < Size.Height; y++) {
 								for (int x = 0; x < Size.Width; x++) {
-									if (scan0[(int)((y * ratioY) * bmpData.Stride + (x * ratioX * 4))] == 0) {
+									if (scan0[(int) ((y * ratioY) * bmpData.Stride + (x * ratioX * 4))] == 0) {
 										rawData[(int) (y * Size.Width) + x] = 0.0f;
 									}
 								}
