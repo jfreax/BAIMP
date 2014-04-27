@@ -288,6 +288,9 @@ namespace Baimp
 				return null;
 			}));
 
+			Log.Add(LogLevel.Info, this.GetType().Name, 
+				string.Format("Project \"{0}\" saved.", Path.GetFileName(ProjectFile)));
+
 			return true;
 		}
 

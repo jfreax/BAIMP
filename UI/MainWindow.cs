@@ -279,7 +279,9 @@ namespace Baimp
 				if (e != null) {
 					fileTree.Reload(project.scanCollection);
 
-					MarkAsUnsaved();
+					if (!e.refresh) {
+						MarkAsUnsaved();
+					}
 				}
 			};
 
