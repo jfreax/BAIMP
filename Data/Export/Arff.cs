@@ -51,6 +51,7 @@ namespace Baimp
 					if (pNode.MNodes[i + offset].compatible.IsFinal()) {
 
 						// iterate throu all results
+						int resultID = 0;
 						foreach (Tuple<IType[], Result[]> resultList in pNode.results) {
 
 							// if its a list of features...
@@ -62,16 +63,18 @@ namespace Baimp
 								if (featureList != null) {
 									// ... then iterate over the whole list
 									foreach (IFeature feature in featureList) {
-										AddResult(feature, resultList.Item2[i].Input);
+										AddResult(feature, resultList.Item2[i].Input, resultID);
 									}
 								}
 							} else {
 								// if its only a single feature
 								IFeature feature = resultList.Item1[i] as IFeature;
 								if (feature != null) {
-									AddResult(feature, resultList.Item2[i].Input);
+									AddResult(feature, resultList.Item2[i].Input, resultID);
 								}
 							}
+
+							resultID++;
 						}
 					}
 				}
@@ -80,7 +83,7 @@ namespace Baimp
 			ToArff();
 		}
 
-		private void AddResult(IFeature feature, Result[] inputs)
+		private void AddResult(IFeature feature, Result[] inputs, int resultID)
 		{
 			string completeFeatureName = feature.Key();
 			string className = string.Empty;
@@ -111,6 +114,8 @@ namespace Baimp
 				}
 				currInputs = nextInputs;
 			}
+
+			fiberName += "#" + resultID;
 
 			int attributeIndex = attributes.IndexOf(completeFeatureName);
 			if (attributeIndex == -1) {
