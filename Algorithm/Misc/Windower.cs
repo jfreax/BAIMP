@@ -20,8 +20,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace Baimp
 {
@@ -31,12 +29,12 @@ namespace Baimp
 		{
 			input.Add(new Compatible(
 				"Image",
-				typeof(TBitmap)
+				typeof(TScan)
 			));
 
 			output.Add(new Compatible(
 				"ROI",
-				typeof(TBitmap)
+				typeof(TScan)
 			));
 
 			options.Add(new Option("Width", 1, int.MaxValue, 64));
@@ -47,26 +45,35 @@ namespace Baimp
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
-			int width = (int) options[0].Value;
-			int height = (int) options[1].Value;
-			TBitmap tbitmap = inputArgs[0] as TBitmap;
-			if (tbitmap != null) {
-				Bitmap bitmap = tbitmap.Data;
-				Rectangle rect = new Rectangle(0, 0, width, height);
+			int blockWidth = (int) options[0].Value;
+			int blockHeight = (int) options[1].Value;
+			Xwt.Size blockSize = new Xwt.Size(blockWidth, blockHeight);
 
-				for (int y = 0; y < bitmap.Height-height; y += height) {
-					rect.Y = y;
+			TScan scan = inputArgs[0] as TScan;
 
-					if (IsCanceled) {
-						break;
+			int width = (int) scan.Size.Width;
+			int height = (int) scan.Size.Height;
+
+			float[] inputData = scan.Data;
+			for (int y = 0; y < height-blockHeight; y += blockHeight) {
+				for (int x = 0; x < width-blockWidth; x+= blockWidth) {
+					float[] data = new float[blockWidth*blockHeight];
+
+					bool empty = true;
+					for (int i = 0; i < blockWidth; i++) {
+						for (int j = 0; j < blockHeight; j++) {
+							float value = inputData[x + i + ((y + j) * width)];
+							data[i + (j * blockWidth)] = value;
+
+							if (value > 0.0) {
+								empty = false;
+							}
+						}
 					}
 
-					for (int x = 0; x < bitmap.Width-width; x += width) {
-						rect.X = x;
-						IType[] ret = new IType[1];
-						ret[0] = new TBitmap(bitmap.Clone(rect, bitmap.PixelFormat));
-
-						Yield(ret, null);
+					if (!empty) {
+						TScan block = new TScan(data, blockSize, scan.IsMultipleAccessModeOn);
+						Yield(new IType[] { block }, null);
 					}
 				}
 			}

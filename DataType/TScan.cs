@@ -34,7 +34,9 @@ namespace Baimp
 		bool maskedOnly;
 		float[] rawData;
 		List<Bitmap> grayScale8bbp = new List<Bitmap>();
-		private Widget widget = null;
+		Widget widget;
+
+		Xwt.Size explicitSize = Xwt.Size.Zero;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.TScan"/> class.
@@ -51,6 +53,13 @@ namespace Baimp
 			this.scanType = scanType;
 			this.multipleUsage = multipleUsage;
 			this.maskedOnly = maskedOnly;
+		}
+
+		public TScan(float[] data, Xwt.Size size, bool multipleUsage = false)
+		{
+			rawData = data;
+			explicitSize = size;
+			this.multipleUsage = multipleUsage;
 		}
 
 		/// <summary>
@@ -109,6 +118,10 @@ namespace Baimp
 		/// <value>The gray scale8bpp.</value>
 		public Bitmap GrayScale8bpp {
 			get {
+				if (scan == null) {
+					throw new NotSupportedException();
+				}
+
 				if (grayScale8bbp == null) {
 					grayScale8bbp = new List<Bitmap>();
 				}
@@ -132,6 +145,12 @@ namespace Baimp
 			multipleUsage = true;
 		}
 
+		public bool IsMultipleAccessModeOn {
+			get {
+				return multipleUsage;
+			}
+		}
+
 		/// <summary>
 		/// Preloads the data.
 		/// </summary>
@@ -143,20 +162,27 @@ namespace Baimp
 
 		public Xwt.Size Size {
 			get {
-				return scan.Size;
+				if (explicitSize.IsZero) {  
+					return scan.Size;
+				}
+
+				return explicitSize;
 			}
 		}
 
 		public object RawData()
 		{
-			return Data as object;
+			return Data;
 		}
 
 		public Widget ToWidget()
 		{
 			if (widget == null) {
 				ImageView iv = new ImageView();
-				iv.Image = scan.GetAsImage(scanType, false, false);
+	            
+				if (scan != null) {
+					iv.Image = scan.GetAsImage(scanType, false, false);
+				} // else TODO
 				widget = iv;
 			}
 
@@ -165,7 +191,11 @@ namespace Baimp
 
 		public override string ToString()
 		{
-			return string.Format("{0}_{1}", scan.ToString(), scanType);
+			if (scan == null) {
+				return string.Format("Scan (Size: {0})", explicitSize);
+			}
+
+			return string.Format("{0}_{1}", scan, scanType);
 		}
 
 		public void Dispose()
