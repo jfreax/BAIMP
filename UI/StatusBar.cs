@@ -21,6 +21,7 @@
 ﻿using System;
 using Xwt;
 using System.Threading;
+using Xwt.Drawing;
 
 namespace Baimp
 {
@@ -28,7 +29,7 @@ namespace Baimp
 	{
 		readonly Timer timer;
 		Label threadLabel = new Label();
-		TextEntry logEntry = new TextEntry();
+		Label logEntry = new Label();
 		int maxThreads;
 
 		public StatusBar()
@@ -36,15 +37,15 @@ namespace Baimp
 			InitializeUI();
 
 			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
-			Log.LogAdded += delegate(object sender, LogEventArgs e) {
-				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
-			};
+			Log.LogAdded += 
+				(object sender, LogEventArgs e) => 
+				logEntry.Markup = 
+					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
+						e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
 		}
 
 		void InitializeUI()
 		{
-			logEntry.ReadOnly = true;
-
 			PackStart(logEntry, true);
 			PackEnd(threadLabel);
 

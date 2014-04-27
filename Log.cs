@@ -81,6 +81,24 @@ namespace Baimp
 		}
 
 		#endregion
+
+		public static string LevelToColorString(LogLevel level)
+		{
+			switch (level) {
+			case LogLevel.Debug:
+				return "#01f6df";
+			case LogLevel.Error:
+				return "#ff0000";
+			case LogLevel.Verbose:
+				return "#655fe0";
+			case LogLevel.Warning:
+				return "#fbfa00";
+			case LogLevel.Info:
+				return "#000000";
+			}
+
+			return "#000000";
+		}
 	}
 
 	public struct LogMessage
