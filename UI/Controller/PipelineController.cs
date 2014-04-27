@@ -261,6 +261,9 @@ namespace Baimp
 
 				tabHost.Add(newPipeline.PipelineName);
 				tabHost.SelectedIndex = tabHost.Count - 1;
+
+				Log.Add(LogLevel.Info, this.GetType().Name,
+					"Added new worksheet \"" + newPipeline.PipelineName + "\"");
 			}
 		}
 
@@ -283,6 +286,9 @@ namespace Baimp
 				Command r = d.Run();
 				if (r.Id == Command.Ok.Id) {
 					pipelines.Remove(button.Label);
+
+					Log.Add(LogLevel.Info, this.GetType().Name,
+						"Removed worksheet \"" + button.Label + "\"");
 
 					PipelineView nextPipeline;
 					pipelines.TryGetValue(tabHost.SelectedItem.Label, out nextPipeline);

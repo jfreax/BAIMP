@@ -104,6 +104,8 @@ namespace Baimp
 					if (e.InnerException != null) { 
 						Console.WriteLine(e.InnerException.Message);
 					}
+					Log.Add(LogLevel.Error, this.GetType().Name,
+						"Failed to process node \"" + startNode + "\"\n\t" + e.Message);
 				}
 				startNode.algorithm.Yielded -= yieldFun;
 				startNode.algorithm.SetProgress(100);

@@ -93,6 +93,7 @@ namespace Baimp
 						if (e.InnerException != null) {
 							Console.WriteLine(e.InnerException.Message);
 						}
+						Log.Add(LogLevel.Error, "Project", "Failed to open save file.\n\t" + e.Message);
 					}
 
 				} else {
@@ -130,7 +131,8 @@ namespace Baimp
 							Console.WriteLine(e);
 							Console.WriteLine(e.Message);
 							Console.WriteLine(e.InnerException.Message);
-							this.ErrorMessage = e.Message + "\n" + e.InnerException.Message;
+							ErrorMessage = e.Message + "\n" + e.InnerException.Message;
+							Log.Add(LogLevel.Error, this.GetType().Name, "Failed to deserialize save file.\n" + ErrorMessage);
 							return false;
 						}
 
@@ -182,6 +184,10 @@ namespace Baimp
 							projectChanged(this, new ProjectChangedEventArgs(true));
 						}
 
+						Log.Add(LogLevel.Info, this.GetType().Name,
+							string.Format("Loaded save file \"{0}\". #Worksheets: {1}", 
+								Path.GetFileName(filePath), LoadedPipelines.Count));
+
 						return true;
 					}
 				}));
@@ -191,6 +197,7 @@ namespace Baimp
 				}
 			} else {
 				ErrorMessage = "File not found";
+				Log.Add(LogLevel.Error, this.GetType().Name, "Open failed. File not found.");
 				return false;
 			}
 
@@ -328,6 +335,7 @@ namespace Baimp
 				string filename = saveDialog.FileName;
 				if (string.IsNullOrEmpty(filename)) {
 					ErrorMessage = "Invalid file path.";
+					Log.Add(LogLevel.Error, this.GetType().Name, ErrorMessage);
 					return false;
 				}
 
@@ -363,7 +371,7 @@ namespace Baimp
 
 		#region internal save/open methods
 
-		private CustomStaticDataSource ProjectMetadata()
+		CustomStaticDataSource ProjectMetadata()
 		{
 			MemoryStream ms = new MemoryStream();
 			XmlTextWriter xmlWriter = new XmlTextWriter(ms, null);
@@ -396,6 +404,8 @@ namespace Baimp
 		public void NotifyPipelineStart(PipelineView pipeline)
 		{
 			if (pipelineExecuted != null) {
+				Log.Add(LogLevel.Info, this.GetType().Name,
+					"Start executing pipeline. Worksheet \"" + pipeline.PipelineName + "\"");
 				pipelineExecuted(pipeline, null);
 			}
 		}
@@ -403,6 +413,8 @@ namespace Baimp
 		public void NotifyPipelineStop(PipelineView pipeline)
 		{
 			if (pipelineFinished != null) {
+				Log.Add(LogLevel.Info, this.GetType().Name,
+					"Cancel executing pipeline. Worksheet \"" + pipeline.PipelineName + "\"");
 				pipelineFinished(pipeline, null);
 			}
 		}

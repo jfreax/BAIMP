@@ -549,7 +549,7 @@ namespace Baimp
 
 				SetNodePosition(node);
 				nodes.Add(node);
-				Log.Add(LogLevel.Info, this.GetType().Name, "New node added; " + node.ToString());
+				Log.Add(LogLevel.Verbose, this.GetType().Name, "New node added \"" + node + "\".");
 
 				EmitDataChanged();
 				this.QueueDraw();
@@ -558,6 +558,8 @@ namespace Baimp
 				Console.WriteLine(e.StackTrace);
 				Console.WriteLine(e.Message);
 				args.Success = false;
+
+				Log.Add(LogLevel.Error, this.GetType().Name, "Failed to add new node.");
 			}
 		}
 
@@ -719,6 +721,12 @@ namespace Baimp
 							actionedLeft = true;
 						}
 						EmitDataChanged();
+
+						Log.Add(LogLevel.Verbose, this.GetType().Name, 
+							string.Format("Add new node from \"{0}\" to \"{1}\".",
+								mNode.IsInput ? connectNodesStartMarker.parent : mNode.parent,
+								mNode.IsInput ? mNode.parent : connectNodesStartMarker.parent
+							));
 					} 
 
 					mouseAction ^= MouseAction.AddEdge;

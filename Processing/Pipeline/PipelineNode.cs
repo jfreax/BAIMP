@@ -465,9 +465,9 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Add a new node
+		/// Add a new marker node.
 		/// </summary>
-		/// <param name="o">O.</param>
+		/// <param name="o">Marker node.</param>
 		public void Add(object o)
 		{
 			var markerNode = o as MarkerNode;
@@ -606,6 +606,10 @@ namespace Baimp
 					icons["hide"].Visible = false;
 					icons["view"].Visible = false;
 				} else {
+					if (algorithm != null) { // after algorithm was set
+						Log.Add(LogLevel.Verbose, "Node#" + this, (value ? "Save" : "Discard") + " intermediate results.");
+					}
+
 					saveResult = value;
 					if (saveResult) {
 						icons["hide"].Visible = false;
