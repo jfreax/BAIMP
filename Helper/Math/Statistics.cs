@@ -266,8 +266,22 @@ namespace Baimp
 		/// <param name="values">Values.</param>
 		public static double Sum(this double[] values)
 		{
-			double sum = 0;
+			double sum = 0.0;
 			foreach (double v in values) {
+				sum += v;
+			}
+
+			return sum;
+		}
+
+		/// <summary>
+		/// Sum of all values.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		public static double Sum(this float[] values)
+		{
+			float sum = 0.0f;
+			foreach (float v in values) {
 				sum += v;
 			}
 
@@ -313,6 +327,7 @@ namespace Baimp
 				}
 			} else {
 				// TODO
+				throw new NotSupportedException();
 			}
 
 			return sum;
