@@ -28,6 +28,7 @@ namespace Baimp
 	{
 		readonly Timer timer;
 		Label threadLabel = new Label();
+		TextEntry logEntry = new TextEntry();
 		int maxThreads;
 
 		public StatusBar()
@@ -35,17 +36,23 @@ namespace Baimp
 			InitializeUI();
 
 			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
+			Log.LogAdded += delegate(object sender, LogEventArgs e) {
+				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
+			};
 		}
 
-		private void InitializeUI()
+		void InitializeUI()
 		{
+			logEntry.ReadOnly = true;
+
+			PackStart(logEntry, true);
 			PackEnd(threadLabel);
 
 			int completionPortThreads;
 			ThreadPool.GetMaxThreads(out maxThreads, out completionPortThreads);
 		}
 			
-		private void UpdateThreadLabel(object o)
+		void UpdateThreadLabel(object o)
 		{
 			int workerThreads;
 			int completionPortThreads;

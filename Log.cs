@@ -42,9 +42,14 @@ namespace Baimp
 		/// <param name="logLevel">Log level.</param>
 		/// <param name="source">Source.</param>
 		/// <param name="message">Message.</param>
-		public static void Append(LogLevel logLevel, string source, string message)
+		public static void Add(LogLevel logLevel, string source, string message)
 		{
-			LogMessages.Add(new LogMessage(logLevel, source, message));
+			LogMessage logMessage = new LogMessage(logLevel, source, message);
+			LogMessages.Add(logMessage);
+
+			if (logAdded != null) {
+				logAdded(null, new LogEventArgs(logMessage));
+			}
 		}
 
 		/// <summary>
@@ -58,6 +63,24 @@ namespace Baimp
 
 			return output;
 		}
+
+		#region Events
+
+		static EventHandler<LogEventArgs> logAdded;
+
+		/// <summary>
+		/// Occurs when a log entry was added.
+		/// </summary>
+		public static event EventHandler<LogEventArgs> LogAdded {
+			add {
+				logAdded += value;
+			}
+			remove {
+				logAdded -= value;
+			}
+		}
+
+		#endregion
 	}
 
 	public struct LogMessage

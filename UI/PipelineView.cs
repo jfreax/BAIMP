@@ -549,6 +549,7 @@ namespace Baimp
 
 				SetNodePosition(node);
 				nodes.Add(node);
+				Log.Add(LogLevel.Info, this.GetType().Name, "New node added; " + node.ToString());
 
 				EmitDataChanged();
 				this.QueueDraw();

@@ -354,7 +354,7 @@ namespace Baimp
 		{
 			string name = algorithm.ShortName();
 
-			if (algorithm.Output != null && algorithm.Output.Count >= 1) {
+			if (algorithm.Output != null && algorithm.Options.Count >= 1) {
 				name += "(";
 				foreach (BaseOption option in algorithm.Options) {
 					name += option.Value + ",";
@@ -503,7 +503,7 @@ namespace Baimp
 
 		#region custom events
 
-		private void Redraw()
+		void Redraw()
 		{
 			if (queueRedraw != null) {
 				queueRedraw(this, null);
