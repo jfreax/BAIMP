@@ -21,33 +21,59 @@
 using System;
 using Xwt;
 using System.Collections.Generic;
+using Xwt.Drawing;
 
 namespace Baimp
 {
-	public class LogViewer : VBox
+	public class LogViewer : Table
 	{
 		LogLevel logLevel;
 
 		public LogViewer(LogLevel logLevel)
 		{
 			CurrentLogLevel = logLevel;
+
+			DefaultColumnSpacing = 0;
+			DefaultRowSpacing = 0;
 		}
 
 		void UpdateView()
 		{
 			Clear();
 			List<LogMessage> messages = Log.Get(CurrentLogLevel);
+
+			int i = 0;
 			foreach(LogMessage message in messages) {
-				Label messageLabel = new Label();
+				Label source = new Label(" " + message.Source);
+				try {
+					source.Markup = string.Format("<b>{0}</b>", source.Text);
+				} catch (Exception e) {} // workaround
+				Add(source, 0, i);
+
+				Label messageLabel = new Label(" " + message.Message + " ");
 				try {
 					messageLabel.Markup = 
-						string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-							message.source, Log.LevelToColorString(message.logLevel), message.message);
-				} catch (Exception exception) {
-					messageLabel.Text = string.Format("{0}: {1}", message.source, message.message);
+						string.Format(
+							"<span color='{0}'>{1}</span>", Log.LevelToColorString(message.LogLevel), messageLabel.Text);
+				} catch (Exception e) {} // workaround
+				Add(messageLabel, 1, i, hexpand: true);
+
+				Label timestamp = new Label(message.Timestamp.ToString("HH:mm:ss "));
+				try {
+					timestamp.Markup = string.Format("<i>{0}</i>", timestamp.Text);
+				} catch (Exception e) {} // workaround
+				Add(timestamp, 2, i, hpos: WidgetPlacement.End);
+
+				// color
+				if (i % 2 == 0) {
+					source.BackgroundColor = Colors.AliceBlue;
+					messageLabel.BackgroundColor = Colors.AliceBlue;
+					timestamp.BackgroundColor = Colors.AliceBlue;
 				}
 
-				this.PackStart(messageLabel);
+				Add(new Label() { MarginTop = 8 }, 3, i);
+
+				i++;
 			}
 		}
 

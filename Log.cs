@@ -59,14 +59,14 @@ namespace Baimp
 		public static List<LogMessage> Get(LogLevel logLevel)
 		{
 			List<LogMessage> output = new List<LogMessage>();
-			output.AddRange(LogMessages.Where(m => (int) m.logLevel >= (int) logLevel));
+			output.AddRange(LogMessages.Where(m => (int) m.LogLevel >= (int) logLevel));
 
 			return output;
 		}
 
 		public static int Count(LogLevel logLevel)
 		{
-			return LogMessages.Count(m => (int) m.logLevel >= (int) logLevel);
+			return LogMessages.Count(m => (int) m.LogLevel >= (int) logLevel);
 		}
 
 		#region Events
@@ -108,15 +108,19 @@ namespace Baimp
 
 	public struct LogMessage
 	{
-		public LogLevel logLevel;
-		public string source;
-		public string message;
+		public readonly LogLevel LogLevel;
+		public readonly string Source;
+		public readonly string Message;
+
+		public readonly DateTime Timestamp;
 
 		public LogMessage(LogLevel logLevel, string source, string message)
 		{
-			this.logLevel = logLevel;
-			this.source = source;
-			this.message = message;
+			this.LogLevel = logLevel;
+			this.Source = source;
+			this.Message = message;
+
+			Timestamp = DateTime.Now;
 		}
 	}
 }

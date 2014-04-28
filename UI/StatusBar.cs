@@ -55,7 +55,7 @@ namespace Baimp
 
 			// add lasz missing log (if any)
 			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
-			if (!string.IsNullOrEmpty(last.message)) {
+			if (!string.IsNullOrEmpty(last.Message)) {
 				ShowLogEntry(null, new LogEventArgs(last));
 			}
 		}
@@ -91,9 +91,9 @@ namespace Baimp
 			try {
 				logEntry.Markup = 
 					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-					e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
+					e.LogMessage.Source, Log.LevelToColorString(e.LogMessage.LogLevel), e.LogMessage.Message);
 			} catch (Exception exception) {
-				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
+				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.Source, e.LogMessage.Message);
 			}
 		}
 
