@@ -176,8 +176,10 @@ namespace Baimp
 					ctx.Fill();
 
 					if (mousePositionStart != Point.Zero) {
-						ctx.SetLineWidth(pointerSize / 2);
+						ctx.SetLineWidth((pointerSize / Math.Max(scaleFactor.X, scaleFactor.Y)) * 2);
 						ctx.SetColor(Mask.maskColor);
+						ctx.Arc(mousePositionStart.X, mousePositionStart.Y, pointerSize / Math.Max(scaleFactor.X, scaleFactor.Y), 0, 360);
+						ctx.Fill();
 						ctx.MoveTo(mousePosition);
 						ctx.LineTo(mousePositionStart);
 						ctx.Stroke();
@@ -311,7 +313,7 @@ namespace Baimp
 
 					scan.Mask.MaskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 
-					if (Keyboard.CurrentModifiers.HasFlag(ModifierKeys.Shift) && mousePositionStart != Point.Zero) {
+					if (mousePositionStart != Point.Zero) {
 						Point scaleFactor = new Point(
 							                    scan.Size.Width / image.Size.Width, 
 							                    scan.Size.Height / image.Size.Height);
