@@ -415,18 +415,18 @@ namespace Baimp
 
 		public void NotifyPipelineStart(PipelineView pipeline)
 		{
+			Log.Add(LogLevel.Info, this.GetType().Name,
+				"Start executing pipeline! Worksheet \"" + pipeline.PipelineName + "\".");
 			if (pipelineExecuted != null) {
-				Log.Add(LogLevel.Info, this.GetType().Name,
-					"Start executing pipeline. Worksheet \"" + pipeline.PipelineName + "\"");
 				pipelineExecuted(pipeline, null);
 			}
 		}
 
 		public void NotifyPipelineStop(PipelineView pipeline)
 		{
+			Log.Add(LogLevel.Info, this.GetType().Name,
+				"Stop executing pipeline! Worksheet \"" + pipeline.PipelineName + "\".");
 			if (pipelineFinished != null) {
-				Log.Add(LogLevel.Info, this.GetType().Name,
-					"Cancel executing pipeline. Worksheet \"" + pipeline.PipelineName + "\"");
 				pipelineFinished(pipeline, null);
 			}
 		}
