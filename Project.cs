@@ -141,6 +141,7 @@ namespace Baimp
 						LoadedPipelines = p.LoadedPipelines;
 
 						Dictionary<int, MarkerNode> allNodes = new Dictionary<int, MarkerNode>();
+						int noNodes = 0;
 						foreach (PipelineNodeWrapper wrapper in LoadedPipelines) {
 							foreach (PipelineNode pNode in wrapper.pNodes) {
 								pNode.InitializeNodes();
@@ -158,6 +159,8 @@ namespace Baimp
 								foreach (MarkerNode mNode in pNode.mNodes) {
 									allNodes.Add(mNode.ID, mNode);
 								}
+
+								noNodes++;
 							}
 						}
 
@@ -185,8 +188,8 @@ namespace Baimp
 						}
 
 						Log.Add(LogLevel.Info, this.GetType().Name,
-							string.Format("Loaded save file \"{0}\". #Worksheets: {1}", 
-								Path.GetFileName(filePath), LoadedPipelines.Count));
+							string.Format("Loaded save file \"{0}\". #Scans: {1}; #Worksheets: {2}; #Nodes: {3}",
+								Path.GetFileName(filePath), scanCollection.Count, LoadedPipelines.Count, noNodes));
 
 						return true;
 					}
