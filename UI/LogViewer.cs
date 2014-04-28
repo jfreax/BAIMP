@@ -41,6 +41,7 @@ namespace Baimp
 		{
 			Clear();
 			List<LogMessage> messages = Log.Get(CurrentLogLevel);
+			messages.Reverse();
 
 			int i = 0;
 			foreach(LogMessage message in messages) {
@@ -61,7 +62,7 @@ namespace Baimp
 
 				Label timestamp = new Label(
 					string.Format(
-						"{0} {1} ", message.Timestamp.ToShortDateString(), message.Timestamp.ToShortTimeString())
+						"{0} {1} ", message.Timestamp.ToShortDateString(), message.Timestamp.ToLongTimeString())
 				);
 				try {
 					timestamp.Markup = string.Format("<i>{0}</i>", timestamp.Text);
