@@ -49,15 +49,16 @@ namespace Baimp
 			logEntry.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
 				if (e.MultiplePress >= 2) {
 					if (Log.Count(LogLevel.Debug) > 0) {
-
 						this.SetFocus();
 						logFrame.Content = logScroller;
+
+						MinHeight = LogViewHeight();
 					}
 				}
 			};
 
 			logScroller.Content.BoundsChanged += delegate {
-				this.MinHeight = Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.3);
+				this.MinHeight = LogViewHeight();
 			};
 
 			// add last missing log (if any)
@@ -103,6 +104,11 @@ namespace Baimp
 			} catch (Exception exception) {
 				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.Source, e.LogMessage.Message);
 			}
+		}
+
+		double LogViewHeight()
+		{
+			return Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.3);
 		}
 
 		protected override void OnLostFocus(EventArgs args)
