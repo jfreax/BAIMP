@@ -84,7 +84,6 @@ namespace Baimp
 			splitPipeline_Algorithm.Panel2.Resize = true;
 			splitPipeline_Algorithm.Panel2.Shrink = false;
 
-
 			pipelineShelf.PackStart(splitPipeline_Algorithm, true, true);
 
 			InitializeEvents();
@@ -97,6 +96,7 @@ namespace Baimp
 		{
 			HBox controllbar = new HBox();
 			controllbar.Spacing = 0;
+
 			playButton = new ControllButton(Image.FromResource("Baimp.Resources.icoExecute-Normal.png"));
 			playButton.Size = new Size(24, 24);
 			playButton.TooltipText = "Execute pipeline";

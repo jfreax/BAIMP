@@ -79,9 +79,8 @@ namespace Baimp
 
 			ctx.SetLineWidth(1.0);
 
-			// background
-			if (previous != null) {
-				ctx.SetColor(previous.Active ? activeColor : deactiveColor);
+			if (previous != null && !previous.Active) {
+				ctx.SetColor(deactiveColor);
 				if (Multiple) {
 					ctx.Rectangle(0, 0, Lean.Dx * 2, Size.Height);
 					ctx.Fill();
@@ -117,7 +116,7 @@ namespace Baimp
 					Lean.Dx, Size.Height + 0.5,
 					Lean.Dx, Size.Height - Lean.Dy);
 			} else {
-				ctx.MoveTo(Lean.Dx, Size.Height - Lean.Dy);
+				ctx.MoveTo(Lean.Dx, Size.Height);
 			}
 			ctx.LineTo(Lean.Dx, Lean.Dy);
 			ctx.CurveTo(
@@ -178,6 +177,36 @@ namespace Baimp
 
 			ctx.SetColor(borderColor);
 			ctx.Stroke();
+
+			if (previous != null && previous.Active) {
+				ctx.SetColor(activeColor);
+				if (Multiple) {
+					ctx.Rectangle(0, 0, Lean.Dx * 2, Size.Height);
+					ctx.Fill();
+
+					ctx.SetColor(borderColor);
+					ctx.MoveTo(0, 0);
+					ctx.LineTo(Lean.Dx * 2, 0);
+					ctx.Stroke();
+				} else {
+					ctx.MoveTo(0, 0);
+					ctx.CurveTo(
+						0, 0,
+						Lean.Dx, 0,
+						Lean.Dx, Lean.Dy);
+					ctx.LineTo(Lean.Dx, Size.Height - Lean.Dy);
+					ctx.CurveTo(
+						Lean.Dx, Size.Height - Lean.Dy,
+						Lean.Dx, Size.Height + 0.5,
+						Lean.Dx * 2, Size.Height + 0.5);
+					ctx.LineTo(0, Size.Height);
+
+					ctx.FillPreserve();
+
+					ctx.SetColor(borderColor);
+					ctx.Stroke();
+				}
+			}
 
 			// text
 			ctx.SetColor(Active ? Colors.AliceBlue : deactiveTextColor);
