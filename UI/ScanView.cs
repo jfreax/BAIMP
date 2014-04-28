@@ -507,9 +507,6 @@ namespace Baimp
 		/// </summary>
 		public void SaveMask()
 		{
-			ImageBuilder ib = scan.Mask.GetMaskBuilder();
-			scan.Mask.FlushMaskPositions(ib.Context, 0);
-
 			scan.Mask.Save();
 			MaskImage = scan.Mask.GetMaskAsImage();
 		}
@@ -655,7 +652,13 @@ namespace Baimp
 					this.Cursor = CursorType.Arrow;
 
 					isEditMode = false;
+
+					if (scan != null) {
+						ImageBuilder ib = scan.Mask.GetMaskBuilder();
+						scan.Mask.FlushMaskPositions(ib.Context, 0);
+					}
 				}
+				QueueDraw();
 			}
 		}
 
