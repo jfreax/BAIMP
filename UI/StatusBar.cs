@@ -36,9 +36,24 @@ namespace Baimp
 		{
 			InitializeUI();
 
-			timer = new Timer (o => UpdateThreadLabel(), null, 1000, 1000);
+			timer = new Timer(o => UpdateThreadLabel(), null, 1000, 1000);
 			Log.LogAdded += ShowLogEntry;
 
+			// Show log window on double click
+			logEntry.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
+				if (e.MultiplePress >= 2) {
+					if (Log.Count(LogLevel.Debug) > 0) {
+
+						Dialog d = new Dialog();
+						d.Content = new LogViewer(LogLevel.Debug);
+
+						d.Run();
+						d.Dispose();
+					}
+				}
+			};
+
+			// add lasz missing log (if any)
 			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
 			if (!string.IsNullOrEmpty(last.message)) {
 				ShowLogEntry(null, new LogEventArgs(last));
@@ -63,7 +78,7 @@ namespace Baimp
 			int completionPortThreads;
 			ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
 
-			Application.Invoke( () => threadLabel.Text = "#Threads: " + (maxThreads-workerThreads));
+			Application.Invoke(() => threadLabel.Text = "#Threads: " + (maxThreads - workerThreads));
 		}
 
 		/// <summary>
@@ -76,19 +91,17 @@ namespace Baimp
 			try {
 				logEntry.Markup = 
 					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-						e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
+					e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
 			} catch (Exception exception) {
 				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
 			}
 		}
-
 
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
 			timer.Dispose();
 		}
-
 	}
 }
 

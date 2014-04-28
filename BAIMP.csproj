@@ -165,6 +165,7 @@
     <Compile Include="Event\CloseEventArgs.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Event\LogEventArgs.cs" />
+    <Compile Include="UI\LogViewer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

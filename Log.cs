@@ -64,6 +64,11 @@ namespace Baimp
 			return output;
 		}
 
+		public static int Count(LogLevel logLevel)
+		{
+			return LogMessages.Count(m => (int) m.logLevel >= (int) logLevel);
+		}
+
 		#region Events
 
 		static EventHandler<LogEventArgs> logAdded;
