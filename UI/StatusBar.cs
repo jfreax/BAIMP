@@ -36,7 +36,7 @@ namespace Baimp
 		{
 			InitializeUI();
 
-			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
+			timer = new Timer (o => UpdateThreadLabel(), null, 1000, 1000);
 			Log.LogAdded += ShowLogEntry;
 
 			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
@@ -57,8 +57,7 @@ namespace Baimp
 		/// <summary>
 		/// Updates the label showing number of threads.
 		/// </summary>
-		/// <param name="o">Can be null</param>
-		void UpdateThreadLabel(object o)
+		void UpdateThreadLabel()
 		{
 			int workerThreads;
 			int completionPortThreads;
