@@ -81,6 +81,8 @@ namespace Baimp
 		[XmlElement("comment")]
 		public string userComment = string.Empty;
 
+		bool isInitialized;
+
 		#region initialize
 
 		/// <summary>
@@ -113,6 +115,7 @@ namespace Baimp
 				i++;
 			}
 
+			isInitialized = true;
 		}
 
 		public void Initialize()
@@ -141,6 +144,8 @@ namespace Baimp
 					mNode.compatible = algorithm.Output[mNode.Position];
 				}
 			}
+
+			isInitialized = true;
 		}
 
 		public void InitializeWidgets()
@@ -606,7 +611,7 @@ namespace Baimp
 					icons["hide"].Visible = false;
 					icons["view"].Visible = false;
 				} else {
-					if (algorithm != null) { // after algorithm was set
+					if (algorithm != null && isInitialized) { // after algorithm was set
 						Log.Add(LogLevel.Verbose, "Node#" + this, (value ? "Save" : "Discard") + " intermediate results.");
 					}
 
@@ -654,7 +659,6 @@ namespace Baimp
 			}
 			set {
 				parent = value;
-				InitializeWidgets();
 			}
 		}
 
