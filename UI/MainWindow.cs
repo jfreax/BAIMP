@@ -32,7 +32,9 @@ namespace Baimp
 		// widgets
 		VPaned splitScan_Pipeline;
 		HPaned splitFiletree_Preview;
+		VBox splitMain_Status;
 		VBox splitController_Preview;
+		VBox pipelineShelf;
 
 		Preview preview;
 		FileTreeView fileTree;
@@ -147,10 +149,14 @@ namespace Baimp
 			viewMenu.SubMenu.Items.Add(menuViewPipeline);
 
 			menuViewOverview.Clicked += delegate {
-				splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
+				splitMain_Status.Remove(pipelineShelf);
+				splitScan_Pipeline.Panel2.Content = pipelineShelf;
+				splitMain_Status.PackStart(splitScan_Pipeline, true, true);
 			};
 			menuViewPipeline.Clicked += delegate {
-				splitController_Preview.Remove(splitFiletree_Preview);
+				splitScan_Pipeline.Panel2.Content = null;
+				splitMain_Status.Remove(splitScan_Pipeline);
+				splitMain_Status.PackStart(pipelineShelf, true, true);
 			};
 
 
@@ -211,7 +217,7 @@ namespace Baimp
 			splitFileTreeSearch_FileTree.PackStart(fileTree, true);
 
 			// load pipeline controller
-			VBox pipelineShelf = new VBox();
+			pipelineShelf = new VBox();
 			pipelineController = new PipelineController(project, pipelineShelf);
 
 			splitFiletree_Preview = new HPaned();
@@ -230,7 +236,7 @@ namespace Baimp
 			splitScan_Pipeline.Panel2.Content = pipelineShelf;
 			splitScan_Pipeline.Panel2.Resize = true;
 
-			VBox splitMain_Status = new VBox();
+			splitMain_Status = new VBox();
 			splitMain_Status.PackStart(splitScan_Pipeline, true, true);
 			splitMain_Status.PackEnd(new StatusBar());
 
