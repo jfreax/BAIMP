@@ -54,11 +54,15 @@ namespace Baimp
 				try {
 					messageLabel.Markup = 
 						string.Format(
-							"<span color='{0}'>{1}</span>", Log.LevelToColorString(message.LogLevel), messageLabel.Text);
+							"<span color='{0}'>{1}</span>", Log.LevelToColorString(message.LogLevel), messageLabel.Text
+						);
 				} catch (Exception e) {} // workaround
 				Add(messageLabel, 1, i, hexpand: true);
 
-				Label timestamp = new Label(message.Timestamp.ToString("HH:mm:ss "));
+				Label timestamp = new Label(
+					string.Format(
+						"{0} {1} ", message.Timestamp.ToShortDateString(), message.Timestamp.ToShortTimeString())
+				);
 				try {
 					timestamp.Markup = string.Format("<i>{0}</i>", timestamp.Text);
 				} catch (Exception e) {} // workaround
