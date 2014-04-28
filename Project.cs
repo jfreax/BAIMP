@@ -80,6 +80,7 @@ namespace Baimp
 							zipFile = new ZipFile(ProjectFile);
 						} else {
 							zipFile = ZipFile.Create(ProjectFile);
+							zipFile.BeginUpdate();
 							zipFile.CommitUpdate();
 							zipFile.Close();
 							zipFile = new ZipFile(ProjectFile);
