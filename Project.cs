@@ -120,6 +120,10 @@ namespace Baimp
 			if (File.Exists(ProjectFile)) {
 				bool ret = (bool) RequestZipAccess(new ZipUsageCallback(delegate(ZipFile zipFile) {
 					ZipEntry metadata = zipFile.GetEntry("metadata.xml");
+					if (metadata == null) {
+						return false;
+					}
+
 					Stream metadataStream = zipFile.GetInputStream(metadata);
 
 					using (XmlTextReader xmlReader = new XmlTextReader(metadataStream)) {
@@ -197,6 +201,7 @@ namespace Baimp
 				}));
 
 				if (!ret) {
+					Log.Add(LogLevel.Error, this.GetType().Name, "Open file failed!");
 					return false;
 				}
 			} else {
