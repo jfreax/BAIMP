@@ -65,13 +65,12 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Initializes the U.
+		/// Initializes the UI.
 		/// </summary>
-		private void InitializeUI()
+		void InitializeUI()
 		{
 			Spacing = 0.0;
 			MinWidth = 320;
-			MinHeight = 320;
 			PackStart(controlbar, false, false);
 			PackEnd(gridView, true);
 

@@ -573,6 +573,8 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			SetFocus();
+
 			Point position = args.Position;
 			position.X /= scaleFactor;
 			position.Y /= scaleFactor;
@@ -583,8 +585,6 @@ namespace Baimp
 			PipelineNode node = GetNodeAt(position, true);
 
 			if (node != null) {
-				SetFocus();
-
 				ButtonEventArgs nodeArgs = new ButtonEventArgs();
 				nodeArgs.X = position.X - node.bound.Location.X;
 				nodeArgs.Y = position.Y - node.bound.Location.Y;
@@ -623,8 +623,6 @@ namespace Baimp
 				} else {
 					Tuple<MarkerNode, MarkerEdge> edge = GetEdgeAt(position);
 					if (edge != null) { // clicked on edge
-						SetFocus();
-
 						if (edge.Item2.r >= 0.5) {
 							connectNodesStartMarker = edge.Item1;
 						} else {
