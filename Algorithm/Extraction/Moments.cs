@@ -19,8 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Baimp
@@ -39,13 +38,11 @@ namespace Baimp
 		public unsafe override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TScan tScan = inputArgs[0] as TScan;
-			Bitmap bitmap = tScan.GrayScale8bpp;
+			float[] data = tScan.Data;
 
-			BitmapData data = bitmap.LockBits(
-				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				                  ImageLockMode.ReadOnly,
-				                  bitmap.PixelFormat
-			                  );
+			int width = (int) tScan.Size.Width;
+			int height = (int) tScan.Size.Height;
+			float max = data.Max();
 
 			double M00 = 0, M10 = 0, M01 = 0;
 			double M11 = 0, M20 = 0, M02 = 0;
@@ -53,20 +50,12 @@ namespace Baimp
 			double M30 = 0, M03 = 0;
 
 			double InvM00 = 0;
-
 			double CenterX = 0, CenterY = 0;
 
-			int width = data.Width;
-			int height = data.Height;
-			int stride = data.Stride;
-
-			int offset = stride - width;
-
-			byte* src = (byte*) (data.Scan0);
 			for (int y = 0; y < height; y++) {
 				double yNorm = (double)y / height;
-				for (int x = 0; x < width; x++, src++) {
-					double v = *src / 255.0;
+				for (int x = 0; x < width; x++) {
+					double v = data[y * width + x] / max;
 
 					double xNorm = (double)x / width;
 
@@ -84,12 +73,8 @@ namespace Baimp
 					M30 += xNorm * xNorm * xNorm * v;
 					M03 += yNorm * yNorm * yNorm * v;
 				}
-
-				src += offset;
 			}
-
-			bitmap.UnlockBits(data);
-
+				
 			InvM00 = 1f / M00;
 			CenterX = M10 * InvM00;
 			CenterY = M01 * InvM00;

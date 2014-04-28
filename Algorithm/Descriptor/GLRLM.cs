@@ -39,28 +39,19 @@ namespace Baimp
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TScan tScan = inputArgs[0] as TScan;
-			Bitmap bitmap = tScan.GrayScale8bpp;
+			byte[] data = tScan.DataAs8bpp();
 
-			BitmapData data = bitmap.LockBits(
-				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				                  ImageLockMode.ReadOnly,
-				                  bitmap.PixelFormat
-			                  );
-
-			int height = data.Height;
-			int width = data.Width;
-			int stride = data.Stride;
+			int height = (int) tScan.Size.Height;
+			int width = (int) tScan.Size.Width;
 			float[,] matrix = new float[256, width+1];
-
-			byte* src = (byte*) (data.Scan0);
 
 			int maxRunLength = 0;
 
 			for (int y = 0; y < height; y++) {
 				int runLength = 1;
 				for (int x = 1; x < width; x++) {
-					byte a = src[stride * y + (x - 1)];
-					byte b = src[stride * y + x];
+					byte a = data[width * y + (x - 1)];
+					byte b = data[width * y + x];
 
 					if (a == b)
 						runLength++;
@@ -84,9 +75,7 @@ namespace Baimp
 					}
 				}
 			}
-
-			bitmap.UnlockBits(data);
-
+				
 			//if (crop) { // make this an option?
 			if (maxRunLength < width+1) {
 				float[,] matrixTmp = new float[256, maxRunLength+1];

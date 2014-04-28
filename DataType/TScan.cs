@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
+using System.Linq;
 using Xwt;
 using System.Drawing;
 using System.Collections.Generic;
@@ -111,30 +112,21 @@ namespace Baimp
 			}
 		}
 
-		/// <summary>
-		/// Gets a grayscale 8bpp representation.
-		/// </summary>
-		/// <value>The gray scale8bpp.</value>
-		public Bitmap GrayScale8bpp {
-			get {
-				if (scan == null) {
-					throw new NotSupportedException();
-				}
+		public byte[] DataAs8bpp()
+		{
+			float[] data = Data;
+			float max = data.Max();
 
-				if (grayScale8bbp == null) {
-					grayScale8bbp = new List<Bitmap>();
-				}
-
-				if (multipleUsage || grayScale8bbp.Count == 0) {
-					Bitmap b = scan.GetAsBitmap(scanType);
-					grayScale8bbp.Add(b);
-					return b;
-				}
-
-				return grayScale8bbp[0];
+			byte[] data8bpp = new byte[data.Length];
+			int i = 0;
+			foreach (float f in data) {
+				data8bpp[i] = (byte) ((f * 255) / max);
+				i++;
 			}
-		}
 
+			return data8bpp;
+		}
+			
 		/// <summary>
 		/// Enables the multiple access mode.
 		/// You can't disable it after enabling.

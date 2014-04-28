@@ -43,54 +43,43 @@ namespace Baimp
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TScan tScan = inputArgs[0] as TScan;
-			Bitmap bitmap = tScan.GrayScale8bpp;
+			float[] data = tScan.Data;
 
 			int nrOfBins = (int) options[0].Value;
 
-			BitmapData data = bitmap.LockBits(
-				                  new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				                  ImageLockMode.ReadOnly,
-				                  bitmap.PixelFormat
-			                  );
-
-			int width = data.Width;
-			int height = data.Height;
-			int stride = data.Stride;
+			int width = (int) tScan.Size.Width;
+			int height = (int) tScan.Size.Height;
 
 			double coarsness = 0.0, contrast = 0.0, directionality = 0.0;
 
-			double[,] sumAreaTable = SumAreaTable(data);
+			float[,] sumAreaTable = SumAreaTable(data, width, height);
 
-			double mean = data.Mean();
-			double sigma = data.StandardDeviation(mean);
+			float mean = data.Mean();
+			float sigma = data.StandardDeviation(mean);
 			double moment4 = 0.0;
 
 			double[] histogram = new double[nrOfBins];
 			double binWindow = (histogram.Length - 1) / Math.PI;
 			int bin = -1;
 
-			byte* src = (byte*) data.Scan0;
-			byte* srcBegin = (byte*) data.Scan0;
 
 			int oldProgress = 0;
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-					moment4 += Math.Pow(*src - mean, 4);
+					moment4 += Math.Pow(data[y * width + x] - mean, 4);
 
 					if (x > 0 && y > 0) {
 						coarsness += Math.Pow(2, Sopt(sumAreaTable, x, y));
 
 						if (x < width - 1 && y < height - 1) {
-							double v = DeltaV(srcBegin, stride, x, y);
-							double h = DeltaH(srcBegin, stride, x, y);
+							double v = DeltaV(data, width, x, y);
+							double h = DeltaH(data, width, x, y);
 							if (h > 0.0 && v > 0.0) {
 								bin = (int) ((Math.PI / 2 + Math.Atan(v / h)) * binWindow);
 								histogram[bin]++;
 							}
 						}
 					}
-
-					src++;
 				}
 
 				int progress = (int) (y * 100.0) / height;
@@ -126,19 +115,17 @@ namespace Baimp
 					lastHill = i;
 					if (lastValley != -1) { // there was a valley before
 						for (int j = lastValley; j < i; j++) {
-							directionality += Math.Pow(j - i, 2) * ((double) histogram[j]);
+							directionality += Math.Pow(j - i, 2) * (histogram[j]);
 						}
 
 						lastValley = -1; // finished valley
 					}
 				} else if (diff < 0) { // it still goes down
-					directionality += Math.Pow(i - lastHill, 2) * ((double)histogram[i]);
+					directionality += Math.Pow(i - lastHill, 2) * (histogram[i]);
 				}
 			}
 				
 			directionality = 1 - (binWindow * hillCount * directionality);
-
-			bitmap.UnlockBits(data);
 
 			return new IType[] { 
 				new TFeatureList<double>()
@@ -150,7 +137,7 @@ namespace Baimp
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static double Sopt(double[,] sumAreaTable, int x, int y)
+		static float Sopt(float[,] sumAreaTable, int x, int y)
 		{
 			double result = 0;
 			int kOpt = 1;
@@ -177,7 +164,7 @@ namespace Baimp
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static double AverageNeighborhoods(double[,] sumAreaTable, int x, int y, int p)
+		static float AverageNeighborhoods(float[,] sumAreaTable, int x, int y, int p)
 		{
 
 			int left = x - p;
@@ -201,27 +188,22 @@ namespace Baimp
 			return MeanSubMatrix(sumAreaTable, left, top, right, bottom);
 		}
 
-		static unsafe double[,] SumAreaTable(BitmapData data)
+		static unsafe float[,] SumAreaTable(float[] data, int width, int height)
 		{
-			byte* src = (byte*) (data.Scan0);
+			float[,] s = new float[width, height];
+			float[,] ii = new float[width, height];
 
-			int stride = data.Stride;
-			int n = data.Width;
-			int m = data.Height;
-			double[,] s = new double[n, m];
-			double[,] ii = new double[n, m];
-
-			s[0, 0] = *src;
+			s[0, 0] = data[0];
 			ii[0, 0] = s[0, 0];
-			for (int x = 1; x < n; x++) {
-				s[x, 0] = src[x]; // [x, 0];
+			for (int x = 1; x < width; x++) {
+				s[x, 0] = data[x]; // [x, 0];
 				ii[x, 0] = ii[x - 1, 0] + s[x, 0]; 
 			}
-			for (int y = 1; y < m; y++) {
-				ii[0, y] = s[0, y] = s[0, y - 1] + src[(stride * y)]; // [0, y];
+			for (int y = 1; y < height; y++) {
+				ii[0, y] = s[0, y] = s[0, y - 1] + data[(width * y)]; // [0, y];
 
-				for (int x = 1; x < n; x++) {
-					s[x, y] = s[x, y - 1] + src[(stride * y) + x];
+				for (int x = 1; x < width; x++) {
+					s[x, y] = s[x, y - 1] + data[(width * y) + x];
 					ii[x, y] = ii[x - 1, y] + s[x, y];
 				}
 			}
@@ -229,9 +211,9 @@ namespace Baimp
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static double MeanSubMatrix(double[,] sum, int left, int top, int right, int bottom)
+		static float MeanSubMatrix(float[,] sum, int left, int top, int right, int bottom)
 		{
-			double v1, v2, v3, v4;
+			float v1, v2, v3, v4;
 			v1 = (left == 0 || top == 0) ? 0 : sum[left - 1, top - 1];
 			v2 = (top == 0) ? 0 : sum[right, top - 1];
 			v3 = (left == 0) ? 0 : sum[left - 1, bottom];
@@ -244,26 +226,26 @@ namespace Baimp
 		static double[,] filterV = { { -1, -1, -1 }, { 0, 0, 0 }, { 1, 1, 1 } };
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static unsafe double DeltaH(byte* src, int stride, int x, int y)
+		static unsafe double DeltaH(float[] data, int width, int x, int y)
 		{
 			double result = 0;
 
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
-					result = result + src[x - 1 + i + ((y - 1 + j) * stride)] * filterH[i, j];
+					result = result + data[x - 1 + i + ((y - 1 + j) * width)] * filterH[i, j];
 				}
 			}
 			return result;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		static unsafe double DeltaV(byte* src, int stride, int x, int y)
+		static unsafe double DeltaV(float[] data, int width, int x, int y)
 		{
 			double result = 0;
 
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
-					result = result + src[x - 1 + i + ((y - 1 + j) * stride)] * filterV[i, j];
+					result = result + data[x - 1 + i + ((y - 1 + j) * width)] * filterV[i, j];
 				}
 			}
 			return result;

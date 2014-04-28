@@ -34,6 +34,16 @@ namespace Baimp
 		/// </summary>
 		/// <param name="values">Values.</param>
 		/// <returns>Mean of specified data.</returns>
+		public static float Mean(this float[] values)
+		{
+			return values.Sum() / values.Length;
+		}
+
+		/// <summary>
+		/// Computes the mean of a given double array.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		/// <returns>Mean of specified data.</returns>
 		public static double Mean(this double[] values)
 		{
 			return values.Sum() / values.Length;
@@ -66,6 +76,23 @@ namespace Baimp
 		/// </summary>
 		/// <param name="values">Values.</param>
 		/// <param name="mean">Mean.</param>
+		public static float Variance(this float[] values, float mean)
+		{
+			float variance = 0.0f;
+
+			for (int i = 0; i < values.Length; i++) {
+				float x = values[i] - mean;
+				variance += x * x;
+			}
+
+			return variance / (values.Length - 1);
+		}
+
+		/// <summary>
+		/// Compute the variance of a given vector.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		/// <param name="mean">Mean.</param>
 		public static double Variance(this double[] values, double mean)
 		{
 			double variance = 0.0;
@@ -81,6 +108,17 @@ namespace Baimp
 		#endregion
 
 		#region Standard Deviation
+
+		/// <summary>
+		/// Compute the Standard Deviation.
+		/// </summary>
+		/// <returns>The Standard Deviation.</returns>
+		/// <param name="values">Values.</param>
+		/// <param name="mean">Mean.</param>
+		public static float StandardDeviation(this float[] values, float mean)
+		{
+			return (float) Math.Sqrt(Variance(values, mean));
+		}
 
 		/// <summary>
 		/// Compute the Standard Deviation.
@@ -278,7 +316,7 @@ namespace Baimp
 		/// Sum of all values.
 		/// </summary>
 		/// <param name="values">Values.</param>
-		public static double Sum(this float[] values)
+		public static float Sum(this float[] values)
 		{
 			float sum = 0.0f;
 			foreach (float v in values) {
