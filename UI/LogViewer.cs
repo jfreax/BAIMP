@@ -35,6 +35,8 @@ namespace Baimp
 
 			DefaultColumnSpacing = 0;
 			DefaultRowSpacing = 0;
+
+			Log.LogAdded += (object sender, LogEventArgs e) => UpdateView();
 		}
 
 		void UpdateView()
