@@ -43,10 +43,11 @@ namespace Baimp
 		Preview.MyCallBack imageLoadedCallback = null;
 		public Dictionary<string, object> data = new Dictionary<string, object>();
 		/// <summary>Current image</summary>
-		private Image image;
-		private Image mask;
-		private BaseScan scan;
-		private string currentShownType;
+		Image image;
+		Image mask;
+		BitmapImage maskBitmap;
+		BaseScan scan;
+		string currentShownType;
 		// mouse actions
 		Pointer pointer;
 		int pointerSize = 16;
@@ -114,7 +115,7 @@ namespace Baimp
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
 				if (mask != null && ShowMask) {
-					ctx.DrawImage(mask.ToBitmap(), (new Rectangle(Point.Zero, image.Size)), 0.6);
+					ctx.DrawImage(MaskBitmap, (new Rectangle(Point.Zero, image.Size)), 0.6);
 				}
 			}
 
@@ -468,7 +469,7 @@ namespace Baimp
 					image = image.WithBoxSize(scan.RequestedBitmapSize);
 
 					if (mask != null) {
-						mask = mask.WithBoxSize(scan.RequestedBitmapSize);
+						MaskImage = mask.WithBoxSize(scan.RequestedBitmapSize);
 					}
 				}
 
@@ -510,7 +511,7 @@ namespace Baimp
 			scan.Mask.FlushMaskPositions(ib.Context, 0);
 
 			scan.Mask.Save();
-			mask = scan.Mask.GetMaskAsImage();
+			MaskImage = scan.Mask.GetMaskAsImage();
 		}
 
 		/// <summary>
@@ -527,7 +528,7 @@ namespace Baimp
 				}
 
 				if (mask != null) {
-					mask = mask.WithBoxSize(s);
+					MaskImage = mask.WithBoxSize(s);
 				}
 
 				QueueDraw();
@@ -567,14 +568,14 @@ namespace Baimp
 				} else {
 					image = image.WithBoxSize(scan.RequestedBitmapSize);
 					if (mask != null) {
-						mask = mask.WithBoxSize(scan.RequestedBitmapSize);
+						MaskImage = mask.WithBoxSize(scan.RequestedBitmapSize);
 					}
 				}
 
 				if (IsThumbnail) {
 					image = image.WithBoxSize(Size);
 					if (mask != null) {
-						mask = mask.WithBoxSize(Size);
+						MaskImage = mask.WithBoxSize(Size);
 					}
 				}
 
@@ -597,6 +598,27 @@ namespace Baimp
 				if (image != null) {
 					mask = mask.WithSize(image.Size);
 				}
+
+				MaskBitmap = null;
+			}
+		}
+
+		BitmapImage MaskBitmap {
+			get {
+				if (maskBitmap == null) {
+					if (mask.Width > scan.Size.Width || mask.Height > scan.Size.Height) {
+						maskBitmap = mask.WithSize(scan.Size).ToBitmap();
+					} else {
+						maskBitmap = mask.ToBitmap();
+					}
+				}
+				return maskBitmap;
+			}
+			set {
+				if (maskBitmap != null) {
+					maskBitmap.Dispose();
+				}
+				maskBitmap = value;
 			}
 		}
 
