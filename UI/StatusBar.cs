@@ -19,9 +19,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
+using System.Linq;
 using Xwt;
 using System.Threading;
-using Xwt.Drawing;
 
 namespace Baimp
 {
@@ -37,16 +37,12 @@ namespace Baimp
 			InitializeUI();
 
 			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
-			Log.LogAdded += 
-				(object sender, LogEventArgs e) => {
-				try {
-					logEntry.Markup = 
-						string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-							e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
-				} catch (Exception exception) {
-					logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
-				}
-			};
+			Log.LogAdded += ShowLogEntry;
+
+			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
+			if (!string.IsNullOrEmpty(last.message)) {
+				ShowLogEntry(null, new LogEventArgs(last));
+			}
 		}
 
 		void InitializeUI()
@@ -57,7 +53,11 @@ namespace Baimp
 			int completionPortThreads;
 			ThreadPool.GetMaxThreads(out maxThreads, out completionPortThreads);
 		}
-			
+
+		/// <summary>
+		/// Updates the label showing number of threads.
+		/// </summary>
+		/// <param name="o">Can be null</param>
 		void UpdateThreadLabel(object o)
 		{
 			int workerThreads;
@@ -66,6 +66,23 @@ namespace Baimp
 
 			Application.Invoke( () => threadLabel.Text = "#Threads: " + (maxThreads-workerThreads));
 		}
+
+		/// <summary>
+		/// Show given log entry in status bar
+		/// </summary>
+		/// <param name="sender">Sender, can be null.</param>
+		/// <param name="e">Arguments with log message.</param>
+		void ShowLogEntry(object sender, LogEventArgs e)
+		{
+			try {
+				logEntry.Markup = 
+					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
+						e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
+			} catch (Exception exception) {
+				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
+			}
+		}
+
 
 		protected override void Dispose(bool disposing)
 		{
