@@ -30,7 +30,7 @@ namespace Baimp
 		Project project;
 
 		// widgets
-		VPaned splitAlgorithmTree;
+		VPaned splitScan_Pipeline;
 		HPaned splitFiletree_Preview;
 		VBox splitController_Preview;
 
@@ -225,13 +225,13 @@ namespace Baimp
 			//splitController_Preview.PackStart(controllbarShelf, false, false);
 			splitController_Preview.PackEnd(splitFiletree_Preview, true, true);
 
-			splitAlgorithmTree = new VPaned();
-			splitAlgorithmTree.Panel1.Content = splitController_Preview;
-			splitAlgorithmTree.Panel2.Content = pipelineShelf;
-			splitAlgorithmTree.Panel2.Resize = true;
+			splitScan_Pipeline = new VPaned();
+			splitScan_Pipeline.Panel1.Content = splitController_Preview;
+			splitScan_Pipeline.Panel2.Content = pipelineShelf;
+			splitScan_Pipeline.Panel2.Resize = true;
 
 			VBox splitMain_Status = new VBox();
-			splitMain_Status.PackStart(splitAlgorithmTree, true, true);
+			splitMain_Status.PackStart(splitScan_Pipeline, true, true);
 			splitMain_Status.PackEnd(new StatusBar());
 
 			Content = splitMain_Status;
@@ -286,7 +286,7 @@ namespace Baimp
 			};
 
 			// global key events
-			splitAlgorithmTree.KeyPressed += GlobalKeyPressed;
+			splitScan_Pipeline.KeyPressed += GlobalKeyPressed;
 		}
 
 		protected override void OnShown()
@@ -295,6 +295,7 @@ namespace Baimp
 
 			// Restore positions
 			splitFiletree_Preview.PositionFraction = Settings.Default.FileTreePreviewPosition;
+			splitScan_Pipeline.PositionFraction = Settings.Default.ScanPipelineFraction;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -304,7 +305,7 @@ namespace Baimp
 			preview.Dispose();
 			fileTree.Dispose();
 			pipelineController.Dispose();
-			splitAlgorithmTree.Dispose();
+			splitScan_Pipeline.Dispose();
 			splitController_Preview.Dispose();
 			splitFiletree_Preview.Dispose();
 		}
@@ -385,6 +386,7 @@ namespace Baimp
 			Settings.Default.WindowSizeHeight = Size.Height;
 
 			Settings.Default.FileTreePreviewPosition = splitFiletree_Preview.PositionFraction;
+			Settings.Default.ScanPipelineFraction = splitScan_Pipeline.PositionFraction;
 
 			// Save settings
 			Settings.Default.Save();

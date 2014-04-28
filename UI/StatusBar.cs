@@ -57,7 +57,7 @@ namespace Baimp
 			};
 
 			logScroller.Content.BoundsChanged += delegate {
-				this.MinHeight = Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.4);
+				this.MinHeight = Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.3);
 			};
 
 			// add last missing log (if any)

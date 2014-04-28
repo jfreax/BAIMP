@@ -93,13 +93,25 @@ namespace Baimp {
 
 		[global::System.Configuration.UserScopedSettingAttribute()]
 		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-		[global::System.Configuration.DefaultSettingValueAttribute("25")]
+		[global::System.Configuration.DefaultSettingValueAttribute("0.25")]
 		public double FileTreePreviewPosition {
 			get {
 				return ((double)(this["FileTreePreviewPosition"]));
 			}
 			set {
 				this["FileTreePreviewPosition"] = value;
+			}
+		}
+
+		[global::System.Configuration.UserScopedSettingAttribute()]
+		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+		[global::System.Configuration.DefaultSettingValueAttribute("0.50")]
+		public double ScanPipelineFraction {
+			get {
+				return ((double)(this["ScanPipelineFraction"]));
+			}
+			set {
+				this["ScanPipelineFraction"] = value;
 			}
 		}
         
