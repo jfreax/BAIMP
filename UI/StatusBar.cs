@@ -38,10 +38,15 @@ namespace Baimp
 
 			timer = new Timer (UpdateThreadLabel, null, 1000, 1000);
 			Log.LogAdded += 
-				(object sender, LogEventArgs e) => 
-				logEntry.Markup = 
-					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-						e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
+				(object sender, LogEventArgs e) => {
+				try {
+					logEntry.Markup = 
+						string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
+							e.LogMessage.source, Log.LevelToColorString(e.LogMessage.logLevel), e.LogMessage.message);
+				} catch (Exception exception) {
+					logEntry.Text = string.Format("{0}: {1}", e.LogMessage.source, e.LogMessage.message);
+				}
+			};
 		}
 
 		void InitializeUI()
