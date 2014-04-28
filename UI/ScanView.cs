@@ -263,6 +263,8 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			SetFocus();
+
 			base.OnButtonPressed(args);
 
 			Point scaleFactor = new Point(
@@ -373,8 +375,6 @@ namespace Baimp
 
 		protected override void OnMouseEntered(EventArgs args)
 		{
-			SetFocus();
-
 			Heighlighted = true;
 		}
 

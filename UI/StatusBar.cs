@@ -30,30 +30,37 @@ namespace Baimp
 		readonly Timer timer;
 		Label threadLabel = new Label();
 		Label logEntry = new Label();
+
+		FrameBox logFrame = new FrameBox();
+		ScrollView logScroller = new ScrollView();
+
 		int maxThreads;
 
 		public StatusBar()
 		{
+			CanGetFocus = true;
 			InitializeUI();
 
 			timer = new Timer(o => UpdateThreadLabel(), null, 1000, 1000);
 			Log.LogAdded += ShowLogEntry;
 
 			// Show log window on double click
+			logScroller.Content = new LogViewer(LogLevel.Debug);;
 			logEntry.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
 				if (e.MultiplePress >= 2) {
 					if (Log.Count(LogLevel.Debug) > 0) {
 
-						Dialog d = new Dialog();
-						d.Content = new LogViewer(LogLevel.Debug);
-
-						d.Run();
-						d.Dispose();
+						this.SetFocus();
+						logFrame.Content = logScroller;
 					}
 				}
 			};
 
-			// add lasz missing log (if any)
+			logScroller.Content.BoundsChanged += delegate {
+				this.MinHeight = Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.4);
+			};
+
+			// add last missing log (if any)
 			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
 			if (!string.IsNullOrEmpty(last.Message)) {
 				ShowLogEntry(null, new LogEventArgs(last));
@@ -62,8 +69,9 @@ namespace Baimp
 
 		void InitializeUI()
 		{
-			PackStart(logEntry, true);
-			PackEnd(threadLabel);
+			logFrame.Content = logEntry;
+			PackStart(logFrame, true, true);
+			PackEnd(threadLabel, vpos: WidgetPlacement.End);
 
 			int completionPortThreads;
 			ThreadPool.GetMaxThreads(out maxThreads, out completionPortThreads);
@@ -94,6 +102,16 @@ namespace Baimp
 					e.LogMessage.Source, Log.LevelToColorString(e.LogMessage.LogLevel), e.LogMessage.Message);
 			} catch (Exception exception) {
 				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.Source, e.LogMessage.Message);
+			}
+		}
+
+		protected override void OnLostFocus(EventArgs args)
+		{
+			base.OnLostFocus(args);
+			ScrollView scroller = logFrame.Content as ScrollView;
+			if (scroller != null) {
+				logFrame.Content = logEntry;
+				MinHeight = -1;
 			}
 		}
 

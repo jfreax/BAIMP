@@ -51,7 +51,6 @@ namespace Baimp
 			this.pipelineShelf = pipelineShelf;
 
 			pipelineScroller = new ScrollView();
-			pipelineScroller.MinHeight = (PipelineNode.AbsMinNodeSize.Height + PipelineNode.NodeMargin.VerticalSpacing) * 6;
 			pipelineScroller.Content = currentPipeline;
 
 			if (project.LoadedPipelines == null || project.LoadedPipelines.Count == 0) {
