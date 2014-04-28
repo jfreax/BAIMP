@@ -56,7 +56,7 @@ namespace Baimp
 		/// <param name="mousePosition">Initial mouse position.</param>
 		public void EnableMouseMover(Point mousePosition)
 		{
-			if (scrollview != null) {
+			if (scrollview != null && !enabled) {
 				this.lastPosition = mousePosition;
 				if (MainClass.toolkitType == ToolkitType.Gtk) {
 					scrollview.MouseMoved += MouseMovedGtk;
