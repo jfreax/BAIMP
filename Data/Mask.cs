@@ -245,7 +245,9 @@ namespace Baimp
 			if (maskBuilder != null) {
 				maskBuilder.Dispose();
 				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
+			}
 
+			if (scan.HasMask) {
 				wasResetted = true;
 				scan.HasMask = false;
 				scan.NotifyChange("mask");

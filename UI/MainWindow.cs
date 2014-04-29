@@ -199,12 +199,25 @@ namespace Baimp
 				};
 			}
 
+			// Extras menu
+			MenuItem extrasMenu = new MenuItem("E_xtras");
+			extrasMenu.SubMenu = new Menu();
+			MenuItem menuResetAllMasks = new MenuItem("Reset all masks");
+			menuResetAllMasks.Clicked += delegate {
+				foreach (BaseScan scan in project.scanCollection) {
+					scan.Mask.ResetMask();
+				}
+			};
+
+			extrasMenu.SubMenu.Items.Add(menuResetAllMasks);
+
 			// main menu
 			Menu menu = new Menu();
 			menu.Items.Add(fileMenu);
 			menu.Items.Add(viewMenu);
 			menu.Items.Add(editMenu);
 			menu.Items.Add(pipelineMenu);
+			menu.Items.Add(extrasMenu);
 			MainMenu = menu;
 
 			// initialize preview widget
