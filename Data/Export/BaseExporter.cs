@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
 using Xwt;
+using System.IO;
 
 namespace Baimp
 {
@@ -27,6 +28,8 @@ namespace Baimp
 	{
 		protected PipelineView pipeline;
 		protected string filename;
+
+		Dialog dialog;
 
 		protected BaseExporter(PipelineView pipeline)
 		{
@@ -38,26 +41,46 @@ namespace Baimp
 		/// </summary>
 		public void ShowDialog()
 		{
-			Dialog d = new Dialog();
-			d.Title = "Export as " + this;
-			d.Content = Options();
+			if (dialog == null) {
+				dialog = new Dialog();
+				dialog.Title = "Export as " + this;
+				dialog.Content = Options();
 
-			d.Buttons.Add(new DialogButton("Export", Command.Save));
-			d.Buttons.Add(new DialogButton(Command.Cancel));
+				dialog.Buttons.Add(new DialogButton("Export", Command.Save));
+				dialog.Buttons.Add(new DialogButton(Command.Cancel));
+			}
 
-			Command r = d.Run();
+			dialog.Show();
+
+			Command r = dialog.Run();
 			if (r != null && r.Id == Command.Save.Id) {
 				Run();
 			}
+				
+			dialog.Hide();
+		}
 
-			d.Dispose();
+		protected void Browse(object sender, EventArgs e)
+		{
+			SaveFileDialog d = new SaveFileDialog("Export " + this);
+			d.Filters.Add(new FileDialogFilter("Arff", "*.arff"));
+			d.Filters.Add(new FileDialogFilter("Other", "*.*"));
+			if (d.Run()) {
+				string tmpFilename = d.FileName;
+
+				if (string.IsNullOrEmpty(Path.GetExtension(tmpFilename))) {
+					tmpFilename += ".arff";
+				}
+
+				Filename = tmpFilename;
+			}
 		}
 
 		/// <summary>
 		/// Get widget to change options of this exporter.
 		/// </summary>
 		/// <remarks>
-		/// Output file name should be saved under the 'filename' variable.
+		/// Output file name should be saved under the 'Filename' variable.
 		/// </remarks>
 		public abstract Widget Options();
 
@@ -65,9 +88,22 @@ namespace Baimp
 		/// Run the actual export algorithm.
 		/// </summary>
 		/// <remarks>
-		/// Save result to 'filename'.
+		/// Save result to 'Filename'.
 		/// </remarks>
 		public abstract void Run();
+
+		/// <summary>
+		/// Path to output file.
+		/// </summary>
+		/// <value>The filename.</value>
+		public virtual string Filename {
+			get {
+				return filename;
+			}
+			set {
+				filename = value;
+			}
+		}
 	}
 }
 

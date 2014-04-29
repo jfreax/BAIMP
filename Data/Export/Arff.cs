@@ -28,11 +28,10 @@ using System.IO;
 
 namespace Baimp
 {
-	struct DataHolder 
+	struct DataHolder
 	{
 		public string className;
 		public string distinctSourceString;
-
 		// attribute index -> value
 		public Dictionary<int, object> attributes;
 
@@ -50,7 +49,9 @@ namespace Baimp
 		readonly HashSet<string> classes = new HashSet<string>();
 		// fiber name -> (class name, (attribute index -> value))
 		readonly Dictionary<string, DataHolder> values = new Dictionary<string, DataHolder>();
-
+		VBox main;
+		TextEntry filenameEntry;
+		bool exportToStdOut;
 
 		public Arff(PipelineView pipeline) : base(pipeline)
 		{
@@ -59,28 +60,39 @@ namespace Baimp
 
 		public override Widget Options()
 		{
-			VBox main = new VBox();
+			if (main != null) {
+				main.Dispose();
+			}
 
+			main = new VBox();
+
+			// filename
 			HBox file = new HBox();
-			TextEntry filenameEntry = new TextEntry();
-			filenameEntry.Text = filename;
+			filenameEntry = new TextEntry();
+			filenameEntry.Text = Filename;
 			filenameEntry.ReadOnly = true;
 			filenameEntry.ShowFrame = false;
 			filenameEntry.BackgroundColor = Color.FromBytes(232, 232, 232);
 
 			Button browseButton = new Button("Browse...");
 			browseButton.SetFocus();
-			browseButton.Clicked += delegate {
-				SaveFileDialog d = new SaveFileDialog("Export " + this);
-				d.Filters.Add(new FileDialogFilter("Arff", "*.arff"));
-				d.Filters.Add(new FileDialogFilter("Other", "*.*"));
-				if (d.Run()) {
-					filename = d.FileName;
+			browseButton.Clicked += Browse;
 
-					if (string.IsNullOrEmpty(Path.GetExtension(filename))) {
-						filename += ".arff";
-					}
-					filenameEntry.Text = filename;
+			// print to std out
+			HBox exportToStdOutBox = new HBox();
+			CheckBox exportTSCheck = new CheckBox();
+
+			exportToStdOutBox.PackStart(new Label("Export to standard out?"));
+			exportToStdOutBox.PackEnd(exportTSCheck);
+			exportTSCheck.Toggled += delegate {
+				if (exportTSCheck.Active) {
+					browseButton.Style = ButtonStyle.Flat;
+					browseButton.Clicked -= Browse;
+					exportToStdOut = true;
+				} else {
+					browseButton.Style = ButtonStyle.Normal;
+					browseButton.Clicked += Browse;
+					exportToStdOut = false;
 				}
 			};
 
@@ -88,6 +100,8 @@ namespace Baimp
 			file.PackEnd(browseButton);
 
 			main.PackEnd(file, true);
+			main.PackEnd(exportToStdOutBox, true);
+
 			return main;
 		}
 
@@ -210,10 +224,10 @@ namespace Baimp
 			}
 			sb.Append("@attribute class {");
 			foreach (string className in classes) {
-					sb.AppendFormat("\"{0}\",", className);
+				sb.AppendFormat("\"{0}\",", className);
 			}
 
-			sb.Remove(sb.Length-1, 1);
+			sb.Remove(sb.Length - 1, 1);
 			sb.Append("}\n\n@data\n");
 
 			foreach (KeyValuePair<string, DataHolder> v in values) {
@@ -234,8 +248,29 @@ namespace Baimp
 				sb.AppendFormat("\"{0}\"\n", v.Value.className);
 			}
 
-			File.WriteAllText(filename, sb.ToString());
+			if (exportToStdOut) {
+				Console.WriteLine(sb);
+			} else {
+				File.WriteAllText(filename, sb.ToString());
+			}
 		}
+
+		#region Properties
+
+		public override string Filename {
+			get {
+				return filename;
+			}
+			set {
+				filename = value;
+
+				if (filenameEntry != null) {
+					filenameEntry.Text = value;
+				}
+			}
+		}
+
+		#endregion
 	}
 }
 
