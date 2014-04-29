@@ -81,7 +81,7 @@ namespace Baimp
 
 			// event subscribe
 			scan.ScanDataChanged += delegate(object sender, ScanDataEventArgs e) {
-				if (e.Changed.Equals("mask")) {
+				if (e.Changed.Equals("mask") && e.Unsaved.Contains("mask")) {
 					MaskImage = scan.Mask.GetMaskAsImage();
 					QueueDraw();
 				}

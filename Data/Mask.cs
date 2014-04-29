@@ -188,6 +188,10 @@ namespace Baimp
 		/// </summary>
 		public unsafe void Save()
 		{
+			if (MaskPosition.Count == 0) {
+				return;
+			}
+
 			MemoryStream outStream = new MemoryStream();
 
 			using (XD.ImageBuilder mb = GetMaskBuilder()) {
