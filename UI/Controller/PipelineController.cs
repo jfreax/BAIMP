@@ -53,27 +53,14 @@ namespace Baimp
 			pipelineScroller = new ScrollView();
 			pipelineScroller.Content = currentPipeline;
 
-			if (project.LoadedPipelines == null || project.LoadedPipelines.Count == 0) {
-				CurrentPipeline = new PipelineView();
-				CurrentPipeline.Initialize(pipelineScroller);
-				pipelines.Add(currentPipeline.PipelineName, currentPipeline);
-			} else {
-				foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
-					PipelineView newPipeline = new PipelineView();
-					newPipeline.Initialize(pipelineScroller, wrapper.pNodes, wrapper.scrollX, wrapper.scrollY);
-					newPipeline.PipelineName = wrapper.name;
-					pipelines.Add(newPipeline.PipelineName, newPipeline);
-				}
-				CurrentPipeline = pipelines.Values.ToList()[0];
-			}
-
 			this.project = project;
+			OnProjectDataChangged(new ProjectChangedEventArgs(null) { refresh = true });
 
 			InitializeControllerbar();
 			splitControllTab_pipelineScroller.PackEnd(pipelineScroller, true, true);
 
 			algorithm = new AlgorithmTreeView();
-			algorithm.MinWidth = 200;
+			algorithm.MinWidth = 200; // TODO, save size as user property
 
 			HPaned splitPipeline_Algorithm = new HPaned();
 			splitPipeline_Algorithm.Panel1.Content = algorithm;
@@ -89,7 +76,7 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Initializes the controll bars.
+		/// Initializes the control bars.
 		/// </summary>
 		void InitializeControllerbar()
 		{
@@ -192,7 +179,12 @@ namespace Baimp
 			foreach (PipelineView pView in pipelines.Values) {
 				tabHost.Add(pView.PipelineName);
 			}
-			tabHost.SelectedIndex = 0;
+
+			if (CurrentPipeline == null) {
+				tabHost.SelectedIndex = 0;
+			} else {
+				tabHost.SelectedIndex = pipelines.Values.ToList().IndexOf(CurrentPipeline);
+			}
 
 			tabHost.SelectionChanged += OnProjectMapSelectionChanged;
 		}
@@ -218,12 +210,19 @@ namespace Baimp
 									mainWindow.MarkAsUnsaved();
 								}
 							};
+
+							if (wrapper.active) {
+								CurrentPipeline = newPipeline;
+							}
 						}
 
-						CurrentPipeline = pipelines.Values.ToArray()[0];
+						if (CurrentPipeline == null) {
+							CurrentPipeline = pipelines.Values.ToArray()[0];
+						}
 					} else {
 						CurrentPipeline = new PipelineView();
 						CurrentPipeline.Initialize(pipelineScroller);
+						pipelines.Add(currentPipeline.PipelineName, currentPipeline);
 					}
 				} else if (e.addedFiles != null && e.addedFiles.Length > 0) {
 				}

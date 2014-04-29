@@ -286,6 +286,10 @@ namespace Baimp
 				foreach (PipelineNode pNode in pipeline.Nodes) {
 					pNode.InternOptions = pNode.algorithm.Options;
 				}
+
+				if (pipeline == pipelineController.CurrentPipeline) {
+					wrapper.active = true;
+				}
 			}
 
 			// save metadata
@@ -530,6 +534,8 @@ namespace Baimp
 		public double scrollX;
 		[XmlAttribute("scrollY")]
 		public double scrollY;
+		[XmlAttribute("active")]
+		public bool active;
 
 		public PipelineNodeWrapper()
 		{
