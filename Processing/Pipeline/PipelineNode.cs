@@ -138,10 +138,15 @@ namespace Baimp
 		{
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
+
 				if (mNode.IsInput) {
-					mNode.compatible = algorithm.Input[mNode.Position];
+					if (mNode.Position < algorithm.Input.Count) {
+						mNode.compatible = algorithm.Input[mNode.Position];
+					}
 				} else {
-					mNode.compatible = algorithm.Output[mNode.Position];
+					if (mNode.Position < algorithm.Output.Count) {
+						mNode.compatible = algorithm.Output[mNode.Position];
+					}
 				}
 			}
 
