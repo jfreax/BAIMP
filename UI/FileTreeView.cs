@@ -52,6 +52,7 @@ namespace Baimp
 		Image cross = Image.FromResource("Baimp.Resources.cross.png");
 
 		string filterText;
+		TreePosition beforeFilterPosition;
 
 		#region initialize
 
@@ -159,6 +160,11 @@ namespace Baimp
 		/// <param name="text">Text.</param>
 		public void Filter(string text)
 		{
+			// when prior filter text was empty
+			if (string.IsNullOrEmpty(filterText)) {
+				beforeFilterPosition = SelectedRow;
+			}
+
 			filterText = text;
 			string current = string.Empty;
 			if (SelectedRow != null) {
@@ -168,6 +174,12 @@ namespace Baimp
 			if (string.IsNullOrEmpty(text)) {
 				this.DataSource = store;
 				isFiltered = false;
+
+				// restore old position
+				ExpandToRow(beforeFilterPosition);
+				SelectRow(beforeFilterPosition);
+				ScrollToRow(beforeFilterPosition);
+
 				return;
 			}
 
@@ -203,8 +215,8 @@ namespace Baimp
 				typeNode.MoveToParent();
 			} while (typeNode.MoveNext());
 				
+			ExpandAll();
 			if (selectedRow != null) {
-				ExpandToRow(selectedRow);
 				SelectRow(selectedRow);
 				ScrollToRow(selectedRow);
 			}
@@ -226,8 +238,7 @@ namespace Baimp
 				scanCollection = scans;
 			}
 
-
-			this.DataSource = store;
+			DataSource = store;
 			store.Clear();
 
 			TreePosition pos = null;
