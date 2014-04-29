@@ -42,7 +42,7 @@ namespace Baimp
 			d.Title = "Export as " + this;
 			d.Content = Options();
 
-			d.Buttons.Add(new DialogButton(Command.Save));
+			d.Buttons.Add(new DialogButton("Export", Command.Save));
 			d.Buttons.Add(new DialogButton(Command.Cancel));
 
 			Command r = d.Run();

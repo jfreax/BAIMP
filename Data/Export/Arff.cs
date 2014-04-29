@@ -23,6 +23,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using Xwt;
+using Xwt.Drawing;
+using System.IO;
 
 namespace Baimp
 {
@@ -59,6 +61,33 @@ namespace Baimp
 		{
 			VBox main = new VBox();
 
+			HBox file = new HBox();
+			TextEntry filenameEntry = new TextEntry();
+			filenameEntry.Text = filename;
+			filenameEntry.ReadOnly = true;
+			filenameEntry.ShowFrame = false;
+			filenameEntry.BackgroundColor = Color.FromBytes(232, 232, 232);
+
+			Button browseButton = new Button("Browse...");
+			browseButton.SetFocus();
+			browseButton.Clicked += delegate {
+				SaveFileDialog d = new SaveFileDialog("Export " + this);
+				d.Filters.Add(new FileDialogFilter("Arff", "*.arff"));
+				d.Filters.Add(new FileDialogFilter("Other", "*.*"));
+				if (d.Run()) {
+					filename = d.FileName;
+
+					if (string.IsNullOrEmpty(Path.GetExtension(filename))) {
+						filename += ".arff";
+					}
+					filenameEntry.Text = filename;
+				}
+			};
+
+			file.PackStart(filenameEntry, true);
+			file.PackEnd(browseButton);
+
+			main.PackEnd(file, true);
 			return main;
 		}
 
@@ -205,7 +234,7 @@ namespace Baimp
 				sb.AppendFormat("\"{0}\"\n", v.Value.className);
 			}
 
-			Console.WriteLine(sb);
+			File.WriteAllText(filename, sb.ToString());
 		}
 	}
 }
