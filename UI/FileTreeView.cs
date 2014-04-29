@@ -49,6 +49,8 @@ namespace Baimp
 		Image tick = Image.FromResource("Baimp.Resources.tick.png");
 		Image cross = Image.FromResource("Baimp.Resources.cross.png");
 
+		string filterText;
+
 		#region initialize
 
 		/// <summary>
@@ -141,6 +143,7 @@ namespace Baimp
 		/// <param name="text">Text.</param>
 		public void Filter(string text)
 		{
+			filterText = text;
 			string current = string.Empty;
 			if (SelectedRow != null) {
 				current = (DataSource as TreeStore).GetNavigatorAt(SelectedRow).GetValue(nameCol);
@@ -185,10 +188,11 @@ namespace Baimp
 				typeNode.MoveToParent();
 			} while (typeNode.MoveNext());
 
-			this.ExpandAll();
+			ExpandAll();
 
 			if (selectedRow != null) {
-				this.SelectRow(selectedRow);
+				SelectRow(selectedRow);
+				ScrollToRow(selectedRow);
 			}
 		}
 
@@ -248,7 +252,7 @@ namespace Baimp
 
 			this.ExpandAll();
 			if (scans.Count > 0) {
-				this.SelectRow(pos);
+				SelectRow(pos);
 			}
 
 			LoadPreviewsAsync(scans);
@@ -301,6 +305,10 @@ namespace Baimp
 
 			if (DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
 				store.GetNavigatorAt(scan.parentPosition).Remove();
+			}
+
+			if (!string.IsNullOrEmpty(filterText)) {
+				Filter(filterText);
 			}
 		}
 
@@ -399,13 +407,25 @@ namespace Baimp
 						}
 
 						radioButton.Clicked += delegate(object sender, EventArgs e) {
+							RadioButtonMenuItem r = sender as RadioButtonMenuItem;
+							if (r == null) {
+								return;
+							}
+
+							List<BaseScan> foundScan = new List<BaseScan>();
 							foreach (TreePosition x in SelectedRows) {
-								RadioButtonMenuItem r = sender as RadioButtonMenuItem;
 								if (r != null) {
 									string n = currentStore.GetNavigatorAt(x)
 										.GetValue(isFiltered ? nameColFilter : nameCol);
-									scanCollection.Find(o => o.Name == n).FiberType = r.Label;
+									BaseScan found = scanCollection.Find(o => o.Name == n);
+									if (found != null) {
+										foundScan.Add(found);
+									}
 								}
+							}
+
+							foreach (BaseScan found in foundScan) {
+								found.FiberType = r.Label;
 							}
 						};
 
@@ -427,10 +447,18 @@ namespace Baimp
 
 						Command ret = d.Run();
 						if (ret != null && ret.Id == Command.Apply.Id) {
+							List<BaseScan> foundScan = new List<BaseScan>();
 							foreach (TreePosition x in SelectedRows) {
 								string n = currentStore.GetNavigatorAt(x)
 										.GetValue(isFiltered ? nameColFilter : nameCol);
-								scanCollection.Find(o => o.Name == n).FiberType = newFiberType.Text;
+								BaseScan found = scanCollection.Find(o => o.Name == n);
+								if (found != null) {
+									foundScan.Add(found);
+								}
+							}
+
+							foreach (BaseScan found in foundScan) {
+								found.FiberType = newFiberType.Text;
 							}
 						}
 
