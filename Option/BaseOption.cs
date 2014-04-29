@@ -20,11 +20,13 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
 using System.Xml.Serialization;
+using Xwt;
 
 namespace Baimp
 {
 	[XmlInclude(typeof(Option))]
 	[XmlInclude(typeof(OptionBool))]
+	[XmlInclude(typeof(OptionDropDown))]
 	public abstract class BaseOption
 	{
 		[XmlElement("key")]
@@ -32,6 +34,8 @@ namespace Baimp
 			get;
 			set;
 		}
+
+		public abstract Widget ToWidget();
 			
 		public abstract object Value {
 			get;

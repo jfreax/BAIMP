@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
 using System.Xml.Serialization;
+using Xwt;
 
 namespace Baimp
 {
@@ -42,6 +43,14 @@ namespace Baimp
 			this.DefaultValue = defaultValue;
 
 			this.val = defaultValue;
+		}
+
+		public override Widget ToWidget()
+		{
+			CheckBox checkbox = new CheckBox();
+			checkbox.State = val ? CheckBoxState.On : CheckBoxState.Off;
+
+			return checkbox;
 		}
 
 		[XmlElement("value")]

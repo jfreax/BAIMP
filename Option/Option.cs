@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ﻿using System;
 using System.Xml.Serialization;
+using Xwt;
 
 namespace Baimp
 {
@@ -58,6 +59,14 @@ namespace Baimp
 			this.DefaultValue = defaultValue;
 
 			this.val = defaultValue;
+		}
+
+		public override Widget ToWidget()
+		{
+			TextEntry entryText = new TextEntry();
+			entryText.Text = Value.ToString();
+
+			return entryText;
 		}
 
 		[XmlElement("value")]

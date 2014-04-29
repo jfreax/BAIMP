@@ -422,16 +422,7 @@ namespace Baimp
 			foreach (BaseOption option in pNode.algorithm.Options) {
 				table.Add(new Label(option.Name), 0, i);
 
-				Widget entry;
-				if (option is OptionBool) {
-					CheckBox checkbox = new CheckBox();
-					checkbox.State = (bool) option.Value ? CheckBoxState.On : CheckBoxState.Off;
-					entry = checkbox;
-				} else {
-					TextEntry entryText = new TextEntry();
-					entryText.Text = option.Value.ToString();
-					entry = entryText;
-				}
+				Widget entry = option.ToWidget();
 				entries[i] = entry;
 				table.Add(entry, 1, i);
 				i++;
