@@ -209,6 +209,11 @@ namespace Baimp
 						if (nameColValue == current) {
 							selectedRow = newElem.CurrentPosition;
 						}
+
+						BaseScan found = scanCollection.Find( s => s.Name == name);
+						if (found != null) {
+							found.positionFiltered = newElem.CurrentPosition;
+						}
 					}
 
 				} while (typeNode.MoveNext());
@@ -337,8 +342,18 @@ namespace Baimp
 				store.GetNavigatorAt(scan.parentPosition).Remove();
 			}
 
+			// update filtered store
 			if (!string.IsNullOrEmpty(filterText)) {
-				Filter(filterText);
+				if (changedFiberType) {
+					Filter(filterText);
+				} else {
+					storeFilter.GetNavigatorAt(scan.positionFiltered)
+						.SetValue(nameColFilter, scan.ToString())
+						.SetValue(thumbnailColFilter, thumbnail)
+						.SetValue(finishColFiltered, scan.IsFinish() ? tick : cross)
+						.SetValue(saveStateColFilter, scan.HasUnsaved() ? "*" : "");
+
+				}
 			}
 		}
 

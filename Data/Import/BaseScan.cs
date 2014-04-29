@@ -73,6 +73,8 @@ namespace Baimp
 		/// </summary>
 		[XmlIgnore]
 		public TreePosition position;
+		[XmlIgnore]
+		public TreePosition positionFiltered;
 
 		/// <summary>
 		/// Position of category item in file tree view.
