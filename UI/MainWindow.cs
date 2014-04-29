@@ -181,20 +181,20 @@ namespace Baimp
 			menuExport.SubMenu = new Menu();
 			pipelineMenu.SubMenu.Items.Add(menuExport);
 
-			Type exporterType = typeof(IExporter);
+			Type exporterType = typeof(BaseExporter);
 			IEnumerable<Type> exporter = AppDomain.CurrentDomain.GetAssemblies()
 				.SelectMany(s => s.GetTypes())
-				.Where(t => t.GetInterfaces().Contains(exporterType));
+				.Where(t => t.BaseType == exporterType);
 
 			foreach (Type export in exporter) {
 				MenuItem ni = new MenuItem(string.Format("As {0}...", export.Name));
 				menuExport.SubMenu.Items.Add(ni);
 				var lExport = export;
 				ni.Clicked += delegate {
-					IExporter instance = 
-						Activator.CreateInstance(lExport) as IExporter;
+					BaseExporter instance = 
+						Activator.CreateInstance(lExport, pipelineController.CurrentPipeline) as BaseExporter;
 					if (instance != null) {
-						instance.Run(pipelineController.CurrentPipeline);
+						instance.ShowDialog();
 					}
 				};
 			}

@@ -22,6 +22,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using Xwt;
 
 namespace Baimp
 {
@@ -41,18 +42,28 @@ namespace Baimp
 		}
 	}
 
-	public class Arff : IExporter
+	public class Arff : BaseExporter
 	{
-		PipelineView pipeline;
 		readonly List<string> attributes = new List<string>();
 		readonly HashSet<string> classes = new HashSet<string>();
 		// fiber name -> (class name, (attribute index -> value))
 		readonly Dictionary<string, DataHolder> values = new Dictionary<string, DataHolder>();
 
-		public void Run(PipelineView pipeline)
-		{
-			this.pipeline = pipeline;
 
+		public Arff(PipelineView pipeline) : base(pipeline)
+		{
+
+		}
+
+		public override Widget Options()
+		{
+			VBox main = new VBox();
+
+			return main;
+		}
+
+		public override void Run()
+		{
 			// for every node in the current pipeline
 			foreach (PipelineNode pNode in pipeline.Nodes) {
 				int offset = pNode.algorithm.Input.Count;

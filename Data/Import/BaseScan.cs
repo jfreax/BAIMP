@@ -36,22 +36,22 @@ namespace Baimp
 	abstract public class BaseScan : IType, IComparer<BaseScan>
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
-		private Object asyncImageLock = new Object();
+		Object asyncImageLock = new Object();
 
 		/// <summary>
 		/// The file path.
 		/// </summary>
-		private string filePath;
+		string filePath;
 
 		/// <summary>
 		/// Name of the scan.
 		/// </summary>
-		private string name = string.Empty;
+		string name = string.Empty;
 
 		/// <summary>
 		/// The type of the fiber.
 		/// </summary>
-		private string fiberType = string.Empty;
+		string fiberType = string.Empty;
 
 		/// <summary>
 		/// List of unsaved elements
@@ -85,13 +85,13 @@ namespace Baimp
 		/// <summary>
 		/// True after call to "Initialize".
 		/// </summary>
-		private bool isInitialized = false;
+		bool isInitialized;
 
 		/// <summary>
 		/// Buffer of rendered images.
 		/// </summary>
-		private Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
-		private Dictionary<string, XD.Image> renderedColorImage = new Dictionary<string, XD.Image>();
+		Dictionary<string, XD.Image> renderedImage = new Dictionary<string, XD.Image>();
+		Dictionary<string, XD.Image> renderedColorImage = new Dictionary<string, XD.Image>();
 
 		/// <summary>
 		/// Buffer of thumbnails.
