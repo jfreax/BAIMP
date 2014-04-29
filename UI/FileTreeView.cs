@@ -30,11 +30,14 @@ namespace Baimp
 	{
 		ScanCollection scanCollection;
 		public DataField<Image> thumbnailCol = new DataField<Image>();
-		public DataField<string> nameCol = new DataField<string>();
-		public DataField<string> saveStateCol = new DataField<string>();
 		public DataField<Image> thumbnailColFilter = new DataField<Image>();
+		public DataField<string> nameCol = new DataField<string>();
 		public DataField<string> nameColFilter = new DataField<string>();
+		public DataField<string> saveStateCol = new DataField<string>();
 		public DataField<string> saveStateColFilter = new DataField<string>();
+		public DataField<Image> finishCol = new DataField<Image>();
+		public DataField<Image> finishColFiltered = new DataField<Image>();
+
 		public TreeStore store;
 		public TreeStore storeFilter;
 		Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
@@ -43,6 +46,9 @@ namespace Baimp
 		Menu contextMenuFibertype;
 		Dictionary<string, TreePosition> fiberTypeNodes;
 
+		Image tick = Image.FromResource("Baimp.Resources.tick.png");
+		Image cross = Image.FromResource("Baimp.Resources.cross.png");
+
 		#region initialize
 
 		/// <summary>
@@ -50,8 +56,8 @@ namespace Baimp
 		/// </summary>
 		public FileTreeView()
 		{
-			store = new TreeStore(thumbnailCol, nameCol, saveStateCol);
-			storeFilter = new TreeStore(thumbnailColFilter, nameColFilter, saveStateColFilter);
+			store = new TreeStore(thumbnailCol, nameCol, finishCol, saveStateCol);
+			storeFilter = new TreeStore(thumbnailColFilter, nameColFilter, finishColFiltered, saveStateColFilter);
 
 			this.SelectionMode = SelectionMode.Multiple;
 			this.BoundsChanged += InitializeSize;
@@ -73,10 +79,12 @@ namespace Baimp
 		{
 			this.Columns.Add("", thumbnailCol).CanResize = false;
 			this.Columns.Add("Name", nameCol).CanResize = true;
+			this.Columns.Add("M", finishCol).CanResize = true;
 			this.Columns.Add("*", saveStateCol).CanResize = true;
 
-			this.Columns[0].SortDataField = nameCol;
-			this.Columns[2].SortDataField = saveStateCol;
+			this.Columns[1].SortDataField = nameCol;
+			this.Columns[2].SortDataField = finishCol;
+			this.Columns[3].SortDataField = saveStateCol;
 		}
 
 		/// <summary>
@@ -163,6 +171,7 @@ namespace Baimp
 						var newElem = storeFilter.AddNode(newTypeNode.CurrentPosition)
 							.SetValue(thumbnailColFilter, typeNode.GetValue(thumbnailCol))
 							.SetValue(nameColFilter, typeNode.GetValue(nameCol))
+							.SetValue(finishColFiltered, typeNode.GetValue(finishCol))
 							.SetValue(saveStateColFilter, typeNode.GetValue(saveStateCol));
 							
 						string nameColValue = typeNode.GetValue(nameCol);
@@ -219,6 +228,7 @@ namespace Baimp
 
 				var v = store.AddNode(currentNode)
 					.SetValue(nameCol, scan.ToString())
+					.SetValue(finishCol, scan.HasMask ? tick : cross)
 					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 					.CurrentPosition;
 				scan.position = v;
@@ -272,6 +282,7 @@ namespace Baimp
 			scan.position = store.AddNode(parentNodePosition)
 				.SetValue(nameCol, scan.ToString())
 				.SetValue(thumbnailCol, thumbnail)
+				.SetValue(finishCol, scan.HasMask ? tick : cross)
 				.SetValue(saveStateCol, "*").CurrentPosition;
 
 			this.ExpandToRow(scan.position);

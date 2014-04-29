@@ -244,5 +244,7 @@
     <EmbeddedResource Include="Resources\pindown.png" />
     <EmbeddedResource Include="Resources\pinup.png" />
     <EmbeddedResource Include="Resources\btAdd.png" />
+    <EmbeddedResource Include="Resources\tick.png" />
+    <EmbeddedResource Include="Resources\cross.png" />
   </ItemGroup>
 </Project>
