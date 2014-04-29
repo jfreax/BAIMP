@@ -61,7 +61,7 @@ namespace Baimp
 				}
 
 				IType[] data = new IType[3];
-				if ((maskedOnly && scan.Mask.HasMask()) || !maskedOnly) {
+				if ((maskedOnly && scan.HasMask) || !maskedOnly) {
 					// TODO test available scan types
 					data[0] = new TScan(scan, "Intensity", maskedOnly: maskedOnly).Preload();
 					data[1] = new TScan(scan, "Topography", maskedOnly: maskedOnly).Preload();

@@ -557,6 +557,12 @@ namespace Baimp
 			}
 		}
 
+		[XmlAttribute("hasMask")]
+		public bool HasMask {
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Determines whether this scan is scaled.
 		/// </summary>

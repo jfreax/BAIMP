@@ -73,28 +73,16 @@ namespace Baimp
 			this.scan = scan;
 		}
 
-		public bool HasMask()
-		{
-			return (bool) Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
-				if (zipFile != null) {
-					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
-					if (maskEntry != null) {
-						return true;
-					}
-
-					return false;
-				}
-
-				return false;
-			}));
-		}
-
 		/// <summary>
 		/// Loads mask data
 		/// </summary>
 		/// <returns>The mask as an image.</returns>
-		private XD.Image LoadMask()
+		XD.Image LoadMask()
 		{
+			if (!scan.HasMask) {
+				return null;
+			}
+
 			XD.Image mask = null;
 			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 				if (zipFile != null) {
@@ -230,6 +218,7 @@ namespace Baimp
 				bitmapCache = null;
 			}
 
+			scan.HasMask = true;
 			scan.NotifySaved("mask");
 		}
 
