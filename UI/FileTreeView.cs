@@ -101,7 +101,8 @@ namespace Baimp
 				TextEntry newMagnification = new TextEntry { PlaceholderText = "Magnification factor" };
 				d.Content = newMagnification;
 
-				if (d.Run().Id == Command.Apply.Id) {
+				Command ret = d.Run();
+				if (ret != null && ret.Id == Command.Apply.Id) {
 					TreeStore currentStore = DataSource as TreeStore;
 					foreach (TreePosition x in SelectedRows) {
 						string n = currentStore.GetNavigatorAt(x)
@@ -349,7 +350,7 @@ namespace Baimp
 							MetadataDialog metaDialog = new MetadataDialog(scan, thumbnail);
 							Command r = metaDialog.Run();
 
-							if (r.Id == Command.Apply.Id) {
+							if (r != null && r.Id == Command.Apply.Id) {
 								metaDialog.Save();
 							}
 
@@ -403,7 +404,8 @@ namespace Baimp
 						TextEntry newFiberType = new TextEntry { PlaceholderText = "Fiber type name" };
 						d.Content = newFiberType;
 
-						if (d.Run().Id == Command.Apply.Id) {
+						Command ret = d.Run();
+						if (ret != null && ret.Id == Command.Apply.Id) {
 							foreach (TreePosition x in SelectedRows) {
 								string n = currentStore.GetNavigatorAt(x)
 										.GetValue(isFiltered ? nameColFilter : nameCol);

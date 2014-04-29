@@ -283,7 +283,7 @@ namespace Baimp
 				d.Buttons.Add(new DialogButton(Command.Cancel));
 
 				Command r = d.Run();
-				if (r.Id == Command.Ok.Id) {
+				if (r != null && r.Id == Command.Ok.Id) {
 					pipelines.Remove(button.Label);
 
 					Log.Add(LogLevel.Info, this.GetType().Name,
