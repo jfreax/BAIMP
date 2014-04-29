@@ -455,6 +455,15 @@ namespace Baimp
 		}
 
 		/// <summary>
+		/// Determines whether this scan has all needed user input set.
+		/// </summary>
+		/// <returns><c>true</c> if this scan is finish; otherwise, <c>false</c>.</returns>
+		public bool IsFinish()
+		{
+			return HasMask && metadata.ContainsKey("LensMagnification") && FiberType != "Unknown";
+		}
+
+		/// <summary>
 		/// Scales the render size of all images
 		/// </summary>
 		/// <param name="scaleFactor">Scale factor.</param>

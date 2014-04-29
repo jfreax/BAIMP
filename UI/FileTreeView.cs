@@ -228,7 +228,7 @@ namespace Baimp
 
 				var v = store.AddNode(currentNode)
 					.SetValue(nameCol, scan.ToString())
-					.SetValue(finishCol, scan.HasMask ? tick : cross)
+					.SetValue(finishCol, scan.IsFinish() ? tick : cross)
 					.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "")
 					.CurrentPosition;
 				scan.position = v;
@@ -282,7 +282,7 @@ namespace Baimp
 			scan.position = store.AddNode(parentNodePosition)
 				.SetValue(nameCol, scan.ToString())
 				.SetValue(thumbnailCol, thumbnail)
-				.SetValue(finishCol, scan.HasMask ? tick : cross)
+				.SetValue(finishCol, scan.IsFinish() ? tick : cross)
 				.SetValue(saveStateCol, "*").CurrentPosition;
 
 			this.ExpandToRow(scan.position);
