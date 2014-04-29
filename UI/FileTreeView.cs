@@ -314,7 +314,7 @@ namespace Baimp
 				.SetValue(nameCol, scan.ToString())
 				.SetValue(thumbnailCol, thumbnail)
 				.SetValue(finishCol, scan.IsFinish() ? tick : cross)
-				.SetValue(saveStateCol, "*");
+				.SetValue(saveStateCol, scan.HasUnsaved() ? "*" : "");
 
 
 			if (DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
