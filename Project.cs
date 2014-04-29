@@ -182,6 +182,9 @@ namespace Baimp
 						if (p.scanCollection != null) {
 							this.scanCollection = p.scanCollection;
 							foreach (BaseScan scan in this.scanCollection) {
+								if (zipFile.FindEntry(scan.Mask.MaskFilename, false) != -1) {
+									scan.HasMask = true;
+								}
 								scan.OnXmlDeserializeFinish();
 							}
 						} else {

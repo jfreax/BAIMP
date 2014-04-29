@@ -86,7 +86,7 @@ namespace Baimp
 			XD.Image mask = null;
 			Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 				if (zipFile != null) {
-					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
+					ZipEntry maskEntry = zipFile.GetEntry(MaskFilename);
 					if (maskEntry != null) {
 						Stream maskStream = zipFile.GetInputStream(maskEntry);
 						mask = XD.Image.FromStream(maskStream);
@@ -107,7 +107,7 @@ namespace Baimp
 			if (bitmapCache == null) {
 				bitmapCache = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 					if (zipFile != null) {
-						ZipEntry maskEntry = zipFile.GetEntry(MaskFilename());
+						ZipEntry maskEntry = zipFile.GetEntry(MaskFilename);
 						if (maskEntry != null) {
 							Stream maskStream = zipFile.GetInputStream(maskEntry);
 							return new Bitmap(Image.FromStream(maskStream));
@@ -203,7 +203,7 @@ namespace Baimp
 
 				CustomStaticDataSource source = new CustomStaticDataSource(outStream);
 
-				zipFile.Add(source, MaskFilename());
+				zipFile.Add(source, MaskFilename);
 				zipFile.IsStreamOwner = true;
 				zipFile.CommitUpdate();
 
@@ -234,15 +234,6 @@ namespace Baimp
 
 				scan.NotifyChange("mask");
 			}
-		}
-			
-		/// <summary>
-		/// Get the filename in save archive of this mask.
-		/// </summary>
-		/// <returns>The filename.</returns>
-		string MaskFilename()
-		{
-			return String.Format("masks/{0}.png", scan.Name);
 		}
 
 		/// <summary>
@@ -328,6 +319,16 @@ namespace Baimp
 		public string CurrentScanType {
 			get;
 			set;
+		}
+
+		/// <summary>
+		/// Get the filename in save archive of this mask.
+		/// </summary>
+		/// <returns>The filename.</returns>
+		public string MaskFilename {
+			get {
+				return String.Format("masks/{0}.png", scan.Name);
+			}
 		}
 
 		#endregion

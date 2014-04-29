@@ -557,7 +557,7 @@ namespace Baimp
 			}
 		}
 
-		[XmlAttribute("hasMask")]
+		[XmlIgnore]
 		public bool HasMask {
 			get;
 			set;
