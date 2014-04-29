@@ -156,21 +156,20 @@ namespace Baimp
 		/// <param name="priority">Current thread priority</param>
 		/// <param name="result">Output of algorithm.</param>
 		/// <param name="input">Reference to the data, that was used to compute these results</param>
-		private void OnFinish(PipelineNode startNode, int priority, IType[] result, params Result[] input)
+		void OnFinish(PipelineNode startNode, int priority, IType[] result, Result[] input, int yieldID = -1)
 		{
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
 			if (result.Length != compatibleOutput.Count) {
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
-
-
+				
 			if (startNode.SaveResult) {
 				startNode.results.Add(new Tuple<IType[], Result[]>(result, input));
 			}
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
-				Result resultWrapper = new Result(startNode, result[i], input, startNode.SaveResult);
+				Result resultWrapper = new Result(startNode, result[i], input, startNode.SaveResult, yieldID);
 				HashSet<PipelineNode> markedAsUse = new HashSet<PipelineNode>();
 					
 				// enqueue new data
@@ -203,8 +202,17 @@ namespace Baimp
 			}
 		}
 
-		private void GetSingleData(PipelineNode startNode, Result[] origInput, int priority, object sender, AlgorithmEventArgs e)
+		readonly Dictionary<object, int> yieldIds = new Dictionary<object, int>();
+
+		void GetSingleData(PipelineNode startNode, Result[] origInput, int priority, object sender, AlgorithmEventArgs e)
 		{
+			object yieldKey = e.InputRef == null ? origInput as object : e.InputRef as object;
+			if (yieldIds.ContainsKey(yieldKey)) {
+				yieldIds[yieldKey]++;
+			} else {
+				yieldIds[yieldKey] = 1;
+			}
+
 			if (e.InputRef != null) {
 				Result[] inputResults = new Result[e.InputRef.Length];
 				int i = 0;
@@ -216,9 +224,9 @@ namespace Baimp
 						startNode.SaveResult);
 					i++;
 				}
-				OnFinish(startNode, priority, e.Data, inputResults);
+				OnFinish(startNode, priority, e.Data, inputResults, yieldIds[yieldKey]);
 			} else {
-				OnFinish(startNode, priority, e.Data, origInput);
+				OnFinish(startNode, priority, e.Data, origInput, yieldIds[yieldKey]);
 			}
 		}
 	}

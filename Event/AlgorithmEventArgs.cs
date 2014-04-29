@@ -25,7 +25,7 @@ namespace Baimp
 	public class AlgorithmEventArgs : EventArgs
 	{
 		public readonly IType[] Data;
-		public readonly IType[] InputRef;
+		public IType[] InputRef;
 
 		public AlgorithmEventArgs(IType[] data, params IType[] inputRef)
 		{

@@ -29,25 +29,41 @@ namespace Baimp
 		object removeLock = new object();
 		bool preserve;
 		readonly Dictionary<PipelineNode, int> usedBy = new Dictionary<PipelineNode, int>();
-
-		PipelineNode node;
+		readonly PipelineNode node;
 
 		/// <summary>
 		/// The payload.
 		/// </summary>
 		public IType Data;
+		string completeDistinctName = string.Empty;
+		public int yieldID;
 
 		/// <summary>
 		/// The input that was used to compute these data.
 		/// </summary>
 		public readonly Result[] Input;
 
-		public Result(PipelineNode node, IType data, Result[] input, bool preserve = false)
+		public Result(PipelineNode node, IType data, Result[] input, bool preserve = false, int yieldID = -1)
 		{
 			this.node = node;
 			this.Data = data;
 			this.Input = input;
 			this.preserve = preserve;
+
+			if (input != null) {
+				completeDistinctName = node.ToString();
+				if (yieldID != -1) {
+					completeDistinctName += "#" + yieldID;
+				}
+
+				HashSet<string> visitedNames = new HashSet<string>();
+				foreach (Result r in input) {
+					if (!visitedNames.Contains(r.completeDistinctName)) {
+						completeDistinctName = string.Format("{0}_{1}", r.completeDistinctName, completeDistinctName);
+						visitedNames.Add(r.completeDistinctName);
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -106,6 +122,26 @@ namespace Baimp
 			return usedBy.ContainsKey(by);
 		}
 
+		public string SourceString()
+		{
+			string ret = "";
+			string[] tokens = completeDistinctName.Split('_');
+			foreach (string token in tokens) {
+				if (token.Contains("#")) {
+					ret += token + "_";
+				}
+			}
+
+			ret = ret.TrimEnd('_');
+
+			return ret;
+		}
+
+		public string DistinctSourceString()
+		{
+			return completeDistinctName;
+		}
+
 		#endregion
 
 		#region properties
@@ -115,12 +151,13 @@ namespace Baimp
 				return usedBy.Count;
 			}
 		}
-			
+
 		public PipelineNode Node {
 			get {
 				return node;
 			}
 		}
+
 		#endregion
 	}
 }

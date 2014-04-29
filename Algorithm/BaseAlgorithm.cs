@@ -88,7 +88,7 @@ namespace Baimp
 		/// <param name="inputArgs">Input arguments.</param>
 		/// <remarks>
 		/// Return null, when no more data is available (important for sequential data output).
-		/// Use Yield() function to return data when one output parameter is Parallel.
+		/// Use Yield() function to return data when you want to output more then one result per input.
 		/// </remarks>
 		abstract public IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs);
 
@@ -130,7 +130,7 @@ namespace Baimp
 		/// Yield the specified data array.
 		/// </summary>
 		/// <param name="data">Data.</param>
-		/// <param name="inputRef">Reference to input data to compute the result.</param>
+		/// <param name="inputRef">Reference to input data that was used to compute the result.</param>
 		protected void Yield(IType[] data, params IType[] inputRef)
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;

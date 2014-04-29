@@ -25,14 +25,29 @@ using System.Text;
 
 namespace Baimp
 {
+	struct DataHolder 
+	{
+		public string className;
+		public string distinctSourceString;
+
+		// attribute index -> value
+		public Dictionary<int, object> attributes;
+
+		public DataHolder(string className, string distinctSourceString)
+		{
+			attributes = new Dictionary<int, object>();
+			this.className = className;
+			this.distinctSourceString = distinctSourceString;
+		}
+	}
+
 	public class Arff : IExporter
 	{
 		PipelineView pipeline;
 		readonly List<string> attributes = new List<string>();
 		readonly HashSet<string> classes = new HashSet<string>();
 		// fiber name -> (class name, (attribute index -> value))
-		readonly Dictionary<string, Tuple<string, Dictionary<int, object>>> values = 
-			new Dictionary<string, Tuple<string, Dictionary<int, object>>>();
+		readonly Dictionary<string, DataHolder> values = new Dictionary<string, DataHolder>();
 
 		public void Run(PipelineView pipeline)
 		{
@@ -61,14 +76,26 @@ namespace Baimp
 								if (featureList != null) {
 									// ... then iterate over the whole list
 									foreach (IFeature feature in featureList) {
-										AddResult(feature, resultList.Item2[i].Input, resultID);
+										AddResult(
+											resultList.Item2[i].SourceString(),
+											resultList.Item2[i].DistinctSourceString(),
+											feature,
+											pNode,
+											resultList.Item2[i].Input
+										);
 									}
 								}
 							} else {
 								// if its only a single feature
 								IFeature feature = resultList.Item1[i] as IFeature;
 								if (feature != null) {
-									AddResult(feature, resultList.Item2[i].Input, resultID);
+									AddResult(
+										resultList.Item2[i].SourceString(),
+										resultList.Item2[i].DistinctSourceString(),
+										feature,
+										pNode,
+										resultList.Item2[i].Input
+									);
 								}
 							}
 
@@ -81,9 +108,9 @@ namespace Baimp
 			ToArff();
 		}
 
-		void AddResult(IFeature feature, Result[] inputs, int resultID)
+		void AddResult(string sourceString, string distinctSourceString, IFeature feature, PipelineNode node, Result[] inputs)
 		{
-			string completeFeatureName = feature.Key();
+			string completeFeatureName = node + "_" + feature.Key();
 			string className = string.Empty;
 			string fiberName = string.Empty;
 
@@ -116,8 +143,9 @@ namespace Baimp
 				}
 				currInputs = nextInputs;
 			}
-
-			fiberName += "#" + resultID;
+				
+			distinctSourceString = fiberName + distinctSourceString;
+			fiberName += "_" + sourceString;
 
 			int attributeIndex = attributes.IndexOf(completeFeatureName);
 			if (attributeIndex == -1) {
@@ -126,11 +154,10 @@ namespace Baimp
 			}
 
 			if (!values.ContainsKey(fiberName)) {
-				values[fiberName] = 
-					new Tuple<string, Dictionary<int, object>>(className, new Dictionary<int, object>());
+				values[fiberName] = new DataHolder(className, distinctSourceString);
 			}
 
-			values[fiberName].Item2[attributeIndex] = feature.Value();
+			values[fiberName].attributes[attributeIndex] = feature.Value();
 			classes.Add(className);
 		}
 
@@ -149,22 +176,22 @@ namespace Baimp
 			sb.Remove(sb.Length-1, 1);
 			sb.Append("}\n\n@data\n");
 
-			foreach (KeyValuePair<string, Tuple<string, Dictionary<int, object>>> v in values) {
-				sb.AppendFormat("% {0}\n", v.Key);
+			foreach (KeyValuePair<string, DataHolder> v in values) {
+				sb.AppendFormat("% {0}\n", v.Value.distinctSourceString);
 				for (int i = 0; i < attributes.Count; i++) {
-					if (v.Value.Item2.ContainsKey(i)) {
+					if (v.Value.attributes.ContainsKey(i)) {
 					
-						double numeric = (double) v.Value.Item2[i]; 
+						double numeric = (double) v.Value.attributes[i]; 
 						if (double.IsNaN(numeric) || double.IsInfinity(numeric)) {
 							sb.Append("?,");
 						} else {
-							sb.AppendFormat("{0},", numeric);
+							sb.AppendFormat("{0},", numeric.ToString(System.Globalization.CultureInfo.InvariantCulture));
 						}
 					} else {
 						sb.Append("?,");
 					}
 				}
-				sb.AppendFormat("\"{0}\"\n", v.Value.Item1);
+				sb.AppendFormat("\"{0}\"\n", v.Value.className);
 			}
 
 			Console.WriteLine(sb);
