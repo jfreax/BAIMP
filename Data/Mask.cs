@@ -66,7 +66,7 @@ namespace Baimp
 		XD.ImageBuilder maskBuilder;
 		Bitmap bitmapCache;
 
-		public readonly List<MaskEntry> MaskPosition = new List<MaskEntry>();
+		public readonly List<MaskEntry> MaskPositions = new List<MaskEntry>();
 
 		public Mask(BaseScan scan)
 		{
@@ -176,7 +176,7 @@ namespace Baimp
 		/// </summary>
 		public unsafe void Save()
 		{
-			if (MaskPosition.Count == 0) {
+			if (MaskPositions.Count <= 1) {
 				return;
 			}
 
@@ -227,7 +227,7 @@ namespace Baimp
 		/// </summary>
 		public void ResetMask()
 		{
-			MaskPosition.Clear();
+			MaskPositions.Clear();
 			if (maskBuilder != null) {
 				maskBuilder.Dispose();
 				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
@@ -244,26 +244,26 @@ namespace Baimp
 		public void FlushMaskPositions(XD.Context ctx, int bufferSize = 30)
 		{
 			bool first = true;
-			if (MaskPosition.Count >= bufferSize) {
+			if (MaskPositions.Count >= bufferSize) {
 				ctx.SetColor(maskColor);
-				for (int i = 0; i < MaskPosition.Count - bufferSize; i++) {
-					switch (MaskPosition[i].type) {
+				for (int i = 0; i < MaskPositions.Count - bufferSize; i++) {
+					switch (MaskPositions[i].type) {
 					case MaskEntryType.Point:
-						ctx.SetLineWidth(MaskPosition[i].pointerSize * 2);
+						ctx.SetLineWidth(MaskPositions[i].pointerSize * 2);
 						if (first) {
 							first = false;
-							ctx.MoveTo(MaskPosition[i].position);
+							ctx.MoveTo(MaskPositions[i].position);
 						} else {
-							ctx.LineTo(MaskPosition[i].position);
+							ctx.LineTo(MaskPositions[i].position);
 						}
 						ctx.Stroke();
 
 						ctx.Arc(
-							MaskPosition[i].position.X, MaskPosition[i].position.Y,
-							MaskPosition[i].pointerSize, 0, 360);
+							MaskPositions[i].position.X, MaskPositions[i].position.Y,
+							MaskPositions[i].pointerSize, 0, 360);
 						ctx.Fill();
 
-						ctx.MoveTo(MaskPosition[i].position);
+						ctx.MoveTo(MaskPositions[i].position);
 						break;
 					case MaskEntryType.Space:
 						ctx.Stroke();
@@ -271,20 +271,20 @@ namespace Baimp
 						break;
 					case MaskEntryType.Delete:
 						ctx.Arc(
-							MaskPosition[i].position.X, MaskPosition[i].position.Y,
-							MaskPosition[i].pointerSize, 0, 360);
+							MaskPositions[i].position.X, MaskPositions[i].position.Y,
+							MaskPositions[i].pointerSize, 0, 360);
 						ctx.Save();
 						ctx.Clip();
 						int newX = (int) Math.Min(Math.Max(
-							MaskPosition[i].position.X - MaskPosition[i].pointerSize, 0), scan.Size.Width);
+							MaskPositions[i].position.X - MaskPositions[i].pointerSize, 0), scan.Size.Width);
 						int newY = (int) Math.Min(Math.Max(
-							MaskPosition[i].position.Y - MaskPosition[i].pointerSize, 0), scan.Size.Height);
+							MaskPositions[i].position.Y - MaskPositions[i].pointerSize, 0), scan.Size.Height);
 
 						using (XD.ImageBuilder ibnew = 
-							new XD.ImageBuilder(MaskPosition[i].pointerSize * 2, MaskPosition[i].pointerSize * 2)) {
+							new XD.ImageBuilder(MaskPositions[i].pointerSize * 2, MaskPositions[i].pointerSize * 2)) {
 							XD.BitmapImage bi = ibnew.ToBitmap();
 							scan.GetAsImage(CurrentScanType, false).WithBoxSize(scan.Size).ToBitmap().CopyArea(
-								newX, newY, MaskPosition[i].pointerSize * 2, MaskPosition[i].pointerSize * 2,
+								newX, newY, MaskPositions[i].pointerSize * 2, MaskPositions[i].pointerSize * 2,
 								bi, 0, 0);
 							ctx.DrawImage(bi, new Xwt.Point(newX, newY));
 						}
@@ -295,7 +295,7 @@ namespace Baimp
 				}
 				ctx.Stroke();
 
-				MaskPosition.RemoveRange(0, MaskPosition.Count - bufferSize);
+				MaskPositions.RemoveRange(0, MaskPositions.Count - bufferSize);
 
 				scan.NotifyChange("mask");
 			}
@@ -306,9 +306,9 @@ namespace Baimp
 		/// </summary>
 		public void Undo()
 		{
-			for (int i = MaskPosition.Count-1; i >= 0; --i) {
-				if (MaskPosition[i].type != MaskEntryType.Space) {
-					MaskPosition.RemoveAt(i);
+			for (int i = MaskPositions.Count-1; i >= 0; --i) {
+				if (MaskPositions[i].type != MaskEntryType.Space) {
+					MaskPositions.RemoveAt(i);
 					break;
 				}
 			}

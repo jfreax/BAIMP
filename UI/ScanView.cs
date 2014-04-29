@@ -140,7 +140,7 @@ namespace Baimp
 					                    scan.Size.Height / image.Size.Height);
 				ctx.SetColor(Mask.maskColor);
 
-				foreach (MaskEntry p in scan.Mask.MaskPosition) {
+				foreach (MaskEntry p in scan.Mask.MaskPositions) {
 					switch (p.type) {
 					case MaskEntryType.Point:
 						ctx.SetLineWidth(p.pointerSize / scaleFactor.Y * 2);
@@ -331,7 +331,7 @@ namespace Baimp
 					ImageBuilder ib = scan.Mask.GetMaskBuilder();
 					scan.Mask.FlushMaskPositions(ib.Context);
 
-					scan.Mask.MaskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
+					scan.Mask.MaskPositions.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 
 					if (mousePositionStart != Point.Zero) {
 						Point scaleFactor = new Point(
@@ -343,7 +343,7 @@ namespace Baimp
 						ib.Context.MoveTo(start);
 						SetMask(start);
 						SetMask(new Point(mousePosition.X * scaleFactor.X, mousePosition.Y * scaleFactor.Y));
-						scan.Mask.MaskPosition.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
+						scan.Mask.MaskPositions.Add(new MaskEntry(Point.Zero, MaskEntryType.Space, pointerSize));
 					}
 
 					mousePositionStart = Point.Zero;
@@ -519,7 +519,7 @@ namespace Baimp
 				return;
 			}
 
-			scan.Mask.MaskPosition.Add(
+			scan.Mask.MaskPositions.Add(
 				new MaskEntry(position, unset ? MaskEntryType.Delete : MaskEntryType.Point, pointerSize)
 			);
 		}

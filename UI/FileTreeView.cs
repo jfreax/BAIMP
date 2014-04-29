@@ -28,6 +28,8 @@ namespace Baimp
 {
 	public class FileTreeView : TreeView
 	{
+		const int THUMB_SIZE = 32;
+
 		ScanCollection scanCollection;
 		public DataField<Image> thumbnailCol = new DataField<Image>();
 		public DataField<Image> thumbnailColFilter = new DataField<Image>();
@@ -58,20 +60,34 @@ namespace Baimp
 		/// </summary>
 		public FileTreeView()
 		{
+			// center tick/cross symbols
+			using (ImageBuilder ib = new ImageBuilder(THUMB_SIZE, THUMB_SIZE)) {
+				ib.Context.DrawImage(tick, new Point((THUMB_SIZE - tick.Width) / 2, (THUMB_SIZE - tick.Height) / 2));
+				Image tickNew = ib.ToBitmap();
+				tick.Dispose();
+				tick = tickNew;
+			}
+			using (ImageBuilder ib = new ImageBuilder(THUMB_SIZE, THUMB_SIZE)) {
+				ib.Context.DrawImage(cross, new Point((THUMB_SIZE - cross.Width) / 2, (THUMB_SIZE - cross.Height) / 2));
+				Image crossNew = ib.ToBitmap();
+				cross.Dispose();
+				cross = crossNew;
+			}
+
 			store = new TreeStore(thumbnailCol, nameCol, finishCol, saveStateCol);
 			storeFilter = new TreeStore(thumbnailColFilter, nameColFilter, finishColFiltered, saveStateColFilter);
 
-			this.SelectionMode = SelectionMode.Multiple;
-			this.BoundsChanged += InitializeSize;
+			SelectionMode = SelectionMode.Multiple;
+			BoundsChanged += InitializeSize;
 
 			InitializeContextMenu();
 		}
 
-		private void InitializeSize(object sender, EventArgs e)
+		void InitializeSize(object sender, EventArgs e)
 		{
-			this.MinWidth = this.ScreenBounds.Width;
-			this.HorizontalScrollPolicy = ScrollPolicy.Automatic;
-			this.BoundsChanged -= InitializeSize;
+			MinWidth = ScreenBounds.Width;
+			HorizontalScrollPolicy = ScrollPolicy.Automatic;
+			BoundsChanged -= InitializeSize;
 		}
 
 		/// <summary>
@@ -79,20 +95,20 @@ namespace Baimp
 		/// </summary>
 		public void InitializeUI()
 		{
-			this.Columns.Add("", thumbnailCol).CanResize = false;
-			this.Columns.Add("Name", nameCol).CanResize = true;
-			this.Columns.Add("M", finishCol).CanResize = true;
-			this.Columns.Add("*", saveStateCol).CanResize = true;
+			Columns.Add("", thumbnailCol).CanResize = false;
+			Columns.Add("Name", nameCol).CanResize = true;
+			Columns.Add("X", finishCol).CanResize = true;
+			Columns.Add("*", saveStateCol).CanResize = true;
 
-			this.Columns[1].SortDataField = nameCol;
-			this.Columns[2].SortDataField = finishCol;
-			this.Columns[3].SortDataField = saveStateCol;
+			Columns[1].SortDataField = nameCol;
+			Columns[2].SortDataField = finishCol;
+			Columns[3].SortDataField = saveStateCol;
 		}
 
 		/// <summary>
 		/// Initializes the context menu.
 		/// </summary>
-		private void InitializeContextMenu()
+		void InitializeContextMenu()
 		{
 			contextMenu = new Menu();
 			contextMenuFibertype = new Menu();
@@ -334,12 +350,12 @@ namespace Baimp
 									string name = store.GetNavigatorAt(lScan.position).GetValue(nameCol);
 									if (filteredPositions.ContainsKey(name)) {
 										storeFilter.GetNavigatorAt(filteredPositions[name])
-											.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(48));
+											.SetValue(thumbnailColFilter, thumbnails[0].WithBoxSize(int.MaxValue, THUMB_SIZE));
 									}
 								}
 
 								store.GetNavigatorAt(lScan.position)
-									.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(48));
+									.SetValue(thumbnailCol, thumbnails[0].WithBoxSize(int.MaxValue, THUMB_SIZE));
 							});
 						}
 					}
