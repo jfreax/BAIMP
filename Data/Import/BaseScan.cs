@@ -27,12 +27,13 @@ using System.Xml.Serialization;
 using Xwt;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace Baimp
 {
 	[XmlInclude(typeof(DDPlusScan))]
 	[XmlInclude(typeof(VK4Scan))]
-	abstract public class BaseScan : IType
+	abstract public class BaseScan : IType, IComparer<BaseScan>
 	{
 		public delegate void ImageLoadedCallback(XD.Image image);
 		private Object asyncImageLock = new Object();
@@ -641,6 +642,19 @@ namespace Baimp
 				thumbnails = null;
 			}
 		}
+
+		#region IComparer implementation
+
+		public int Compare(BaseScan x, BaseScan y)
+		{
+			if (x != null && y != null) {
+				return string.Compare(x.FiberType, y.FiberType, StringComparison.Ordinal);
+			}
+
+			return 0;
+		}
+
+		#endregion
 	}
 }
 

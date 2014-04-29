@@ -218,9 +218,14 @@ namespace Baimp
 		/// <param name="save">Update scan collection</param>
 		public void Reload(ScanCollection scans, BaseScan currentScan = null, bool save = true)
 		{
+			if (scans.Count > 0) {
+				scans.Sort(scans[0]);
+			}
+
 			if (save) {
 				scanCollection = scans;
 			}
+
 
 			this.DataSource = store;
 			store.Clear();
