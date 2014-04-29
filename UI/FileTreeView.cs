@@ -151,7 +151,6 @@ namespace Baimp
 
 			if (string.IsNullOrEmpty(text)) {
 				this.DataSource = store;
-				this.ExpandAll();
 				isFiltered = false;
 				return;
 			}
@@ -187,10 +186,9 @@ namespace Baimp
 				} while (typeNode.MoveNext());
 				typeNode.MoveToParent();
 			} while (typeNode.MoveNext());
-
-			ExpandAll();
-
+				
 			if (selectedRow != null) {
+				ExpandToRow(selectedRow);
 				SelectRow(selectedRow);
 				ScrollToRow(selectedRow);
 			}
@@ -250,8 +248,8 @@ namespace Baimp
 				scan.ScanDataChanged += OnScanDataChanged;
 			}
 
-			this.ExpandAll();
 			if (scans.Count > 0) {
+				ExpandToRow(pos);
 				SelectRow(pos);
 			}
 
