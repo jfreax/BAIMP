@@ -87,8 +87,10 @@ namespace Baimp
 			MetadataView mView = new MetadataView();
 			mView.Load(scan);
 
+			ScrollView mViewScroller = new ScrollView { Content = mView, BorderVisible = false };
+
 			mainLayout.PackStart(overviewLayout);
-			mainLayout.PackStart(mView);
+			mainLayout.PackStart(mViewScroller, true, true);
 		}
 
 		void InitializeEvents()
