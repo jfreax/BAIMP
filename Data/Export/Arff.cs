@@ -27,14 +27,11 @@ namespace Baimp
 	public class Arff : IExporter
 	{
 		PipelineView pipeline;
-
 		readonly List<string> attributes = new List<string>();
 		readonly HashSet<string> classes = new HashSet<string>();
-
 		// fiber name -> (class name, (attribute index -> value))
 		readonly Dictionary<string, Tuple<string, Dictionary<int, string>>> values = 
 			new Dictionary<string, Tuple<string, Dictionary<int, string>>>();
-
 
 		public void Run(PipelineView pipeline)
 		{
@@ -102,7 +99,11 @@ namespace Baimp
 
 							BaseScan scan = input.Data as BaseScan;
 							if (scan != null) {
-								className = scan.FiberType;
+								if (scan.Metadata.ContainsKey("LensMagnification")) {
+									className = string.Format("{0}_{1}x", scan.FiberType, scan.Metadata["LensMagnification"]);
+								} else {
+									className = scan.FiberType;
+								}
 							}
 						} else {
 							completeFeatureName = string.Format("{0}_{1}", input.Node, completeFeatureName);

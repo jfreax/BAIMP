@@ -55,11 +55,11 @@ namespace Baimp
 			table.Clear();
 
 			int i = 1;
-			foreach (Metadata d in scan.Metadata) {
-				table.Add(new Label(d.key), 0, i);
+			foreach (var d in scan.Metadata) {
+				table.Add(new Label(d.Key), 0, i);
 
 				TextEntry entry = new TextEntry();
-				entry.Text = d.value;
+				entry.Text = d.Value.ToString();
 				entry.ReadOnly = true;
 				entry.ShowFrame = false;
 				entry.BackgroundColor = Color.FromBytes(232, 232, 232);

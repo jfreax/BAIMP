@@ -26,16 +26,16 @@ namespace Baimp
 	public class Metadata
 	{
 		[XmlAttribute]
-		public string key = "";
+		public string key = string.Empty;
 
 		[XmlAttribute]
-		public string value = "";
+		public float value;
 
 		public Metadata()
 		{
 		}
 
-		public Metadata(string key, string value)
+		public Metadata(string key, float value)
 		{
 			this.key = key;
 			this.value = value;

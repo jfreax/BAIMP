@@ -103,12 +103,12 @@ namespace Baimp
 		/// <summary>
 		/// The metadata.
 		/// </summary>
-		private List<Metadata> metadata = new List<Metadata>();
+		protected Dictionary<string, float> metadata = new Dictionary<string, float>();
 
 		/// <summary>
 		/// The mask.
 		/// </summary>
-		private Mask mask;
+		Mask mask;
 
 		/// <summary>
 		/// Needed for xml serializer.
@@ -245,17 +245,37 @@ namespace Baimp
 		}
 
 		/// <summary>
+		/// For xml (de-)serializer only!
+		/// Gets the metadata.
+		/// </summary>
+		/// <value>The metadata.</value>
+		[XmlIgnore]
+		public Dictionary<string, float> Metadata {
+			get {
+				return metadata;
+			}
+		}
+
+		/// <summary>
+		/// For xml (de-)serializer only!
 		/// Gets or sets the metadata.
 		/// </summary>
 		/// <value>The metadata.</value>
 		[XmlArray("metadata")]
 		[XmlArrayItem("datum")]
-		virtual public List<Metadata> Metadata {
+		public List<Metadata> InternMetadata {
 			get {
-				return metadata;
+				List<Metadata> metadataList = new List<Metadata>(metadata.Count);
+				foreach (var m in metadata) {
+					metadataList.Add(new Metadata(m.Key, m.Value));
+				}
+
+				return metadataList;
 			}
 			set {
-				metadata = value;
+				foreach (Metadata m in value) {
+					metadata[m.key] = m.value;
+				}
 			}
 		}
 

@@ -35,12 +35,9 @@ namespace Baimp
 			"Topography",
 			"Color"
 		};
-			
 		Dictionary<string, string> filenames = new Dictionary<string, string>();
 		Dictionary<string, float[]> arrayData = new Dictionary<string, float[]>();
-
 		Dictionary<string, float> max = new Dictionary<string, float>();
-
 
 		/// <summary>
 		/// Needed for xml serializer
@@ -71,8 +68,14 @@ namespace Baimp
 				size = new Xwt.Size(ini.ReadInteger("general", "Width", 0), ini.ReadInteger("general", "Height", 0));
 				requestedBitmapSize = new Xwt.Size(size.Width, size.Height);
 
-				foreach (Tuple<string, string > datum in ini.ReadAllStrings("general")) {
-					Metadata.Add(new Metadata(datum.Item1, datum.Item2));
+				List<Tuple<string, string>> generalData = ini.ReadAllStrings("general");
+				foreach (Tuple<string, string > datum in generalData) {
+					try {
+						metadata[datum.Item1] = float.Parse(datum.Item2);
+					} catch (Exception e) {
+						Console.WriteLine(e.Message);
+						Console.WriteLine(e.StackTrace);
+					}
 				}
 			}
 		}
@@ -133,10 +136,11 @@ namespace Baimp
 			max[scanType] = arrayData[scanType].Max();
 
 			if (scanType == "Topography") {
-				Metadata zLength = Metadata.Find( m => m.key == "zLengthPerDigitF" );
-				if (zLength != null) {
-					float zLengthValue = Convert.ToSingle(zLength.value) / 10000000.0f;
-					arrayData[scanType] = arrayData[scanType].Select( x => x * zLengthValue).ToArray();
+				float zLength;
+
+				if (metadata.TryGetValue("zLengthPerDigitF", out zLength)) {
+					float zLengthValue = zLength / 10000000.0f;
+					arrayData[scanType] = arrayData[scanType].Select(x => x * zLengthValue).ToArray();
 				}
 			}
 
@@ -160,7 +164,7 @@ namespace Baimp
 				bitmap = new Bitmap(width, height, PixelFormat.Format8bppIndexed);
 
 				ColorPalette grayscalePalette = bitmap.Palette;
-				for(int i = 0; i < 256; i++) {
+				for (int i = 0; i < 256; i++) {
 					grayscalePalette.Entries[i] = Color.FromArgb(i, i, i);
 				}
 				bitmap.Palette = grayscalePalette;
@@ -168,8 +172,8 @@ namespace Baimp
 
 			//Create a BitmapData and Lock all pixels to be written 
 			BitmapData bmpData = bitmap.LockBits(
-				new Rectangle(0, 0, width, height),   
-				ImageLockMode.WriteOnly, bitmap.PixelFormat);
+				                     new Rectangle(0, 0, width, height),   
+				                     ImageLockMode.WriteOnly, bitmap.PixelFormat);
 				
 
 			if (scanType == "Color") {
@@ -178,7 +182,7 @@ namespace Baimp
 				//Marshal.Copy(buffer, 0, bmpData.Scan0, len);
 
 				UnmanagedMemoryStream ums = 
-					new UnmanagedMemoryStream((byte*)bmpData.Scan0.ToPointer(), 0, len, FileAccess.Write);
+					new UnmanagedMemoryStream((byte*) bmpData.Scan0.ToPointer(), 0, len, FileAccess.Write);
 
 				Stream s = File.OpenRead(filenames[scanType]);
 				s.Position = 8; // skip first two ints
