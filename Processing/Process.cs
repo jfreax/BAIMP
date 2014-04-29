@@ -32,6 +32,7 @@ namespace Baimp
 		Dictionary<int, TaskScheduler> priorizedScheduler = new Dictionary<int, TaskScheduler>();
 		Project project;
 		CancellationToken cancellationToken;
+		HashSet<PipelineNode> scanCollectionRequestedNodes = new HashSet<PipelineNode>();
 
 		public delegate void OnTaskCompleteDelegate(PipelineNode startNode,IType[] result,Result[] inputRef);
 
@@ -68,7 +69,22 @@ namespace Baimp
 			foreach (RequestType request in startNode.algorithm.Request) {
 				switch (request) {
 				case RequestType.ScanCollection:
-					requestedData.Add(RequestType.ScanCollection, project.scanCollection);
+					if (scanCollectionRequestedNodes.Contains(startNode)) {
+						requestedData.Add(
+							RequestType.ScanCollection, 
+							new ScanCollection(
+								project.scanCollection.GetRange(0, project.scanCollection.Count / 2))
+						);
+					} else {
+						scanCollectionRequestedNodes.Add(startNode);
+						int half = project.scanCollection.Count / 2;
+						requestedData.Add(
+							RequestType.ScanCollection, 
+							new ScanCollection(
+								project.scanCollection.GetRange(half, project.scanCollection.Count - half - 1))
+						);
+						Start(startNode, inputResult, priority);
+					}
 					break;
 				}
 			}

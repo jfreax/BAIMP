@@ -36,10 +36,19 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Copy constructur
+		/// Copy constructur.
 		/// </summary>
 		/// <param name="scans">Scans.</param>
 		public ScanCollection(ScanCollection scans)
+		{
+			AddRange(scans);
+		}
+
+		/// <summary>
+		/// Copy constructur.
+		/// </summary>
+		/// <param name="scans">List of scans.</param>
+		public ScanCollection(List<BaseScan> scans)
 		{
 			AddRange(scans);
 		}
