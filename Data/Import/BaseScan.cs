@@ -270,6 +270,7 @@ namespace Baimp
 		[XmlArrayItem("datum")]
 		public List<Metadata> InternMetadata {
 			get {
+				internMetadataList.Clear();
 				foreach (var m in metadata) {
 					internMetadataList.Add(new Metadata(m.Key, m.Value));
 				}
