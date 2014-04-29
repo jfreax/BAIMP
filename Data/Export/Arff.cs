@@ -21,6 +21,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Baimp
 {
@@ -30,8 +31,8 @@ namespace Baimp
 		readonly List<string> attributes = new List<string>();
 		readonly HashSet<string> classes = new HashSet<string>();
 		// fiber name -> (class name, (attribute index -> value))
-		readonly Dictionary<string, Tuple<string, Dictionary<int, string>>> values = 
-			new Dictionary<string, Tuple<string, Dictionary<int, string>>>();
+		readonly Dictionary<string, Tuple<string, Dictionary<int, object>>> values = 
+			new Dictionary<string, Tuple<string, Dictionary<int, object>>>();
 
 		public void Run(PipelineView pipeline)
 		{
@@ -80,7 +81,7 @@ namespace Baimp
 			ToArff();
 		}
 
-		private void AddResult(IFeature feature, Result[] inputs, int resultID)
+		void AddResult(IFeature feature, Result[] inputs, int resultID)
 		{
 			string completeFeatureName = feature.Key();
 			string className = string.Empty;
@@ -126,50 +127,47 @@ namespace Baimp
 
 			if (!values.ContainsKey(fiberName)) {
 				values[fiberName] = 
-					new Tuple<string, Dictionary<int, string>>(className, new Dictionary<int, string>());
+					new Tuple<string, Dictionary<int, object>>(className, new Dictionary<int, object>());
 			}
 
 			values[fiberName].Item2[attributeIndex] = feature.Value();
 			classes.Add(className);
 		}
 
-		private void ToArff()
+		void ToArff()
 		{
-			string arff = string.Format("@relation \"{0}\"\n\n", pipeline.PipelineName);
+			StringBuilder sb = new StringBuilder();
+			sb.AppendFormat("@relation \"{0}\"\n\n", pipeline.PipelineName);
 			foreach (string attr in attributes) {
-				arff += string.Format("@attribute \"{0}\" numeric\n", attr);
+				sb.AppendFormat("@attribute \"{0}\" numeric\n", attr);
 			}
-			arff += "@attribute class {";
+			sb.Append("@attribute class {");
 			foreach (string className in classes) {
-				arff += string.Format("\"{0}\",", className);
+					sb.AppendFormat("\"{0}\",", className);
 			}
 
-			arff = arff.TrimEnd(',') + "}";
-			arff += "\n\n@data\n";
+			sb.Remove(sb.Length-1, 1);
+			sb.Append("}\n\n@data\n");
 
-			foreach (KeyValuePair<string, Tuple<string, Dictionary<int, string>>> v in values) {
-				arff += string.Format("% {0}\n", v.Key);
+			foreach (KeyValuePair<string, Tuple<string, Dictionary<int, object>>> v in values) {
+				sb.AppendFormat("% {0}\n", v.Key);
 				for (int i = 0; i < attributes.Count; i++) {
 					if (v.Value.Item2.ContainsKey(i)) {
-						try {
-							double numeric = double.Parse(v.Value.Item2[i]);
-							if (double.IsNaN(numeric) || double.IsInfinity(numeric)) {
-								arff += "?,";
-							} else {
-								arff += v.Value.Item2[i].Replace(',', '.') + ",";
-							}
-						} catch (Exception e) {
-							Console.WriteLine(e.Message);
-							arff += "?,";
+					
+						double numeric = (double) v.Value.Item2[i]; 
+						if (double.IsNaN(numeric) || double.IsInfinity(numeric)) {
+							sb.Append("?,");
+						} else {
+							sb.AppendFormat("{0},", numeric);
 						}
 					} else {
-						arff += "?,";
+						sb.Append("?,");
 					}
 				}
-				arff += string.Format("\"{0}\"\n", v.Value.Item1);
+				sb.AppendFormat("\"{0}\"\n", v.Value.Item1);
 			}
 
-			Console.WriteLine(arff);
+			Console.WriteLine(sb);
 		}
 	}
 }

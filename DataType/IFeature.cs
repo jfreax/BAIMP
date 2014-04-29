@@ -25,7 +25,7 @@ namespace Baimp
 	public interface IFeature
 	{
 		string Key();
-		string Value();
+		object Value();
 	}
 }
 

@@ -54,9 +54,9 @@ namespace Baimp
 		{
 			return key;
 		}
-		public string Value()
+		public object Value()
 		{
-			return raw.ToString();
+			return raw;
 		}
 		#endregion
 	}
