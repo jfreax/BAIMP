@@ -448,6 +448,11 @@ namespace Baimp
 					mask.Save();
 				}
 			}
+
+			if (mask.MaskPositions.Count > 1) {
+				mask.Save();
+			}
+
 			if (unsaved.Count > 0) {
 				unsaved.Clear();
 				NotifyChange("");

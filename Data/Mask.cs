@@ -65,6 +65,7 @@ namespace Baimp
 		readonly BaseScan scan;
 		XD.ImageBuilder maskBuilder;
 		Bitmap bitmapCache;
+		bool wasResetted;
 
 		public readonly List<MaskEntry> MaskPositions = new List<MaskEntry>();
 
@@ -177,6 +178,19 @@ namespace Baimp
 		public unsafe void Save()
 		{
 			if (MaskPositions.Count <= 1) {
+				if (wasResetted) {
+					Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+						zipFile.BeginUpdate();
+						if (zipFile.FindEntry(MaskFilename, false) != -1) {
+							zipFile.Delete(zipFile.GetEntry(MaskFilename));
+						}
+
+						zipFile.CommitUpdate();
+
+						return null;
+					}));
+					wasResetted = false;
+				}
 				return;
 			}
 
@@ -232,6 +246,8 @@ namespace Baimp
 				maskBuilder.Dispose();
 				maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
+				wasResetted = true;
+				scan.HasMask = false;
 				scan.NotifyChange("mask");
 			}
 		}
@@ -245,6 +261,8 @@ namespace Baimp
 		{
 			bool first = true;
 			if (MaskPositions.Count >= bufferSize) {
+				wasResetted = false;
+
 				ctx.SetColor(maskColor);
 				for (int i = 0; i < MaskPositions.Count - bufferSize; i++) {
 					switch (MaskPositions[i].type) {
