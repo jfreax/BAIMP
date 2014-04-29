@@ -38,12 +38,12 @@ namespace Baimp
 		ScanView scanView;
 
 		/// <summary>
-		/// List of all currently shown scan algorithms.
+		/// List of all currently shown scans.
 		/// </summary>
 		List<BaseScan> currentScans;
 
 		/// <summary>
-		/// List of all currenntly shown fiber types.
+		/// List of all currently shown fiber types.
 		/// </summary>
 		HashSet<string> currentFiberTypes = new HashSet<string>();
 
@@ -86,11 +86,8 @@ namespace Baimp
 			buttonMonochrome.TooltipText = "Monochrome/Colorized";
 			buttonMonochrome.Active = true;
 			buttonMonochrome.Toggled += delegate {
-				foreach (Widget w in gridView.Children) {
-					ScanView s = w as ScanView;
-					if (s != null) {
-						s.ShowColorized = !buttonMonochrome.Active;
-					}
+				foreach (ScanView s in gridView.Children.OfType<ScanView>()) {
+					s.ShowColorized = !buttonMonochrome.Active;
 				}
 			};
 		}
@@ -186,7 +183,8 @@ namespace Baimp
 						widgets.Add(lScanView);
 					}
 
-					lScanView.Initialize(scan, type, !buttonMonochrome.Active);
+					lScanView.Initialize(scan, type, !buttonMonochrome.Active, 
+						currentScans.Count * currentFiberTypes.Count > 6);
 					lScanView.IsThumbnail = !isOnlyOne;
 
 					lScanView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
@@ -226,11 +224,8 @@ namespace Baimp
 	
 		void ShowMaskToggled(object sender, EventArgs e)
 		{
-			foreach (Widget w in gridView.Children) {
-				ScanView s = w as ScanView;
-				if (s != null) {
-					s.ShowMask = buttonMask.Active;
-				}
+			foreach (ScanView s in gridView.Children.OfType<ScanView>()) {
+				s.ShowMask = buttonMask.Active;
 			}
 		}
 

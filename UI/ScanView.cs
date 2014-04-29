@@ -62,6 +62,8 @@ namespace Baimp
 		Point mousePosition;
 		Point mousePositionStart;
 
+		bool showOnlyPreviewImage;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.ScanView"/> class.
 		/// </summary>
@@ -71,9 +73,11 @@ namespace Baimp
 			InitializeContextMenu();
 		}
 
-		public void Initialize(BaseScan scan, string scantype, bool showColoried = false)
+		public void Initialize(
+			BaseScan scan, string scantype, bool showColoried = false, bool showOnlyPreviewImage = false)
 		{
 			this.scan = scan;
+			this.showOnlyPreviewImage = showOnlyPreviewImage;
 			this.WidthRequest = scan.Size.Width;
 			this.HeightRequest = scan.Size.Height;
 
@@ -190,13 +194,13 @@ namespace Baimp
 
 		#region contextmenu
 
-		private Menu contextMenu;
-		private MenuItem contextEditMask;
+		Menu contextMenu;
+		MenuItem contextEditMask;
 
 		/// <summary>
 		/// Initializes the context menu.
 		/// </summary>
-		private void InitializeContextMenu()
+		void InitializeContextMenu()
 		{
 			contextMenu = new Menu();
 
@@ -223,24 +227,34 @@ namespace Baimp
 		/// Display image of selected scan type
 		/// </summary>
 		/// <param name="scanType">Scan type.</param>
-		private void ShowType(string scanType)
+		void ShowType(string scanType)
 		{
 			currentShownType = scanType;
 			EditMode = false;
 			finishedImageLoading = false;
-				
-			scan.GetAsImageAsync(scanType, ShowColorized, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
-				Image = loadedImage;
 
+			if (showOnlyPreviewImage) {
+				finishedImageLoading = true;
 				if (imageLoadedCallback != null) {
 					imageLoadedCallback(scanType);
 				}
 				if (imageLoaded != null) {
 					imageLoaded(this, new EventArgs());
 				}
+			} else {
+				scan.GetAsImageAsync(scanType, ShowColorized, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
+					Image = loadedImage;
 
-				finishedImageLoading = true;
-			}));
+					if (imageLoadedCallback != null) {
+						imageLoadedCallback(scanType);
+					}
+					if (imageLoaded != null) {
+						imageLoaded(this, new EventArgs());
+					}
+
+					finishedImageLoading = true;
+				}));
+			}
 		}
 
 		#region callback
