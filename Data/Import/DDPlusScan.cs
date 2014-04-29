@@ -71,7 +71,8 @@ namespace Baimp
 				List<Tuple<string, string>> generalData = ini.ReadAllStrings("general");
 				foreach (Tuple<string, string > datum in generalData) {
 					try {
-						metadata[datum.Item1] = float.Parse(datum.Item2);
+						metadata[datum.Item1] = 
+							float.Parse(datum.Item2, System.Globalization.CultureInfo.CreateSpecificCulture("en-us"));
 					} catch (Exception e) {
 						Console.WriteLine(e.Message);
 						Console.WriteLine(e.StackTrace);
