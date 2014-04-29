@@ -228,11 +228,6 @@ namespace Baimp
 			currentShownType = scanType;
 			EditMode = false;
 			finishedImageLoading = false;
-
-			scan.Mask.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
-				MaskImage = loadedMask;
-				QueueDraw();
-			}));
 				
 			scan.GetAsImageAsync(scanType, ShowColorized, new BaseScan.ImageLoadedCallback(delegate(Image loadedImage) {
 				Image = loadedImage;
@@ -604,7 +599,7 @@ namespace Baimp
 
 		BitmapImage MaskBitmap {
 			get {
-				if (maskBitmap == null) {
+				if (maskBitmap == null && mask != null) {
 					if (mask.Width > scan.Size.Width || mask.Height > scan.Size.Height) {
 						maskBitmap = mask.WithSize(scan.Size).ToBitmap();
 					} else {
@@ -654,12 +649,8 @@ namespace Baimp
 					this.Cursor = CursorType.Arrow;
 
 					isEditMode = false;
-
-					if (scan != null) {
-						ImageBuilder ib = scan.Mask.GetMaskBuilder();
-						scan.Mask.FlushMaskPositions(ib.Context, 0);
-					}
 				}
+
 				QueueDraw();
 			}
 		}
@@ -689,6 +680,11 @@ namespace Baimp
 
 				if (!showMask) {
 					EditMode = false;
+				} else {
+					scan.Mask.GetMaskAsImageAsync(new Mask.ImageLoadedCallback(delegate(Image loadedMask) {
+						MaskImage = loadedMask;
+						QueueDraw();
+					}));
 				}
 
 				if (showMaskToggled != null) {
