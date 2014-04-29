@@ -109,11 +109,20 @@ namespace Baimp
 					}
 				}
 				if (inputBufferSize > 0) {
+					bool sourceNodeIsAbove = true;
+					if (edges.Count > 0 && edges[0] != null) {
+						if (edges[0].to.Bounds.Center.Y > Bounds.Center.Y - 4.0) {
+							sourceNodeIsAbove = false;
+						}
+					}
+
 					textLayout.Text = inputBufferSize.ToString();
 					double textWidth = textLayout.GetSize().Width;
 					double textHeight = textLayout.GetSize().Height;
 					Point inputbufferSizeLocation = 
-						Bounds.Location.Offset(-(textWidth / 2), -(textHeight));
+						Bounds.Location.Offset(
+							-24 -(textWidth/2),
+							sourceNodeIsAbove ? textHeight + 6 : -6 - textHeight);
 
 					ctx.Arc(
 						inputbufferSizeLocation.X + textWidth / 2,

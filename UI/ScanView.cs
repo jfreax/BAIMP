@@ -130,7 +130,7 @@ namespace Baimp
 				ctx.DrawImage(image, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3));
 
 				if (mask != null && ShowMask) {
-					ctx.DrawImage(MaskBitmap, (new Rectangle(Point.Zero, image.Size)), 0.6);
+					ctx.DrawImage(MaskBitmap, (new Rectangle(Point.Zero, image.Size)).Inflate(-3, -3), 0.6);
 				}
 			}
 
