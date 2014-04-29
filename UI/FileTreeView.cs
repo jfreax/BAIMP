@@ -38,8 +38,9 @@ namespace Baimp
 		public TreeStore store;
 		public TreeStore storeFilter;
 		Dictionary<string, TreePosition> filteredPositions = new Dictionary<string, TreePosition>();
-		bool isFiltered = false;
+		bool isFiltered;
 		Menu contextMenu;
+		Menu contextMenuFibertype;
 		Dictionary<string, TreePosition> fiberTypeNodes;
 
 		#region initialize
@@ -84,6 +85,43 @@ namespace Baimp
 		private void InitializeContextMenu()
 		{
 			contextMenu = new Menu();
+			contextMenuFibertype = new Menu();
+
+			contextMenu.Items.Add(new MenuItem { Label = "Fiber Type", SubMenu = contextMenuFibertype });
+
+			MenuItem magnificationMenu = new MenuItem { Label = "Magnification..." };
+			contextMenu.Items.Add(magnificationMenu);
+
+			magnificationMenu.Clicked += delegate {
+				Dialog d = new Dialog();
+				d.Title = "Change magnification factor to...";
+				d.Buttons.Add(new DialogButton(Command.Apply));
+				d.Buttons.Add(new DialogButton(Command.Cancel));
+
+				TextEntry newMagnification = new TextEntry { PlaceholderText = "Magnification factor" };
+				d.Content = newMagnification;
+
+				if (d.Run().Id == Command.Apply.Id) {
+					TreeStore currentStore = DataSource as TreeStore;
+					foreach (TreePosition x in SelectedRows) {
+						string n = currentStore.GetNavigatorAt(x)
+							.GetValue(isFiltered ? nameColFilter : nameCol);
+
+						BaseScan found = scanCollection.Find(o => o.Name == n);
+						if (found != null) {
+							try {
+								found.Metadata["LensMagnification"] = float.Parse(newMagnification.Text);
+							} catch (Exception e) {
+								// TODO show error
+								Console.WriteLine(e.Message);
+								Console.WriteLine(e.StackTrace);
+							}
+						}
+					}
+				}
+
+				d.Dispose();
+			};
 		}
 
 		#endregion
@@ -255,7 +293,7 @@ namespace Baimp
 				scan.isLoadingThumbnail = true;
 			}
 
-			Task.Factory.StartNew( () => {
+			Task.Factory.StartNew(() => {
 				List<BaseScan> scansCopy = new List<BaseScan>(scans);
 				Project.RequestZipAccess(new Project.ZipUsageCallback(zipFile => {
 					foreach (BaseScan scan in scansCopy) {
@@ -299,7 +337,6 @@ namespace Baimp
 			switch (args.Button) {
 			case PointerButton.Left:
 				if (args.MultiplePress >= 2) {
-					Console.WriteLine(isFiltered);
 					TreePosition selected = SelectedRow;
 					if (selected != null) {
 						string scanName = (DataSource as TreeStore).GetNavigatorAt(selected)
@@ -323,7 +360,8 @@ namespace Baimp
 				}
 				break;
 			case PointerButton.Right:
-				contextMenu.Items.Clear();
+				contextMenuFibertype.Items.Clear();
+
 				TreeStore currentStore = DataSource as TreeStore;
 				string currentFiberType;
 				if (SelectedRow != null && currentStore != null) {
@@ -349,8 +387,33 @@ namespace Baimp
 							}
 						};
 
-						contextMenu.Items.Add(radioButton);
+						contextMenuFibertype.Items.Add(radioButton);
 					}
+
+					// other fibertype
+					MenuItem otherFibertype = new MenuItem { Label = "Other..." };
+					contextMenuFibertype.Items.Add(new SeparatorMenuItem());
+					contextMenuFibertype.Items.Add(otherFibertype);
+					otherFibertype.Clicked += delegate {
+						Dialog d = new Dialog();
+						d.Title = "Change fiber type to...";
+						d.Buttons.Add(new DialogButton(Command.Apply));
+						d.Buttons.Add(new DialogButton(Command.Cancel));
+
+						TextEntry newFiberType = new TextEntry { PlaceholderText = "Fiber type name" };
+						d.Content = newFiberType;
+
+						if (d.Run().Id == Command.Apply.Id) {
+							foreach (TreePosition x in SelectedRows) {
+								string n = currentStore.GetNavigatorAt(x)
+										.GetValue(isFiltered ? nameColFilter : nameCol);
+								scanCollection.Find(o => o.Name == n).FiberType = newFiberType.Text;
+							}
+						}
+
+						d.Dispose();
+					};
+
 					contextMenu.Popup();
 				}
 				break;
