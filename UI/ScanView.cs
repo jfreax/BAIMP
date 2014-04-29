@@ -73,8 +73,19 @@ namespace Baimp
 			InitializeContextMenu();
 		}
 
+		/// <summary>
+		/// Initialize the a new view for the specified scan
+		/// </summary>
+		/// <param name="scan">Scan.</param>
+		/// <param name="scantype">Scantype.</param>
+		/// <param name="showColorized">If set to <c>true</c> show the colorized version.</param>
+		/// <param name="showOnlyPreviewImage">If set to <c>true</c> show only preview image, 
+		/// do not load the full res version.</param>
+		/// <remarks>
+		/// Set all other properties _after_ you called this function.
+		/// </remarks>
 		public void Initialize(
-			BaseScan scan, string scantype, bool showColoried = false, bool showOnlyPreviewImage = false)
+			BaseScan scan, string scantype, bool showColorized = false, bool showOnlyPreviewImage = false)
 		{
 			this.scan = scan;
 			this.showOnlyPreviewImage = showOnlyPreviewImage;
@@ -100,7 +111,7 @@ namespace Baimp
 
 			// do not use the property method,
 			// Scantype already loads the initial image async
-			this.showColorized = showColoried;
+			this.showColorized = showColorized;
 
 			ScanType = scantype;
 		}

@@ -174,7 +174,6 @@ namespace Baimp
 
 				foreach (string type in currentFiberTypes) {
 					ScanView lScanView = new ScanView();
-					lScanView.ShowMask = buttonMask.Active;
 
 					if (isOnlyOne) {
 						gridView.Add(lScanView);
@@ -185,6 +184,7 @@ namespace Baimp
 
 					lScanView.Initialize(scan, type, !buttonMonochrome.Active, 
 						currentScans.Count * currentFiberTypes.Count > 6);
+					lScanView.ShowMask = buttonMask.Active;
 					lScanView.IsThumbnail = !isOnlyOne;
 
 					lScanView.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
