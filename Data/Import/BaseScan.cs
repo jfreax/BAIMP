@@ -141,6 +141,10 @@ namespace Baimp
 		public void OnXmlDeserializeFinish()
 		{
 			isInitialized = true;
+
+			foreach (Metadata m in internMetadataList) {
+				metadata[m.key] = m.value;
+			}
 		}
 
 		#region abstract methods
@@ -256,6 +260,7 @@ namespace Baimp
 			}
 		}
 
+		private List<Metadata> internMetadataList = new List<Metadata>();
 		/// <summary>
 		/// For xml (de-)serializer only!
 		/// Gets or sets the metadata.
@@ -265,17 +270,11 @@ namespace Baimp
 		[XmlArrayItem("datum")]
 		public List<Metadata> InternMetadata {
 			get {
-				List<Metadata> metadataList = new List<Metadata>(metadata.Count);
 				foreach (var m in metadata) {
-					metadataList.Add(new Metadata(m.Key, m.Value));
+					internMetadataList.Add(new Metadata(m.Key, m.Value));
 				}
 
-				return metadataList;
-			}
-			set {
-				foreach (Metadata m in value) {
-					metadata[m.key] = m.value;
-				}
+				return internMetadataList;
 			}
 		}
 
