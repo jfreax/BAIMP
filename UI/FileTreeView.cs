@@ -258,40 +258,50 @@ namespace Baimp
 		/// Refresh the specified scan.
 		/// </summary>
 		/// <param name="scan">Scan.</param>
-		private void Refresh(BaseScan scan)
+		/// <param name="changedFiberType">Set to true, if the fibertype of the given scan has changed</param>
+		void Refresh(BaseScan scan, bool changedFiberType = false)
 		{
 			Image thumbnail = store.GetNavigatorAt(scan.position).GetValue(thumbnailCol);
-			store.GetNavigatorAt(scan.position).Remove();
+			TreePosition currentNode = scan.position;
 
-			TreePosition parentNodePosition;
-			if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
-				parentNodePosition = fiberTypeNodes[scan.FiberType]; 
-			} else {
-				TextLayout text = new TextLayout();
-				text.Text = scan.FiberType;
-				ImageBuilder ib = new ImageBuilder(text.GetSize().Width, text.GetSize().Height);
-				ib.Context.DrawTextLayout(text, Point.Zero);
+			if (changedFiberType) {
+				TreePosition parentNodePosition;
+				if (fiberTypeNodes.ContainsKey(scan.FiberType)) {
+					parentNodePosition = fiberTypeNodes[scan.FiberType]; 
+				} else {
 
-				parentNodePosition = store.AddNode(null).SetValue(thumbnailCol, ib.ToBitmap()).CurrentPosition;
-				fiberTypeNodes[scan.FiberType] = parentNodePosition;
+					TextLayout text = new TextLayout();
+					text.Text = scan.FiberType;
+					ImageBuilder ib = new ImageBuilder(text.GetSize().Width, text.GetSize().Height);
+					ib.Context.DrawTextLayout(text, Point.Zero);
 
-				text.Dispose();
-				ib.Dispose();
+					parentNodePosition = store.AddNode(null).SetValue(thumbnailCol, ib.ToBitmap()).CurrentPosition;
+					fiberTypeNodes[scan.FiberType] = parentNodePosition;
+
+					text.Dispose();
+					ib.Dispose();
+
+				}
+				store.GetNavigatorAt(currentNode).Remove();
+				scan.position = currentNode = store.AddNode(parentNodePosition).CurrentPosition;
+				
+				ExpandToRow(scan.position);
+				ScrollToRow(scan.position);
+				SelectRow(scan.position);
+
+				scan.parentPosition = parentNodePosition;
 			}
 
-			scan.position = store.AddNode(parentNodePosition)
+			store.GetNavigatorAt(currentNode)
 				.SetValue(nameCol, scan.ToString())
 				.SetValue(thumbnailCol, thumbnail)
 				.SetValue(finishCol, scan.IsFinish() ? tick : cross)
-				.SetValue(saveStateCol, "*").CurrentPosition;
+				.SetValue(saveStateCol, "*");
 
-			this.ExpandToRow(scan.position);
-			this.SelectRow(scan.position);
 
-			if (this.DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
+			if (DataSource.GetChildrenCount(scan.parentPosition) <= 0) {
 				store.GetNavigatorAt(scan.parentPosition).Remove();
 			}
-			scan.parentPosition = parentNodePosition;
 		}
 
 		/// <summary>
@@ -495,10 +505,13 @@ namespace Baimp
 			BaseScan scan = (BaseScan) sender;
 
 			if (e.Changed.Equals("FiberType") && e.Unsaved.Contains("FiberType")) {
-				Refresh(scan);
+				Refresh(scan, true);
 			}
 			if (e.Changed.Equals("Name") && e.Unsaved.Contains("Name")) {
 				Refresh(scan);
+			}
+			if (e.Unsaved.Count == 0) {
+				Refresh(scan, e.Changed.Equals("FiberType"));
 			}
 		}
 
