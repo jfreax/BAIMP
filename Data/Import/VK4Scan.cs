@@ -94,6 +94,7 @@ namespace Baimp
 
 		private void ReadMeasurementCondition(BinaryReader fileReader)
 		{
+			fileReader.ReadBytes(4 * 10);
 			measurementCondition["year"] = fileReader.ReadInt32();
 			measurementCondition["month"] = fileReader.ReadInt32();
 			measurementCondition["day"] = fileReader.ReadInt32();
@@ -246,7 +247,7 @@ namespace Baimp
 			measurementCondition["activeNumericalAperture"] = fileReader.ReadInt32();
 			measurementCondition["blackLevel"] = fileReader.ReadInt32();
 
-			Metadata.Add(new Metadata("lensMagnification", measurementCondition["lensMagnification"].ToString()));
+			Metadata.Add(new Metadata("lensMagnification", (measurementCondition["lensMagnification"]/10).ToString()));
 
 		}
 
