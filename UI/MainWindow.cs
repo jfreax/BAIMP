@@ -42,6 +42,11 @@ namespace Baimp
 		PipelineController pipelineController;
 
 		/// <summary>
+		/// Cache already instanciated exporter.
+		/// </summary>
+		readonly Dictionary<string, BaseExporter> exporterList = new Dictionary<string, BaseExporter>();
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.MainWindow"/> class.
 		/// </summary>
 		/// <param name="project">Project.</param>
@@ -188,13 +193,23 @@ namespace Baimp
 
 			foreach (Type export in exporter) {
 				MenuItem ni = new MenuItem(string.Format("As {0}...", export.Name));
+				ni.Tag = export.Name;
 				menuExport.SubMenu.Items.Add(ni);
 				var lExport = export;
-				ni.Clicked += delegate {
-					BaseExporter instance = 
-						Activator.CreateInstance(lExport, pipelineController.CurrentPipeline) as BaseExporter;
-					if (instance != null) {
-						instance.ShowDialog();
+				ni.Clicked += delegate(object sender, EventArgs e) {
+					MenuItem s = sender as MenuItem;
+
+					if (s != null) {
+						if (exporterList.ContainsKey(s.Tag.ToString())) {
+							exporterList[s.Tag.ToString()].ShowDialog();
+						} else {
+							BaseExporter instance = 
+								Activator.CreateInstance(lExport, pipelineController.CurrentPipeline) as BaseExporter;
+							if (instance != null) {
+								exporterList[s.Tag.ToString()] = instance;
+								instance.ShowDialog();
+							}
+						}
 					}
 				};
 			}
