@@ -73,7 +73,7 @@ namespace Baimp
 		{
 			TextEntry te = widget as TextEntry;
 			if (te != null) {
-				return te.Text;
+				return Convert.ChangeType(te.Text, Value.GetType());
 			}
 
 			return null;
@@ -88,7 +88,7 @@ namespace Baimp
 			set {
 				IComparable val = value as IComparable;
 				if (val != null) {
-
+				
 					if (MaxValue != null && val.CompareTo(MaxValue) > 0) {
 						this.val = MaxValue;
 					} else if (MinValue != null && val.CompareTo(MinValue) < 0) {
