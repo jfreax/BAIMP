@@ -1,5 +1,5 @@
-//
-//  OptionBool.cs
+﻿//
+//  OptionDropDown.cs
 //
 //  Author:
 //       Jens Dieskau <jens@dieskau.pm>
@@ -18,48 +18,61 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-﻿using System;
+using System;
 using System.Xml.Serialization;
 using Xwt;
 
 namespace Baimp
 {
-	public class OptionBool : BaseOption
+	public class OptionDropDown : BaseOption
 	{
-		[XmlIgnore]
-		public readonly IComparable DefaultValue;
+		IComparable[] values;
 
 		[XmlIgnore]
-		bool val;
+		string val = string.Empty;
 
 		/// <summary>
 		/// For xml serialization only. Do not use!
 		/// </summary>
-		public OptionBool() {}
+		public OptionDropDown() {}
 
-		public OptionBool(string name, bool defaultValue)
+		public OptionDropDown(string name, params string[] values)
 		{
 			this.Name = name;
-			this.DefaultValue = defaultValue;
+			this.values = values;
 
-			this.val = defaultValue;
+			if (string.IsNullOrEmpty(val)) {
+				val = values[0];
+			}
 		}
 
 		public override Widget ToWidget()
 		{
-			CheckBox checkbox = new CheckBox();
-			checkbox.State = val ? CheckBoxState.On : CheckBoxState.Off;
+			ComboBox combo = new ComboBox();
+			foreach (var v in values) {
+				combo.Items.Add(v);
+			}
 
-			return checkbox;
+			if (string.IsNullOrEmpty(val)) {
+				combo.SelectedIndex = 0;
+			} else {
+				try {
+					combo.SelectedItem = val;
+				} catch (Exception e) {
+					Console.WriteLine(e.Message);
+					Console.WriteLine(e.StackTrace);
+				}
+			}
+
+			return combo;
 		}
 
 		public override object ExtractValueFrom(Widget widget)
 		{
-			CheckBox cb = widget as CheckBox;
+			ComboBox cb = widget as ComboBox;
 			if (cb != null) {
-				return cb.State == CheckBoxState.On;
+				return cb.SelectedItem;
 			}
-
 			return null;
 		}
 
@@ -69,7 +82,17 @@ namespace Baimp
 				return val;
 			}
 			set {
-				val = (bool) value;
+				val = (string) value;
+			}
+		}
+
+		[XmlIgnore]
+		public IComparable[] Values {
+			get {
+				return values;
+			}
+			set {
+				values = value;
 			}
 		}
 	}

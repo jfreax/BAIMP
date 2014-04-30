@@ -27,7 +27,7 @@ namespace Baimp
 {
 	public class Haralick : BaseAlgorithm
 	{
-		public Haralick(PipelineNode parent) : base(parent)
+		public Haralick(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("Matrix", typeof(TMatrix)));
 

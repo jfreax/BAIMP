@@ -40,6 +40,8 @@ namespace Baimp
 	public class PipelineView : Canvas
 	{
 		static int globalId = 0;
+
+		readonly Project project;
 		ScrollView scrollview;
 		List<PipelineNode> nodes;
 		Point nodeToMoveOffset = Point.Zero;
@@ -73,8 +75,9 @@ namespace Baimp
 
 		#region initialize
 
-		public PipelineView()
+		public PipelineView(Project project)
 		{
+			this.project = project;
 			PipelineName = "Untitled " + globalId;
 			globalId++;
 		}
@@ -129,14 +132,14 @@ namespace Baimp
 			ShowMiniMap = true;
 		}
 
-		private Menu contextMenuEdge;
-		private Menu contextMenuNode;
-		private MenuItem contextMenuNodeOptions;
+		Menu contextMenuEdge;
+		Menu contextMenuNode;
+		MenuItem contextMenuNodeOptions;
 
 		/// <summary>
 		/// Initializes all context menus.
 		/// </summary>
-		private void InitializeContextMenus()
+		void InitializeContextMenus()
 		{
 			// edge context menu
 			contextMenuEdge = new Menu();
@@ -442,20 +445,14 @@ namespace Baimp
 
 			var r = d.Run(this.ParentWindow);
 
-			if (r.Id == Command.Apply.Id) {
+			if (r != null && r.Id == Command.Apply.Id) {
 				i = 0;
 				foreach (BaseOption option in pNode.algorithm.Options) {
-					try {
-						if (option is OptionBool) {
-							option.Value = ((CheckBox) entries[i]).State == CheckBoxState.On;
-						} else {
-							option.Value = 
-								Convert.ChangeType(((TextEntry) entries[i]).Text, option.Value.GetType());
-						}
-					} catch (FormatException e) {
-						// TODO show error
-						Console.WriteLine(e);
+					object value = option.ExtractValueFrom(entries[i]);
+					if (value != null) {
+						option.Value = value;
 					}
+
 					i++;
 				}
 				pNode.userComment = commentEntry.Text;
@@ -535,7 +532,7 @@ namespace Baimp
 				string algoType = args.Data.GetValue(TransferDataType.Text).ToString();
 
 				PipelineNode node = 
-					new PipelineNode(this, algoType, new Rectangle(position, PipelineNode.AbsMinNodeSize));
+					new PipelineNode(project, this, algoType, new Rectangle(position, PipelineNode.AbsMinNodeSize));
 				node.QueueRedraw += QueueRedraw;
 
 				SetNodePosition(node);

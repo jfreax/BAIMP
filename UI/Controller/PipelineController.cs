@@ -59,7 +59,7 @@ namespace Baimp
 			InitializeControllerbar();
 			splitControllTab_pipelineScroller.PackEnd(pipelineScroller, true, true);
 
-			algorithm = new AlgorithmTreeView();
+			algorithm = new AlgorithmTreeView(project.scanCollection);
 			algorithm.MinWidth = 200; // TODO, save size as user property
 
 			HPaned splitPipeline_Algorithm = new HPaned();
@@ -199,7 +199,7 @@ namespace Baimp
 					if (project.LoadedPipelines != null && project.LoadedPipelines.Count != 0) {
 
 						foreach (PipelineNodeWrapper wrapper in project.LoadedPipelines) {
-							PipelineView newPipeline = new PipelineView();
+							PipelineView newPipeline = new PipelineView(project);
 							newPipeline.Initialize(pipelineScroller, wrapper.pNodes, wrapper.scrollX, wrapper.scrollY);
 							newPipeline.PipelineName = wrapper.name;
 							pipelines.Add(newPipeline.PipelineName, newPipeline);
@@ -220,7 +220,7 @@ namespace Baimp
 							CurrentPipeline = pipelines.Values.ToArray()[0];
 						}
 					} else {
-						CurrentPipeline = new PipelineView();
+						CurrentPipeline = new PipelineView(project);
 						CurrentPipeline.Initialize(pipelineScroller);
 						pipelines.Add(currentPipeline.PipelineName, currentPipeline);
 					}
@@ -251,7 +251,7 @@ namespace Baimp
 			Tuple<Command, string> ret = WorksheetNameDialog();
 			Command r = ret.Item1;
 			if (r != null && r.Id == Command.Ok.Id) {
-				PipelineView newPipeline = new PipelineView();
+				PipelineView newPipeline = new PipelineView(project);
 				newPipeline.Initialize(pipelineScroller);
 				newPipeline.PipelineName = ret.Item2;
 				pipelines.Add(newPipeline.PipelineName, newPipeline);

@@ -69,6 +69,16 @@ namespace Baimp
 			return entryText;
 		}
 
+		public override object ExtractValueFrom(Widget widget)
+		{
+			TextEntry te = widget as TextEntry;
+			if (te != null) {
+				return te.Text;
+			}
+
+			return null;
+		}
+
 		[XmlElement("value")]
 		public override object Value
 		{

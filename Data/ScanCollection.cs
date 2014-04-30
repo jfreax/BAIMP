@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Baimp
 {
@@ -51,6 +52,24 @@ namespace Baimp
 		}
 
 		#endregion
+
+		public new void AddRange(IEnumerable<BaseScan> range)
+		{
+			base.AddRange(range);
+
+			if (filesChanged != null) {
+				filesChanged(this, EventArgs.Empty);
+			}
+		}
+
+		public new void Add(BaseScan scan)
+		{
+			base.Add(scan);
+
+			if (filesChanged != null) {
+				filesChanged(this, EventArgs.Empty);
+			}
+		}
 
 		public void AddFiles(List<string> files, Type importerType, bool reimport = true)
 		{
@@ -90,6 +109,10 @@ namespace Baimp
 					i++;
 				}
 			}
+
+			if (filesChanged != null) {
+				filesChanged(this, EventArgs.Empty);
+			}
 		}
 
 		/// <summary>
@@ -102,7 +125,21 @@ namespace Baimp
 			}
 		}
 
-		#region properties
+		#region custom events
+
+		EventHandler<EventArgs> filesChanged;
+
+		/// <summary>
+		/// Occurs when scan data changed
+		/// </summary>
+		public event EventHandler<EventArgs> FilesChanged {
+			add {
+				filesChanged += value;
+			}
+			remove {
+				filesChanged -= value;
+			}
+		}
 
 		#endregion
 	}

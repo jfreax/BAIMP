@@ -70,7 +70,7 @@ namespace Baimp
 		public CancellationToken cancellationToken;
 
 
-		internal BaseAlgorithm(PipelineNode parent)
+		internal BaseAlgorithm(PipelineNode parent, ScanCollection scanCollection)
 		{
 			this.Parent = parent;
 

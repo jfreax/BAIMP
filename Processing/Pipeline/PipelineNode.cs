@@ -45,6 +45,8 @@ namespace Baimp
 
 		#endregion
 
+		Project project;
+
 		Dictionary<int, int> progress = new Dictionary<int, int>();
 		[XmlIgnore]
 		Dictionary<string, LightImageWidget> icons = new Dictionary<string, LightImageWidget>();
@@ -94,8 +96,9 @@ namespace Baimp
 			Initialize();
 		}
 
-		public PipelineNode(PipelineView parent, string algoType, Rectangle bound)
+		public PipelineNode(Project project, PipelineView parent, string algoType, Rectangle bound)
 		{
+			this.project = project;
 			this.parent = parent;
 			mNodes = new List<MarkerNode>();
 
@@ -134,8 +137,11 @@ namespace Baimp
 		/// <summary>
 		/// Call only, if mNodes are set from outside
 		/// </summary>
-		public void InitializeNodes()
+		public void InitializeNodes(Project project)
 		{
+			this.project = project;
+			AlgorithmType = algorithmType;
+
 			foreach (MarkerNode mNode in mNodes) {
 				mNode.parent = this;
 
@@ -574,14 +580,20 @@ namespace Baimp
 			}
 		}
 
+		string algorithmType;
+
 		[XmlAttribute("type")]
 		public string AlgorithmType {
 			get {
-				return algorithm.GetType().AssemblyQualifiedName;
+				return algorithmType;
 			}
 			set {
-				Type algoType = Type.GetType(value);
-				algorithm = Activator.CreateInstance(algoType, this) as BaseAlgorithm;
+				algorithmType = value;
+
+				if (project != null) {
+					Type algoType = Type.GetType(value);
+					algorithm = Activator.CreateInstance(algoType, this, project.scanCollection) as BaseAlgorithm;
+				}
 				SaveResult = saveResult; // to update data
 			}
 		}

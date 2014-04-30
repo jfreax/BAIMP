@@ -25,7 +25,7 @@ namespace Baimp
 {
 	public class Galloway : BaseAlgorithm
 	{
-		public Galloway(PipelineNode parent) : base(parent)
+		public Galloway(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("GLRL-Matrix", typeof(TMatrix)));
 

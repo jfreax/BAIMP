@@ -18,31 +18,49 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+using System;
+using System.Linq;
 ﻿using System.Collections.Generic;
 
 namespace Baimp
 {
 	public class ProjectFiles : BaseAlgorithm
 	{
-		public ProjectFiles(PipelineNode parent) : base(parent)
+		OptionDropDown fiberComboBox;
+
+		public ProjectFiles(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			output.Add(new Compatible(
-				"Intensity",
+				"Scan",
 				typeof(TScan)
 			));
-			output.Add(new Compatible(
-				"Topography", 
-				typeof(TScan),
-				new MaximumUses(2)
-			));
-			output.Add(new Compatible(
-				"Color",
-				typeof(TScan)
-			));
-
+				
 			options.Add(new OptionBool("Masked only", true));
 
+			fiberComboBox = new OptionDropDown("Fiber type", "Unknown");
+			options.Add(fiberComboBox);
+
 			request.Add(RequestType.ScanCollection);
+
+
+			UpdateFiberTypes(scanCollection);
+			scanCollection.FilesChanged += (s, e) => UpdateFiberTypes(scanCollection);
+		}
+
+		void UpdateFiberTypes(ScanCollection scanCollection)
+		{
+			HashSet<string> hash = new HashSet<string>();
+			foreach (BaseScan scan in scanCollection) {
+				foreach (string scantype in scan.AvailableScanTypes()) {
+					hash.Add(scantype);
+				}
+			}
+
+			if (hash.Count == 0) {
+				hash.Add("Unknown");
+			}
+
+			fiberComboBox.Values = hash.ToArray();
 		}
 
 		#region BaseAlgorithm implementation

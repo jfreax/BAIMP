@@ -28,7 +28,7 @@ namespace Baimp
 {
 	public class Tamura : BaseAlgorithm
 	{
-		public Tamura(PipelineNode parent) : base(parent)
+		public Tamura(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 

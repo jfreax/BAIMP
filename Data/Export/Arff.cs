@@ -199,6 +199,8 @@ namespace Baimp
 			}
 				
 			distinctSourceString = fiberName + distinctSourceString;
+			Console.WriteLine(distinctSourceString);
+
 			fiberName += "_" + sourceString;
 
 			int attributeIndex = attributes.IndexOf(completeFeatureName);

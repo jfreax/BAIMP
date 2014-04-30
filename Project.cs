@@ -149,7 +149,7 @@ namespace Baimp
 						int noNodes = 0;
 						foreach (PipelineNodeWrapper wrapper in LoadedPipelines) {
 							foreach (PipelineNode pNode in wrapper.pNodes) {
-								pNode.InitializeNodes();
+								pNode.InitializeNodes(this);
 
 								foreach (BaseOption option in pNode.InternOptions) {
 									var localOption = option;
@@ -180,7 +180,7 @@ namespace Baimp
 						}
 
 						if (p.scanCollection != null) {
-							this.scanCollection = p.scanCollection;
+							scanCollection.AddRange(p.scanCollection);
 							foreach (BaseScan scan in this.scanCollection) {
 								if (zipFile.FindEntry(scan.Mask.MaskFilename, false) != -1) {
 									scan.HasMask = true;

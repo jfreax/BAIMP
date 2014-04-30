@@ -25,7 +25,7 @@ namespace Baimp
 {
 	public class Windower : BaseAlgorithm
 	{
-		public Windower(PipelineNode parent) : base(parent)
+		public Windower(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible(
 				"Image",

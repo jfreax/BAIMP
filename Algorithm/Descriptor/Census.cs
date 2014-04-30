@@ -25,7 +25,7 @@ namespace Baimp
 {
 	public class Census : BaseAlgorithm
 	{
-		public Census(PipelineNode parent) : base(parent)
+		public Census(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 		}
 

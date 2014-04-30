@@ -26,7 +26,7 @@ namespace Baimp
 {
 	public class Moments : BaseAlgorithm
 	{
-		public Moments(PipelineNode parent) : base(parent)
+		public Moments(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 

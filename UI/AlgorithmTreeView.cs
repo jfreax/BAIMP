@@ -36,7 +36,7 @@ namespace Baimp
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Baimp.AlgorithmTreeView"/> class.
 		/// </summary>
-		public AlgorithmTreeView()
+		public AlgorithmTreeView(ScanCollection scanCollection)
 		{
 			nameCol = new DataField<object>();
 			store = new TreeStore(nameCol);
@@ -49,7 +49,8 @@ namespace Baimp
 			algorithmCollection = new Dictionary<string, List<BaseAlgorithm>>();
 			foreach (Type algorithm in algorithms) {
 
-				BaseAlgorithm instance = Activator.CreateInstance(algorithm, (PipelineNode) null) as BaseAlgorithm;
+				BaseAlgorithm instance = 
+					Activator.CreateInstance(algorithm, (PipelineNode) null, scanCollection) as BaseAlgorithm;
 				string algorithmType = instance.AlgorithmType.ToString();
 
 				if (!algorithmCollection.ContainsKey(algorithmType)) {

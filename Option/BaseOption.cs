@@ -36,6 +36,7 @@ namespace Baimp
 		}
 
 		public abstract Widget ToWidget();
+		public abstract object ExtractValueFrom(Widget widget);
 			
 		public abstract object Value {
 			get;

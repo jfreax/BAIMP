@@ -27,7 +27,7 @@ namespace Baimp
 {
 	public class GLRLM : BaseAlgorithm
 	{
-		public GLRLM(PipelineNode parent) : base(parent)
+		public GLRLM(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 

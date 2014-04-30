@@ -28,7 +28,7 @@ namespace Baimp
 {
 	public class GLCM : BaseAlgorithm
 	{
-		public GLCM(PipelineNode parent) : base(parent)
+		public GLCM(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 

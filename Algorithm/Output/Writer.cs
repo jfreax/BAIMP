@@ -25,7 +25,7 @@ namespace Baimp
 {
 	public class Writer : BaseAlgorithm
 	{
-		public Writer(PipelineNode parent) : base(parent)
+		public Writer(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
 			input.Add(new Compatible("in", typeof(IType)));
 		}

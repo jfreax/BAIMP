@@ -49,7 +49,6 @@
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Commandlineparameters> -p /mnt/data/Acryl/</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugNoArgs|x86' ">
     <Optimize>false</Optimize>
@@ -152,7 +151,6 @@
     <Compile Include="DataType\TFeature.cs" />
     <Compile Include="DataType\TFeatureList.cs" />
     <Compile Include="Algorithm\Descriptor\GLRLM.cs" />
-    <Compile Include="Option\OptionList.cs" />
     <Compile Include="Algorithm\Extraction\Galloway.cs" />
     <Compile Include="Algorithm\Extraction\Tamura.cs" />
     <Compile Include="Algorithm\Extraction\Moments.cs" />
@@ -181,6 +179,7 @@
     <Compile Include="Event\LogEventArgs.cs" />
     <Compile Include="UI\LogViewer.cs" />
     <Compile Include="Data\Export\BaseExporter.cs" />
+    <Compile Include="Option\OptionDropDown.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
