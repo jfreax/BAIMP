@@ -26,7 +26,7 @@ namespace Baimp
 {
 	public class ProjectFiles : BaseAlgorithm
 	{
-		OptionDropDown fiberComboBox;
+		OptionDropDown scanTypeComboBox;
 
 		public ProjectFiles(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
@@ -37,8 +37,8 @@ namespace Baimp
 				
 			options.Add(new OptionBool("Masked only", true));
 
-			fiberComboBox = new OptionDropDown("Fiber type", "Unknown");
-			options.Add(fiberComboBox);
+			scanTypeComboBox = new OptionDropDown("Scan type", "Unknown");
+			options.Add(scanTypeComboBox);
 
 			request.Add(RequestType.ScanCollection);
 
@@ -60,7 +60,7 @@ namespace Baimp
 				hash.Add("Unknown");
 			}
 
-			fiberComboBox.Values = hash.ToArray();
+			scanTypeComboBox.Values = hash.ToArray();
 		}
 
 		#region BaseAlgorithm implementation
@@ -78,14 +78,13 @@ namespace Baimp
 					break;
 				}
 
-				IType[] data = new IType[3];
+				IType[] data = new IType[1];
 				if ((maskedOnly && scan.HasMask) || !maskedOnly) {
-					// TODO test available scan types
-					data[0] = new TScan(scan, "Intensity", maskedOnly: maskedOnly).Preload();
-					data[1] = new TScan(scan, "Topography", maskedOnly: maskedOnly).Preload();
-					data[2] = new TScan(scan, "Color", maskedOnly: maskedOnly).Preload();
+					if (scan.AvailableScanTypes().Contains(scanTypeComboBox.Value)) {
+						data[0] = new TScan(scan, scanTypeComboBox.Value.ToString(), maskedOnly: maskedOnly).Preload();
 
-					Yield(data, scan);
+						Yield(data, scan);
+					}
 				}
 
 				i++;
@@ -110,7 +109,7 @@ namespace Baimp
 
 		public override string Headline()
 		{
-			return ToString();
+			return string.Format("Scans - {0}", scanTypeComboBox.Value);
 		}
 
 		public override string ShortName()

@@ -43,32 +43,26 @@ namespace Baimp
 	abstract public class BaseAlgorithm
 	{
 		public readonly PipelineNode Parent;
-
 		/// <summary>
 		/// Input data types, their properties and contraints.
 		/// </summary>
 		protected List<Compatible> input;
-
 		/// <summary>
 		/// Output data types, their properties and contraints.
 		/// </summary>
 		protected List<Compatible> output;
-
 		/// <summary>
 		/// List of data we want from the program
 		/// </summary>
 		protected HashSet<RequestType> request;
-
 		/// <summary>
 		/// List of all options
 		/// </summary>
 		public List<BaseOption> options;
-
 		/// <summary>
 		/// The cancellation token.
 		/// </summary>
 		public CancellationToken cancellationToken;
-
 
 		internal BaseAlgorithm(PipelineNode parent, ScanCollection scanCollection)
 		{
@@ -100,7 +94,7 @@ namespace Baimp
 		/// Gets the help text.
 		/// </summary>
 		/// <value>The help text.</value>
-		abstract public string HelpText{
+		abstract public string HelpText {
 			get;
 		}
 
@@ -136,11 +130,12 @@ namespace Baimp
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			if (yielded[threadID] != null) {
 				var lYield = yielded[threadID];
-					try {
-						lYield(this, new AlgorithmEventArgs(data, inputRef));
-					} catch (Exception e) {
-						Console.WriteLine(e.StackTrace);
-					}
+				try {
+					lYield(this, new AlgorithmEventArgs(data, inputRef));
+				} catch (Exception e) {
+					Console.WriteLine(e.Message);
+					Console.WriteLine(e.StackTrace);
+				}
 			}
 		}
 
@@ -151,7 +146,7 @@ namespace Baimp
 		public void SetProgress(int percent)
 		{
 			int threadID = Thread.CurrentThread.ManagedThreadId;
-			Application.Invoke( () => Parent.SetProgress(threadID, percent));
+			Application.Invoke(() => Parent.SetProgress(threadID, percent));
 		}
 
 		public bool IsCanceled {
@@ -170,7 +165,6 @@ namespace Baimp
 
 		Dictionary<int, EventHandler<AlgorithmEventArgs>> yielded = 
 			new Dictionary<int, EventHandler<AlgorithmEventArgs>>();
-
 		private object yield_lock = new object();
 
 		/// <summary>
@@ -178,7 +172,7 @@ namespace Baimp
 		/// </summary>
 		public event EventHandler<AlgorithmEventArgs> Yielded {
 			add {
-				lock(yield_lock) {
+				lock (yield_lock) {
 					int threadID = Thread.CurrentThread.ManagedThreadId;
 					if (!yielded.ContainsKey(threadID)) {
 						yielded[threadID] = null;
@@ -192,7 +186,7 @@ namespace Baimp
 				}
 			}
 		}
-			
+
 		#endregion
 
 		#region properties
