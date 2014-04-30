@@ -21,6 +21,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Baimp
 {
@@ -73,9 +74,26 @@ namespace Baimp
 			return output;
 		}
 
+		/// <summary>
+		/// Number of log entries with this log level or higher.
+		/// </summary>
+		/// <param name="logLevel">Log level.</param>
 		public static int Count(LogLevel logLevel)
 		{
 			return LogMessages.Count(m => (int) m.LogLevel >= (int) logLevel);
+		}
+
+		public static string ToText()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			foreach (LogMessage message in LogMessages) {
+				sb.AppendFormat("{0} [{1}] {2}: {3}\n", 
+					message.LogLevel.ToString().ToUpper(), message.Timestamp, message.Source, message.Message
+				);
+			}
+
+			return sb.ToString();
 		}
 
 		#region Events
@@ -96,6 +114,11 @@ namespace Baimp
 
 		#endregion
 
+		/// <summary>
+		/// Get log level color as string
+		/// </summary>
+		/// <returns>The color as string.</returns>
+		/// <param name="level">Log level.</param>
 		public static string LevelToColorString(LogLevel level)
 		{
 			switch (level) {
@@ -115,6 +138,9 @@ namespace Baimp
 		}
 	}
 
+	/// <summary>
+	/// Represents one log entry.
+	/// </summary>
 	public struct LogMessage
 	{
 		public readonly LogLevel LogLevel;

@@ -54,9 +54,9 @@ namespace Baimp
 
 			Command r = dialog.Run();
 			if (r != null && r.Id == Command.Save.Id) {
-				Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Start exporting results.");
+				Log.Add(LogLevel.INFO, "Exporter " + this.GetType().Name, "Start exporting results.");
 				Run();
-				Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Finish exporting results.");
+				Log.Add(LogLevel.INFO, "Exporter " + this.GetType().Name, "Finish exporting results.");
 			}
 				
 			dialog.Hide();

@@ -217,14 +217,26 @@ namespace Baimp
 			// Extras menu
 			MenuItem extrasMenu = new MenuItem("E_xtras");
 			extrasMenu.SubMenu = new Menu();
-			MenuItem menuResetAllMasks = new MenuItem("Reset all masks");
+			MenuItem menuResetAllMasks = new MenuItem("_Reset all masks");
 			menuResetAllMasks.Clicked += delegate {
 				foreach (BaseScan scan in project.scanCollection) {
 					scan.Mask.ResetMask();
 				}
 			};
+			MenuItem menuExportLog = new MenuItem("Export _logs");
+			menuExportLog.Clicked += delegate {
+				SaveFileDialog d = new SaveFileDialog("Export logs");
+				if (d.Run()) {
+					string filename = d.FileName;
+					if (!string.IsNullOrEmpty(filename)) {
+						System.IO.File.WriteAllText(filename, Log.ToText());
+					}
+				}
+				d.Dispose();
+			};
 
 			extrasMenu.SubMenu.Items.Add(menuResetAllMasks);
+			extrasMenu.SubMenu.Items.Add(menuExportLog);
 
 			// main menu
 			Menu menu = new Menu();
