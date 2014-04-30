@@ -53,13 +53,22 @@ namespace Baimp
 		}
 
 		/// <summary>
-		/// Get all logs with a given log level or higher.
+		/// Get last logs with a given log level or higher.
 		/// </summary>
 		/// <param name="logLevel">Log level.</param>
-		public static List<LogMessage> Get(LogLevel logLevel)
+		/// <param name="count">Number of logs to retrieve; -1 mean all.</param>
+		public static List<LogMessage> Get(LogLevel logLevel, int count = -1)
 		{
 			List<LogMessage> output = new List<LogMessage>();
-			output.AddRange(LogMessages.Where(m => (int) m.LogLevel >= (int) logLevel));
+			if (count > 0) {
+				output.AddRange(
+					LogMessages.Where(m => (int) m.LogLevel >= (int) logLevel).Take(count)
+				);
+			} else {
+				output.AddRange(
+					LogMessages.Where(m => (int) m.LogLevel >= (int) logLevel)
+				);
+			}
 
 			return output;
 		}
@@ -111,7 +120,6 @@ namespace Baimp
 		public readonly LogLevel LogLevel;
 		public readonly string Source;
 		public readonly string Message;
-
 		public readonly DateTime Timestamp;
 
 		public LogMessage(LogLevel logLevel, string source, string message)

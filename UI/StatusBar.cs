@@ -29,8 +29,8 @@ namespace Baimp
 	public class StatusBar : HBox
 	{
 		readonly Timer timer;
+		readonly Label logEntry = new Label();
 		Label threadLabel = new Label();
-		Label logEntry = new Label();
 
 		FrameBox logFrame = new FrameBox();
 		ScrollView logScroller = new ScrollView();
@@ -66,7 +66,7 @@ namespace Baimp
 			};
 
 			// add last missing log (if any)
-			LogMessage last = Log.Get(LogLevel.Debug).LastOrDefault();
+			LogMessage last = Log.Get(LogLevel.Debug, 1).LastOrDefault();
 			if (!string.IsNullOrEmpty(last.Message)) {
 				ShowLogEntry(null, new LogEventArgs(last));
 			}
@@ -149,9 +149,11 @@ namespace Baimp
 			set {
 				currentLogLevel = value;
 
-				List<LogMessage> logs = Log.Get(currentLogLevel);
-				if (logs != null) {
+				List<LogMessage> logs = Log.Get(currentLogLevel, 1);
+				if (logs != null && logs.Count > 0) {
 					ShowLogEntry(this, new LogEventArgs(logs.Last()));
+				} else {
+					logEntry.Text = logEntry.Markup = "";
 				}
 			}
 		}
