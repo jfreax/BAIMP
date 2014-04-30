@@ -62,6 +62,7 @@ namespace Baimp
 			this.multipleUsage = multipleUsage;
 		}
 
+		static object bitmap_lock = new object();
 		/// <summary>
 		/// Get plain scan data
 		/// </summary>
@@ -75,30 +76,31 @@ namespace Baimp
 					rawData = scan.GetAsArray(scanType);
 
 					if (maskedOnly) {
-						Bitmap mask = scan.Mask.GetMaskAsBitmap();
+						lock (bitmap_lock) {
+							Bitmap mask = scan.Mask.GetMaskAsBitmap();
 
-						double ratioX = mask.Width / Size.Width;
-						double ratioY = mask.Height / Size.Height;
+							double ratioX = mask.Width / Size.Width;
+							double ratioY = mask.Height / Size.Height;
 
 
-						unsafe {
-							BitmapData bmpData = mask.LockBits(
-								                     new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
-								                     ImageLockMode.ReadOnly, mask.PixelFormat);
+							unsafe {
+								BitmapData bmpData = mask.LockBits(
+									                    new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
+									                    ImageLockMode.ReadOnly, mask.PixelFormat);
 
-							byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
+								byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 
-							for (int y = 0; y < Size.Height; y++) {
-								for (int x = 0; x < Size.Width; x++) {
-									if (scan0[(int) ((y * ratioY) * bmpData.Stride + (x * ratioX * 4))] == 0) {
-										rawData[(int) (y * Size.Width) + x] = 0.0f;
+								for (int y = 0; y < Size.Height; y++) {
+									for (int x = 0; x < Size.Width; x++) {
+										if (scan0[(int) ((y * ratioY) * bmpData.Stride + (x * ratioX * 4))] == 0) {
+											rawData[(int) (y * Size.Width) + x] = 0.0f;
+										}
 									}
 								}
-							}
 
-							mask.UnlockBits(bmpData);
+								mask.UnlockBits(bmpData);
+							}
 						}
-					
 					}
 				}
 

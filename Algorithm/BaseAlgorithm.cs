@@ -165,7 +165,7 @@ namespace Baimp
 
 		Dictionary<int, EventHandler<AlgorithmEventArgs>> yielded = 
 			new Dictionary<int, EventHandler<AlgorithmEventArgs>>();
-		private object yield_lock = new object();
+		object yield_lock = new object();
 
 		/// <summary>
 		/// Yield sequential data
