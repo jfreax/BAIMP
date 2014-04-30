@@ -35,31 +35,31 @@ namespace Baimp
 		FrameBox logFrame = new FrameBox();
 		ScrollView logScroller = new ScrollView();
 		HBox logBox;
+		VBox endBox;
+
+		LogViewer logViewer;
+		LogLevelChooser logLevelChooser;
 
 		LogLevel currentLogLevel = LogLevel.Debug;
 
 		int maxThreads;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Baimp.StatusBar"/> class.
+		/// </summary>
 		public StatusBar()
 		{
 			CanGetFocus = true;
+			AutoCollapse = true;
 			InitializeUI();
 
-			timer = new Timer(o => UpdateThreadLabel(), null, 1000, 1000);
+			timer = new Timer(o => UpdateThreadLabel(), null, 0, 1000);
 			Log.LogAdded += ShowLogEntry;
 
 			// Show log window on double click
-			logScroller.Content = new LogViewer(LogLevel.Debug);;
-			logEntry.ButtonPressed += delegate(object sender, ButtonEventArgs e) {
-				if (e.MultiplePress >= 2) {
-					if (Log.Count(LogLevel.Debug) > 0) {
-						this.SetFocus();
-						logFrame.Content = logScroller;
-
-						MinHeight = LogViewHeight();
-					}
-				}
-			};
+			logViewer = new LogViewer(currentLogLevel);
+			logScroller.Content = logViewer;
+			logEntry.ButtonPressed += OnLogEntryClicked;
 
 			logScroller.Content.BoundsChanged += delegate {
 				this.MinHeight = LogViewHeight();
@@ -72,20 +72,32 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// Initializes the widgets.
+		/// </summary>
 		void InitializeUI()
 		{
+			endBox = new VBox();
+			endBox.PackEnd(threadLabel);
+
 			logBox = new HBox();
-			LogLevelChooser logLevelChooser = new LogLevelChooser(currentLogLevel);
+			logLevelChooser = new LogLevelChooser(currentLogLevel);
 			logLevelChooser.MarginRight = 10;
 			logLevelChooser.LogLevelChanged += delegate {
 				CurrentLogLevel = logLevelChooser.SelectedLogLevel;
+			};
+			logLevelChooser.MenuShow += delegate {
+				AutoCollapse = false;
+			};
+			logLevelChooser.MenuHide += delegate {
+				AutoCollapse = true;
 			};
 
 			logBox.PackStart(logEntry, true);
 			logBox.PackEnd(logLevelChooser);
 			logFrame.Content = logBox;
 			PackStart(logFrame, true, true);
-			PackEnd(threadLabel, vpos: WidgetPlacement.End);
+			PackEnd(endBox);
 
 			int completionPortThreads;
 			ThreadPool.GetMaxThreads(out maxThreads, out completionPortThreads);
@@ -121,27 +133,61 @@ namespace Baimp
 			}
 		}
 
+		/// <summary>
+		/// When user clicked on the single log entry view.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event arguments.</param>
+		void OnLogEntryClicked(object sender, ButtonEventArgs e)
+		{
+			if (e.MultiplePress >= 2) {
+				if (Log.Count(CurrentLogLevel) > 0) {
+					logBox.Remove(logLevelChooser);
+					endBox.PackStart(logLevelChooser);
+
+					this.SetFocus();
+					logFrame.Content = logScroller;
+
+					MinHeight = LogViewHeight();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Collapse log viewer when we lost focus to it.
+		/// </summary>
+		/// <param name="args">Arguments.</param>
+		protected override void OnLostFocus(EventArgs args)
+		{
+			base.OnLostFocus(args);
+
+			if (AutoCollapse) {
+				ScrollView scroller = logFrame.Content as ScrollView;
+				if (scroller != null) {
+					endBox.Remove(logLevelChooser);
+					logBox.PackEnd(logLevelChooser);
+
+					logFrame.Content = logBox;
+					MinHeight = -1;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Height of log viewer when exanded.
+		/// </summary>
+		/// <returns>The view height.</returns>
 		double LogViewHeight()
 		{
 			return Math.Min(logScroller.Content.Size.Height, ParentWindow.Height * 0.3);
 		}
 
-		protected override void OnLostFocus(EventArgs args)
-		{
-			base.OnLostFocus(args);
-			ScrollView scroller = logFrame.Content as ScrollView;
-			if (scroller != null) {
-				logFrame.Content = logBox;
-				MinHeight = -1;
-			}
-		}
+		#region Properties
 
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			timer.Dispose();
-		}
-
+		/// <summary>
+		/// Gets or sets the current log level.
+		/// </summary>
+		/// <value>The current log level.</value>
 		public LogLevel CurrentLogLevel {
 			get {
 				return currentLogLevel;
@@ -155,7 +201,29 @@ namespace Baimp
 				} else {
 					logEntry.Text = logEntry.Markup = "";
 				}
+
+				logViewer.CurrentLogLevel = CurrentLogLevel;
 			}
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="Baimp.StatusBar"/> collapse
+		/// automatically on focus lost.
+		/// </summary>
+		/// <value><c>true</c> if auto collapse; otherwise, <c>false</c>.</value>
+		public bool AutoCollapse {
+			get;
+			set;
+		}
+
+		#endregion
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			timer.Dispose();
+
+			Log.LogAdded -= ShowLogEntry;
 		}
 	}
 }

@@ -73,6 +73,10 @@ namespace Baimp
 			// hide window on lost fokus
 			buttons.CanGetFocus = true;
 			buttons.LostFocus += delegate {
+				if (menuHide != null) {
+					menuHide(this, EventArgs.Empty);
+				}
+
 				popupWindow.Hide();
 			};
 			buttons.ButtonPressed += delegate {
@@ -139,6 +143,9 @@ namespace Baimp
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
+			if (menuShow != null) {
+				menuShow(this, EventArgs.Empty);
+			}
 			popupWindow.Location = ScreenBounds.Location.Offset(0, -windowHeight);
 			popupWindow.Show();
 			buttons.SetFocus();
@@ -173,6 +180,34 @@ namespace Baimp
 			}
 			remove {
 				logLevelChanged -= value;
+			}
+		}
+
+		EventHandler<EventArgs> menuShow;
+
+		/// <summary>
+		/// Occurs when the menu gets shown.
+		/// </summary>
+		public event EventHandler<EventArgs> MenuShow {
+			add {
+				menuShow += value;
+			}
+			remove {
+				menuShow -= value;
+			}
+		}
+
+		EventHandler<EventArgs> menuHide;
+
+		/// <summary>
+		/// Occurs when the menu gets hidden.
+		/// </summary>
+		public event EventHandler<EventArgs> MenuHide {
+			add {
+				menuHide += value;
+			}
+			remove {
+				menuHide -= value;
 			}
 		}
 
