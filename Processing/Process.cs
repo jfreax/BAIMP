@@ -32,7 +32,6 @@ namespace Baimp
 		Dictionary<int, TaskScheduler> priorizedScheduler = new Dictionary<int, TaskScheduler>();
 		Project project;
 		CancellationToken cancellationToken;
-		HashSet<PipelineNode> scanCollectionRequestedNodes = new HashSet<PipelineNode>();
 
 		public delegate void OnTaskCompleteDelegate(PipelineNode startNode,IType[] result,Result[] inputRef);
 
@@ -69,22 +68,11 @@ namespace Baimp
 			foreach (RequestType request in startNode.algorithm.Request) {
 				switch (request) {
 				case RequestType.ScanCollection:
-					if (scanCollectionRequestedNodes.Contains(startNode)) {
-						requestedData.Add(
-							RequestType.ScanCollection, 
-							new ScanCollection(
-								project.scanCollection.GetRange(0, project.scanCollection.Count / 2))
-						);
-					} else {
-						scanCollectionRequestedNodes.Add(startNode);
-						int half = project.scanCollection.Count / 2;
-						requestedData.Add(
-							RequestType.ScanCollection, 
-							new ScanCollection(
-								project.scanCollection.GetRange(half, project.scanCollection.Count - half - 1))
-						);
-						Start(startNode, inputResult, priority);
-					}
+					requestedData.Add(
+						RequestType.ScanCollection, 
+						new ScanCollection(project.scanCollection)
+					);
+
 					break;
 				}
 			}
@@ -131,20 +119,20 @@ namespace Baimp
 			}, cancellationToken, TaskCreationOptions.AttachedToParent)
 				.ContinueWith(fromTask => {
 
-					foreach (Result res in inputResult) {
-						res.Finish(startNode);
-					}
+				foreach (Result res in inputResult) {
+					res.Finish(startNode);
+				}
 
-					IType[] taskOutput = fromTask.Result;
-					if (taskOutput != null) { // null means, there is no more data
-						Result[] thisInput = new Result[taskOutput.Length];
-						int i = 0;
-						foreach (IType to in taskOutput) {
-							thisInput[i] = new Result(startNode, to, inputResult, startNode.SaveResult);
-							i++;
-						}
-						OnFinish(startNode, priority, taskOutput, thisInput);
+				IType[] taskOutput = fromTask.Result;
+				if (taskOutput != null) { // null means, there is no more data
+					Result[] thisInput = new Result[taskOutput.Length];
+					int i = 0;
+					foreach (IType to in taskOutput) {
+						thisInput[i] = new Result(startNode, to, inputResult, startNode.SaveResult);
+						i++;
 					}
+					OnFinish(startNode, priority, taskOutput, thisInput);
+				}
 			});
 
 		}
