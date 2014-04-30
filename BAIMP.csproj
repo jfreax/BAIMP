@@ -180,6 +180,7 @@
     <Compile Include="UI\LogViewer.cs" />
     <Compile Include="Data\Export\BaseExporter.cs" />
     <Compile Include="Option\OptionDropDown.cs" />
+    <Compile Include="UI\LogLevelChooser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

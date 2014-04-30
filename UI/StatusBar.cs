@@ -22,6 +22,7 @@
 using System.Linq;
 using Xwt;
 using System.Threading;
+using Xwt.Drawing;
 
 namespace Baimp
 {
@@ -33,6 +34,8 @@ namespace Baimp
 
 		FrameBox logFrame = new FrameBox();
 		ScrollView logScroller = new ScrollView();
+
+		LogLevel logLevel = LogLevel.Debug;
 
 		int maxThreads;
 
@@ -70,7 +73,13 @@ namespace Baimp
 
 		void InitializeUI()
 		{
-			logFrame.Content = logEntry;
+			HBox logBox = new HBox();
+			LogLevelChooser logLevelChooser = new LogLevelChooser(logLevel);
+			logLevelChooser.MarginRight = 10;
+
+			logBox.PackStart(logEntry, true);
+			logBox.PackEnd(logLevelChooser);
+			logFrame.Content = logBox;
 			PackStart(logFrame, true, true);
 			PackEnd(threadLabel, vpos: WidgetPlacement.End);
 
