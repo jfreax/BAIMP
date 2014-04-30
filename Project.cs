@@ -204,12 +204,16 @@ namespace Baimp
 				}));
 
 				if (!ret) {
-					Log.Add(LogLevel.Error, this.GetType().Name, "Open file failed!");
+					Log.Add(LogLevel.Error, this.GetType().Name, 
+						string.Format(
+							"Opening file \"{0}\" failed!" + (string.IsNullOrEmpty(ErrorMessage) ? "": "\n{1}")
+							, ProjectFile, ErrorMessage));
 					return false;
 				}
 			} else {
 				ErrorMessage = "File not found";
-				Log.Add(LogLevel.Error, this.GetType().Name, "Open failed. File not found.");
+				Log.Add(LogLevel.Error, this.GetType().Name, 
+								string.Format("Opening failed. File \"{0}\" not found.", ProjectFile));
 				return false;
 			}
 
