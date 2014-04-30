@@ -22,7 +22,6 @@
 using System.Linq;
 using Xwt;
 using System.Threading;
-using Xwt.Drawing;
 using System.Collections.Generic;
 
 namespace Baimp
@@ -35,6 +34,7 @@ namespace Baimp
 
 		FrameBox logFrame = new FrameBox();
 		ScrollView logScroller = new ScrollView();
+		HBox logBox;
 
 		LogLevel currentLogLevel = LogLevel.Debug;
 
@@ -74,7 +74,7 @@ namespace Baimp
 
 		void InitializeUI()
 		{
-			HBox logBox = new HBox();
+			logBox = new HBox();
 			LogLevelChooser logLevelChooser = new LogLevelChooser(currentLogLevel);
 			logLevelChooser.MarginRight = 10;
 			logLevelChooser.LogLevelChanged += delegate {
@@ -131,7 +131,7 @@ namespace Baimp
 			base.OnLostFocus(args);
 			ScrollView scroller = logFrame.Content as ScrollView;
 			if (scroller != null) {
-				logFrame.Content = logEntry;
+				logFrame.Content = logBox;
 				MinHeight = -1;
 			}
 		}
