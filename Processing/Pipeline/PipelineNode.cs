@@ -192,8 +192,8 @@ namespace Baimp
 		{		
 			DrawBackground(ctx);
 			DrawProgress(ctx);
-			DrawHeader(ctx);
-			bool ret = DrawBody(ctx);
+			double headlineWidth = DrawHeader(ctx);
+			bool ret = DrawBody(ctx, headlineWidth);
 
 			return ret;
 		}
@@ -262,7 +262,7 @@ namespace Baimp
 			}
 		}
 
-		void DrawHeader(Context ctx)
+		double DrawHeader(Context ctx)
 		{
 			TextLayout text = new TextLayout();
 			Point textOffset = new Point(8, 4);
@@ -288,8 +288,10 @@ namespace Baimp
 			ctx.DrawTextLayout(text, textPosition);
 
 			// icons
+			double iconWidth = 0.0;
 			foreach (var icon in icons) {
 				if (icon.Value.Visible) {
+					iconWidth = icon.Value.Bounds.Width;
 					icon.Value.Bounds = 
 						new Rectangle(bound.Width - icon.Value.Bounds.Width - 10, 3, icon.Value.Bounds.Width, icon.Value.Bounds.Height);
 					ctx.DrawImage(
@@ -299,10 +301,13 @@ namespace Baimp
 				}
 			}
 
+			double width = text.GetSize().Width + iconWidth + 10 + NodeTextMargin;
 			text.Dispose();
+
+			return width;
 		}
 
-		bool DrawBody(Context ctx)
+		bool DrawBody(Context ctx, double headlineWidth)
 		{
 			bool ret = false;
 			TextLayout text = new TextLayout();
@@ -337,8 +342,9 @@ namespace Baimp
 			}
 
 			// resize width 
-			if (inputMaxWidth + outputMaxWidth + NodeTextMargin > bound.Width) {
-				bound.Width = inputMaxWidth + outputMaxWidth + NodeTextMargin;
+			double maxWidth = Math.Max(headlineWidth, inputMaxWidth + outputMaxWidth + NodeTextMargin);
+			if (maxWidth > bound.Width) {
+				bound.Width = maxWidth;
 				ret = true;
 			}
 
