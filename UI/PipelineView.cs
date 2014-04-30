@@ -387,8 +387,17 @@ namespace Baimp
 					pNode.ClearInputQueue();
 
 					if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
-						Result[] zeroInput = new Result[0];
-						process.Start(pNode, zeroInput, int.MaxValue);
+						bool isConnected = false;
+						foreach (MarkerNode mNode in pNode.MNodes) {
+							if (mNode.Edges.Count > 0) {
+								isConnected = true;
+							}
+						}
+
+						if (isConnected) {
+							Result[] zeroInput = new Result[0];
+							process.Start(pNode, zeroInput, int.MaxValue);
+						}
 					}
 				}
 			}).ContinueWith(fromTask => {
