@@ -25,11 +25,11 @@ using System.Collections.Generic;
 namespace Baimp
 {
 	public enum LogLevel {
-		Debug = 1,
-		Error = 2,
-		Verbose = 3,
-		Warning = 4,
-		Info = 5
+		Debug = 0,
+		Error = 1,
+		Verbose = 2,
+		Warning = 3,
+		Info = 4
 	}
 
 	public static class Log

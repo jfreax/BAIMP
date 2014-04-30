@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 
@@ -26,43 +27,124 @@ namespace Baimp
 {
 	public class LogLevelChooser : Canvas
 	{
-		readonly TextLayout text = new TextLayout();
 		LogLevel selectedLogLevel;
-		Color color;
+		Image[] renderedImage;
+
+		VBox buttons = new VBox();
+		Window popupWindow = new Window();
+
+		double windowHeight;
 
 		public LogLevelChooser(LogLevel selectedLogLevel)
 		{
 			SelectedLogLevel = selectedLogLevel;
+
+			// prerender
+			string[] logNames = Enum.GetNames(typeof(LogLevel));
+			int length = logNames.Length;
+			renderedImage = new Image[length];
+
+			using (TextLayout text = new TextLayout()) {
+				for (int i = 0; i < length; i++) {
+					text.Text = logNames[i];
+					Size size = text.GetSize();
+					using (ImageBuilder ib = new ImageBuilder(size.Width + size.Height*2 + 3, size.Height)) {
+						Color color = Color.FromName(Log.LevelToColorString((LogLevel) i));
+
+						Draw(ib.Context, (LogLevel) i, color);
+						renderedImage[i] = ib.ToBitmap();
+
+						Button button = new Button { Image = renderedImage[i], ImagePosition = ContentPosition.Left };
+						button.HorizontalPlacement = WidgetPlacement.Start;
+						button.Margin = 0;
+						button.ExpandHorizontal = true;
+						button.Style = ButtonStyle.Flat;
+						buttons.PackStart(button, true, true);
+
+						button.CanGetFocus = false;
+						button.Tag = i;
+						button.Clicked += OnLogChange;
+
+						windowHeight += size.Height * 2;
+					}
+				}
+			}
+
+			// hide window on lost fokus
+			buttons.CanGetFocus = true;
+			buttons.LostFocus += delegate {
+				popupWindow.Hide();
+			};
+			buttons.ButtonPressed += delegate {
+				// do nothing
+				// workaround to propagate event to each button
+			};
+
+			buttons.Spacing = 0;
+
+			popupWindow.Padding = 0;
+			popupWindow.ShowInTaskbar = false;
+			popupWindow.Decorated = false;
+			popupWindow.Content = buttons;
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 		{
 			base.OnDraw(ctx, dirtyRect);
 
-			double height = text.GetSize().Height;
-			ctx.RoundRectangle(0, 1, height - 2, height - 2, 3);
+			ctx.DrawImage(renderedImage[(int) SelectedLogLevel], Point.Zero);
+		}
 
-			ctx.SetColor(color);
-			ctx.Fill();
+		static void Draw(Context ctx, LogLevel level, Color color)
+		{
+			using (TextLayout text = new TextLayout()) {
+				text.Text = level.ToString();
 
-			// inner shadow
-			ctx.RoundRectangle(0, 1, height - 2, height - 2, 3);
-			LinearGradient g = new LinearGradient(1, 2, height - 2, height - 2);
-			g.AddColorStop(0, Colors.Black.BlendWith(color, 0.7));
-			g.AddColorStop(1, color);
-			ctx.Pattern = g;
-			ctx.Fill();
+				double height = text.GetSize().Height;
 
-			ctx.SetColor(Colors.Black);
-			ctx.DrawTextLayout(text, new Point(height + 3, 0));
+				ctx.SetColor(color);
+				ctx.RoundRectangle(0, 1, height - 2, height - 2, 3);
+				ctx.Fill();
+
+				// inner shadow
+				ctx.RoundRectangle(0, 1, height - 2, height - 2, 3);
+				LinearGradient g = new LinearGradient(1, 2, height - 2, height - 2);
+				g.AddColorStop(0, Colors.Black.BlendWith(color, 0.7));
+				g.AddColorStop(1, color);
+				ctx.Pattern = g;
+				ctx.Fill();
+
+				ctx.SetColor(Colors.Black);
+				ctx.DrawTextLayout(text, new Point(height + 3, 0));
+			}
+		}
+
+		void OnLogChange(object sender, EventArgs e)
+		{
+			Button b = sender as Button;
+			if (b != null) {
+				SelectedLogLevel = (LogLevel) b.Tag;
+
+				if (logLevelChanged != null) {
+					logLevelChanged(sender, EventArgs.Empty);
+				}
+				popupWindow.Hide();
+			}
 		}
 
 		protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
 		{
-			Size size = text.GetSize();
-			size.Width += size.Height + 3;
-			return size;
+			return renderedImage[(int) SelectedLogLevel].Size;
 		}
+
+		protected override void OnButtonPressed(ButtonEventArgs args)
+		{
+			popupWindow.Location = ScreenBounds.Location.Offset(0, -windowHeight);
+			popupWindow.Show();
+			buttons.SetFocus();
+		}
+
+		#region Properties
 
 		public LogLevel SelectedLogLevel {
 			get {
@@ -70,13 +152,31 @@ namespace Baimp
 			}
 			set {
 				selectedLogLevel = value;
-				text.Text = selectedLogLevel.ToString();
-				color = Color.FromName(Log.LevelToColorString(SelectedLogLevel));
 
 				QueueForReallocate();
 				QueueDraw();
 			}
 		}
+
+		#endregion
+
+		#region Events
+
+		EventHandler<EventArgs> logLevelChanged;
+
+		/// <summary>
+		/// Occurs when the log level was changed.
+		/// </summary>
+		public event EventHandler<EventArgs> LogLevelChanged {
+			add {
+				logLevelChanged += value;
+			}
+			remove {
+				logLevelChanged -= value;
+			}
+		}
+
+		#endregion
 	}
 }
 

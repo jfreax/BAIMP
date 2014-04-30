@@ -23,6 +23,7 @@ using System.Linq;
 using Xwt;
 using System.Threading;
 using Xwt.Drawing;
+using System.Collections.Generic;
 
 namespace Baimp
 {
@@ -35,7 +36,7 @@ namespace Baimp
 		FrameBox logFrame = new FrameBox();
 		ScrollView logScroller = new ScrollView();
 
-		LogLevel logLevel = LogLevel.Debug;
+		LogLevel currentLogLevel = LogLevel.Debug;
 
 		int maxThreads;
 
@@ -74,8 +75,11 @@ namespace Baimp
 		void InitializeUI()
 		{
 			HBox logBox = new HBox();
-			LogLevelChooser logLevelChooser = new LogLevelChooser(logLevel);
+			LogLevelChooser logLevelChooser = new LogLevelChooser(currentLogLevel);
 			logLevelChooser.MarginRight = 10;
+			logLevelChooser.LogLevelChanged += delegate {
+				CurrentLogLevel = logLevelChooser.SelectedLogLevel;
+			};
 
 			logBox.PackStart(logEntry, true);
 			logBox.PackEnd(logLevelChooser);
@@ -106,12 +110,14 @@ namespace Baimp
 		/// <param name="e">Arguments with log message.</param>
 		void ShowLogEntry(object sender, LogEventArgs e)
 		{
-			try {
-				logEntry.Markup = 
+			if (e.LogMessage.LogLevel >= CurrentLogLevel) {
+				try {
+					logEntry.Markup = 
 					string.Format("<b>{0}:</b> <span color='{1}'>{2}</span>", 
-					e.LogMessage.Source, Log.LevelToColorString(e.LogMessage.LogLevel), e.LogMessage.Message);
-			} catch (Exception exception) {
-				logEntry.Text = string.Format("{0}: {1}", e.LogMessage.Source, e.LogMessage.Message);
+						e.LogMessage.Source, Log.LevelToColorString(e.LogMessage.LogLevel), e.LogMessage.Message);
+				} catch (Exception exception) {
+					logEntry.Text = string.Format("{0}: {1}", e.LogMessage.Source, e.LogMessage.Message);
+				}
 			}
 		}
 
@@ -134,6 +140,20 @@ namespace Baimp
 		{
 			base.Dispose(disposing);
 			timer.Dispose();
+		}
+
+		public LogLevel CurrentLogLevel {
+			get {
+				return currentLogLevel;
+			}
+			set {
+				currentLogLevel = value;
+
+				List<LogMessage> logs = Log.Get(currentLogLevel);
+				if (logs != null) {
+					ShowLogEntry(this, new LogEventArgs(logs.Last()));
+				}
+			}
 		}
 	}
 }
