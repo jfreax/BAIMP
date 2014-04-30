@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.Linq;
 using System.Xml.Serialization;
 using Xwt;
 
@@ -93,6 +94,9 @@ namespace Baimp
 			}
 			set {
 				values = value;
+				if (!values.Contains(val)) {
+					val = (string) values[0];
+				}
 			}
 		}
 	}
