@@ -77,7 +77,7 @@ namespace Baimp
 			} else if (GetOS() == OSType.MaxOSX) {
 				toolkitType = ToolkitType.Cocoa;
 			} else {
-				toolkitType = ToolkitType.Wpf;
+				toolkitType = ToolkitType.Gtk;
 			}
 
 			Application.Initialize(toolkitType);

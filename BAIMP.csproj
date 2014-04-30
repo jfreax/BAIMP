@@ -88,6 +88,15 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>Libraries\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Xwt.Gtk">
+      <HintPath>Libraries\Xwt.Gtk.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.WPF">
+      <HintPath>Libraries\Xwt.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.Gtk.Windows">
+      <HintPath>Libraries\Xwt.Gtk.Windows.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
