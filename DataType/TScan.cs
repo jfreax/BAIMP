@@ -63,6 +63,7 @@ namespace Baimp
 		}
 
 		static object bitmap_lock = new object();
+		static object array_lock = new object();
 		/// <summary>
 		/// Get plain scan data
 		/// </summary>
@@ -73,7 +74,9 @@ namespace Baimp
 		public float[] Data {
 			get {
 				if (rawData == null) {
-					rawData = scan.GetAsArray(scanType);
+					lock (array_lock) {
+						rawData = scan.GetAsArray(scanType);
+					}
 
 					if (maskedOnly) {
 						lock (bitmap_lock) {
