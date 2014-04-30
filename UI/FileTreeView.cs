@@ -160,6 +160,11 @@ namespace Baimp
 		/// <param name="text">Text.</param>
 		public void Filter(string text)
 		{
+			TreeNavigator typeNode = store.GetFirstNode();
+			if (typeNode == null || typeNode.CurrentPosition == null) {
+				return;
+			}
+
 			// when prior filter text was empty
 			if (string.IsNullOrEmpty(filterText)) {
 				beforeFilterPosition = SelectedRow;
@@ -176,9 +181,11 @@ namespace Baimp
 				isFiltered = false;
 
 				// restore old position
-				ExpandToRow(beforeFilterPosition);
-				SelectRow(beforeFilterPosition);
-				ScrollToRow(beforeFilterPosition);
+				if (beforeFilterPosition != null) {
+					ExpandToRow(beforeFilterPosition);
+					SelectRow(beforeFilterPosition);
+					ScrollToRow(beforeFilterPosition);
+				}
 
 				return;
 			}
@@ -190,7 +197,6 @@ namespace Baimp
 			filteredPositions.Clear();
 
 			TreePosition selectedRow = null;
-			TreeNavigator typeNode = store.GetFirstNode();
 			do {
 				var newTypeNode = storeFilter.AddNode(null)
 						.SetValue(thumbnailColFilter, typeNode.GetValue(thumbnailCol));
