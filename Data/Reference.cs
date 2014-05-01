@@ -68,9 +68,7 @@ namespace Baimp
 			}
 			foreach (IReference reference in refCopy) {
 				if (reference.Free()) {
-					lock (list_lock) {
-						references.Remove(reference);
-					}
+					Unregister(reference);
 				}
 			}
 		}

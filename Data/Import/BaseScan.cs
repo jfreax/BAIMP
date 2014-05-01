@@ -290,7 +290,7 @@ namespace Baimp
 		/// <param name="scanType">Scan type.</param>
 		/// <param name="callback">Function to call on finish.</param>
 		/// <param name="colorized">Colorize (green to red) heightmap/intensity/... ?</param>
-		public virtual void GetAsImageAsync(string scanType, bool colorized, ImageLoadedCallback callback)
+		public void GetAsImageAsync(string scanType, bool colorized, ImageLoadedCallback callback)
 		{
 			Task.Factory.StartNew( () => {
 				try {

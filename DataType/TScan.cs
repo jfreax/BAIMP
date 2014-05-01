@@ -34,7 +34,6 @@ namespace Baimp
 		bool multipleUsage;
 		bool maskedOnly;
 		float[] rawData;
-		List<Bitmap> grayScale8bbp = new List<Bitmap>();
 		Widget widget;
 		Xwt.Size explicitSize = Xwt.Size.Zero;
 
@@ -201,13 +200,6 @@ namespace Baimp
 				}
 				widget.Dispose();
 				widget = null;
-			}
-
-			if (grayScale8bbp != null) {
-				foreach (Bitmap gs in grayScale8bbp) {
-					gs.Dispose();
-				}
-				grayScale8bbp.Clear();
 			}
 
 			rawData = null;
