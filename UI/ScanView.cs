@@ -673,6 +673,10 @@ namespace Baimp
 					contextEditMask.Label = "Edit mask";
 					this.Cursor = CursorType.Arrow;
 
+					if (scan != null) {
+						scan.Mask.FlushMaskPositions(0);
+					}
+
 					isEditMode = false;
 				}
 

@@ -332,6 +332,13 @@ namespace Baimp
 			}
 		}
 
+		public void FlushMaskPositions(int bufferSize = 30)
+		{
+			if (MaskPositions.Count > 0) {
+				FlushMaskPositions(GetMaskBuilder().Context, bufferSize);
+			}
+		}
+
 		/// <summary>
 		/// Undo the last added mask position.
 		/// </summary>
