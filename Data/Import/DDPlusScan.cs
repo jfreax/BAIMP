@@ -36,8 +36,6 @@ namespace Baimp
 			"Color"
 		};
 		Dictionary<string, string> filenames = new Dictionary<string, string>();
-		Dictionary<string, float[]> arrayData = new Dictionary<string, float[]>();
-		Dictionary<string, float> max = new Dictionary<string, float>();
 
 		/// <summary>
 		/// Needed for xml serializer
@@ -115,14 +113,6 @@ namespace Baimp
 		/// <param name="scanType">Type.</param>
 		public override float[] GetAsArray(string scanType)
 		{
-			if (arrayData.ContainsKey(scanType) && arrayData[scanType] != null) {
-				return arrayData[scanType];
-			}
-
-			if (!max.ContainsKey(scanType)) {
-				max[scanType] = 0.0f;
-			}
-
 			Stream s = File.OpenRead(filenames[scanType]);
 			BinaryReader input = new BinaryReader(s);
 
@@ -130,22 +120,21 @@ namespace Baimp
 			Int32 height = input.ReadInt32();
 
 			int length = width * height;
-			arrayData[scanType] = new float[length];
+			float[] arrayData = new float[length];
 			byte[] buffer = input.ReadBytes(length * 4);
 
-			Buffer.BlockCopy(buffer, 0, arrayData[scanType], 0, length * 4);
-			max[scanType] = arrayData[scanType].Max();
+			Buffer.BlockCopy(buffer, 0, arrayData, 0, length * 4);
 
 			if (scanType == "Topography") {
 				float zLength;
 
 				if (metadata.TryGetValue("zLengthPerDigitF", out zLength)) {
 					float zLengthValue = zLength / 10000000.0f;
-					arrayData[scanType] = arrayData[scanType].Select(x => x * zLengthValue).ToArray();
+					arrayData = arrayData.Select(x => x * zLengthValue).ToArray();
 				}
 			}
 
-			return arrayData[scanType];
+			return arrayData;
 		}
 
 		/// <summary>
@@ -191,7 +180,7 @@ namespace Baimp
 
 			} else {
 				float[] array = GetAsArray(scanType);
-				float maxForType = this.max[scanType];
+				float maxForType = array.Max();
 				float min = array.Min();
 
 				byte* scan0 = (byte*) bmpData.Scan0.ToPointer();

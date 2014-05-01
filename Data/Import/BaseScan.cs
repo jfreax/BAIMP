@@ -361,15 +361,16 @@ namespace Baimp
 				newImage.Dispose();
 
 				if(zipFile != null) {
-					MemoryStream mStream = new MemoryStream();
-					newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
-					mStream.Position = 0;
-					CustomStaticDataSource source = new CustomStaticDataSource(mStream);
+					using (MemoryStream mStream = new MemoryStream()) {
+						newRenderedImage.Save(mStream, Xwt.Drawing.ImageFileType.Png);
+						mStream.Position = 0;
+						CustomStaticDataSource source = new CustomStaticDataSource(mStream);
 
-					zipFile.BeginUpdate();
-					zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
-					zipFile.IsStreamOwner = true;
-					zipFile.CommitUpdate();
+						zipFile.BeginUpdate();
+						zipFile.Add(source, String.Format("thumbnails/{0}_{1}.png", Name, scanType));
+						zipFile.IsStreamOwner = false;
+						zipFile.CommitUpdate();
+					}
 				}
 
 				ret[i] = newRenderedImage;
