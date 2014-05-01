@@ -97,15 +97,14 @@ namespace Baimp
 				scan.Initialize(file, reimport);
 
 				int i = 1;
-				while (this.Find(f => f != scan && f.Name == scan.Name) != null) {
-					string[] splitted = scan.Name.Split('_');
+				while (Find(f => f != scan && f.Name == scan.Name) != null) {
 					string partname = scan.Name;
-					if (splitted.Length > 1) {
-						int index = scan.Name.LastIndexOf('_');
+					int index = scan.Name.LastIndexOf('#');
+					if (index > 0) {
 						partname = scan.Name.Remove(index, partname.Length - index); 
 					}
 
-					scan.Name = partname + "_" + i;
+					scan.Name = partname + "#" + i;
 					i++;
 				}
 			}
