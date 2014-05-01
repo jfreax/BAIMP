@@ -190,6 +190,7 @@
     <Compile Include="Data\Export\BaseExporter.cs" />
     <Compile Include="Option\OptionDropDown.cs" />
     <Compile Include="UI\LogLevelChooser.cs" />
+    <Compile Include="Data\Reference.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

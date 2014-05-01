@@ -64,7 +64,7 @@ namespace Baimp
 
 		readonly BaseScan scan;
 		XD.ImageBuilder maskBuilder;
-		Bitmap bitmapCache;
+		Reference<Bitmap> bitmapCache;
 		bool wasResetted;
 
 		public readonly List<MaskEntry> MaskPositions = new List<MaskEntry>();
@@ -108,9 +108,9 @@ namespace Baimp
 		/// </summary>
 		/// <param name="cache">Should the bitmap be cached?</param>
 		/// <returns>The mask as bitmap.</returns>
-		public Bitmap GetMaskAsBitmap(bool cache = true)
+		public Reference<Bitmap> GetMaskAsBitmap(bool cache = true)
 		{
-			if (bitmapCache == null) {
+			if (bitmapCache == null || bitmapCache.IsFreed) {
 				Bitmap loaded = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 					if (zipFile != null) {
 						ZipEntry maskEntry = zipFile.GetEntry(MaskFilename);
@@ -126,10 +126,10 @@ namespace Baimp
 				})) as Bitmap;
 
 				if (!cache) {
-					return bitmapCache;
+					return new Reference<Bitmap>(loaded, true);
 				}
 
-				bitmapCache = loaded;
+				bitmapCache = new Reference<Bitmap>(loaded);
 			}
 
 			return bitmapCache;
