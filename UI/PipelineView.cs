@@ -546,7 +546,7 @@ namespace Baimp
 
 				SetNodePosition(node);
 				nodes.Add(node);
-				Log.Add(LogLevel.VERBOSE, this.GetType().Name, "New node added \"" + node + "\".");
+				Log.Add(LogLevel.Verbose, this.GetType().Name, "New node added \"" + node + "\".");
 
 				EmitDataChanged();
 				this.QueueDraw();
@@ -721,7 +721,7 @@ namespace Baimp
 						}
 						EmitDataChanged();
 
-						Log.Add(LogLevel.VERBOSE, this.GetType().Name, 
+						Log.Add(LogLevel.Verbose, this.GetType().Name, 
 							string.Format("Add new node from \"{0}\" to \"{1}\".",
 								mNode.IsInput ? connectNodesStartMarker.parent : mNode.parent,
 								mNode.IsInput ? mNode.parent : connectNodesStartMarker.parent

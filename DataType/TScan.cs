@@ -64,6 +64,7 @@ namespace Baimp
 
 		static object bitmap_lock = new object();
 		static object array_lock = new object();
+
 		/// <summary>
 		/// Get plain scan data
 		/// </summary>
@@ -85,11 +86,10 @@ namespace Baimp
 							double ratioX = mask.Width / Size.Width;
 							double ratioY = mask.Height / Size.Height;
 
-
 							unsafe {
 								BitmapData bmpData = mask.LockBits(
-									                    new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
-									                    ImageLockMode.ReadOnly, mask.PixelFormat);
+									                      new System.Drawing.Rectangle(0, 0, mask.Width, mask.Height),   
+									                      ImageLockMode.ReadOnly, mask.PixelFormat);
 
 								byte* scan0 = (byte*) bmpData.Scan0.ToPointer();
 
@@ -131,7 +131,7 @@ namespace Baimp
 
 			return data8bpp;
 		}
-			
+
 		/// <summary>
 		/// Enables the multiple access mode.
 		/// You can't disable it after enabling.
@@ -158,11 +158,7 @@ namespace Baimp
 
 		public Xwt.Size Size {
 			get {
-				if (explicitSize.IsZero) {  
-					return scan.Size;
-				}
-
-				return explicitSize;
+				return explicitSize.IsZero ? scan.Size : explicitSize;
 			}
 		}
 

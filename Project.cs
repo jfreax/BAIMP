@@ -195,7 +195,7 @@ namespace Baimp
 							projectChanged(this, new ProjectChangedEventArgs(true));
 						}
 
-						Log.Add(LogLevel.INFO, this.GetType().Name,
+						Log.Add(LogLevel.Info, this.GetType().Name,
 							string.Format("Loaded save file \"{0}\". #Scans: {1}; #Worksheets: {2}; #Nodes: {3}",
 								Path.GetFileName(filePath), scanCollection.Count, LoadedPipelines.Count, noNodes));
 
@@ -308,7 +308,7 @@ namespace Baimp
 				return null;
 			}));
 
-			Log.Add(LogLevel.INFO, this.GetType().Name, 
+			Log.Add(LogLevel.Info, this.GetType().Name, 
 				string.Format("Project \"{0}\" saved.", Path.GetFileName(ProjectFile)));
 
 			return true;
@@ -426,7 +426,7 @@ namespace Baimp
 
 		public void NotifyPipelineStart(PipelineView pipeline)
 		{
-			Log.Add(LogLevel.INFO, this.GetType().Name,
+			Log.Add(LogLevel.Info, this.GetType().Name,
 				"Start executing pipeline! Worksheet \"" + pipeline.PipelineName + "\".");
 			if (pipelineExecuted != null) {
 				pipelineExecuted(pipeline, null);
@@ -435,7 +435,7 @@ namespace Baimp
 
 		public void NotifyPipelineStop(PipelineView pipeline)
 		{
-			Log.Add(LogLevel.INFO, this.GetType().Name,
+			Log.Add(LogLevel.Info, this.GetType().Name,
 				"Stop executing pipeline! Worksheet \"" + pipeline.PipelineName + "\".");
 			if (pipelineFinished != null) {
 				pipelineFinished(pipeline, null);

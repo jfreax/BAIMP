@@ -103,10 +103,15 @@ namespace Baimp
 			return mask;
 		}
 
-		public Bitmap GetMaskAsBitmap()
+		/// <summary>
+		/// Gets the mask as bitmap.
+		/// </summary>
+		/// <param name="cache">Should the bitmap be cached?</param>
+		/// <returns>The mask as bitmap.</returns>
+		public Bitmap GetMaskAsBitmap(bool cache = true)
 		{
 			if (bitmapCache == null) {
-				bitmapCache = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
+				Bitmap loaded = Project.RequestZipAccess(new Project.ZipUsageCallback(delegate(ZipFile zipFile) {
 					if (zipFile != null) {
 						ZipEntry maskEntry = zipFile.GetEntry(MaskFilename);
 						if (maskEntry != null) {
@@ -119,6 +124,12 @@ namespace Baimp
 
 					return null;
 				})) as Bitmap;
+
+				if (!cache) {
+					return bitmapCache;
+				}
+
+				bitmapCache = loaded;
 			}
 
 			return bitmapCache;
