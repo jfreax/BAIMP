@@ -207,7 +207,7 @@ namespace Baimp
 			lock (asyncImageLock) {
 				var currentRenderDict = colorized ? renderedColorImage : renderedImage;
 
-				if (!currentRenderDict.ContainsKey(scanType) || currentRenderDict[scanType] == null) {
+				if (!currentRenderDict.ContainsKey(scanType) || currentRenderDict[scanType] == null || !saveImage) {
 					MemoryStream mStream = GetAsMemoryStream(scanType, colorized);
 					XD.Image img = XD.Image.FromStream(mStream).WithBoxSize(requestedBitmapSize);
 					mStream.Dispose();

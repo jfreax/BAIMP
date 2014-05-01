@@ -81,7 +81,8 @@ namespace Baimp
 				IType[] data = new IType[1];
 				if ((maskedOnly && scan.HasMask) || !maskedOnly) {
 					if (scan.AvailableScanTypes().Contains(scanTypeComboBox.Value)) {
-						data[0] = new TScan(scan, scanTypeComboBox.Value.ToString(), maskedOnly: maskedOnly).Preload();
+						data[0] = 
+							new TScan(scan, scanTypeComboBox.Value.ToString(), maskedOnly: maskedOnly).Preload();
 
 						Yield(data, scan);
 					}
