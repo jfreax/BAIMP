@@ -376,15 +376,22 @@ namespace Baimp
 
 			project.NotifyPipelineStart(this);
 
+			foreach (PipelineNode pNode in nodes) {
+				foreach(Tuple<IType[], Result[]> results in pNode.results) {
+					foreach (IType result in results.Item1) {
+						result.Dispose();
+					}
+				}
+				pNode.results.Clear();
+				pNode.ClearInputQueue();
+			}
+
 			PipelineProcessor process = new PipelineProcessor(project, token);
 			Task executionTask = Task.Factory.StartNew(() => {
 				foreach (PipelineNode pNode in nodes) {
 					if (token.IsCancellationRequested) {
 						break;
 					}
-
-					pNode.results.Clear();
-					pNode.ClearInputQueue();
 
 					if (pNode.IsReady() && pNode.algorithm.Input.Count == 0) {
 						bool isConnected = false;
@@ -864,7 +871,7 @@ namespace Baimp
 		/// <remarks>
 		/// Automatically issues a recall
 		/// </remarks>
-		private void SetNodeAt(PipelineNode nodeToMove, Point position)
+		void SetNodeAt(PipelineNode nodeToMove, Point position)
 		{
 			nodeToMove.bound.Location = position;
 			SetNodePosition(nodeToMove);
@@ -882,7 +889,7 @@ namespace Baimp
 		/// Automatically issues a redraw.
 		/// After max number of iteration, place the node at the bottom of the graph.
 		/// </remarks>
-		private void SetNodePosition(PipelineNode nodeToMove, int iteration = 20)
+		void SetNodePosition(PipelineNode nodeToMove, int iteration = 20)
 		{
 			if (nodeToMove != null) {
 				PipelineNode intersectingNode = GetNodeAt(nodeToMove.BoundWithExtras, nodeToMove);
@@ -956,7 +963,7 @@ namespace Baimp
 		/// <returns>The node at position; or null</returns>
 		/// <param name="position">Position.</param>
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
-		private PipelineNode GetNodeAt(Point position, bool withExtras = false)
+		PipelineNode GetNodeAt(Point position, bool withExtras = false)
 		{
 			foreach (PipelineNode node in nodes) {
 				Rectangle bound = withExtras ? node.BoundWithExtras : node.bound;
@@ -975,7 +982,7 @@ namespace Baimp
 		/// <param name="rectangle">Rectangle to test with.</param>
 		/// <param name="ignoreNode">Optional: Ignore this node.</param>
 		/// <param name="withExtras">Match not only main body of node, but also in/out marker</param>
-		private PipelineNode GetNodeAt(Rectangle rectangle, PipelineNode ignoreNode = null, bool withExtras = true)
+		PipelineNode GetNodeAt(Rectangle rectangle, PipelineNode ignoreNode = null, bool withExtras = true)
 		{
 			foreach (PipelineNode node in nodes) {
 				Rectangle nodeBound = node.bound;
@@ -998,7 +1005,7 @@ namespace Baimp
 		/// <returns>The marker description and their position.</returns>
 		/// <param name="position">Position.</param>
 		/// <param name="inflate">Inflate search region.</param>
-		private MarkerNode GetInOutMarkerAt(Point position, Size? inflate = null)
+		MarkerNode GetInOutMarkerAt(Point position, Size? inflate = null)
 		{
 			foreach (PipelineNode pNode in nodes) {
 				foreach (MarkerNode mNode in pNode.mNodes) {
@@ -1015,7 +1022,7 @@ namespace Baimp
 		/// Removes a node.
 		/// </summary>
 		/// <param name="node">Node to remove.</param>
-		private void RemoveNode(PipelineNode node)
+		void RemoveNode(PipelineNode node)
 		{
 			foreach (MarkerNode mNode in node.mNodes) {
 				List<Edge> toRemove = new List<Edge>();
