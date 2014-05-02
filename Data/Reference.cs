@@ -84,7 +84,6 @@ namespace Baimp
 		int referenceCounter;
 		readonly T referenceTo;
 		readonly bool instantlyFreeing;
-		readonly object counter_lock = new object();
 
 		public Reference(T referenceTo, bool instantlyFreeing = false)
 		{
@@ -104,9 +103,7 @@ namespace Baimp
 		/// </remarks>
 		public T Data {
 			get {
-				lock (counter_lock) {
-					referenceCounter++;
-				}
+				Interlocked.Increment( ref referenceCounter);
 
 				return referenceTo;
 			}
@@ -151,13 +148,11 @@ namespace Baimp
 
 		public void Dispose()
 		{
-			lock (counter_lock) {
-				referenceCounter--;
+			Interlocked.Decrement( ref referenceCounter);
 
-				if (instantlyFreeing) {
-					if (Free()) {
-						ReferenceGarbaseCollector.Unregister(this);
-					}
+			if (instantlyFreeing) {
+				if (Free()) {
+					ReferenceGarbaseCollector.Unregister(this);
 				}
 			}
 		}
