@@ -376,7 +376,7 @@ namespace Baimp
 
 			project.NotifyPipelineStart(this);
 
-			Process process = new Process(project, token);
+			PipelineProcessor process = new PipelineProcessor(project, token);
 			Task executionTask = Task.Factory.StartNew(() => {
 				foreach (PipelineNode pNode in nodes) {
 					if (token.IsCancellationRequested) {

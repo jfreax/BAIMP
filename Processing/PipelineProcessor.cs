@@ -26,7 +26,7 @@ using System.Threading.Tasks.Schedulers;
 
 namespace Baimp
 {
-	public class Process
+	public class PipelineProcessor
 	{
 		QueuedTaskScheduler qts = new QueuedTaskScheduler();
 		Dictionary<int, TaskScheduler> priorizedScheduler = new Dictionary<int, TaskScheduler>();
@@ -36,11 +36,11 @@ namespace Baimp
 		public delegate void OnTaskCompleteDelegate(PipelineNode startNode,IType[] result,Result[] inputRef);
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Baimp.Process"/> class.
+		/// Initializes a new instance of the <see cref="Baimp.PipelineProcessor"/> class.
 		/// </summary>
 		/// <param name="project">Project.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		public Process(Project project, CancellationToken cancellationToken)
+		public PipelineProcessor(Project project, CancellationToken cancellationToken)
 		{
 			this.project = project;
 			this.cancellationToken = cancellationToken;
@@ -141,9 +141,10 @@ namespace Baimp
 		/// Callback function called when algorithm finished
 		/// </summary>
 		/// <param name="startNode"></param>
-		/// <param name="priority">Current thread priority</param>
+		/// <param name="priority">Current thread priority.</param>
 		/// <param name="result">Output of algorithm.</param>
-		/// <param name="input">Reference to the data, that was used to compute these results</param>
+		/// <param name="input">Reference to the data, that was used to compute these results.</param>
+		/// <param name="yieldID">Unique identifier for every yielded output from a node.</param>
 		void OnFinish(PipelineNode startNode, int priority, IType[] result, Result[] input, int yieldID = -1)
 		{
 			List<Compatible> compatibleOutput = startNode.algorithm.Output;
@@ -192,6 +193,15 @@ namespace Baimp
 
 		readonly Dictionary<object, int> yieldIds = new Dictionary<object, int>();
 
+
+		/// <summary>
+		/// Gets the single, yielded, result.
+		/// </summary>
+		/// <param name="startNode">Start node.</param>
+		/// <param name="origInput">Original input.</param>
+		/// <param name="priority">Priority.</param>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">Event args.</param>
 		void GetSingleData(PipelineNode startNode, Result[] origInput, int priority, object sender, AlgorithmEventArgs e)
 		{
 			object yieldKey = e.InputRef == null ? origInput as object : e.InputRef as object;

@@ -118,7 +118,6 @@
     <Compile Include="Event\SaveStateEventArgs.cs" />
     <Compile Include="Algorithm\Input\ProjectFiles.cs" />
     <Compile Include="Algorithm\Descriptor\GLCM.cs" />
-    <Compile Include="Processing\Process.cs" />
     <Compile Include="Event\ProgressEventArgs.cs" />
     <Compile Include="Option\Option.cs" />
     <Compile Include="UI\Widget\ResultPopupView.cs" />
@@ -191,6 +190,7 @@
     <Compile Include="Option\OptionDropDown.cs" />
     <Compile Include="UI\LogLevelChooser.cs" />
     <Compile Include="Data\Reference.cs" />
+    <Compile Include="Processing\PipelineProcessor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
