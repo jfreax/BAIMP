@@ -196,7 +196,7 @@ namespace Baimp
 						}
 
 						Log.Add(LogLevel.Info, this.GetType().Name,
-							string.Format("Loaded save file \"{0}\". #Scans: {1}; #Worksheets: {2}; #Nodes: {3}",
+							string.Format("\"{0}\" was loaded successfully. #Scans: {1}; #Worksheets: {2}; #Nodes: {3}",
 								Path.GetFileName(filePath), scanCollection.Count, LoadedPipelines.Count, noNodes));
 
 						return true;
