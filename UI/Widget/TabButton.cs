@@ -28,6 +28,8 @@ namespace Baimp
 	{
 		static readonly Image closeNormal = 
 			Image.FromResource("Baimp.Resources.btClose.png").WithBoxSize(14.0);
+		static readonly Image closeNormalInv = 
+			Image.FromResource("Baimp.Resources.btClose_inv.png").WithBoxSize(14.0);
 		static readonly Image closeSelected = 
 			Image.FromResource("Baimp.Resources.btClose-Selected.png").WithBoxSize(14.0);
 		readonly TextLayout text = new TextLayout();
@@ -214,7 +216,7 @@ namespace Baimp
 
 			// close button
 			if (Closeable) {
-				ctx.DrawImage(Hovered ? closeSelected : closeNormal, 
+				ctx.DrawImage(Hovered ? closeSelected : (Active ? closeNormalInv : closeNormal), 
 					new Point(
 						Size.Width - closeNormal.Width - (next == null ? padding.Right + Lean.Dx : 0), 
 						(Size.Height - closeNormal.Height) / 2

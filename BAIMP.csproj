@@ -271,5 +271,6 @@
     <EmbeddedResource Include="Resources\btAdd.png" />
     <EmbeddedResource Include="Resources\tick.png" />
     <EmbeddedResource Include="Resources\cross.png" />
+    <EmbeddedResource Include="Resources\btClose_inv.png" />
   </ItemGroup>
 </Project>
