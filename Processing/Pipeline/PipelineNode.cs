@@ -42,6 +42,8 @@ namespace Baimp
 		static readonly public Color NodeColorShadow = Color.FromBytes(232, 232, 232);
 		static readonly public Color NodeColorGlow = Colors.SkyBlue.WithAlpha(0.4);
 		static readonly public Color NodeColorProgress = Color.FromBytes(190, 200, 250);
+		static readonly public Color NodeHeadlineTextColor = Color.FromBytes(32, 32, 32);
+		static readonly public Color NodeHeadlineBackground = Color.FromBytes(222, 222, 222, 110);
 
 		#endregion
 
@@ -60,14 +62,17 @@ namespace Baimp
 		public Rectangle bound = new Rectangle(Point.Zero, AbsMinNodeSize);
 		[XmlIgnore]
 		public List<MarkerNode> mNodes;
+
 		/// <summary>
 		/// Should results from this node be saved?
 		/// </summary>
 		bool saveResult;
+
 		/// <summary>
 		/// True, if mouse is currently over this node
 		/// </summary>
 		bool hover;
+
 		/// <summary>
 		/// Reference to all results + their input data.
 		/// Is filled only, if user wants to save them.
@@ -77,11 +82,18 @@ namespace Baimp
 		/// </summary>
 		[XmlIgnore]
 		public List<Tuple<IType[], Result[]>> results = new List<Tuple<IType[], Result[]>>();
+
 		/// <summary>
 		/// Comments from user
 		/// </summary>
 		[XmlElement("comment")]
 		public string userComment = string.Empty;
+
+		/// <summary>
+		/// General purpose text layout.
+		/// </summary>
+		readonly TextLayout textLayout = new TextLayout();
+		readonly TextLayout textLayoutBold = new TextLayout();
 
 		bool isInitialized;
 
@@ -161,11 +173,13 @@ namespace Baimp
 
 		public void InitializeWidgets()
 		{
+			textLayoutBold.Font = 
+				textLayoutBold.Font.WithWeight(FontWeight.Semibold).WithSize(8.0).WithStretch(FontStretch.ExtraCondensed);
+			textLayoutBold.Trimming = TextTrimming.WordElipsis;
+		
 			// calculate header height
-			TextLayout text = new TextLayout();
-			text.Text = "M";
-			double textHeight = text.GetSize().Height;
-			text.Dispose();
+			double textHeight = textLayoutBold.GetSize().Height;
+
 
 			// add widgets
 			if (!IsFinalNode()) {
@@ -174,6 +188,9 @@ namespace Baimp
 
 				icons["view"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = false;
 				icons["hide"].ButtonPressed += (object sender, ButtonEventArgs e) => SaveResult = true;
+
+				icons["view"].Image = icons["view"].Image.WithBoxSize(textHeight + 2).WithAlpha(0.6);
+				icons["hide"].Image = icons["hide"].Image.WithBoxSize(textHeight + 2).WithAlpha(0.6);
 			}
 
 			// set initial position
@@ -264,28 +281,27 @@ namespace Baimp
 
 		double DrawHeader(Context ctx)
 		{
-			TextLayout text = new TextLayout();
 			Point textOffset = new Point(8, 4);
 
-			text.Text = algorithm.Headline();
-			text.Font = text.Font.WithWeight(FontWeight.Semibold).WithSize(8.0).WithStretch(FontStretch.ExtraCondensed);
-			if (text.GetSize().Width >= AbsMaxNodeSize.Width - text.GetSize().Height * 2) {
-				text.Width = AbsMaxNodeSize.Width;
-				text.Trimming = TextTrimming.WordElipsis;
+			textLayoutBold.Text = algorithm.Headline();
+			Size textSize = textLayoutBold.GetSize();
+
+			if (textSize.Width >= AbsMaxNodeSize.Width - textSize.Height * 2) {
+				textLayoutBold.Width = textSize.Width = AbsMaxNodeSize.Width;
 			}
 			Point textPosition = bound.Location.Offset(textOffset);
 
 			// headline background
 			contentOffset.X = 6;
-			contentOffset.Y = textOffset.Y + text.GetSize().Height + 4;
+			contentOffset.Y = textOffset.Y + textSize.Height + 4;
 
 			ctx.RoundRectangle(bound.Left + 1, bound.Top + 1, bound.Width - 2, contentOffset.Y, NodeRadius);
-			ctx.SetColor(Color.FromBytes(222, 222, 222, 110));
+			ctx.SetColor(NodeHeadlineBackground);
 			ctx.Fill();
 
 			// text
-			ctx.SetColor(Color.FromBytes(32, 32, 32));
-			ctx.DrawTextLayout(text, textPosition);
+			ctx.SetColor(NodeHeadlineTextColor);
+			ctx.DrawTextLayout(textLayoutBold, textPosition);
 
 			// icons
 			double iconWidth = 0.0;
@@ -295,14 +311,13 @@ namespace Baimp
 					icon.Value.Bounds = 
 						new Rectangle(bound.Width - icon.Value.Bounds.Width - 10, 3, icon.Value.Bounds.Width, icon.Value.Bounds.Height);
 					ctx.DrawImage(
-						icon.Value.Image.WithBoxSize(text.GetSize().Height + 2).WithAlpha(0.6),
+						icon.Value.Image,
 						bound.Location.Offset(icon.Value.Bounds.Location)
 					);
 				}
 			}
 
-			double width = text.GetSize().Width + iconWidth + 10 + NodeTextMargin;
-			text.Dispose();
+			double width = textSize.Width + iconWidth + 10 + NodeTextMargin;
 
 			return width;
 		}
@@ -310,28 +325,27 @@ namespace Baimp
 		bool DrawBody(Context ctx, double headlineWidth)
 		{
 			bool ret = false;
-			TextLayout text = new TextLayout();
 			ctx.SetColor(Colors.Black);
 
 			double inputMaxWidth = 0.0;
 			double outputMaxWidth = 0.0;
 
 			foreach (MarkerNode mNode in mNodes) {
-				text.Text = mNode.compatible.ToString();
-				mNode.Height = text.GetSize().Height;
+				textLayout.Text = mNode.compatible.ToString();
+				mNode.Height = textLayout.GetSize().Height;
 				Point pos = mNode.Bounds.Location;
 				if (mNode.IsInput) {
 					pos.X = mNode.Bounds.Right + contentOffset.X;
-					if (pos.X - bound.X + text.GetSize().Width > inputMaxWidth) {
-						inputMaxWidth = pos.X - bound.X + text.GetSize().Width;
+					if (pos.X - bound.X + textLayout.GetSize().Width > inputMaxWidth) {
+						inputMaxWidth = pos.X - bound.X + textLayout.GetSize().Width;
 					}
 				} else {
-					pos.X = mNode.Bounds.Left - contentOffset.X - text.GetSize().Width;
+					pos.X = mNode.Bounds.Left - contentOffset.X - textLayout.GetSize().Width;
 					if (bound.Right - pos.X > outputMaxWidth) {
 						outputMaxWidth = bound.Right - pos.X;
 					}
 				}
-				ctx.DrawTextLayout(text, pos);
+				ctx.DrawTextLayout(textLayout, pos);
 				ctx.Stroke();
 
 				// resize height of widget if necessary
@@ -347,9 +361,7 @@ namespace Baimp
 				bound.Width = maxWidth;
 				ret = true;
 			}
-
-			text.Dispose();
-
+				
 			return ret;
 		}
 
