@@ -48,7 +48,7 @@ namespace Baimp
 			this.node = node;
 			this.Data = data;
 			this.Input = input;
-			this.preserve = preserve;
+			this.Preserve = preserve;
 
 			if (input != null) {
 				completeDistinctName = node.ToString();
@@ -155,6 +155,25 @@ namespace Baimp
 		public PipelineNode Node {
 			get {
 				return node;
+			}
+		}
+
+		public bool Preserve {
+			get {
+				return preserve;
+			}
+			private set {
+				// Features should be preserved
+				if (Data.GetType().IsGenericType) {
+					Type genericType = Data.GetType().GetGenericTypeDefinition();
+					if (genericType == typeof(TFeatureList<int>).GetGenericTypeDefinition() ||
+						genericType == typeof(TFeature<int>).GetGenericTypeDefinition()) {
+
+						preserve = true;
+						return;
+					}
+				}
+				preserve = value;
 			}
 		}
 

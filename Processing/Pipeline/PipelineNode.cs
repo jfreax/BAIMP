@@ -356,10 +356,29 @@ namespace Baimp
 		#endregion
 
 		/// <summary>
-		/// Determines whether the algorithm of this node outputs only final data
+		/// Determines whether the algorithm of this node outputs *only* final data.
 		/// </summary>
 		/// <returns><c>true</c> if this instance is end node; otherwise, <c>false</c>.</returns>
 		public bool IsFinalNode()
+		{
+			if (algorithm != null && algorithm.Output != null) {
+				foreach (Compatible x in algorithm.Output) {
+					if (!x.IsFinal()) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Determines whether this node outputs at least one feature/-vector.
+		/// </summary>
+		/// <returns><c>true</c> if this instance has a final node; otherwise, <c>false</c>.</returns>
+		public bool HasFinalNode()
 		{
 			if (algorithm != null && algorithm.Output != null) {
 				foreach (Compatible x in algorithm.Output) {

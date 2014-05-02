@@ -152,7 +152,7 @@ namespace Baimp
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
 				
-			if (startNode.SaveResult) {
+			if (startNode.HasFinalNode()) {
 				startNode.results.Add(new Tuple<IType[], Result[]>(result, input));
 			}
 
@@ -185,8 +185,8 @@ namespace Baimp
 				}
 
 				// dispose data when no one uses them
-				if (resultWrapper.InUse <= 0 && !startNode.SaveResult) {
-					resultWrapper.Dispose();
+				if (resultWrapper.InUse <= 0 && !resultWrapper.Preserve) {
+					resultWrapper.Finish(null);
 				}
 			}
 		}

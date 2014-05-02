@@ -29,15 +29,19 @@ namespace Baimp
 {
 	abstract public class Node
 	{
-		private static int global_node_id = 0;
-		private int id;
+		static int global_node_id = 0;
+		int id;
 		protected Rectangle bounds;
 		protected List<Edge> edges;
 
+		object global_id_lock = new object();
+
 		public Node()
 		{
-			id = global_node_id;
-			global_node_id++;
+			lock (global_id_lock) {
+				id = global_node_id;
+				global_node_id++;
+			}
 
 			edges = new List<Edge>();
 		}

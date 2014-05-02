@@ -160,7 +160,7 @@ namespace Baimp
 											Convert.ChangeType(option.Value, targetOption.Value.GetType());
 									}
 								}
-
+									
 								foreach (MarkerNode mNode in pNode.mNodes) {
 									allNodes.Add(mNode.ID, mNode);
 								}

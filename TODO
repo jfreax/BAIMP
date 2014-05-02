@@ -1,3 +1,13 @@
 - Speichern Async (?)
 - Ergebnisse speichern/laden
+- Ergebnisauswertungsinterface
 - Bearbeitung sperren solange Verarbeitung läuft
+- Mask Editor überarbeiten
+- Button Minimap (Nicht)Anzeigen
+- Bei Nodes mit Feature und Nicht-Feature Ausgängen "save" button trotzdem anzeigen
+- Node Verarbeitung pausierbar
+	- Parallel nodes mit "vollem" Ausgabepuffer pausieren
+- Features
+	- Census
+	- LBP
+
