@@ -38,6 +38,13 @@ namespace Baimp
 
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
+			try {
+				TScan tScan2 = inputArgs[0] as TScan;
+				byte[] data2 = tScan2.DataAs8bpp();
+			} catch (Exception e) {
+				Console.WriteLine(e.Message);
+			}
+
 			TScan tScan = inputArgs[0] as TScan;
 			byte[] data = tScan.DataAs8bpp();
 

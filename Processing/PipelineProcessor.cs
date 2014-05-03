@@ -62,6 +62,8 @@ namespace Baimp
 					input[i] = res.Data;
 					i++;
 				}
+			} else {
+				Console.WriteLine("Input null");
 			}
 
 			Dictionary<RequestType, object> requestedData = new Dictionary<RequestType, object>();
@@ -150,12 +152,16 @@ namespace Baimp
 				throw new ArgumentOutOfRangeException(); // TODO throw a proper exception
 			}
 				
-			if (startNode.HasFinalNode()) {
+			if (startNode.SaveResult || startNode.HasFinalNode()) {
 				startNode.results.Add(new Tuple<IType[], Result[]>(result, input));
 			}
 
 			int offsetIndex = startNode.algorithm.Input.Count;
 			for (int i = 0; i < result.Length; i++) {
+				if (result[i] == null) {
+					Console.WriteLine("null");
+				}
+
 				Result resultWrapper = new Result(startNode, result[i], input, startNode.SaveResult, yieldID);
 				HashSet<PipelineNode> markedAsUse = new HashSet<PipelineNode>();
 					

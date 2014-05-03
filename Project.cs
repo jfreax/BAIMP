@@ -35,7 +35,7 @@ namespace Baimp
 	{
 		public delegate object ZipUsageCallback(ZipFile zipFile);
 
-		private static Object zipFileAccess = new Object();
+		static Object zipFileAccess = new Object();
 		public readonly static int MaxLastOpenedProject = 5;
 		[XmlArray("scans")]
 		[XmlArrayItem("scan")]
