@@ -726,14 +726,14 @@ namespace Baimp
 
 							lastSelectedEdge = null;
 							actionedLeft = true;
+
+							Log.Add(LogLevel.Verbose, this.GetType().Name, 
+								string.Format("Add new egde from \"{0}\" to \"{1}\".",
+									mNode.IsInput ? connectNodesStartMarker.parent : mNode.parent,
+									mNode.IsInput ? mNode.parent : connectNodesStartMarker.parent
+								));
 						}
 						EmitDataChanged();
-
-						Log.Add(LogLevel.Verbose, this.GetType().Name, 
-							string.Format("Add new node from \"{0}\" to \"{1}\".",
-								mNode.IsInput ? connectNodesStartMarker.parent : mNode.parent,
-								mNode.IsInput ? mNode.parent : connectNodesStartMarker.parent
-							));
 					} 
 
 					mouseAction ^= MouseAction.AddEdge;
