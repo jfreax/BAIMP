@@ -204,21 +204,20 @@ namespace Baimp
 			// draw minimap
 			if (ShowMiniMap && MinWidth > 0 && MinHeight > 0) {
 				Point size = new Point(180.0, 180.0 * (MinHeight / MinWidth));
-				using (ImageBuilder ib = new ImageBuilder(size.X, size.Y)) {
-					double minimapScale = Math.Min(size.X / MinWidth, size.Y / MinHeight);
-					Point minimapPosition = 
-						new Point(
-							scrollview.HorizontalScrollControl.Value + scrollview.HorizontalScrollControl.PageSize - size.X - 16, 
-							scrollview.VerticalScrollControl.Value + 16);
+				double minimapScale = Math.Min(size.X / MinWidth, size.Y / MinHeight);
+				Point minimapPosition = 
+					new Point(
+						scrollview.HorizontalScrollControl.Value + scrollview.HorizontalScrollControl.PageSize - size.X - 16, 
+						scrollview.VerticalScrollControl.Value + 16);
 
-					ctx.RoundRectangle(minimapPosition, size.X, size.Y, 6);
-					ctx.SetColor(Colors.LightGray.WithAlpha(0.4));
-					ctx.Fill();
-				
-					Draw(ib.Context, new Rectangle(0, 0, MinWidth, MinHeight), minimapScale);
-					ctx.DrawImage(ib.ToVectorImage(), minimapPosition);
-					//ctx.Fill();
-				}
+				ctx.RoundRectangle(minimapPosition, size.X, size.Y, 6);
+				ctx.SetColor(Colors.LightGray.WithAlpha(0.4));
+				ctx.Fill();
+
+				ctx.Save();
+				ctx.Translate(minimapPosition);
+				Draw(ctx, new Rectangle(0, 0, MinWidth, MinHeight), minimapScale);
+				ctx.Restore();
 			}
 
 			// set canvas min size
@@ -295,7 +294,7 @@ namespace Baimp
 				);
 			}
 		}
-
+			
 		bool Draw(Context ctx, Rectangle dirtyRect, double scale)
 		{
 			bool redraw = false;
