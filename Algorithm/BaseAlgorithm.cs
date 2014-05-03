@@ -127,6 +127,14 @@ namespace Baimp
 		/// <param name="inputRef">Reference to input data that was used to compute the result.</param>
 		protected void Yield(IType[] data, params IType[] inputRef)
 		{
+			if (data == null) {
+				Console.WriteLine("Data null");
+			} else {
+				if (data[0] == null) {
+					Console.WriteLine("Data 2 null");
+				}
+			}
+
 			int threadID = Thread.CurrentThread.ManagedThreadId;
 			if (yielded[threadID] != null) {
 				var lYield = yielded[threadID];

@@ -66,7 +66,7 @@ namespace Baimp
 			};
 
 			// add last missing log (if any)
-			LogMessage last = Log.Get(LogLevel.Debug, 1).LastOrDefault();
+			LogMessage last = Log.Get(CurrentLogLevel, 1).LastOrDefault();
 			if (!string.IsNullOrEmpty(last.Message)) {
 				ShowLogEntry(null, new LogEventArgs(last));
 			}

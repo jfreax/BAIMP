@@ -191,6 +191,7 @@
     <Compile Include="UI\LogLevelChooser.cs" />
     <Compile Include="Data\Reference.cs" />
     <Compile Include="Processing\PipelineProcessor.cs" />
+    <Compile Include="Algorithm\Extraction\LBP.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

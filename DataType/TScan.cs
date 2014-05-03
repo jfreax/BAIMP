@@ -163,6 +163,18 @@ namespace Baimp
 			}
 		}
 
+		public int Width {
+			get {
+				return (int) Size.Width;
+			}
+		}
+
+		public int Height {
+			get {
+				return (int) Size.Height;
+			}
+		}
+
 		public object RawData()
 		{
 			return Data;

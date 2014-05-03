@@ -62,8 +62,6 @@ namespace Baimp
 					input[i] = res.Data;
 					i++;
 				}
-			} else {
-				Console.WriteLine("Input null");
 			}
 
 			Dictionary<RequestType, object> requestedData = new Dictionary<RequestType, object>();
@@ -82,7 +80,7 @@ namespace Baimp
 			if (!priorizedScheduler.ContainsKey(priority)) {
 				priorizedScheduler[priority] = qts.ActivateNewQueue(priority);
 			}
-								
+
 			var inputResult2 = inputResult;
 			Task startTask = Task<IType[]>.Factory.StartNew((x) => {
 				var inputResult1 = inputResult2;
@@ -134,7 +132,6 @@ namespace Baimp
 					OnFinish(startNode, priority, taskOutput, thisInput);
 				}
 			});
-
 		}
 
 		/// <summary>
