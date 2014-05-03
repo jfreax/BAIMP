@@ -83,11 +83,6 @@ namespace Baimp
 								
 			var inputResult2 = inputResult;
 			Task startTask = Task<IType[]>.Factory.StartNew((x) => {
-
-				if (cancellationToken.IsCancellationRequested) {
-					return null;
-				}
-
 				var inputResult1 = inputResult2;
 				EventHandler<AlgorithmEventArgs> yieldFun = 
 					(object sender, AlgorithmEventArgs e) => GetSingleData(startNode, inputResult1, priority, sender, e);
@@ -97,11 +92,14 @@ namespace Baimp
 				IType[] output = null;
 				try {
 					startNode.algorithm.cancellationToken = cancellationToken;
-					output = startNode.algorithm.Run(
-						requestedData,
-						startNode.algorithm.options.ToArray(),
-						input
-					);
+
+					if (!cancellationToken.IsCancellationRequested) {
+						output = startNode.algorithm.Run(
+							requestedData,
+							startNode.algorithm.options.ToArray(),
+							input
+						);
+					}
 				} catch (Exception e) {
 					Console.WriteLine(e.StackTrace);
 					Console.WriteLine(e.Message);

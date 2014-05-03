@@ -53,7 +53,9 @@ namespace Baimp
 		Tuple<MarkerNode, MarkerEdge> lastSelectedEdge;
 		MouseAction mouseAction = MouseAction.None;
 		MouseMover mouseMover;
+
 		CancellationTokenSource cancelRequest;
+
 		CursorType oldCursor;
 		/// <summary>
 		/// True if redraw is already queued.
