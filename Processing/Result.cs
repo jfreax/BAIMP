@@ -85,7 +85,11 @@ namespace Baimp
 		public void Finish(PipelineNode by)
 		{
 			lock (removeLock) {
-				if (usedBy.ContainsKey(by)) {
+				if (by == null) {
+					if (usedBy.Count == 0 && !preserve) {
+						Dispose();
+					}
+				} else if (usedBy.ContainsKey(by)) {
 					usedBy[by] = usedBy[by] - 1;
 					if (usedBy[by] <= 0) {
 						usedBy.Remove(by);
