@@ -67,6 +67,11 @@ namespace Baimp
 			SaveFileDialog d = new SaveFileDialog("Export " + this);
 			d.Filters.Add(new FileDialogFilter("Arff", "*.arff"));
 			d.Filters.Add(new FileDialogFilter("Other", "*.*"));
+
+			if (Filename != null) {
+				d.InitialFileName = Path.GetFileName(Filename);
+				d.CurrentFolder = Path.GetDirectoryName(Filename);
+			}
 			if (d.Run()) {
 				string tmpFilename = d.FileName;
 
