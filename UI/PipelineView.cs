@@ -501,15 +501,16 @@ namespace Baimp
 				popupWindow.Content.Dispose();
 			}
 
-			List<Tuple<IType[], Result[]>> resultCopy = new List<Tuple<IType[], Result[]>>();
-			resultCopy.AddRange(pNode.results);
-			ResultPopupView popupView = new ResultPopupView(resultCopy, mNode.Position);
+			List<Tuple<IType[], Result[]>> resultCopy = 
+				pNode.results.FindAll(x => x.Item1[mNode.Position].RawData() != null);
+			if (resultCopy.Count > 0) {
+				ResultPopupView popupView = new ResultPopupView(resultCopy, mNode.Position);
 
-			popupWindow.Content = popupView;
-			popupWindow.Size = new Size(1, 1);
-			popupWindow.Location = Desktop.MouseLocation.Offset(-10, -10);
-			popupWindow.Show();
-
+				popupWindow.Content = popupView;
+				popupWindow.Size = new Size(1, 1);
+				popupWindow.Location = Desktop.MouseLocation.Offset(-10, -10);
+				popupWindow.Show();
+			}
 		}
 
 		/// <summary>
