@@ -43,6 +43,22 @@ namespace Baimp
 		}
 	}
 
+	struct ResultStats
+	{
+		public string classname;
+		public string fibername;
+		public string distinctSourceString;
+		public string uncompleteFeatureName;
+
+		public ResultStats(string classname, string fibername, string distinctSourceString, string uncompleteFeatureName)
+		{
+			this.classname = classname;
+			this.fibername = fibername;
+			this.distinctSourceString = distinctSourceString;
+			this.uncompleteFeatureName = uncompleteFeatureName;
+		}
+	}
+
 	public class Arff : BaseExporter
 	{
 		readonly List<string> attributes = new List<string>();
@@ -128,27 +144,24 @@ namespace Baimp
 								object data = resultList.Item1[i].RawData();
 								List<IFeature> featureList = (data as IEnumerable<object>).Cast<IFeature>().ToList();
 								if (featureList != null) {
-									// ... then iterate over the whole list
-									foreach (IFeature feature in featureList) {
-										AddResult(
-											resultList.Item2[i].SourceString(),
-											resultList.Item2[i].DistinctSourceString(),
-											feature,
-											pNode,
-											resultList.Item2[i].Input
-										);
-									}
+									AddResults(
+										featureList,
+										resultList.Item2[i].Input,
+										resultList.Item2[i].SourceString(),
+										resultList.Item2[i].DistinctSourceString(),
+										pNode
+									);
 								}
 							} else {
 								// if its only a single feature
 								IFeature feature = resultList.Item1[i] as IFeature;
 								if (feature != null) {
 									AddResult(
+										feature,
+										resultList.Item2[i].Input,
 										resultList.Item2[i].SourceString(),
 										resultList.Item2[i].DistinctSourceString(),
-										feature,
-										pNode,
-										resultList.Item2[i].Input
+										pNode
 									);
 								}
 							}
@@ -162,11 +175,27 @@ namespace Baimp
 			ToArff();
 		}
 
-		void AddResult(string sourceString, string distinctSourceString, IFeature feature, PipelineNode node, Result[] inputs)
+		void AddResult(IFeature feature, Result[] inputs, string sourceString, string distinctSourceString, PipelineNode node)
 		{
-			string completeFeatureName = node + "_" + feature.Key();
+			ResultStats rs = GetResultStats(inputs, sourceString, distinctSourceString, node);
+
+			AddValue(rs, feature);
+		}
+
+		void AddResults(List<IFeature> features, Result[] inputs, string sourceString, string distinctSourceString, PipelineNode node)
+		{
+			ResultStats rs = GetResultStats(inputs, sourceString, distinctSourceString, node);
+
+			foreach (IFeature feature in features) {
+				AddValue(rs, feature);
+			}
+		}
+
+		ResultStats GetResultStats(Result[] inputs, string sourceString, string distinctSourceString, PipelineNode node)
+		{
+			string uncompleteFeatureName = node.ToString(); // + "_" + feature.Key();
 			string className = string.Empty;
-			string fiberName = string.Empty;
+			string fibername = string.Empty;
 
 			List<Result> currInputs = new List<Result>();
 			currInputs.AddRange(inputs);
@@ -175,8 +204,8 @@ namespace Baimp
 				foreach (Result input in currInputs) {
 					if (input.Data != null) {
 						if (input.Node.algorithm.AlgorithmType == AlgorithmType.Input) {
-							if (string.IsNullOrEmpty(fiberName)) {
-								fiberName = input.Data.ToString();
+							if (string.IsNullOrEmpty(fibername)) {
+								fibername = input.Data.ToString();
 							}
 
 							BaseScan scan = input.Data as BaseScan;
@@ -188,7 +217,7 @@ namespace Baimp
 								}
 							}
 						} else {
-							completeFeatureName = string.Format("{0}_{1}", input.Node, completeFeatureName);
+							uncompleteFeatureName = string.Format("{0}_{1}", input.Node, uncompleteFeatureName);
 						}
 					}
 					if (input.Input != null) {
@@ -197,10 +226,16 @@ namespace Baimp
 				}
 				currInputs = nextInputs;
 			}
-				
-			distinctSourceString = fiberName + distinctSourceString;
 
-			fiberName += "_" + sourceString;
+			distinctSourceString = fibername + distinctSourceString;
+			fibername += "_" + sourceString;
+
+			return new ResultStats(className, fibername, distinctSourceString, uncompleteFeatureName);
+		}
+
+		void AddValue(ResultStats rs, IFeature feature)
+		{
+			string completeFeatureName = rs.uncompleteFeatureName + "_" + feature.Key();
 
 			int attributeIndex = attributes.IndexOf(completeFeatureName);
 			if (attributeIndex == -1) {
@@ -208,12 +243,12 @@ namespace Baimp
 				attributeIndex = attributes.Count - 1;
 			}
 
-			if (!values.ContainsKey(fiberName)) {
-				values[fiberName] = new DataHolder(className, distinctSourceString);
+			if (!values.ContainsKey(rs.fibername)) {
+				values[rs.fibername] = new DataHolder(rs.classname, rs.distinctSourceString);
 			}
 
-			values[fiberName].attributes[attributeIndex] = feature.Value();
-			classes.Add(className);
+			values[rs.fibername].attributes[attributeIndex] = feature.Value();
+			classes.Add(rs.classname);
 		}
 
 		void ToArff()

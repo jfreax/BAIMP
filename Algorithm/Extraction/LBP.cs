@@ -45,7 +45,7 @@ namespace Baimp
 			TScan scan = inputArgs[0] as TScan;
 			int blockSize = (int) options[0].Value;
 			bool normalize = (bool) options[1].Value;
-			bool rotationInvariant = (bool) options[2].Value; // TODO
+			bool rotationInvariant = (bool) options[2].Value;
 			bool uniformLBP = (bool) options[3].Value;
 
 			byte[] scanData = scan.DataAs8bpp();
@@ -95,6 +95,12 @@ namespace Baimp
 								sum += 1 << 6;
 							if (n22 < n33)
 								sum += 1 << 7;
+
+							if (rotationInvariant && sum != 0) {
+								while ((sum & 0x80) == 0) {
+									sum <<= 1;
+								}
+							}
 									
 							*neighbor = sum;
 						}
@@ -136,11 +142,16 @@ namespace Baimp
 		public override string Headline()
 		{
 			bool uniformLBP = (bool) options[3].Value;
+			bool rotationInvariant = (bool) options[2].Value;
 
 			string head = "";
 			if (uniformLBP) {
 				head += "Uniform ";
 			}
+			if (rotationInvariant) {
+				head += "(Rotation Invariant) ";
+			}
+
 			return head + "LBP";
 		}
 
