@@ -45,6 +45,8 @@ namespace Baimp
 		[XmlIgnore]
 		bool pipelineRunning;
 
+		static ZipFile zipFile;
+
 		#region initialize
 
 		public Project()
@@ -75,19 +77,17 @@ namespace Baimp
 			lock (zipFileAccess) {
 				if (!string.IsNullOrEmpty(ProjectFile)) {
 					try {
-						ZipFile zipFile;
-						if (File.Exists(ProjectFile)) {
-							zipFile = new ZipFile(ProjectFile);
-						} else {
-							zipFile = ZipFile.Create(ProjectFile);
-							zipFile.BeginUpdate();
-							zipFile.CommitUpdate();
-							zipFile.Close();
-							zipFile = new ZipFile(ProjectFile);
+						if (zipFile == null) {
+							if (File.Exists(ProjectFile)) {
+								zipFile = new ZipFile(ProjectFile);
+							} else {
+								zipFile = ZipFile.Create(ProjectFile);
+								zipFile.BeginUpdate();
+								zipFile.CommitUpdate();
+							}
 						}
-						using (zipFile) {
-							ret = callback(zipFile);
-						}
+
+						ret = callback(zipFile);
 					} catch (Exception e) {
 						Console.WriteLine(e.Message);
 						Console.WriteLine(e.StackTrace);
@@ -492,10 +492,21 @@ namespace Baimp
 
 		#region properties
 
+		static string projectFile;
+
 		[XmlIgnore]
 		static public string ProjectFile {
-			get;
-			set;
+			get {
+				return projectFile;
+			}
+			set {
+				projectFile = value;
+
+				if (zipFile != null) {
+					zipFile.Close();
+				}
+				zipFile = null;
+			}
 		}
 
 		[XmlIgnore]
