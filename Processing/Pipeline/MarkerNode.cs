@@ -279,7 +279,7 @@ namespace Baimp
 			get {
 				return new Rectangle(
 					new Point(
-						IsInput ? parent.bound.Left + 8 : parent.bound.Right - NodeInOutMarkerSize - 8,
+						IsInput ? parent.bound.Left + 8 : parent.bound.Right - Height - 8,
 						parent.bound.Y + parent.contentOffset.Y + (positionNo + 1) * NodeInOutSpace + positionNo * Height
 					), new Size(Height, Height)
 				);
