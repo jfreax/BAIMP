@@ -175,6 +175,10 @@ namespace Baimp
 		{
 			tabHost.SelectionChanged -= OnProjectMapSelectionChanged;
 
+			if (!pipelines.Values.Contains(CurrentPipeline)) {
+				CurrentPipeline = pipelines.Values.First();
+			}
+
 			tabHost.Clear();
 			foreach (PipelineView pView in pipelines.Values) {
 				tabHost.Add(pView.PipelineName);
