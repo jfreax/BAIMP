@@ -355,7 +355,7 @@ namespace Baimp
 					}
 				}
 
-				XD.Image newImage = GetAsImage(scanType, false);
+				XD.Image newImage = GetAsImage(scanType, false, false);
 
 				Xwt.Drawing.BitmapImage newRenderedImage = newImage.WithBoxSize(96).ToBitmap();
 				newImage.Dispose();
