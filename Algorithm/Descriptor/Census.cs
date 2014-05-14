@@ -27,13 +27,20 @@ namespace Baimp
 	{
 		public Census(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
+			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
 		}
 
 		#region implemented abstract members of BaseAlgorithm
 
 		public override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
-			throw new NotImplementedException();
+			TScan scan = inputArgs[0] as TScan;
+			byte[] scanData = scan.DataAs8bpp();
+
+			int width = scan.Width;
+			int height = scan.Height;
+
+			return null;
 		}
 
 		public override AlgorithmType AlgorithmType {

@@ -59,6 +59,8 @@ namespace Baimp
 			// Show log window on double click
 			logViewer = new LogViewer(currentLogLevel);
 			logScroller.Content = logViewer;
+			logEntry.HeightRequest = 14;
+			logEntry.Wrap = WrapMode.Character;
 			logEntry.ButtonPressed += OnLogEntryClicked;
 
 			logScroller.Content.BoundsChanged += delegate {
