@@ -350,15 +350,14 @@ namespace Baimp
 
 			// update filtered store
 			if (!string.IsNullOrEmpty(filterText)) {
+				storeFilter.GetNavigatorAt(scan.positionFiltered)
+					.SetValue(nameColFilter, scan.ToString())
+					.SetValue(thumbnailColFilter, thumbnail)
+					.SetValue(finishColFiltered, scan.IsFinish() ? tick : cross)
+					.SetValue(saveStateColFilter, scan.HasUnsaved() ? "*" : "");
+
 				if (changedFiberType) {
 					Filter(filterText);
-				} else {
-					storeFilter.GetNavigatorAt(scan.positionFiltered)
-						.SetValue(nameColFilter, scan.ToString())
-						.SetValue(thumbnailColFilter, thumbnail)
-						.SetValue(finishColFiltered, scan.IsFinish() ? tick : cross)
-						.SetValue(saveStateColFilter, scan.HasUnsaved() ? "*" : "");
-
 				}
 			}
 		}
