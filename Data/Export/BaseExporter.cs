@@ -55,11 +55,13 @@ namespace Baimp
 			Command r = dialog.Run();
 			if (r != null && r.Id == Command.Save.Id) {
 				Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Start exporting results.");
-				Run();
-				Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Finish exporting results.");
+				if (Run()) {
+					Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Finish exporting results.");
+					dialog.Hide();
+				} else {
+					ShowDialog();
+				}
 			}
-				
-			dialog.Hide();
 		}
 
 		protected void Browse(object sender, EventArgs e)
@@ -97,7 +99,7 @@ namespace Baimp
 		/// <remarks>
 		/// Save result to 'Filename'.
 		/// </remarks>
-		public abstract void Run();
+		public abstract bool Run();
 
 		/// <summary>
 		/// Path to output file.

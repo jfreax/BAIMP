@@ -121,8 +121,14 @@ namespace Baimp
 			return main;
 		}
 
-		public override void Run()
+		public override bool Run()
 		{
+			Console.WriteLine(exportToStdOut);
+			if (!exportToStdOut && string.IsNullOrEmpty(filename)) {
+				Log.Add(LogLevel.Error, "Arff Exporter", "No filename selected!");
+				return false;
+			}
+
 			// for every node in the current pipeline
 			foreach (PipelineNode pNode in pipeline.Nodes) {
 				int offset = pNode.algorithm.Input.Count;
@@ -136,6 +142,10 @@ namespace Baimp
 						// iterate throu all results
 						int resultID = 0;
 						foreach (Tuple<IType[], Result[]> resultList in pNode.results) {
+
+							if (resultList == null) {
+								continue;
+							}
 
 							// if its a list of features...
 							Type genericType = resultList.Item1[i].GetType().GetGenericTypeDefinition();
@@ -166,6 +176,7 @@ namespace Baimp
 								}
 							}
 
+
 							resultID++;
 						}
 					}
@@ -173,6 +184,7 @@ namespace Baimp
 			}
 
 			ToArff();
+			return true;
 		}
 
 		void AddResult(IFeature feature, Result[] inputs, string sourceString, string distinctSourceString, PipelineNode node)
