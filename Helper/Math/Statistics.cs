@@ -30,7 +30,7 @@ namespace Baimp
 		#region Mean
 
 		/// <summary>
-		/// Computes the mean of a given double array.
+		/// Computes the mean of a given float array.
 		/// </summary>
 		/// <param name="values">Values.</param>
 		/// <returns>Mean of specified data.</returns>
@@ -39,6 +39,16 @@ namespace Baimp
 			return values.Sum() / values.Length;
 		}
 
+		/// <summary>
+		/// Computes the mean of a given float array.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		/// <returns>Mean of specified data.</returns>
+		public static float Mean(this float[,] values)
+		{
+			return values.Sum() / values.Length;
+		}
+			
 		/// <summary>
 		/// Computes the mean of a given double array.
 		/// </summary>
@@ -56,6 +66,16 @@ namespace Baimp
 		public static double Mean(this BitmapData image)
 		{
 			return image.Sum() / (image.Width * image.Height);
+		}
+
+		/// <summary>
+		/// Computes the mean of all absolute values from a given float array.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		/// <returns>Mean of specified data.</returns>
+		public static float AbsMean(this float[,] values)
+		{
+			return values.AbsSum() / values.Length;
 		}
 			
 		#endregion
@@ -369,6 +389,38 @@ namespace Baimp
 			}
 
 			return sum;
+		}
+
+		/// <summary>
+		/// Sum of all absolute values.
+		/// </summary>
+		/// <param name="values">Values.</param>
+		public static float AbsSum(this float[,] values)
+		{
+			float sum = 0.0f;
+			foreach (float v in values) {
+				sum += Math.Abs(v);
+			}
+
+			return sum;
+		}
+
+
+		#endregion
+
+		#region cross product
+
+		public static int[,] Cross(this int[] vec1, int[] vec2)
+		{
+			int[,] matrix = new int[vec1.Length, vec2.Length];
+
+			for (int i = 0; i < vec1.Length; i++) {
+				for (int j = 0; j < vec2.Length; j++) {
+					matrix[i, j] = vec1[i] * vec2[j];
+				}
+			}
+
+			return matrix;
 		}
 
 		#endregion

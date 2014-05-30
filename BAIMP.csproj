@@ -192,6 +192,7 @@
     <Compile Include="Data\Reference.cs" />
     <Compile Include="Processing\PipelineProcessor.cs" />
     <Compile Include="Algorithm\Extraction\LBP.cs" />
+    <Compile Include="Algorithm\Extraction\LawsEnergy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
