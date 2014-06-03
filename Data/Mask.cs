@@ -144,7 +144,7 @@ namespace Baimp
 		/// </remarks>
 		public XD.ImageBuilder GetMaskBuilder()
 		{
-			if (maskBuilder == null) {
+			if (maskBuilder == null || maskBuilder.Width <= 1.0) {
 					maskBuilder = new XD.ImageBuilder(scan.Size.Width, scan.Size.Height);
 
 					XD.Image mask = LoadMask();
