@@ -61,6 +61,8 @@ namespace Baimp
 				} else {
 					ShowDialog();
 				}
+			} else if (r != null && r.Id == Command.Cancel.Id) {
+				dialog.Hide();
 			}
 		}
 
