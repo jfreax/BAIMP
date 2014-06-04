@@ -126,7 +126,7 @@ namespace Baimp
 			}
 			set {
 				id = value;
-				if (id > global_node_id)
+				if (id >= global_node_id)
 					global_node_id = id+1;
 			}
 		}

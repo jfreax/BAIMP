@@ -162,7 +162,9 @@ namespace Baimp
 								}
 									
 								foreach (MarkerNode mNode in pNode.mNodes) {
-									allNodes.Add(mNode.ID, mNode);
+									if (!allNodes.ContainsKey(mNode.ID)) {
+										allNodes.Add(mNode.ID, mNode);
+									}
 								}
 
 								noNodes++;
