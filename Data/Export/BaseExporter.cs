@@ -21,25 +21,26 @@
 ﻿using System;
 using Xwt;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Baimp
 {
 	public abstract class BaseExporter
 	{
-		protected PipelineView pipeline;
+		protected string relationName;
 		protected string filename;
 
 		Dialog dialog;
 
-		protected BaseExporter(PipelineView pipeline)
+		protected BaseExporter(string relationName)
 		{
-			this.pipeline = pipeline;
+			this.relationName = relationName;
 		}
 
 		/// <summary>
 		/// Shows a dialog to configure this export algorithm.
 		/// </summary>
-		public void ShowDialog()
+		public void ShowDialog(List<PipelineNode> nodes)
 		{
 			if (dialog == null) {
 				dialog = new Dialog();
@@ -55,11 +56,11 @@ namespace Baimp
 			Command r = dialog.Run();
 			if (r != null && r.Id == Command.Save.Id) {
 				Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Start exporting results.");
-				if (Run()) {
+				if (Run(nodes)) {
 					Log.Add(LogLevel.Info, "Exporter " + this.GetType().Name, "Finish exporting results.");
 					dialog.Hide();
 				} else {
-					ShowDialog();
+					ShowDialog(nodes);
 				}
 			} else if (r != null && r.Id == Command.Cancel.Id) {
 				dialog.Hide();
@@ -101,7 +102,7 @@ namespace Baimp
 		/// <remarks>
 		/// Save result to 'Filename'.
 		/// </remarks>
-		public abstract bool Run();
+		public abstract bool Run(List<PipelineNode> nodes);
 
 		/// <summary>
 		/// Path to output file.

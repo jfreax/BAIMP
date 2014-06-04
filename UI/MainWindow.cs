@@ -201,13 +201,13 @@ namespace Baimp
 
 					if (s != null) {
 						if (exporterList.ContainsKey(s.Tag.ToString())) {
-							exporterList[s.Tag.ToString()].ShowDialog();
+							exporterList[s.Tag.ToString()].ShowDialog(pipelineController.CurrentPipeline.Nodes);
 						} else {
 							BaseExporter instance = 
-								Activator.CreateInstance(lExport, pipelineController.CurrentPipeline) as BaseExporter;
+								Activator.CreateInstance(lExport, pipelineController.CurrentPipeline.PipelineName) as BaseExporter;
 							if (instance != null) {
 								exporterList[s.Tag.ToString()] = instance;
-								instance.ShowDialog();
+								instance.ShowDialog(pipelineController.CurrentPipeline.Nodes);
 							}
 						}
 					}

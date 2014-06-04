@@ -70,7 +70,7 @@ namespace Baimp
 		TextEntry filenameEntry;
 		bool exportToStdOut;
 
-		public Arff(PipelineView pipeline) : base(pipeline)
+		public Arff(string relationName) : base(relationName)
 		{
 
 		}
@@ -122,7 +122,7 @@ namespace Baimp
 			return main;
 		}
 
-		public override bool Run()
+		public override bool Run(List<PipelineNode> nodes)
 		{
 			if (!exportToStdOut && string.IsNullOrEmpty(filename)) {
 				Log.Add(LogLevel.Error, "Arff Exporter", "No filename selected!");
@@ -130,7 +130,7 @@ namespace Baimp
 			}
 
 			// for every node in the current pipeline
-			foreach (PipelineNode pNode in pipeline.Nodes) {
+			foreach (PipelineNode pNode in nodes) {
 				int offset = pNode.algorithm.Input.Count;
 
 				// get all output nodes
@@ -266,7 +266,7 @@ namespace Baimp
 		void ToArff()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendFormat("@relation \"{0}\"\n\n", pipeline.PipelineName);
+			sb.AppendFormat("@relation \"{0}\"\n\n", relationName);
 			foreach (string attr in attributes) {
 				sb.AppendFormat("@attribute \"{0}\" numeric\n", attr);
 			}

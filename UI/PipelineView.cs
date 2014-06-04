@@ -137,6 +137,7 @@ namespace Baimp
 		Menu contextMenuEdge;
 		Menu contextMenuNode;
 		MenuItem contextMenuNodeOptions;
+		MenuItem contextMenuNodeExport;
 
 		/// <summary>
 		/// Initializes all context menus.
@@ -174,6 +175,15 @@ namespace Baimp
 				}
 			};
 			contextMenuNode.Items.Add(contextMenuNodeOptions);
+
+			contextMenuNodeExport = new MenuItem("Export as arff");
+			contextMenuNodeExport.Clicked += delegate(object sender, EventArgs e) {
+				Arff exporter = new Arff(PipelineName);
+				List<PipelineNode> thisnode = new List<PipelineNode>();
+				thisnode.Add(lastSelectedNode);
+				exporter.ShowDialog(thisnode);
+			};
+			contextMenuNode.Items.Add(contextMenuNodeExport);
 		}
 
 		#endregion
