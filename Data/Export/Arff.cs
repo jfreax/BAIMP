@@ -25,6 +25,7 @@ using System.Text;
 using Xwt;
 using Xwt.Drawing;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Baimp
 {
@@ -123,7 +124,6 @@ namespace Baimp
 
 		public override bool Run()
 		{
-			Console.WriteLine(exportToStdOut);
 			if (!exportToStdOut && string.IsNullOrEmpty(filename)) {
 				Log.Add(LogLevel.Error, "Arff Exporter", "No filename selected!");
 				return false;
@@ -247,7 +247,7 @@ namespace Baimp
 
 		void AddValue(ResultStats rs, IFeature feature)
 		{
-			string completeFeatureName = rs.uncompleteFeatureName + "_" + feature.Key();
+			string completeFeatureName = Regex.Replace(Regex.Replace(rs.fibername, @"#\d*", ""), @".*projectfiles.*_", "") + "_" + rs.uncompleteFeatureName + "_" + feature.Key();
 
 			int attributeIndex = attributes.IndexOf(completeFeatureName);
 			if (attributeIndex == -1) {

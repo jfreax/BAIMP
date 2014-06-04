@@ -27,7 +27,7 @@ namespace Baimp
 	{
 		public Census(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
-			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan)));
 		}
 
 		#region implemented abstract members of BaseAlgorithm

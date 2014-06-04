@@ -28,7 +28,7 @@ namespace Baimp
 	{
 		public LBP(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
-			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan)));
 
 			output.Add(new Compatible("LBP Feature Vector", typeof(TFeatureList<double>)));
 			output.Add(new Compatible("LBP Histogram", typeof(THistogram)));

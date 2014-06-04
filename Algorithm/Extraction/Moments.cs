@@ -28,7 +28,7 @@ namespace Baimp
 	{
 		public Moments(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
-			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan)));
 
 			output.Add(new Compatible("Moments", typeof(TFeatureList<double>)));
 		}

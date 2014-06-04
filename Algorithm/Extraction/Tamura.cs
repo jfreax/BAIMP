@@ -30,7 +30,7 @@ namespace Baimp
 	{
 		public Tamura(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
-			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan)));
 
 			output.Add(new Compatible("Tamura Features", typeof(TFeatureList<double>)));
 			output.Add(new Compatible("Directionality Histogram", typeof(THistogram)));

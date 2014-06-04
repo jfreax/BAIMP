@@ -30,7 +30,7 @@ namespace Baimp
 	{
 		public GLCM(PipelineNode parent, ScanCollection scanCollection) : base(parent, scanCollection)
 		{
-			input.Add(new Compatible("Image", typeof(TScan), new MaximumUses(1)));
+			input.Add(new Compatible("Image", typeof(TScan)));
 
 			output.Add(new Compatible("Co-occurence matrix", typeof(TMatrix)));
 
