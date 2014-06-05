@@ -50,8 +50,8 @@ namespace Baimp
 				Label source = new Label(" " + message.Source);
 				try {
 					source.Markup = string.Format("<b>{0}</b>", source.Text);
+					Add(source, 0, i);
 				} catch (Exception e) {} // workaround
-				Add(source, 0, i);
 
 				Label messageLabel = new Label(" " + message.Message + " ");
 				try {
