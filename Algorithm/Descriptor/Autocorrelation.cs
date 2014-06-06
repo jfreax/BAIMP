@@ -9,7 +9,7 @@ namespace Baimp
 		{
 			input.Add(new Compatible("Image", typeof(TScan)));
 
-			output.Add(new Compatible("Correlogram", typeof(TMatrix)));
+			output.Add(new Compatible("Correlogram", typeof(THistogram)));
 
 			options.Add(new Option("Offest", 0, 1024, 6));
 		}
@@ -57,7 +57,7 @@ namespace Baimp
 		}
 		public override string ShortName()
 		{
-			return "Autocorrelation";
+			return "autocorrelation";
 		}
 		public override AlgorithmType AlgorithmType {
 			get {
