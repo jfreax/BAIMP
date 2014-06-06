@@ -193,6 +193,7 @@
     <Compile Include="Processing\PipelineProcessor.cs" />
     <Compile Include="Algorithm\Extraction\LBP.cs" />
     <Compile Include="Algorithm\Extraction\LawsEnergy.cs" />
+    <Compile Include="Algorithm\Descriptor\Autocorrelation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
