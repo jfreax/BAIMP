@@ -53,7 +53,7 @@ namespace Baimp
 		}
 		public override string Headline()
 		{
-			return string.Format("Autocorrelation ({0})", options[0].Value);
+			return string.Format("Autocorrelation", options[0].Value);
 		}
 		public override string ShortName()
 		{

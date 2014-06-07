@@ -33,7 +33,7 @@ namespace Baimp
 			output.Add(new Compatible("LBP Feature Vector", typeof(TFeatureList<double>)));
 			output.Add(new Compatible("LBP Histogram", typeof(THistogram)));
 
-			options.Add(new Option("Block size", 2, 32, 3));
+			options.Add(new Option("Block size 2^x", 2, 32, 3));
 			options.Add(new OptionBool("Normalize", true));
 			options.Add(new OptionBool("Rotation invariant", true));
 			options.Add(new OptionBool("Uniform LBP", true));
@@ -43,10 +43,14 @@ namespace Baimp
 		public unsafe override IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
 			TScan scan = inputArgs[0] as TScan;
-			int blockSize = (int) options[0].Value;
+			int blockSize = (int) Math.Pow(2, (int) options[0].Value);
 			bool normalize = (bool) options[1].Value;
 			bool rotationInvariant = (bool) options[2].Value;
 			bool uniformLBP = (bool) options[3].Value;
+
+			if (uniformLBP) {
+				rotationInvariant = true;
+			}
 
 			byte[] scanData = scan.DataAs8bpp();
 
@@ -110,16 +114,60 @@ namespace Baimp
 					}
 				}
 			}
+
+			int numberOfBlocksH = width / blockSize;
+			int numberOfBlocksV = height / blockSize;
 				
 			// compute histogram
-			double[] histogram = new double[256];
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					histogram[nPatterns[x + y * width]]++;
-				}
-			}
+			double[] histogram;
+			if (uniformLBP) {
+				histogram = new double[6 * numberOfBlocksH * numberOfBlocksV];
+				int blockNumber = 0;
+				for (int y = 0; y < height; ) {
+					for (int x = 0; x < width; ) {
+						switch (nPatterns[x + y * width]) {
+						case 0: // flat
+							histogram[6 * blockNumber]++;
+							break;
+						case 255: // flat
+							histogram[1 + 6 * blockNumber]++;
+							break;
+						case 128: // line end
+							histogram[2 + 6 * blockNumber]++;
+							break;
+						case 224: // edge
+							histogram[3 + 6 * blockNumber]++;
+							break;
+						case 252: // corner
+							histogram[4 + 6 * blockNumber]++;
+							break;
+						default:
+							histogram[5 + 6 * blockNumber]++;
+							break;
+						}
 
-			histogram[0] = 0d;
+						x++;
+						if (x % blockSize == 0) {
+							blockNumber++;
+						}
+					}
+
+					y++;
+					if (y % blockSize != 0) {
+
+						blockNumber -= numberOfBlocksH;
+					}
+				}
+
+			} else {
+				histogram = new double[256];
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						histogram[nPatterns[x + y * width]]++;
+					}
+				}
+				histogram[0] = 0d;
+			}
 
 			double histogramMax = histogram.Max();
 
@@ -129,9 +177,7 @@ namespace Baimp
 					histogram[i] /= histogramMax;
 				}
 
-				if (!uniformLBP) {
-					featureList.AddFeature("LBP#" + i, histogram[i]);
-				}
+				featureList.AddFeature("LBP#" + i, histogram[i]);
 			}
 			return new IType[] { 
 				featureList,
