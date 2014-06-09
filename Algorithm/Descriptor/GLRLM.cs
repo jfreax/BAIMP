@@ -32,35 +32,34 @@ namespace Baimp
 			input.Add(new Compatible("Image", typeof(TScan)));
 
 			output.Add(new Compatible("GLRL-Matrix", typeof(TMatrix)));
+
+			options.Add(new Option("Bpp", 2, 32, 8));
 		}
 
 		#region implemented abstract members of BaseAlgorithm
 
 		public override unsafe IType[] Run(Dictionary<RequestType, object> requestedData, BaseOption[] options, IType[] inputArgs)
 		{
-			try {
-				TScan tScan2 = inputArgs[0] as TScan;
-				byte[] data2 = tScan2.DataAs8bpp();
-			} catch (Exception e) {
-				Console.WriteLine(e.Message);
-			}
+			int bpp = (int) options[0].Value;
+			int p = (int) Math.Pow(2, bpp);
 
 			TScan tScan = inputArgs[0] as TScan;
-			byte[] data = tScan.DataAs8bpp();
+			float[] data = tScan.DataAs(bpp);
+
 
 			int height = (int) tScan.Size.Height;
 			int width = (int) tScan.Size.Width;
-			float[,] matrix = new float[256, width+1];
+			float[,] matrix = new float[p, width+1];
 
 			int maxRunLength = 0;
 
 			for (int y = 0; y < height; y++) {
 				int runLength = 1;
 				for (int x = 1; x < width; x++) {
-					byte a = data[width * y + (x - 1)];
-					byte b = data[width * y + x];
+					int a = (int) data[width * y + (x - 1)];
+					int b = (int) data[width * y + x];
 
-					if (a == b)
+					if (Math.Abs(a - b) <= float.Epsilon)
 						runLength++;
 					else {
 						matrix[a, runLength]++;
@@ -71,13 +70,13 @@ namespace Baimp
 						runLength = 1;
 					}
 
-					if ((a == b) && (x == width - 1)) {
+					if ((Math.Abs(a - b) <= float.Epsilon) && (x == width - 1)) {
 						matrix[a, runLength]++;
 						if (runLength > maxRunLength) {
 							maxRunLength = runLength;
 						}
 					}
-					if ((a != b) && (x == width - 1)) {
+					if ((Math.Abs(a - b) > float.Epsilon) && (x == width - 1)) {
 						matrix[b, 1]++;
 					}
 				}
@@ -120,7 +119,7 @@ namespace Baimp
 
 		public override string Headline()
 		{
-			return "GLRLM";
+			return string.Format("GLRLM {0}bpp", options[0].Value);
 		}
 
 		public override string ShortName()

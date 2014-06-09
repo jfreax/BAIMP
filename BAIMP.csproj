@@ -195,6 +195,7 @@
     <Compile Include="Algorithm\Extraction\LawsEnergy.cs" />
     <Compile Include="Algorithm\Descriptor\Autocorrelation.cs" />
     <Compile Include="Algorithm\Extraction\HistogramFeatures.cs" />
+    <Compile Include="Algorithm\Descriptor\GLDM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

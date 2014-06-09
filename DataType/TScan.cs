@@ -133,6 +133,23 @@ namespace Baimp
 			return data8bpp;
 		}
 
+		public float[] DataAs(int bpp)
+		{
+			float[] data = Data;
+			float max = data.Max();
+
+			int p = (int) Math.Pow(2, bpp) - 1;
+
+			float[] databpp = new float[data.Length];
+			int i = 0;
+			foreach (float f in data) {
+				databpp[i] = ((f * p) / max);
+				i++;
+			}
+
+			return databpp;
+		}
+
 		/// <summary>
 		/// Enables the multiple access mode.
 		/// You can't disable it after enabling.
