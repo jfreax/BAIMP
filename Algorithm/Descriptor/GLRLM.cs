@@ -84,9 +84,9 @@ namespace Baimp
 				
 			//if (crop) { // make this an option?
 			if (maxRunLength < width+1) {
-				float[,] matrixTmp = new float[256, maxRunLength+1];
+				float[,] matrixTmp = new float[p, maxRunLength+1];
 				for (int y = 0; y < maxRunLength+1; y++ ) {
-					for (int x = 0; x < 255; x++) {
+					for (int x = 0; x < p; x++) {
 						matrixTmp[x, y] = matrix[x, y];
 					}
 				}
