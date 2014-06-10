@@ -64,6 +64,22 @@ namespace Baimp
 				}
 			}
 
+			if (input == null) {
+				return;
+			}
+
+			if (input.Length > 0) {
+				bool allNull = true;
+				foreach (IType i in input) {
+					if (i != null) {
+						allNull = false;
+					}
+				}
+				if (allNull) {
+					return;
+				}
+			}
+
 			Dictionary<RequestType, object> requestedData = new Dictionary<RequestType, object>();
 			foreach (RequestType request in startNode.algorithm.Request) {
 				switch (request) {
