@@ -280,11 +280,11 @@ namespace Baimp
 
 				ctx.MoveTo(
 					connectNodesStartMarker.IsInput ? 
-						connectNodesStartMarker.Bounds.Left : 
-						connectNodesStartMarker.Bounds.Right, 
-					connectNodesStartMarker.Bounds.Center.Y
+						connectNodesStartMarker.Bounds.Left * scaleFactor : 
+						connectNodesStartMarker.Bounds.Right * scaleFactor, 
+					connectNodesStartMarker.Bounds.Center.Y * scaleFactor
 				);
-				ctx.LineTo(connectNodesEnd);
+				ctx.LineTo(connectNodesEnd.X * scaleFactor, connectNodesEnd.Y * scaleFactor);
 				ctx.Stroke();
 			}
 
